@@ -66,6 +66,7 @@
 	html {
 		margin: 50px;
 		padding:0;
+        font-family: sans-serif;
 	}
 	body{
 		margin: 0px;
@@ -80,11 +81,13 @@
 	}
 
 	textarea, input {
+        font-family: sans-serif;
 		margin: 1em;
 	}
 	textarea {
 		width: 90%;
-		height: 10vh;
+		height: 5em;
+        padding: .6em;
 	}
 </style>
 
