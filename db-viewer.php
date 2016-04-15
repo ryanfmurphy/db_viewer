@@ -89,6 +89,7 @@
 </style>
 
 <script>
+
 	function nthCol(n) {
 		return $('#query_table tr > *:nth-child('+(n+1)+')');
 	}
@@ -175,7 +176,15 @@
 	if ($sql) {
 		$rows = Util::sql($sql,'array');
 		#todo check if there's some rows
+        #todo send the data to js via a var
+        #todo generate the table via javascript
+        #todo only render 100 rows or so in the table at first
+        #todo then populate as you scroll
+        #todo see if it's fast enough!
 ?>
+    <script>
+        //var rows = <?= json_encode($rows) ?>;
+    </script>
 
 <table id="query_table">
 <?php
@@ -209,7 +218,7 @@
 
 <script>
         // fold / unfold via click
-        $('td,th').on('click', function(e){
+        $('td').on('click', function(e){
             // alt to fold/unfold row
             if (e.altKey) {
                 rowN = $(e.target).closest('tr').attr('data-row');
@@ -230,6 +239,32 @@
                 else {
                     hideCol(colN);
                 }
+            }
+        });
+
+        // click on header field name (e.g. site_id) - joins to that table, e.g. site
+        // displays join inline and allows you to toggle it back
+        $('th').on('click', function(e){
+            var field_name = e.target.innerHTML.trim();
+            var suffix = field_name.slice(-3);
+            if (suffix === '_id') {
+                var prefix = field_name.slice(0,-3);
+                console.log(prefix);
+                console.log(field_name);
+
+                { // #todo validate prefix = valid table name?
+                    var table_name = prefix;
+                    var values_str = '1,2,3,4,5'; // #todo
+                    var query = '                                   \n\
+                        select *                                    \n\
+                        from '+table_name+'                         \n\
+                        where '+table_name+'_id in ('+values_str+') \n\
+                    ';
+                    console.log(query);
+                }
+            }
+            else {
+                alert("Cannot expand this field \""+field_name+"\" - it doesn't end in \"_id\"");
             }
         });
 
