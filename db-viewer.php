@@ -239,13 +239,21 @@
 
                 { // #todo validate prefix = valid table name?
                     var table_name = prefix;
-                    var values_str = '1,2,3,4,5'; // #todo
-                    var query = '                                   \n\
-                        select *                                    \n\
-                        from '+table_name+'                         \n\
-                        where '+table_name+'_id in ('+values_str+') \n\
-                    ';
-                    console.log(query);
+                    var ids = '1,2,3,4,5'; // #todo
+                    var uri = 'query-id-in.php?table='+prefix+'&ids='+ids;
+                    console.log(uri);
+                    $.ajax({
+                        url: uri,
+                        dataType: 'json',
+                        function(r) {
+                            console.log("Success");
+                            alert("Success");
+                        },
+                        function(r) {
+                            console.log("Failure");
+                            alert("Failure");
+                        }
+                    });
                 }
             }
             else {
