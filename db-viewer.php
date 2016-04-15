@@ -1,5 +1,7 @@
 <?php
-    if (class_exists('Util')) {
+	$cmp = class_exists('Util');
+
+    if ($cmp) {
         #todo move out
         $jquery_url = "https://mbeta.contractormarketingpros.com/js/shared/jquery.current.js";
     }
@@ -203,7 +205,7 @@
 
 <script>
         // fold / unfold via click
-        $('td').on('click', function(e){
+		var tdClickHandler = function(e){
             // alt to fold/unfold row
             if (e.altKey) {
                 rowN = $(e.target).closest('tr').attr('data-row');
@@ -225,11 +227,11 @@
                     hideCol(colN);
                 }
             }
-        });
+        };
 
         // click on header field name (e.g. site_id) - joins to that table, e.g. site
         // displays join inline and allows you to toggle it back
-        $('th').on('click', function(e){
+		var thClickHandler = function(e){
             var field_name = e.target.innerHTML.trim();
             var suffix = field_name.slice(-3);
             if (suffix === '_id') {
@@ -259,7 +261,16 @@
             else {
                 alert("Cannot expand this field \""+field_name+"\" - it doesn't end in \"_id\"");
             }
-        });
+        };
+
+<?php if ($cmp) { ?>
+        $('td').live('click', tdClickHandler);
+        $('th').live('click', thClickHandler);
+<?php } else { ?>
+        $('td').on('click', tdClickHandler);
+        $('th').on('click', thClickHandler);
+<?php }
+?>
 
 </script>
 
