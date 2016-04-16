@@ -20,10 +20,7 @@
         public static function choose_table_and_field($field_name) {
             $root = substr($field_name, 0, -3);
             $suffix = substr($field_name, -3);
-            return array(
-                'table' => $root,
-                'field' => $field_name,
-            );
+            return array($root, $field_name);
         }
 
     }
