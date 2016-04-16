@@ -76,8 +76,10 @@
         padding: .6em;
 	}
 
-    .shadowing {
-        background: #eeefee;
+    /*.shadowing,*/
+    tr.shadowing td,
+    tr.shadowing th {
+        /*background: #eeefee;*/
         border: solid 2px #aaa;
     }
 
