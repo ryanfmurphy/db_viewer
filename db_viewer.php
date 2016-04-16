@@ -239,6 +239,8 @@
 
 <script>
 
+        var CELL_CLASSES; // #todo delete
+
         // fold / unfold via click
 		var tdClickHandler = function(e){
             // alt to fold/unfold row
@@ -378,12 +380,39 @@
                 var all_cells = nthCol(col_no);
                 var cols_open = parseInt($(elem).attr('cols_open'));
 
+                var handle_class;
+                { // find handle_class ("levelXhandle" class) to remove to undo color
+                    // use first cell as an example - all of them are the same
+                    var first_cell = all_cells.first();
+                    // use native DomElement.classList
+                    var cell_classes = first_cell.get(0).classList;
+
+                    CELL_CLASSES = cell_classes; // #todo delete
+                    console.log('cell_classes',cell_classes); // #todo delete
+
+                    for (var i in cell_classes) {
+                        var classname = cell_classes[i];
+                        var is_handle_class = (classname.indexOf('handle') != -1);
+                        if (is_handle_class) {
+                            handle_class = classname;
+                            break;
+                        }
+                    }
+
+                    console.log('handle_class',handle_class);
+                }
+
                 // for each row, remove all the open columns after that cell
                 all_cells.each(function(idx,elem){
+
                     // loop through and remove that many cells
                     for (var i = 0; i < cols_open; i++) {
                         $(elem).next().remove();
                     }
+
+                    $(elem).removeClass(handle_class); // restores earlier color
+                    $(elem).removeAttr('cols_open');
+
                 });
             }
             else { // not already opened - do open
