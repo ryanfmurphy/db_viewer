@@ -22,11 +22,12 @@
             $joinField = $_GET['join_field'];
 
             # do query
-            $rows = Util::sql("
+            $query = "
                 select *
                 from $table
                 where $joinField in ($ids)
-            ", 'array');
+            ";
+            $rows = Util::sql($query, 'array');
 
             $data = array();
             foreach ($rows as $row) {

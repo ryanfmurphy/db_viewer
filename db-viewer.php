@@ -73,6 +73,27 @@
 		height: 5em;
         padding: .6em;
 	}
+
+    .level1handle {
+        background: #ff9999;
+    }
+    .level1 {
+        background: #ffbbbb;
+    }
+
+    .level2handle {
+        background: #99ff99;
+    }
+    .level2 {
+        background: #bbffbb;
+    }
+
+    .level3handle {
+        background: #9999ff;
+    }
+    .level3 {
+        background: #bbbbff;
+    }
 </style>
 
 <script>
@@ -271,7 +292,7 @@
 
             console.log('addDataToTable', cells);
 
-            var outerLevel = cells.first().attr('level')
+            var outerLevel = parseInt( cells.first().attr('level') )
                                 || 0;
             var innerLevel = outerLevel + 1;
             console.log('outerLevel',outerLevel);
@@ -299,18 +320,22 @@
 
                     var val = (key in data
                                     ? data[key][field_name]
-                                    : '(no row)');
+                                    : '');
+                    var TD_or_TH = e.tagName;
+                    var display_val = (TD_or_TH == 'TH'
+                                            ? field_name
+                                            : showVal(val));
+                    var content = '\
+                                <'+TD_or_TH+'                   \
+                                    class="level'+innerLevel+'" \
+                                    level="'+innerLevel+'"      \
+                                >                               \
+                                    '+display_val+'             \
+                                </'+TD_or_TH+'>                 \
+                               ';
 
-                    var content = (e.tagName == 'TH'
-                                       ? '<th level="'+innerLevel+'">'
-                                            +field_name+
-                                         '</th>'
-                                       : '<td level="'+innerLevel+'">'
-                                            +showVal(val)+
-                                         '</td>'
-                                  );
-
-                    $(e).after(content);
+                    $(e).addClass('level'+innerLevel+'handle')
+                        .after(content);
                 }
 
             });
@@ -335,21 +360,26 @@
 
                 { // request adjoining table data #todo split into function
 
-                    var table_name = prefix;
+                    { // figure out what data to ask for based on ids in col
+                        var table_name = prefix;
 
-                    var all_cells = nthCol(col_no);
-                    console.log('all_cells',all_cells);
-                    var val_cells = all_cells.filter('td');
-                    CELLS = val_cells; // #todo #fixme delete
-                    var ids = getColVals(val_cells);
+                        var all_cells = nthCol(col_no);
+                        console.log('all_cells',all_cells);
+                        var val_cells = all_cells.filter('td');
+                        CELLS = val_cells; // #todo #fixme delete
+                        var ids = getColVals(val_cells);
+                        var non_null_ids = ids.filter(
+                            function(id) { return Boolean(id) }
+                        );
 
-                    console.log('ids');
-                    console.log(ids);
+                        console.log('non_null_ids');
+                        console.log(non_null_ids);
 
-                    var ids_str = ids.join(',');
-                    var uri = 'query-id-in.php?table='+prefix+'&ids='+ids+'&join_field='+field_name;
+                        var ids_str = non_null_ids.join(','); // #todo remove dups
+                        var uri = 'query-id-in.php?table='+prefix+'&ids='+ids_str+'&join_field='+field_name;
 
-                    console.log(uri);
+                        console.log(uri);
+                    }
 
                     { // make request
                         $.ajax({
