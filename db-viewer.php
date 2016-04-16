@@ -249,12 +249,14 @@
             // loop thru cells and add additional cells after
             cells.each(function(row_index,e){
 
-                console.log("row_index",row_index,"e",e);
-
                 var field_name = 'contractor_id';
 
-                var val = (row_index in data
-                                ? data[row_index][field_name]
+                var cell_val = parseInt(e.innerHTML);
+                var key = cell_val;
+                console.log("key",key);
+
+                var val = (key in data
+                                ? data[key][field_name]
                                 : '(no row)');
 
                 var content = (e.tagName == 'TH'
