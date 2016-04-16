@@ -18,10 +18,17 @@
         }
 
         public static function choose_table_and_field($field_name) {
-            $root = substr($field_name, 0, -3);
             $suffix = substr($field_name, -3);
+            if ($suffix == '_id') {
+                $root = substr($field_name, 0, -3);
+            }
+            else {
+                $root = $field_name;
+                $field_name = 'name';
+            }
             return array($root, $field_name);
         }
+        
 
     }
 

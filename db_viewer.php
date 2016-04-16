@@ -419,7 +419,8 @@
                 var field_name = elem.innerHTML.trim();
                 var suffix = field_name.slice(-3);
 
-                if (suffix === '_id') {
+                //if (suffix === '_id')
+                {
 
                     var prefix = field_name.slice(0,-3);
                     //console.log(prefix);
@@ -465,9 +466,9 @@
                         }
                     }
                 }
-                else {
-                    alert("Cannot expand this field \""+field_name+"\" - it doesn't end in \"_id\"");
-                }
+                //else {
+                //    alert("Cannot expand this field \""+field_name+"\" - it doesn't end in \"_id\"");
+                //}
             }
         };
 
