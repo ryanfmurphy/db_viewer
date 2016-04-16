@@ -76,6 +76,11 @@
         padding: .6em;
 	}
 
+    .shadowing {
+        background: #eeefee;
+        border: solid 2px #aaa;
+    }
+
     .level1handle {
         background: #ff9999;
     }
@@ -96,6 +101,7 @@
     .level3 {
         background: #bbbbff;
     }
+
 </style>
 
 <script>
@@ -110,7 +116,7 @@
 	function hideCol(n) {
 		if (n > 0) {
 			nthCol(n).hide();
-			shadeCol(n-1);
+			setShadowingCol(n-1);
 		}
 		else {
 			alert("Can't hide 1st column");
@@ -132,7 +138,7 @@
 		if (n > 0) {
 			console.log(nthRow(n));
 			nthRow(n).hide();
-			shadeRow(n-1);
+			setShadowingRow(n-1);
 		}
 		else {
 			alert("Can't hide 1st row");
@@ -147,30 +153,30 @@
 		var col = nthCol(n);
 		col.nextUntil(':visible')
 			.show()
-			.css('background','initial'); // unshade
-		unshadeCol(n);
+			.removeClass('shadowing');
+		unsetShadowingCol(n);
 	}
 
 	function unfoldRowsFrom(n) {
 		var row = nthRow(n);
 		row.nextUntil(':visible')
 			.show()
-			.css('background','initial'); // unshade
-		unshadeRow(n);
+			.removeClass('shadowing');
+		unsetShadowingRow(n);
 	}
 
 
-	function shadeCol(n) {
-		nthCol(n).css('background','#eeefee')
+	function setShadowingCol(n) {
+		nthCol(n).addClass('shadowing'); //.css('background','#eeefee')
 	}
-	function unshadeCol(n) {
-		nthCol(n).css('background','initial')
+	function unsetShadowingCol(n) {
+		nthCol(n).removeClass('shadowing'); //.css('background','initial')
 	}
-	function shadeRow(n) {
-		nthRow(n).css('background','#eeefee')
+	function setShadowingRow(n) {
+		nthRow(n).addClass('shadowing'); //.css('background','#eeefee')
 	}
-	function unshadeRow(n) {
-		nthRow(n).css('background','initial')
+	function unsetShadowingRow(n) {
+		nthRow(n).removeClass('shadowing'); //.css('background','initial')
 	}
 
 </script>
@@ -344,6 +350,17 @@
 
         }
 
+        function isTruthy(x) { return Boolean(x); }
+
+        function trimIfString(x) {
+            if (typeof x == 'string') {
+                return x.trim();
+            }
+            else {
+                return x;
+            }
+        }
+
         // click on header field name (e.g. site_id) - joins to that table, e.g. site
         // displays join inline and allows you to toggle it back
 		var thClickHandler = function(e){
@@ -370,9 +387,9 @@
                         var val_cells = all_cells.filter('td');
                         CELLS = val_cells; // #todo #fixme delete
                         var ids = getColVals(val_cells);
-                        var non_null_ids = ids.filter(
-                            function(id) { return Boolean(id) }
-                        );
+                        var non_null_ids = ids.filter(isTruthy)
+                            .map(trimIfString)
+                        ;
 
                         console.log('non_null_ids');
                         console.log(non_null_ids);
