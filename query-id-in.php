@@ -19,18 +19,18 @@
         #todo allow non-integer expansion
         if (preg_match('/^[0-9,]+$/', $ids)) {
 
-            $idField = $table."_id";
+            $joinField = $_GET['join_field'];
 
             # do query
             $rows = Util::sql("
                 select *
                 from $table
-                where $idField in ($ids)
+                where $joinField in ($ids)
             ", 'array');
 
             $data = array();
             foreach ($rows as $row) {
-                $idVal = $row[$idField];
+                $idVal = $row[$joinField];
                 $data[$idVal] = $row;
             }
 

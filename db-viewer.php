@@ -242,17 +242,27 @@
 
         // data is keyed by id
         // add to HTML Table, lined up with relevant row
-        function addDataToTable(cells, ids, data) {
+        function addDataToTable(cells, data) {
 
             console.log('addDataToTable', cells);
 
             // loop thru cells and add additional cells after
-            cells.each(function(i,e){
-                console.log("i",i,"e",e);
+            cells.each(function(row_index,e){
+
+                console.log("row_index",row_index,"e",e);
+
+                var field_name = 'contractor_id';
+
+                var val = (row_index in data
+                                ? data[row_index][field_name]
+                                : '(no row)');
+
                 var content = (e.tagName == 'TH'
-                                   ? '<th>yo</th>'
-                                   : '<td>test</td>');
+                                   ? '<th>' + field_name + '</th>'
+                                   : '<td>' + val + '</td>');
+
                 $(e).after(content);
+
             });
 
         }
@@ -287,7 +297,7 @@
                     console.log(ids);
 
                     var ids_str = ids.join(',');
-                    var uri = 'query-id-in.php?table='+prefix+'&ids='+ids;
+                    var uri = 'query-id-in.php?table='+prefix+'&ids='+ids+'&join_field='+field_name;
 
                     console.log(uri);
 
@@ -297,7 +307,7 @@
                             dataType: 'json',
                             success: function(data) {
                                 console.log(data);
-                                addDataToTable(all_cells, ids, data);
+                                addDataToTable(all_cells, data);
                             },
                             error: function(r) {
                                 console.log("Failure");
