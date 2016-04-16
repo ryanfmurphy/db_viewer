@@ -4,6 +4,7 @@
     if ($cmp) {
         #todo move out
         $jquery_url = "https://mbeta.contractormarketingpros.com/js/shared/jquery.current.js";
+		$maybe_url_php_ext = ""; # no .php on end of url
     }
     # other larger programs can integrate this one
     # by writing their own Util class with a sql()
@@ -11,6 +12,7 @@
     # array of rows, with each row itself an array
     else {
         require_once('init.php');
+		$maybe_url_php_ext = ".php"; # .php on end of url
     }
 
     # run a sql query
@@ -376,7 +378,7 @@
                         console.log(non_null_ids);
 
                         var ids_str = non_null_ids.join(','); // #todo remove dups
-                        var uri = 'query-id-in.php?table='+prefix+'&ids='+ids_str+'&join_field='+field_name;
+                        var uri = 'query_id_in<?= $maybe_url_php_ext ?>?table='+prefix+'&ids='+ids_str+'&join_field='+field_name;
 
                         console.log(uri);
                     }
