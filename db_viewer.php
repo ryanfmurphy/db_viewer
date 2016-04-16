@@ -76,7 +76,7 @@
         padding: .6em;
 	}
 
-    /*.shadowing,*/
+    .shadowing,
     tr.shadowing td,
     tr.shadowing th {
         border: solid 2px #aaa;
