@@ -250,17 +250,30 @@
             for (key in obj) keys.push(key);
             return keys;
         }
+        function getObjKeysRev(obj) {
+            var keys = [];
+            for (key in obj) keys.unshift(key);
+            return keys;
+        }
 
         // data is keyed by id
         // add to HTML Table, lined up with relevant row
-        function addDataToTable(cells, data) {
+        function addDataToTable(cells, data, exclude_field) {
 
             console.log('addDataToTable', cells);
+
+            var outerLevel = cells.first().attr('level')
+                                || 0;
+            var innerLevel = outerLevel + 1;
+            console.log('outerLevel',outerLevel);
 
             // #todo get all fields
             // by getting the keys of the first obj
             var first_obj = data[firstObjKey(data)];
-            var field_names = getObjKeys(first_obj);
+
+            // we want field_names backwards so
+            // when we append them they are forwards
+            var field_names = getObjKeysRev(first_obj);
             console.log('field_names',field_names);
 
             // loop thru cells and add additional cells after
@@ -269,6 +282,7 @@
                 for (i in field_names) {
 
                     var field_name = field_names[i];
+                    if (field_name == exclude_field) continue;
 
                     var cell_val = parseInt(e.innerHTML);
                     var key = cell_val;
@@ -279,8 +293,13 @@
                                     : '(no row)');
 
                     var content = (e.tagName == 'TH'
-                                       ? '<th>' + field_name + '</th>'
-                                       : '<td>' + val + '</td>');
+                                       ? '<th level="'+innerLevel+'">'
+                                            +field_name+
+                                         '</th>'
+                                       : '<td level="'+innerLevel+'">'
+                                            +val+
+                                         '</td>'
+                                  );
 
                     $(e).after(content);
                 }
@@ -329,7 +348,7 @@
                             dataType: 'json',
                             success: function(data) {
                                 console.log(data);
-                                addDataToTable(all_cells, data);
+                                addDataToTable(all_cells, data, field_name);
                             },
                             error: function(r) {
                                 console.log("Failure");
