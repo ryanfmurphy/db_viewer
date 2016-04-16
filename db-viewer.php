@@ -244,11 +244,15 @@
         // add to HTML Table, lined up with relevant row
         function addDataToTable(cells, ids, data) {
 
-            console.log('addDataToTable');
+            console.log('addDataToTable', cells);
 
             // loop thru cells and add additional cells after
-            cells.each(function(e){
-                console.log(e);
+            cells.each(function(i,e){
+                console.log("i",i,"e",e);
+                var content = (e.tagName == 'TH'
+                                   ? '<th>yo</th>'
+                                   : '<td>test</td>');
+                $(e).after(content);
             });
 
         }
@@ -274,6 +278,7 @@
                     var table_name = prefix;
 
                     var all_cells = nthCol(col_no);
+                    console.log('all_cells',all_cells);
                     var val_cells = all_cells.filter('td');
                     CELLS = val_cells; // #todo #fixme delete
                     var ids = getColVals(val_cells);
