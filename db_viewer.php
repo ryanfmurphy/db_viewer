@@ -238,7 +238,6 @@
 </table>
 
 <script>
-        var CELLS; // #todo #fixme delete
 
         // fold / unfold via click
 		var tdClickHandler = function(e){
@@ -371,59 +370,75 @@
         // displays join inline and allows you to toggle it back
 		var thClickHandler = function(e){
 
-            var field_name = e.target.innerHTML.trim();
-            var col_no = e.target.cellIndex;
-            var suffix = field_name.slice(-3);
+            var elem = e.target;
+            var col_no = elem.cellIndex;
 
-            if (suffix === '_id') {
+            // already opened - close
+            if ($(elem).attr('cols_open')) {
+                var all_cells = nthCol(col_no);
+                var cols_open = parseInt($(elem).attr('cols_open'));
 
-                var prefix = field_name.slice(0,-3);
-                console.log(prefix);
-                console.log(field_name);
-
-                // #todo validate prefix = valid table name?
-
-                { // request adjoining table data #todo split into function
-
-                    { // figure out what data to ask for based on ids in col
-                        var table_name = prefix;
-
-                        var all_cells = nthCol(col_no);
-                        console.log('all_cells',all_cells);
-                        var val_cells = all_cells.filter('td');
-                        CELLS = val_cells; // #todo #fixme delete
-                        var ids = getColVals(val_cells);
-                        var non_null_ids = ids.filter(isTruthy)
-                            .map(trimIfString)
-                        ;
-
-                        console.log('non_null_ids');
-                        console.log(non_null_ids);
-
-                        var ids_str = non_null_ids.join(','); // #todo remove dups
-                        var uri = 'query_id_in<?= $maybe_url_php_ext ?>?table='+prefix+'&ids='+ids_str+'&join_field='+field_name;
-
-                        console.log(uri);
+                // for each row, remove all the open columns after that cell
+                all_cells.each(function(idx,elem){
+                    // loop through and remove that many cells
+                    for (var i = 0; i < cols_open; i++) {
+                        $(elem).next().remove();
                     }
+                });
+            }
+            else { // not already opened - do open
+                var field_name = elem.innerHTML.trim();
+                var suffix = field_name.slice(-3);
 
-                    { // make request
-                        $.ajax({
-                            url: uri,
-                            dataType: 'json',
-                            success: function(data) {
-                                console.log(data);
-                                addDataToTable(all_cells, data, field_name);
-                            },
-                            error: function(r) {
-                                console.log("Failure");
-                                alert("Failure");
-                            }
-                        });
+                if (suffix === '_id') {
+
+                    var prefix = field_name.slice(0,-3);
+                    console.log(prefix);
+                    console.log(field_name);
+
+                    // #todo validate prefix = valid table name?
+
+                    { // request adjoining table data #todo split into function
+
+                        { // figure out what data to ask for based on ids in col
+                            var table_name = prefix;
+
+                            var all_cells = nthCol(col_no);
+                            console.log('all_cells',all_cells);
+                            var val_cells = all_cells.filter('td');
+                            var ids = getColVals(val_cells);
+                            var non_null_ids = ids.filter(isTruthy)
+                                .map(trimIfString)
+                            ;
+
+                            console.log('non_null_ids');
+                            console.log(non_null_ids);
+
+                            var ids_str = non_null_ids.join(','); // #todo remove dups
+                            var uri = 'query_id_in<?= $maybe_url_php_ext ?>?table='+prefix+'&ids='+ids_str+'&join_field='+field_name;
+
+                            console.log(uri);
+                        }
+
+                        { // make request
+                            $.ajax({
+                                url: uri,
+                                dataType: 'json',
+                                success: function(data) {
+                                    console.log(data);
+                                    addDataToTable(all_cells, data, field_name);
+                                },
+                                error: function(r) {
+                                    console.log("Failure");
+                                    alert("Failure");
+                                }
+                            });
+                        }
                     }
                 }
-            }
-            else {
-                alert("Cannot expand this field \""+field_name+"\" - it doesn't end in \"_id\"");
+                else {
+                    alert("Cannot expand this field \""+field_name+"\" - it doesn't end in \"_id\"");
+                }
             }
         };
 
