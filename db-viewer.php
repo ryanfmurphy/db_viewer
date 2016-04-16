@@ -240,30 +240,50 @@
             return vals;
         }
 
+        // util
+        function firstObjKey(obj) {
+            for (first in obj) break;
+            return first;
+        }
+        function getObjKeys(obj) {
+            var keys = [];
+            for (key in obj) keys.push(key);
+            return keys;
+        }
+
         // data is keyed by id
         // add to HTML Table, lined up with relevant row
         function addDataToTable(cells, data) {
 
             console.log('addDataToTable', cells);
 
+            // #todo get all fields
+            // by getting the keys of the first obj
+            var first_obj = data[firstObjKey(data)];
+            var field_names = getObjKeys(first_obj);
+            console.log('field_names',field_names);
+
             // loop thru cells and add additional cells after
             cells.each(function(row_index,e){
 
-                var field_name = 'contractor_id';
+                for (i in field_names) {
 
-                var cell_val = parseInt(e.innerHTML);
-                var key = cell_val;
-                console.log("key",key);
+                    var field_name = field_names[i];
 
-                var val = (key in data
-                                ? data[key][field_name]
-                                : '(no row)');
+                    var cell_val = parseInt(e.innerHTML);
+                    var key = cell_val;
+                    console.log("key",key);
 
-                var content = (e.tagName == 'TH'
-                                   ? '<th>' + field_name + '</th>'
-                                   : '<td>' + val + '</td>');
+                    var val = (key in data
+                                    ? data[key][field_name]
+                                    : '(no row)');
 
-                $(e).after(content);
+                    var content = (e.tagName == 'TH'
+                                       ? '<th>' + field_name + '</th>'
+                                       : '<td>' + val + '</td>');
+
+                    $(e).after(content);
+                }
 
             });
 
