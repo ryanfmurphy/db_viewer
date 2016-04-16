@@ -79,7 +79,6 @@
     /*.shadowing,*/
     tr.shadowing td,
     tr.shadowing th {
-        /*background: #eeefee;*/
         border: solid 2px #aaa;
     }
 
@@ -319,6 +318,8 @@
             // loop thru cells and add additional cells after
             cells.each(function(row_index,e){
 
+                var cols_open = 0;
+
                 for (i in field_names) {
 
                     var field_name = field_names[i];
@@ -343,10 +344,13 @@
                                     '+display_val+'             \
                                 </'+TD_or_TH+'>                 \
                                ';
+                    $(e).after(content);
 
-                    $(e).addClass('level'+innerLevel+'handle')
-                        .after(content);
+                    cols_open++;
                 }
+
+                $(e).addClass('level'+innerLevel+'handle')
+                    .attr('cols_open', cols_open);
 
             });
 
