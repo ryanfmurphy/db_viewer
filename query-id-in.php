@@ -19,12 +19,20 @@
         #todo allow non-integer expansion
         if (preg_match('/^[0-9,]+$/', $ids)) {
 
+            $idField = $table."_id";
+
             # do query
-            $data = Util::sql("
+            $rows = Util::sql("
                 select *
                 from $table
-                where ".$table."_id in ($ids)
+                where $idField in ($ids)
             ", 'array');
+
+            $data = array();
+            foreach ($rows as $row) {
+                $idVal = $row[$idField];
+                $data[$idVal] = $row;
+            }
 
             die(json_encode($data));
         }

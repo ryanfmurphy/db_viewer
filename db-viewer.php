@@ -78,7 +78,10 @@
 <script>
 
 	function nthCol(n) {
-		return $('#query_table tr > *:nth-child('+(n+1)+')');
+        var n_plus_1 = (parseInt(n)+1).toString();
+		return $('#query_table tr > *:nth-child('
+            + n_plus_1 +
+        ')');
 	}
 
 	function hideCol(n) {
@@ -96,8 +99,9 @@
 	}
 
 	function nthRow(n) {
+        var n_plus_1 = (parseInt(n)+1).toString();
 		return $('#query_table tr:nth-child('
-			+(parseInt(n)+1).toString()+
+			+ n_plus_1 +
 		')');
 	}
 
@@ -204,6 +208,8 @@
 </table>
 
 <script>
+        var CELLS; // #todo #fixme delete
+
         // fold / unfold via click
 		var tdClickHandler = function(e){
             // alt to fold/unfold row
@@ -229,33 +235,71 @@
             }
         };
 
+        function getColVals(cells) {
+            var vals = $.map(cells, function(n,i){return n.innerText});
+            return vals;
+        }
+
+        // data is keyed by id
+        // add to HTML Table, lined up with relevant row
+        function addDataToTable(cells, ids, data) {
+
+            console.log('addDataToTable');
+
+            // loop thru cells and add additional cells after
+            cells.each(function(e){
+                console.log(e);
+            });
+
+        }
+
         // click on header field name (e.g. site_id) - joins to that table, e.g. site
         // displays join inline and allows you to toggle it back
 		var thClickHandler = function(e){
+
             var field_name = e.target.innerHTML.trim();
+            var col_no = e.target.cellIndex;
             var suffix = field_name.slice(-3);
+
             if (suffix === '_id') {
+
                 var prefix = field_name.slice(0,-3);
                 console.log(prefix);
                 console.log(field_name);
 
-                { // #todo validate prefix = valid table name?
+                // #todo validate prefix = valid table name?
+
+                { // request adjoining table data #todo split into function
+
                     var table_name = prefix;
-                    var ids = '1,2,3,4,5'; // #todo
+
+                    var all_cells = nthCol(col_no);
+                    var val_cells = all_cells.filter('td');
+                    CELLS = val_cells; // #todo #fixme delete
+                    var ids = getColVals(val_cells);
+
+                    console.log('ids');
+                    console.log(ids);
+
+                    var ids_str = ids.join(',');
                     var uri = 'query-id-in.php?table='+prefix+'&ids='+ids;
+
                     console.log(uri);
-                    $.ajax({
-                        url: uri,
-                        dataType: 'json',
-                        function(r) {
-                            console.log("Success");
-                            alert("Success");
-                        },
-                        function(r) {
-                            console.log("Failure");
-                            alert("Failure");
-                        }
-                    });
+
+                    { // make request
+                        $.ajax({
+                            url: uri,
+                            dataType: 'json',
+                            success: function(data) {
+                                console.log(data);
+                                addDataToTable(all_cells, ids, data);
+                            },
+                            error: function(r) {
+                                console.log("Failure");
+                                alert("Failure");
+                            }
+                        });
+                    }
                 }
             }
             else {
