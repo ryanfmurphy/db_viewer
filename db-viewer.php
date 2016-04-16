@@ -256,6 +256,15 @@
             return keys;
         }
 
+        function showVal(val) {
+            if (val === null) {
+                return '';
+            }
+            else {
+                return val;
+            }
+        }
+
         // data is keyed by id
         // add to HTML Table, lined up with relevant row
         function addDataToTable(cells, data, exclude_field) {
@@ -297,7 +306,7 @@
                                             +field_name+
                                          '</th>'
                                        : '<td level="'+innerLevel+'">'
-                                            +val+
+                                            +showVal(val)+
                                          '</td>'
                                   );
 
@@ -367,8 +376,8 @@
         $('td').live('click', tdClickHandler);
         $('th').live('click', thClickHandler);
 <?php } else { ?>
-        $('td').on('click', tdClickHandler);
-        $('th').on('click', thClickHandler);
+        $('table').on('click', 'td', tdClickHandler);
+        $('table').on('click', 'th', thClickHandler);
 <?php }
 ?>
 
