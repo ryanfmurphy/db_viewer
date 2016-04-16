@@ -137,7 +137,7 @@
 
 	function hideRow(n) {
 		if (n > 0) {
-			console.log(nthRow(n));
+			//console.log(nthRow(n));
 			nthRow(n).hide();
 			setShadowingRow(n-1);
 		}
@@ -246,7 +246,7 @@
             // alt to fold/unfold row
             if (e.altKey) {
                 rowN = $(e.target).closest('tr').attr('data-row');
-                console.log(rowN);
+                //console.log(rowN);
                 if (e.shiftKey) {
                     unfoldRowsFrom(rowN);
                 }
@@ -300,12 +300,12 @@
         // add to HTML Table, lined up with relevant row
         function addDataToTable(cells, data, exclude_field) {
 
-            console.log('addDataToTable', cells);
+            //console.log('addDataToTable', cells);
 
             var outerLevel = parseInt( cells.first().attr('level') )
                                 || 0;
             var innerLevel = outerLevel + 1;
-            console.log('outerLevel',outerLevel);
+            //console.log('outerLevel',outerLevel);
 
             // #todo get all fields
             // by getting the keys of the first obj
@@ -314,7 +314,7 @@
             // we want field_names backwards so
             // when we append them they are forwards
             var field_names = getObjKeysRev(first_obj);
-            console.log('field_names',field_names);
+            //console.log('field_names',field_names);
 
             // loop thru cells and add additional cells after
             cells.each(function(row_index,e){
@@ -328,7 +328,7 @@
 
                     var cell_val = parseInt(e.innerHTML);
                     var key = cell_val;
-                    console.log("key",key);
+                    //console.log("key",key);
 
                     var val = (key in data
                                     ? data[key][field_name]
@@ -388,7 +388,7 @@
                     var cell_classes = first_cell.get(0).classList;
 
                     CELL_CLASSES = cell_classes; // #todo delete
-                    console.log('cell_classes',cell_classes); // #todo delete
+                    //console.log('cell_classes',cell_classes); // #todo delete
 
                     for (var i in cell_classes) {
                         var classname = cell_classes[i];
@@ -399,7 +399,7 @@
                         }
                     }
 
-                    console.log('handle_class',handle_class);
+                    //console.log('handle_class',handle_class);
                 }
 
                 // for each row, remove all the open columns after that cell
@@ -422,8 +422,8 @@
                 if (suffix === '_id') {
 
                     var prefix = field_name.slice(0,-3);
-                    console.log(prefix);
-                    console.log(field_name);
+                    //console.log(prefix);
+                    //console.log(field_name);
 
                     // #todo validate prefix = valid table name?
 
@@ -433,20 +433,20 @@
                             var table_name = prefix;
 
                             var all_cells = nthCol(col_no);
-                            console.log('all_cells',all_cells);
+                            //console.log('all_cells',all_cells);
                             var val_cells = all_cells.filter('td');
                             var ids = getColVals(val_cells);
                             var non_null_ids = ids.filter(isTruthy)
                                 .map(trimIfString)
                             ;
 
-                            console.log('non_null_ids');
-                            console.log(non_null_ids);
+                            //console.log('non_null_ids');
+                            //console.log(non_null_ids);
 
                             var ids_str = non_null_ids.join(','); // #todo remove dups
                             var uri = 'query_id_in<?= $maybe_url_php_ext ?>?table='+prefix+'&ids='+ids_str+'&join_field='+field_name;
 
-                            console.log(uri);
+                            //console.log(uri);
                         }
 
                         { // make request
@@ -454,11 +454,11 @@
                                 url: uri,
                                 dataType: 'json',
                                 success: function(data) {
-                                    console.log(data);
+                                    //console.log(data);
                                     addDataToTable(all_cells, data, field_name);
                                 },
                                 error: function(r) {
-                                    console.log("Failure");
+                                    //console.log("Failure");
                                     alert("Failure");
                                 }
                             });
