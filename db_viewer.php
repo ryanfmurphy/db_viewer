@@ -430,7 +430,7 @@
                     { // request adjoining table data #todo split into function
 
                         { // figure out what data to ask for based on ids in col
-                            var table_name = prefix;
+                            //var table_name = prefix;
 
                             var all_cells = nthCol(col_no);
                             //console.log('all_cells',all_cells);
@@ -444,7 +444,7 @@
                             //console.log(non_null_ids);
 
                             var ids_str = non_null_ids.join(','); // #todo remove dups
-                            var uri = 'query_id_in<?= $maybe_url_php_ext ?>?table='+prefix+'&ids='+ids_str+'&join_field='+field_name;
+                            var uri = 'query_id_in<?= $maybe_url_php_ext ?>?ids='+ids_str+'&join_field='+field_name;
 
                             //console.log(uri);
                         }

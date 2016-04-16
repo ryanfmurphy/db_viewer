@@ -6,6 +6,7 @@
     );
 
     class Util {
+
         public static function sql($query, $returnType='array') {
             global $db;
             $result = mysqli_query($db, $query);
@@ -15,6 +16,16 @@
             }
             return $rows;
         }
+
+        public static function choose_table_and_field($field_name) {
+            $root = substr($field_name, 0, -3);
+            $suffix = substr($field_name, -3);
+            return array(
+                'table' => $root,
+                'field' => $field_name,
+            );
+        }
+
     }
 
     #$jquery_url = "/js/jquery.min.js"; #todo #fixme give cdn url by default

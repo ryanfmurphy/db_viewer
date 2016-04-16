@@ -4,13 +4,15 @@
     # support endpoint for the expansion feature
     # within db-viewer
 
+    #todo change interface to take join_field and figure out table
+
 	$cmp = class_exists('Util');
 	if (!$cmp) {
 		require_once('init.php');
 	}
 
-    $table = $_GET['table'];
     $ids = $_GET['ids'];
+    list($table, $field) = Util::choose_table_and_field($_GET['join_field']);
 
     #todo error checking
     #todo accept POST
