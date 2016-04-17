@@ -12,40 +12,34 @@
 	}
 
     $ids = $_GET['ids'];
-    list($table, $field) = Util::choose_table_and_field($_GET['join_field']);
+	if (isset($_GET['join_field'])) {
 
-    #todo error checking
-    #todo accept POST
+		list($table, $joinField) = Util::choose_table_and_field($_GET['join_field']);
 
-    # block injection attacks using $table
-    if (preg_match('/^[A-Za-z_]+$/', $table)) {
+		#todo error checking
+		#todo accept POST
 
-        # block injection attacks using $ids
-        #todo allow non-integer expansion
-        if (preg_match('/^[0-9,]+$/', $ids)) {
+		# block injection attacks using $ids
+		#todo allow non-integer expansion
+		if (preg_match('/^[0-9,]+$/', $ids)) {
 
-			if (isset($_GET['join_field'])) {
-				$joinField = $_GET['join_field'];
+			# do query
+			$query = "
+				select *
+				from $table
+				where $joinField in ($ids)
+			";
+			$rows = Util::sql($query, 'array');
 
-				# do query
-				$query = "
-					select *
-					from $table
-					where $joinField in ($ids)
-				";
-				$rows = Util::sql($query, 'array');
-
-				$data = array();
-				foreach ($rows as $row) {
-					$idVal = $row[$joinField];
-					$data[$idVal] = $row;
-				}
-
-				die(json_encode($data));
+			$data = array();
+			foreach ($rows as $row) {
+				$idVal = $row[$joinField];
+				$data[$idVal] = $row;
 			}
-			else { die('No join_field'); }
-        }
-        else { die('Invalid ids'); }
-    }
-    else { die('Invalid table name'); }
+
+			die(json_encode($data));
+		}
+		else { die('Invalid ids'); }
+	}
+	else { die('No join field'); }
 ?>
