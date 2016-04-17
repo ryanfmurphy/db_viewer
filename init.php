@@ -1,20 +1,32 @@
 <?php
+    $PDO = true;
+
     require_once('db-config.php');
-    $db = mysqli_connect(
-        $db_host, $db_user, $db_password,
-        $db_name #, $db_port
-    );
+    $db = $PDO
+            ? new PDO(
+                "mysql:host=$db_host;dbname=$db_name",
+                $db_user, $db_password
+            )
+            : mysqli_connect(
+                $db_host, $db_user, $db_password,
+                $db_name
+            );
 
     class Util {
 
         public static function sql($query, $returnType='array') {
-            global $db;
-            $result = mysqli_query($db, $query);
-            $rows = array();
-            while ($row = mysqli_fetch_assoc($result)) {
-                $rows[] = $row;
+            global $db, $PDO;
+            if ($PDO) {
+                return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
             }
-            return $rows;
+            else {
+                $result = mysqli_query($db, $query);
+                $rows = array();
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $rows[] = $row;
+                }
+                return $rows;
+            }
         }
 
 		public static function choose_table_and_field($field_name) {
