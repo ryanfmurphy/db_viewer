@@ -460,7 +460,7 @@
                         { // make request
                             $.ajax({
                                 url: uri,
-                                method: 'POST',
+                                type: 'POST',
                                 data: request_data,
                                 dataType: 'json',
                                 success: function(data) {
