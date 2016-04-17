@@ -1,4 +1,8 @@
 <?php
+    #todo when you fetch more rows, incorporate all the joins you've done
+        # but then you have to mark all those columns so you can collapse them
+    #todo implement limit and offset
+
 	$cmp = class_exists('Util');
 
     if ($cmp) {
@@ -444,7 +448,11 @@
                             //console.log(non_null_ids);
 
                             var ids_str = non_null_ids.join(','); // #todo remove dups
-                            var uri = 'query_id_in<?= $maybe_url_php_ext ?>?ids='+ids_str+'&join_field='+field_name;
+                            var uri = 'query_id_in<?= $maybe_url_php_ext ?>';
+                            var request_data = {
+                                ids: ids_str,
+                                join_field: field_name
+                            };
 
                             //console.log(uri);
                         }
@@ -452,6 +460,8 @@
                         { // make request
                             $.ajax({
                                 url: uri,
+                                method: 'POST',
+                                data: request_data,
                                 dataType: 'json',
                                 success: function(data) {
                                     //console.log(data);

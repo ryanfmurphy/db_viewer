@@ -11,10 +11,10 @@
 		require_once('init.php');
 	}
 
-    $ids = $_GET['ids'];
-	if (isset($_GET['join_field'])) {
+    $ids = $_POST['ids'];
+	if (isset($_POST['join_field'])) {
 
-		list($table, $joinField) = Util::choose_table_and_field($_GET['join_field']);
+		list($table, $joinField) = Util::choose_table_and_field($_POST['join_field']);
 
 		#todo error checking
 		#todo accept POST
