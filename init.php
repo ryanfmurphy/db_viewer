@@ -4,7 +4,7 @@
     require_once('db-config.php');
     $db = $PDO
             ? new PDO(
-                "mysql:host=$db_host;dbname=$db_name",
+                "$db_type:host=$db_host;dbname=$db_name",
                 $db_user, $db_password
             )
             : mysqli_connect(
@@ -30,6 +30,8 @@
         }
 
 		public static function choose_table_and_field($field_name) {
+            global $id_mode;
+
 			$suffix = substr($field_name, -3);
 			if ($suffix == '_id') {
 				$root = substr($field_name, 0, -3);
@@ -44,13 +46,16 @@
 					foreach (array_keys($possible_tables) as $this_table_name) {
 						if (Util::endsWith($this_table_name, $root)) {
 							$root = $this_table_name;
-							$field_name = $this_table_name."_id";
+                            $field_name = $this_table_name."_id";
 							break;
 						}
 					}
 				}
 
 				#todo maybe error out if didn't match a table?
+                if ($id_mode == 'id_only') {
+                    $field_name = 'id';
+                }
 				return array($root, $field_name);
 			}
 			else { # this else not used yet
@@ -72,13 +77,20 @@
 			# if (isset($tables['contractor'])) {
 			#	...
 		public static function sqlTables() {
-			$rows = Util::sql('show tables');
-			$tables = array();
-			foreach ($rows as $row) {
-				$table = current($row);
-				$tables[$table] = 1;
-			}
-			return $tables;
+            global $db_type;
+
+            if ($db_type == 'mysql') {
+                $rows = Util::sql('show tables');
+                $tables = array();
+                foreach ($rows as $row) {
+                    $table = current($row);
+                    $tables[$table] = 1;
+                }
+                return $tables;
+            }
+            else {
+                return array('food'=>1,'ate'=>1); #todo use real query
+            }
 		}
     }
 
