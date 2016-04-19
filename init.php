@@ -29,37 +29,81 @@
             }
         }
 
+        public static function has_valid_join_field_suffix($field_name) {
+            $suffix = substr($field_name, -3);
+            if ($suffix === '_id') {
+                return $suffix;
+            }
+            else {
+                $suffix = substr($field_name, -4);
+                if ($suffix === '_iid') {
+                    return $suffix;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+        # get table schema etc
+        public static function full_tablename($tablename) {
+            global $db_type;
+
+            if ($db_type == 'pgsql') {
+
+                $table_schemas = array( #todo get from database
+                    'company' => 'market',
+                    'quote' => 'market',
+                );
+
+                if (isset($table_schemas[$tablename])) {
+                    $schema = $table_schemas[$tablename];
+                    return "$schema.$tablename";
+                }
+                else {
+                    return $tablename;
+                }
+            }
+            else {
+                return $tablename;
+            }
+        }
+
 		public static function choose_table_and_field($field_name) {
             global $id_mode;
 
-			$suffix = substr($field_name, -3);
-			if ($suffix == '_id') {
-				$root = substr($field_name, 0, -3);
+			$suffix = self::has_valid_join_field_suffix($field_name);
+			if ($suffix) {
+				$root = substr($field_name, 0, -strlen($suffix));
 
-				$possible_tables = Util::sqlTables();
+                #todo move into full_tablename()
+				{   # if it's not as simple as `contractor_id`
+                    # try to find a table that this id might be pointing to
+                    # e.g. `parent_contractor_id` also links to contractor
+                    $possible_tables = Util::sqlTables();
 
-				# if it's not as simple as `contractor_id`
-				# try to find a table that this id might be pointing to
-				# e.g. `parent_contractor_id` also links to contractor
-				if (!isset($possible_tables[$root])) {
-					# loop looking for table ending in $table
-					foreach (array_keys($possible_tables) as $this_table_name) {
-						if (Util::endsWith($this_table_name, $root)) {
-							$root = $this_table_name;
-                            $field_name = $this_table_name."_id";
-							break;
-						}
-					}
-				}
+                    if (!isset($possible_tables[$root])) {
+                        # loop looking for table ending in $table
+                        foreach (array_keys($possible_tables) as $this_table_name) {
+                            if (Util::endsWith($this_table_name, $root)) {
+                                $root = $this_table_name;
+                                $field_name = $this_table_name.$suffix;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                $root = self::full_tablename($root);
 
 				#todo maybe error out if didn't match a table?
                 if ($id_mode == 'id_only') {
-                    $field_name = 'id';
+                    $field_name = ltrim($suffix,'_');
                 }
 				return array($root, $field_name);
 			}
 			else { # this else not used yet
-				$table = $field_name;
+				$table = self::full_tablename($field_name);
 				$field_name = 'name';
 				return array($table, $field_name);
 			}
@@ -81,16 +125,23 @@
 
             if ($db_type == 'mysql') {
                 $rows = Util::sql('show tables');
-                $tables = array();
-                foreach ($rows as $row) {
-                    $table = current($row);
-                    $tables[$table] = 1;
-                }
-                return $tables;
             }
             else {
-                return array('food'=>1,'ate'=>1); #todo use real query
+                $rows = Util::sql("select table_name from information_schema.tables where table_schema in ('public')");
+
+                /*return array( #todo use real query
+                    'food'=>1, 'ate'=>1, 'person'=>1,
+                    'company'=>1, 'quote'=>1,
+                );*/
             }
+
+            $tables = array();
+            foreach ($rows as $row) {
+                $table = current($row);
+                $tables[$table] = 1;
+            }
+
+            return $tables;
 		}
     }
 

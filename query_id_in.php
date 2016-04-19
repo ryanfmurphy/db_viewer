@@ -29,6 +29,7 @@
 				from $table
 				where $joinField in ($ids)
 			";
+            #die($query);
 			$rows = Util::sql($query, 'array');
 
 			$data = array();

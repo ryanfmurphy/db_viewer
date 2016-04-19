@@ -19,6 +19,14 @@
 		$maybe_url_php_ext = ".php"; # .php on end of url
     }
 
+
+    /*die(
+        print_r(
+            Util::sqlTables()
+        ,1)
+    );*/
+
+
     # run a sql query
     # then build an html table to display the results
 
@@ -300,6 +308,22 @@
             }
         }
 
+        function isValidJoinField(field_name) {
+            var suffix = field_name.slice(-3);
+            if (suffix === '_id') {
+                return true;
+            }
+            else {
+                suffix = field_name.slice(-4);
+                if (suffix === '_iid') {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
         // data is keyed by id
         // add to HTML Table, lined up with relevant row
         function addDataToTable(cells, data, exclude_field) {
@@ -421,9 +445,8 @@
             }
             else { // not already opened - do open
                 var field_name = elem.innerHTML.trim();
-                var suffix = field_name.slice(-3);
 
-                if (suffix === '_id') {
+                if (isValidJoinField(field_name)) {
 
                     var prefix = field_name.slice(0,-3);
                     //console.log(prefix);
