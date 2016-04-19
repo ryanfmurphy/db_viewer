@@ -309,6 +309,9 @@
         }
 
         function isValidJoinField(field_name) {
+            return true;
+
+            /*
             var suffix = field_name.slice(-3);
             if (suffix === '_id') {
                 return true;
@@ -322,6 +325,7 @@
                     return false;
                 }
             }
+            */
         }
 
         // data is keyed by id
