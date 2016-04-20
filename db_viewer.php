@@ -309,14 +309,11 @@
         function addDataToTable(cells, data, exclude_fields) {
             // exclude_fields is a hash with the fields to exclude as keys
 
-            console.log('cells',cells);
-            console.log('data',data);
-
             var outerLevel = parseInt( cells.first().attr('level') )
                                 || 0;
             var innerLevel = outerLevel + 1;
 
-            // #todo get all fields
+            // get all fields
             // by getting the keys of the first obj
             var first_obj = data[firstObjKey(data)];
 
@@ -329,19 +326,19 @@
 
                 var cols_open = 0;
 
+                // loop thru all fields and add a column for each row
                 for (i in field_names) {
 
                     var field_name = field_names[i];
                     if (field_name in exclude_fields) continue;
 
-                    var cell_val = e.innerHTML.trim(); // parseInt(e.innerHTML); // #todo double check int ids still work
+                    var cell_val = e.innerHTML.trim();
                     var key = cell_val;
-                    console.log('key',key);
 
                     var val = (key in data
                                     ? data[key][field_name]
                                     : '');
-                    console.log('key '+key+' in data', (key in data));
+
                     var TD_or_TH = e.tagName;
                     var display_val = (TD_or_TH == 'TH'
                                             ? field_name
