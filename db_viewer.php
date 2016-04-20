@@ -312,7 +312,7 @@
         function addDataToTable(cells, data, exclude_fields) {
             // exclude_fields is a hash with the fields to exclude as keys
 
-            //console.log('addDataToTable: exclude_fields', exclude_fields);
+            console.log('addDataToTable: exclude_fields', exclude_fields);
 
             var outerLevel = parseInt( cells.first().attr('level') )
                                 || 0;
@@ -461,10 +461,12 @@
                                 data: request_data,
                                 dataType: 'json',
                                 success: function(data) {
-                                    var exclude_fields = {
-                                        field_name: 1
-                                    };
+
+                                    var exclude_fields = {};
+                                    exclude_fields[field_name] = 1;
+
                                     addDataToTable(all_cells, data, exclude_fields);
+
                                 },
                                 error: function(r) {
                                     alert("Failure");
