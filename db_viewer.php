@@ -209,11 +209,7 @@
 	if ($sql) {
 		$rows = Util::sql($sql,'array');
 		#todo check if there's some rows
-        #todo send the data to js via a var
-        #todo generate the table via javascript
-        #todo only render 100 rows or so in the table at first
-        #todo then populate as you scroll
-        #todo see if it's fast enough!
+        #todo infinite scroll using OFFSET and LIMIT
 ?>
     <script>
         //var rows = <?= json_encode($rows) ?>;
@@ -310,29 +306,15 @@
 
         function isValidJoinField(field_name) {
             return true;
-
-            /*
-            var suffix = field_name.slice(-3);
-            if (suffix === '_id') {
-                return true;
-            }
-            else {
-                suffix = field_name.slice(-4);
-                if (suffix === '_iid') {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-            */
         }
 
         // data is keyed by id
         // add to HTML Table, lined up with relevant row
         function addDataToTable(cells, data, exclude_field) {
 
-            //console.log('addDataToTable', cells);
+            console.log('addDataToTable: cells', cells);
+            console.log('addDataToTable: data', data);
+            console.log('addDataToTable: exclude_field', exclude_field);
 
             var outerLevel = parseInt( cells.first().attr('level') )
                                 || 0;
@@ -351,16 +333,18 @@
             // loop thru cells and add additional cells after
             cells.each(function(row_index,e){
 
+                console.log('row_index',row_index);
                 var cols_open = 0;
 
                 for (i in field_names) {
 
                     var field_name = field_names[i];
                     if (field_name == exclude_field) continue;
+                    console.log('field_name',field_name);
 
-                    var cell_val = parseInt(e.innerHTML);
+                    var cell_val = e.innerHTML.trim(); // parseInt(e.innerHTML); // #todo double check int ids still work
                     var key = cell_val;
-                    //console.log("key",key);
+                    console.log("key",key);
 
                     var val = (key in data
                                     ? data[key][field_name]
@@ -470,14 +454,15 @@
                             var non_null_ids = ids.filter(isTruthy)
                                 .map(trimIfString)
                             ;
+                            // #todo remove dups from non_null_ids
 
                             //console.log('non_null_ids');
                             //console.log(non_null_ids);
 
-                            var ids_str = non_null_ids.join(','); // #todo remove dups
+                            //var ids_str = non_null_ids.join(',');
                             var uri = 'query_id_in<?= $maybe_url_php_ext ?>';
                             var request_data = {
-                                ids: ids_str,
+                                ids: non_null_ids,
                                 join_field: field_name
                             };
 

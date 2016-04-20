@@ -6,6 +6,16 @@
 
     #todo change interface to take join_field and figure out table
 
+    function val_str($vals) {
+        $val_reps = array_map(
+            function($val) {
+                return "'$val'";
+            },
+            $vals
+        );
+        return implode(',', $val_reps);
+    }
+
 	$cmp = class_exists('Util');
 	if (!$cmp) {
 		require_once('init.php');
@@ -21,13 +31,15 @@
 
 		# block injection attacks using $ids
 		#todo allow non-integer expansion
-		if (preg_match('/^[0-9,]+$/', $ids)) {
+		#if (preg_match('/^[0-9,]+$/', $ids)) {
+        if (is_array($ids)) {
+            $ids_str = val_str($ids);
 
 			# do query
 			$query = "
 				select *
 				from $table
-				where $joinField in ($ids)
+				where $joinField in ($ids_str)
 			";
             #die($query);
 			$rows = Util::sql($query, 'array');
