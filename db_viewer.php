@@ -11,6 +11,9 @@
     tables.
 
     */
+
+    # run a sql query
+    # then build an html table to display the results
     
     #todo when you fetch more rows, incorporate all the joins you've done
         # but then you have to mark all those columns so you can collapse them
@@ -39,9 +42,6 @@
         }
     }
 
-    # run a sql query
-    # then build an html table to display the results
-
 	# header row html
 	function headerRow(&$rows, $rowN) {
 		$firstRow = current($rows);
@@ -60,74 +60,23 @@
 <?php
 	}
 
-	if (isset($_GET['sql'])) {
-		$sql = $_GET['sql'];
-	}
-	else {
-		$sql = null;
-	}
+    { # get sql query (if any) from incoming request
+        if (isset($_GET['sql'])) {
+            $sql = $_GET['sql'];
+        }
+        else {
+            $sql = null;
+        }
+    }
+
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 <!-- load jQuery -->
 <script src="<?= $jquery_url ?>"></script>
 
-<style>
-	html {
-		margin: 50px;
-		padding:0;
-        font-family: sans-serif;
-	}
-	body{
-		margin: 0px;
-		padding:0;
-	}
-	table {
-		border-spacing: 0;
-	}
-	td, th {
-		padding: .3em;
-		border: solid 1px gray;
-	}
-
-	textarea, input {
-        font-family: sans-serif;
-		margin: 1em;
-	}
-	textarea {
-		width: 90%;
-		height: 5em;
-        padding: .6em;
-	}
-
-    .shadowing,
-    tr.shadowing td,
-    tr.shadowing th {
-        border: solid 2px #aaa;
-    }
-
-    .level1handle {
-        background: #ff9999;
-    }
-    .level1 {
-        background: #ffbbbb;
-    }
-
-    .level2handle {
-        background: #99ff99;
-    }
-    .level2 {
-        background: #bbffbb;
-    }
-
-    .level3handle {
-        background: #9999ff;
-    }
-    .level3 {
-        background: #bbbbff;
-    }
-
-</style>
+<link rel="stylesheet" type="text/css" href="style.css.php">
 
 <script>
 
