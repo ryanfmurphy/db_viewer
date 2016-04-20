@@ -1,26 +1,16 @@
 <?php
-/*
+    /*
 
-db_viewer.php - database table view with inline dynamic joins
-=============================================================
+    DB Viewer - database table view with inline dynamic joins
+    =========================================================
 
-join-splice
------------
-* click a header / field_name that corresponds to an id in another table
-  and see the data from that table get automatically spliced into your view
-* can connect in the following ways:
-    * connect fields named `<table>_id` to the `<table>_id` of the `<table>` table
-        * or if `$id_mode == "id_only"`, to the `id` of the `<table>` table
-    * connect fields named `<table>_iid` to the `<table>_iid` of the `<table>` table - #todo test
-        * or if `$id_mode == "iid_only"`, to the `iid` of the `<table>` table
-    * connect fields named `<table>` to the `name` field of the `<table>` table
+    This program provides a PHP-HTML-Javascript web interface
+    for a SQL Database, allowing you to type in queries and view
+    the results in a table format.  You can hide/show rows and
+    columns, and click on key fields to join in data from new
+    tables.
 
-show and hide columns and rows
-------------------------------
-* click a column to hide it, shift-click to show again
-* alt-click a row to hide it, shift-alt-click to show again
-
-*/
+    */
     
     #todo when you fetch more rows, incorporate all the joins you've done
         # but then you have to mark all those columns so you can collapse them
@@ -30,22 +20,24 @@ show and hide columns and rows
     #caveat - names / text fields can be used to join, but they must match exactly,
             # even if the varchar is collated as case insensitive
 
-	$cmp = class_exists('Util'); #todo don't call the class Util, call it DbViewer and allow it to be overloaded
+    { # init
+        $cmp = class_exists('Util'); #todo don't call the class Util, call it DbViewer and allow it to be overloaded
+        $oldJquery = $cmp;
 
-    if ($cmp) {
-        #todo move out
-        $jquery_url = "https://mbeta.contractormarketingpros.com/js/shared/jquery.current.js";
-		$maybe_url_php_ext = ""; # no .php on end of url
+        # other larger programs can integrate this one
+        # by writing their own Util class with a sql()
+        # function that takes a $query and returns an
+        # array of rows, with each row itself an array
+        if ($cmp) {
+            #todo move out
+            $jquery_url = "https://mbeta.contractormarketingpros.com/js/shared/jquery.current.js";
+            $maybe_url_php_ext = ""; # no .php on end of url
+        }
+        else {
+            require_once('init.php');
+            $maybe_url_php_ext = ".php"; # .php on end of url
+        }
     }
-    # other larger programs can integrate this one
-    # by writing their own Util class with a sql()
-    # function that takes a $query and returns an
-    # array of rows, with each row itself an array
-    else {
-        require_once('init.php');
-		$maybe_url_php_ext = ".php"; # .php on end of url
-    }
-
 
     # run a sql query
     # then build an html table to display the results
