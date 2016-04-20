@@ -310,11 +310,12 @@
 
         // data is keyed by id
         // add to HTML Table, lined up with relevant row
-        function addDataToTable(cells, data, exclude_field) {
+        function addDataToTable(cells, data, exclude_fields) {
+            // exclude_fields is a hash with the fields to exclude as keys
 
-            console.log('addDataToTable: cells', cells);
-            console.log('addDataToTable: data', data);
-            console.log('addDataToTable: exclude_field', exclude_field);
+            //console.log('addDataToTable: cells', cells);
+            //console.log('addDataToTable: data', data);
+            console.log('addDataToTable: exclude_fields', exclude_fields);
 
             var outerLevel = parseInt( cells.first().attr('level') )
                                 || 0;
@@ -333,18 +334,18 @@
             // loop thru cells and add additional cells after
             cells.each(function(row_index,e){
 
-                console.log('row_index',row_index);
+                //console.log('row_index',row_index);
                 var cols_open = 0;
 
                 for (i in field_names) {
 
                     var field_name = field_names[i];
-                    if (field_name == exclude_field) continue;
-                    console.log('field_name',field_name);
+                    if (field_name in exclude_fields) continue;
+                    //console.log('field_name',field_name);
 
                     var cell_val = e.innerHTML.trim(); // parseInt(e.innerHTML); // #todo double check int ids still work
                     var key = cell_val;
-                    console.log("key",key);
+                    //console.log("key",key);
 
                     var val = (key in data
                                     ? data[key][field_name]
@@ -477,7 +478,10 @@
                                 dataType: 'json',
                                 success: function(data) {
                                     //console.log(data);
-                                    addDataToTable(all_cells, data, field_name);
+                                    var exclude_fields = {
+                                        field_name: 1
+                                    };
+                                    addDataToTable(all_cells, data, exclude_fields);
                                 },
                                 error: function(r) {
                                     //console.log("Failure");
