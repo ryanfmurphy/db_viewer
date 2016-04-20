@@ -1,4 +1,27 @@
 <?php
+/*
+
+db_viewer.php - database table view with inline dynamic joins
+=============================================================
+
+join-splice
+-----------
+* click a header / field_name that corresponds to an id in another table
+  and see the data from that table get automatically spliced into your view
+* can connect in the following ways:
+    * connect fields named `<table>_id` to the `<table>_id` of the `<table>` table
+        * or if `$id_mode == "id_only"`, to the `id` of the `<table>` table
+    * connect fields named `<table>_iid` to the `<table>_iid` of the `<table>` table - #todo test
+        * or if `$id_mode == "iid_only"`, to the `iid` of the `<table>` table
+    * connect fields named `<table>` to the `name` field of the `<table>` table
+
+show and hide columns and rows
+------------------------------
+* click a column to hide it, shift-click to show again
+* alt-click a row to hide it, shift-alt-click to show again
+
+*/
+    
     #todo when you fetch more rows, incorporate all the joins you've done
         # but then you have to mark all those columns so you can collapse them
     #todo implement limit and offset
@@ -7,7 +30,7 @@
     #caveat - names / text fields can be used to join, but they must match exactly,
             # even if the varchar is collated as case insensitive
 
-	$cmp = class_exists('Util');
+	$cmp = class_exists('Util'); #todo don't call the class Util, call it DbViewer and allow it to be overloaded
 
     if ($cmp) {
         #todo move out
