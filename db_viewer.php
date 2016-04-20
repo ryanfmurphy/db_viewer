@@ -3,6 +3,10 @@
         # but then you have to mark all those columns so you can collapse them
     #todo implement limit and offset
 
+    #caveat - may have to set max_input_vars in php.ini for large views
+    #caveat - names / text fields can be used to join, but they must match exactly,
+            # even if the varchar is collated as case insensitive
+
 	$cmp = class_exists('Util');
 
     if ($cmp) {
@@ -18,13 +22,6 @@
         require_once('init.php');
 		$maybe_url_php_ext = ".php"; # .php on end of url
     }
-
-
-    /*die(
-        print_r(
-            Util::sqlTables()
-        ,1)
-    );*/
 
 
     # run a sql query
@@ -312,7 +309,8 @@
         function addDataToTable(cells, data, exclude_fields) {
             // exclude_fields is a hash with the fields to exclude as keys
 
-            console.log('addDataToTable: exclude_fields', exclude_fields);
+            console.log('cells',cells);
+            console.log('data',data);
 
             var outerLevel = parseInt( cells.first().attr('level') )
                                 || 0;
@@ -338,10 +336,12 @@
 
                     var cell_val = e.innerHTML.trim(); // parseInt(e.innerHTML); // #todo double check int ids still work
                     var key = cell_val;
+                    console.log('key',key);
 
                     var val = (key in data
                                     ? data[key][field_name]
                                     : '');
+                    console.log('key '+key+' in data', (key in data));
                     var TD_or_TH = e.tagName;
                     var display_val = (TD_or_TH == 'TH'
                                             ? field_name
