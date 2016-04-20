@@ -149,7 +149,6 @@
 
 	function hideRow(n) {
 		if (n > 0) {
-			//console.log(nthRow(n));
 			nthRow(n).hide();
 			setShadowingRow(n-1);
 		}
@@ -254,7 +253,7 @@
             // alt to fold/unfold row
             if (e.altKey) {
                 rowN = $(e.target).closest('tr').attr('data-row');
-                //console.log(rowN);
+
                 if (e.shiftKey) {
                     unfoldRowsFrom(rowN);
                 }
@@ -313,14 +312,11 @@
         function addDataToTable(cells, data, exclude_fields) {
             // exclude_fields is a hash with the fields to exclude as keys
 
-            //console.log('addDataToTable: cells', cells);
-            //console.log('addDataToTable: data', data);
-            console.log('addDataToTable: exclude_fields', exclude_fields);
+            //console.log('addDataToTable: exclude_fields', exclude_fields);
 
             var outerLevel = parseInt( cells.first().attr('level') )
                                 || 0;
             var innerLevel = outerLevel + 1;
-            //console.log('outerLevel',outerLevel);
 
             // #todo get all fields
             // by getting the keys of the first obj
@@ -329,23 +325,19 @@
             // we want field_names backwards so
             // when we append them they are forwards
             var field_names = getObjKeysRev(first_obj);
-            //console.log('field_names',field_names);
 
             // loop thru cells and add additional cells after
             cells.each(function(row_index,e){
 
-                //console.log('row_index',row_index);
                 var cols_open = 0;
 
                 for (i in field_names) {
 
                     var field_name = field_names[i];
                     if (field_name in exclude_fields) continue;
-                    //console.log('field_name',field_name);
 
                     var cell_val = e.innerHTML.trim(); // parseInt(e.innerHTML); // #todo double check int ids still work
                     var key = cell_val;
-                    //console.log("key",key);
 
                     var val = (key in data
                                     ? data[key][field_name]
@@ -398,14 +390,15 @@
                 var cols_open = parseInt($(elem).attr('cols_open'));
 
                 var handle_class;
+
                 { // find handle_class ("levelXhandle" class) to remove to undo color
+
                     // use first cell as an example - all of them are the same
                     var first_cell = all_cells.first();
                     // use native DomElement.classList
                     var cell_classes = first_cell.get(0).classList;
 
                     CELL_CLASSES = cell_classes; // #todo delete
-                    //console.log('cell_classes',cell_classes); // #todo delete
 
                     for (var i in cell_classes) {
                         var classname = cell_classes[i];
@@ -416,7 +409,6 @@
                         }
                     }
 
-                    //console.log('handle_class',handle_class);
                 }
 
                 // for each row, remove all the open columns after that cell
@@ -438,8 +430,6 @@
                 if (isValidJoinField(field_name)) {
 
                     var prefix = field_name.slice(0,-3);
-                    //console.log(prefix);
-                    //console.log(field_name);
 
                     // #todo validate prefix = valid table name?
 
@@ -449,7 +439,6 @@
                             //var table_name = prefix;
 
                             var all_cells = nthCol(col_no);
-                            //console.log('all_cells',all_cells);
                             var val_cells = all_cells.filter('td');
                             var ids = getColVals(val_cells);
                             var non_null_ids = ids.filter(isTruthy)
@@ -457,17 +446,12 @@
                             ;
                             // #todo remove dups from non_null_ids
 
-                            //console.log('non_null_ids');
-                            //console.log(non_null_ids);
-
-                            //var ids_str = non_null_ids.join(',');
                             var uri = 'query_id_in<?= $maybe_url_php_ext ?>';
                             var request_data = {
                                 ids: non_null_ids,
                                 join_field: field_name
                             };
 
-                            //console.log(uri);
                         }
 
                         { // make request
@@ -477,14 +461,12 @@
                                 data: request_data,
                                 dataType: 'json',
                                 success: function(data) {
-                                    //console.log(data);
                                     var exclude_fields = {
                                         field_name: 1
                                     };
                                     addDataToTable(all_cells, data, exclude_fields);
                                 },
                                 error: function(r) {
-                                    //console.log("Failure");
                                     alert("Failure");
                                 }
                             });
