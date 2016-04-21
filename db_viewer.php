@@ -152,6 +152,47 @@
 		nthRow(n).removeClass('shadowing'); //.css('background','initial')
 	}
 
+
+
+    function splitRow($row, num_rows) {
+        $row.find('td').attr('rowspan', num_rows);
+        var $last_row = $row;
+        var $rows = [$row];
+        for (var rowN = 1; rowN < num_rows; rowN++) {
+            var $new_row = $('<tr></tr>');
+            $rows.push($new_row); // array to return
+            $last_row.after($new_row); // add to DOM
+            $last_row = $new_row;
+        }
+        return $rows;
+    }
+
+    // given a row, add multiple rows that go alongside it
+    // use rowspan to juxtapose the 1 row with the multiple joined rows
+    // 1-to-many relationship
+    function multiRowJoin($row) {
+        var num_rows = 3;
+        var $rows = splitRow($row, num_rows);
+        var col_num = 0; // col to insert after
+
+        var elems_to_add = [
+            $('<td>test</td><td>test2</td>'),
+            $('<td>test3</td><td>test4</td>'),
+            $('<td>test4</td><td>test5</td>'),
+        ]
+
+        // add to top row - have to insert after the right <td>
+        var $top_elem = $row.find('td').eq(col_num);
+        $top_elem.after(elems_to_add[0]);
+
+        // add to other rows - no td's to compete with
+        for (var rowN = 1; rowN < num_rows; rowN++) {
+            console.log('rowN',rowN);
+            var $this_row = $rows[rowN];
+            $this_row.append(elems_to_add[rowN]);
+        }
+    }
+
 </script>
 
 </head>
