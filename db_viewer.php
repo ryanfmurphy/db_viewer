@@ -207,31 +207,6 @@
 
 <script>
 
-    // fold / unfold via click
-    var tdClickHandler = function(e){
-        // alt to fold/unfold row
-        if (e.altKey) {
-            rowN = $(e.target).closest('tr').attr('data-row');
-
-            if (e.shiftKey) {
-                unfoldRowsFrom(rowN);
-            }
-            else {
-                hideRow(rowN);
-            }
-        }
-        // no alt to fold/unfold col
-        else {
-            colN = e.target.cellIndex;
-            if (e.shiftKey) {
-                unfoldColsFrom(colN);
-            }
-            else {
-                hideCol(colN);
-            }
-        }
-    };
-
     function getColVals(cells) {
         var vals = $.map(cells, function(n,i){return n.innerText});
         return vals;
@@ -436,6 +411,9 @@
         }
     }
 
+
+    // HANDLERS
+
     // click on header field name (e.g. site_id) - joins to that table, e.g. site
     // displays join inline and allows you to toggle it back
     var thClickHandler = function(e){
@@ -449,6 +427,32 @@
             openJoin(elem);
         }
     };
+
+    // fold / unfold via click
+    var tdClickHandler = function(e){
+        // alt to fold/unfold row
+        if (e.altKey) {
+            rowN = $(e.target).closest('tr').attr('data-row');
+
+            if (e.shiftKey) {
+                unfoldRowsFrom(rowN);
+            }
+            else {
+                hideRow(rowN);
+            }
+        }
+        // no alt to fold/unfold col
+        else {
+            colN = e.target.cellIndex;
+            if (e.shiftKey) {
+                unfoldColsFrom(colN);
+            }
+            else {
+                hideCol(colN);
+            }
+        }
+    };
+
 
 <?php if ($oldJquery) { ?>
     $('td').live('click', tdClickHandler);

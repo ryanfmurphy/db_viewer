@@ -1,5 +1,5 @@
 <?php
-    $PDO = true;
+    $PDO = true; #todo non-PDO is #deprecated, prune
 
     require_once('db-config.php');
     $db = $PDO
