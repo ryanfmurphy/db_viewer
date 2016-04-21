@@ -1,9 +1,9 @@
 <?php
-    header('Content-Type: text/css');
+	if (!isset($inlineCss) || !$inlineCss) {
+		header('Content-Type: text/css');
+	}
 ?>
-
 /*<style>*/
-
 html {
     margin: 50px;
     padding:0;
@@ -57,6 +57,3 @@ tr.shadowing th {
 .level3 {
     background: #bbbbff;
 }
-
-/*</style>*/
-

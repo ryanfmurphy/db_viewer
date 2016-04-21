@@ -25,7 +25,7 @@
 
     { # init
         $cmp = class_exists('Util'); #todo don't call the class Util, call it DbViewer and allow it to be overloaded
-        $oldJquery = $cmp;
+        $oldJquery = $inlineCss = $cmp;
 
         # other larger programs can integrate this one
         # by writing their own Util class with a sql()
@@ -76,7 +76,21 @@
 <!-- load jQuery -->
 <script src="<?= $jquery_url ?>"></script>
 
+<?php
+	if ($inlineCss && $cmp) {
+		$cssPath = __DIR__ . "/style.css.php";
+?>
+<style>
+		<?php include($cssPath); ?>
+</style>
+<?php
+	}
+	else {
+?>
 <link rel="stylesheet" type="text/css" href="style.css.php">
+<?php
+	}
+?>
 
 <script>
 
