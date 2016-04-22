@@ -467,6 +467,10 @@
     }
 
 
+    // GLOBALS
+    var show_hide_mode = false;
+
+
     // HANDLERS
 
     // click on header field name (e.g. site_id) - joins to that table, e.g. site
@@ -485,27 +489,31 @@
 
     // fold / unfold via click
     var tdClickHandler = function(e){
-        // alt to fold/unfold row
-        if (e.altKey) {
-            rowN = $(e.target).closest('tr').attr('data-row');
 
-            if (e.shiftKey) {
-                unfoldRowsFrom(rowN);
+        if (show_hide_mode) {
+            // alt to fold/unfold row
+            if (e.altKey) {
+                rowN = $(e.target).closest('tr').attr('data-row');
+
+                if (e.shiftKey) {
+                    unfoldRowsFrom(rowN);
+                }
+                else {
+                    hideRow(rowN);
+                }
             }
+            // no alt to fold/unfold col
             else {
-                hideRow(rowN);
+                colN = e.target.cellIndex;
+                if (e.shiftKey) {
+                    unfoldColsFrom(colN);
+                }
+                else {
+                    hideCol(colN);
+                }
             }
         }
-        // no alt to fold/unfold col
-        else {
-            colN = e.target.cellIndex;
-            if (e.shiftKey) {
-                unfoldColsFrom(colN);
-            }
-            else {
-                hideCol(colN);
-            }
-        }
+
     };
 
 
