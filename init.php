@@ -1,32 +1,15 @@
 <?php
-    $PDO = true; #todo non-PDO is #deprecated, prune
-
     require_once('db-config.php');
-    $db = $PDO
-            ? new PDO(
-                "$db_type:host=$db_host;dbname=$db_name",
-                $db_user, $db_password
-            )
-            : mysqli_connect(
-                $db_host, $db_user, $db_password,
-                $db_name
-            );
+    $db = new PDO(
+        "$db_type:host=$db_host;dbname=$db_name",
+        $db_user, $db_password
+    );
 
     class Util {
 
         public static function sql($query, $returnType='array') {
-            global $db, $PDO;
-            if ($PDO) {
-                return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
-            }
-            else {
-                $result = mysqli_query($db, $query);
-                $rows = array();
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $rows[] = $row;
-                }
-                return $rows;
-            }
+            global $db;
+            return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
         }
 
         public static function has_valid_join_field_suffix($field_name) {
@@ -118,8 +101,7 @@
 		# result is keyed by table_name, all vals are 1
 		# for fast lookup, can use e.g.:
 			# $tables = Util::sqlTables();
-			# if (isset($tables['contractor'])) {
-			#	...
+			# if (isset($tables['contractor'])) ...
 		public static function sqlTables() {
             global $db_type;
 
@@ -143,7 +125,31 @@
 
             return $tables;
 		}
+
+        public static function tables_with_field($fieldname) {
+            $rows = Util::sql("
+                select table_schema, table_name
+                from information_schema.columns
+                where column_name='$fieldname'
+            ");
+
+            $tables = array();
+            foreach ($rows as $row) {
+                $schema = $row['table_schema'];
+                $table_name = $row['table_name'];
+                if ($schema != 'public') {
+                    $table_name = "$schema.$table_name";
+                }
+                $tables[] = $table_name;
+            }
+
+            return $tables;
+        }        
     }
 
     #$jquery_url = "/js/jquery.min.js"; #todo #fixme give cdn url by default
+
+    if ($pg && isset($search_path)) {
+        Util::sql("set search_path to $search_path");
+    }
 ?>
