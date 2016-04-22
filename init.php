@@ -126,12 +126,32 @@
             return $tables;
 		}
 
-        public static function tables_with_field($fieldname) {
-            $rows = Util::sql("
+        public static function val_list_str($vals) {
+            $val_reps = array_map(
+                function($val) {
+                    #todo #fixme doesn't work for nulls
+                    return "'$val'";
+                },
+                $vals
+            );
+            return implode(',', $val_reps);
+        }
+
+        public static function tables_with_field($fieldname, $data_type=NULL) {
+            {   ob_start();
+?>
                 select table_schema, table_name
                 from information_schema.columns
-                where column_name='$fieldname'
-            ");
+                where column_name='<?= $fieldname ?>'
+<?php
+                if ($data_type) {
+?>
+                    and data_type='<?= $data_type ?>'
+<?php
+                }
+                $sql = ob_get_clean();
+            }
+            $rows = Util::sql($sql);
 
             $tables = array();
             foreach ($rows as $row) {
@@ -144,7 +164,24 @@
             }
 
             return $tables;
-        }        
+        }
+
+        public static function rows_with_field_vals($fieldname, $vals, $data_type=NULL) {
+            $tables = self::tables_with_field($fieldname, $data_type);
+            $val_list = self::val_list_str($vals);
+            foreach ($tables as $table) {
+                $sql = "
+                    select * from $table
+                    where $fieldname in ($val_list)
+                ";
+
+                $rows = Util::sql($sql);
+                if (count($rows)) {
+                    $table_rows[$table] = $rows;
+                }
+            }
+            return $table_rows;
+        }
     }
 
     #$jquery_url = "/js/jquery.min.js"; #todo #fixme give cdn url by default

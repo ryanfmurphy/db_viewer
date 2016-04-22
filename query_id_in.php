@@ -6,17 +6,7 @@
 
     #todo change interface to take join_field and figure out table
 
-    function val_str($vals) {
-        $val_reps = array_map(
-            function($val) {
-                return "'$val'";
-            },
-            $vals
-        );
-        return implode(',', $val_reps);
-    }
-
-	$cmp = class_exists('Util');
+	$cmp = class_exists('Util'); #todo #fixme no val_list_str function
 	if (!$cmp) {
 		require_once('init.php');
 	}
@@ -33,7 +23,7 @@
 		#todo allow non-integer expansion
 		#if (preg_match('/^[0-9,]+$/', $ids)) {
         if (is_array($ids)) {
-            $ids_str = val_str($ids);
+            $ids_str = Util::val_list_str($ids);
 
 			# do query
 			$query = "
