@@ -1,5 +1,5 @@
 <?php
-    require_once('db-config.php');
+    require_once('db_config.php');
     $db = new PDO(
         "$db_type:host=$db_host;dbname=$db_name",
         $db_user, $db_password

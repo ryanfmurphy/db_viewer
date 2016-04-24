@@ -10,3 +10,5 @@ To-Do List
 
 * make filenames consistent - all underscores, no hyphens
 
+* give a helpful error if user didn't fill out the `db_config.md`
+
