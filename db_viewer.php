@@ -524,9 +524,8 @@
             // already opened - close
             closeJoin(elem);
         }
-        else {
-            // not already opened - do open
-            if (e.target.cellIndex == 0) {
+        else { // not already opened - do open
+            if (e.altKey) {
                 openBacklinkedJoin(elem);
             }
             else {
