@@ -466,10 +466,27 @@
         }
     }
 
+    // reverse of openJoin - search the db for other tables
+    // that have an id field pointing to this one
+    function openBacklinkedJoin(elem) {
+        var id_field_name = 'campaign_id'; // #todo generalize
+        var vals = [1,2,3,4,5]; // #todo generalize
+        var data_type = null; // #todo generalize
+
+        ajaxRowsWithFieldVals(
+            id_field_name, vals, data_type,
+
+            function(data) {
+                console.log('data', data);
+                //addDataToTable(all_cells, data, exclude_fields);
+            }
+        );
+    }
+
     // database-wide search for tables with matching fieldname
     // and specifically for rows from those tables
     // whose that_field matches one of vals
-    function ajax_rows_with_field_vals(fieldname, vals, data_type) {
+    function ajaxRowsWithFieldVals(fieldname, vals, data_type, callback) {
 
         var uri = 'rows_with_field_vals<?= $maybe_url_php_ext ?>';
 
@@ -485,13 +502,7 @@
             data: request_data,
             dataType: 'json',
 
-            success: function(data) {
-
-                console.log('data', data);
-
-                //addDataToTable(all_cells, data, exclude_fields);
-
-            },
+            success: callback,
             error: function(r) {
                 alert("Failure");
             }
@@ -515,7 +526,12 @@
         }
         else {
             // not already opened - do open
-            openJoin(elem);
+            if (e.target.cellIndex == 0) {
+                openBacklinkedJoin(elem);
+            }
+            else {
+                openJoin(elem);
+            }
         }
     };
 
