@@ -469,18 +469,79 @@
     // reverse of openJoin - search the db for other tables
     // that have an id field pointing to this one
     function openBacklinkedJoin(elem) {
-        var id_field_name = 'campaign_id'; // #todo generalize
-        var vals = [1,2,3,4,5]; // #todo generalize
-        var data_type = null; // #todo generalize
+        var field_name = elem.innerHTML.trim();
 
-        ajaxRowsWithFieldVals(
-            id_field_name, vals, data_type,
+        if (isValidJoinField(field_name)) {
 
-            function(data) {
-                console.log('data', data);
-                //addDataToTable(all_cells, data, exclude_fields);
+            var col_no = elem.cellIndex;
+            var all_cells = nthCol(col_no);
+            var val_cells = all_cells.filter('td');
+            var vals = getColVals(val_cells); // #todo generalize
+            var data_type = null; // #todo generalize
+
+            console.log('field_name',field_name);
+
+            ajaxRowsWithFieldVals(
+                field_name, vals, data_type,
+
+                function(data) {
+                    console.log('data', data);
+                    //addDataToTable(all_cells, data, exclude_fields);
+                }
+            );
+
+            /*
+            var prefix = field_name.slice(0,-3);
+
+            // #todo validate prefix = valid table name?
+
+            { // request adjoining table data #todo split into function
+
+                { // figure out what data to ask for based on ids in col
+                    //var table_name = prefix;
+
+                    var col_no = elem.cellIndex;
+                    var all_cells = nthCol(col_no);
+                    var val_cells = all_cells.filter('td');
+                    var ids = getColVals(val_cells);
+                    var non_null_ids = ids.filter(isTruthy)
+                        .map(trimIfString)
+                    ;
+                    // #todo remove dups from non_null_ids
+
+                    var uri = 'query_id_in<?= $maybe_url_php_ext ?>';
+                    var request_data = {
+                        ids: non_null_ids,
+                        join_field: field_name
+                    };
+
+                }
+
+                { // make request
+                    $.ajax({
+                        url: uri,
+                        type: 'POST',
+                        data: request_data,
+                        dataType: 'json',
+                        success: function(data) {
+
+                            var exclude_fields = {};
+                            exclude_fields[field_name] = 1;
+
+                            addDataToTable(all_cells, data, exclude_fields);
+
+                        },
+                        error: function(r) {
+                            alert("Failure");
+                        }
+                    });
+                }
             }
-        );
+            */
+        }
+        else {
+            alert("Cannot expand this field \""+field_name+"\" - it doesn't end in \"_id\"");
+        }
     }
 
     // database-wide search for tables with matching fieldname
