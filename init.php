@@ -167,8 +167,10 @@
         }
 
         public static function rows_with_field_vals($fieldname, $vals, $data_type=NULL) {
+            #todo depending on $id_type, send e.g. $fieldname='inventory_id' for the 'id' field of inventory
             $tables = self::tables_with_field($fieldname, $data_type);
             $val_list = self::val_list_str($vals);
+            $table_rows = array();
             foreach ($tables as $table) {
                 $sql = "
                     select * from $table
