@@ -410,7 +410,6 @@
 
     function openJoin(elem) {
 
-        var col_no = elem.cellIndex;
         var field_name = elem.innerHTML.trim();
 
         if (isValidJoinField(field_name)) {
@@ -424,6 +423,7 @@
                 { // figure out what data to ask for based on ids in col
                     //var table_name = prefix;
 
+                    var col_no = elem.cellIndex;
                     var all_cells = nthCol(col_no);
                     var val_cells = all_cells.filter('td');
                     var ids = getColVals(val_cells);
