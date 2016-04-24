@@ -8,3 +8,5 @@ To-Do List
         * insert that data into the DOM, html `<table>` style
             * with a `rowspan` in the many-to-1 case
 
+* make filenames consistent - all underscores, no hyphens
+

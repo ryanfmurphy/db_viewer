@@ -466,6 +466,38 @@
         }
     }
 
+    // database-wide search for tables with matching fieldname
+    // and specifically for rows from those tables
+    // whose that_field matches one of vals
+    function ajax_rows_with_field_vals(fieldname, vals, data_type) {
+
+        var uri = 'rows_with_field_vals<?= $maybe_url_php_ext ?>';
+
+        var request_data = {
+            fieldname: fieldname,
+            vals: vals,
+            data_type: data_type
+        };
+
+        $.ajax({
+            url: uri,
+            type: 'POST',
+            data: request_data,
+            dataType: 'json',
+
+            success: function(data) {
+
+                console.log('data', data);
+
+                //addDataToTable(all_cells, data, exclude_fields);
+
+            },
+            error: function(r) {
+                alert("Failure");
+            }
+        });
+    }
+
 
     // GLOBALS
     var show_hide_mode = false;
