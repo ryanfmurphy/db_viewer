@@ -12,3 +12,5 @@ To-Do List
 
 * give a helpful error if user didn't fill out the `db_config.md`
 
+* global scope won't work for CMP/SD - use static class variables
+

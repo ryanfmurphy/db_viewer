@@ -1,8 +1,9 @@
 <?php
+	require_once('db_config.php');
+
     {   # some programs may provide
         # a DB connection and Util class themselves
         if (!class_exists('Util')) {
-            require_once('db_config.php');
             $db = new PDO(
                 "$db_type:host=$db_host;dbname=$db_name",
                 $db_user, $db_password
@@ -114,17 +115,17 @@
 			# $tables = DbViewer::sqlTables();
 			# if (isset($tables['contractor'])) ...
 		public static function sqlTables() {
-            global $db_type;
+            global $db_type; #todo #fixme - global scope won't work for CMP/SD - use static class variables
 
-            if ($db_type == 'mysql') {
-                $rows = Util::sql('show tables');
-            }
-            else { # probably pgsql
+            if ($db_type == 'pgsql') {
                 $rows = Util::sql("
                     select table_name
                     from information_schema.tables
                     where table_schema in ('public')
                 ");
+            }
+			else { # probably mysql
+                $rows = Util::sql('show tables');
             }
 
             $tables = array();
