@@ -357,12 +357,12 @@
                                     ? field_name
                                     : showVal(val));
             var content = '\
-                        <'+TD_or_TH+'                   \
+                        <'+TD_or_TH+' \
                             class="level' + level + '" \
-                            level="' + level + '"      \
-                        >                               \
-                            '+display_val+'             \
-                        </'+TD_or_TH+'>                 \
+                            level="' + level + '" \
+                        > \
+                            '+display_val+' \
+                        </'+TD_or_TH+'> \
                        ';
             $(elem).after(content);
 
@@ -387,12 +387,23 @@
         var field_names = getObjKeys(first_obj);
         console.log('data',data);
         console.log('field_names',field_names);
+        var num_new_cols = field_names.length;
+
+        var outerLevel = parseInt( cells.first().attr('level') )
+                            || 0;
+        var innerLevel = outerLevel + 1;
 
         var header_cells_str = '';
         for (i in field_names) {
             field_name = field_names[i];
             console.log('looping headers, field_name', field_name);
-            header_cells_str += '<th>' + field_name + '</th>';
+            header_cells_str += '\
+                <th class="level' + innerLevel + '"\
+                    level="' + innerLevel + '"\
+                >\
+                    ' + field_name + '\
+                </th>\
+            ';
         }
         var header_cells = $(header_cells_str);
         console.log('header_cells',header_cells);
@@ -418,7 +429,13 @@
                                 //console.log('field_name',field_name);
                                 var val = data_subrow[field_name];
                                 //console.log('val',val);
-                                return $('<td>' + val + '</td>');
+                                return $('\
+                                    <td class="level' + innerLevel + '"\
+                                        level="' + innerLevel + '"\
+                                    >\
+                                        ' + val + '\
+                                    </td>\
+                                ');
                             }
                         );
                         console.log('table_subrow',table_subrow);
@@ -430,6 +447,11 @@
                 var col_num = elem.cellIndex;
                 addInnerRowsToRow(row, table_subrows, col_num);
             }
+
+            // update elem's css classes / color / etc
+            $(elem).addClass('level' + innerLevel + 'handle')
+                .attr('cols_open', num_new_cols);
+
         });
     }
 
