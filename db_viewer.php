@@ -195,13 +195,18 @@
         // must insert after the correct <td>
         var $top_elem = $row.find('td').eq(col_num);
         var new_content = new_rows[0];
-        $top_elem.after( new_content );
+        //console.log('new_content', new_content);
+        $top_elem.after(new_content);
+        //console.log('appended');
 
         // add to subsequent rows - no existing td's to compete with
         for (var rowN = 1; rowN < num_rows; rowN++) {
-            console.log('rowN',rowN);
+            //console.log('rowN',rowN);
             var $this_row = $rows[rowN];
-            $this_row.append( $(new_rows[rowN]) );
+            var new_content = new_rows[rowN];
+            //console.log('new_content', new_content);
+            $this_row.append(new_content);
+            //console.log('appended');
         }
     }
 
@@ -324,8 +329,12 @@
         var key = cell_val;
 
         var val = (key in data
-                        ? data[key][field_name]
+                        ? data[key]
                         : '');
+
+        if (val && field_name) {
+            val = val[field_name];
+        }
 
         return val;
     }
@@ -372,44 +381,52 @@
     function addBacklinkedDataToTable(cells, data, exclude_fields) {
 
         // get # fields from first row of data
-        var first_obj = data[firstObjKey(data)];
+        // [0] because multiple sub-rows per key, take the 1st one
+        var first_obj = data[firstObjKey(data)][0];
+        //console.log('first_obj',first_obj);
         var field_names = getObjKeys(first_obj);
         console.log('data',data);
         console.log('field_names',field_names);
 
-        var header_cells = $.map(
-            field_names,
-            function(field_name,idx){
-                return $('<th>' + field_name + '</th>');
-            }
-        );
+        var header_cells = $();
+        for (i in field_names) {
+            field_name = field_names[i];
+            $.extend(header_cells, $('<th>' + field_name + '</th>'));
+        }
         console.log('header_cells',header_cells);
 
         cells.each(function(idx,elem){
             var row = $(elem).closest('tr');
             if (isHeaderRow(row)) {
-                console.log('header row');
-                $(elem).after(header_cells);
+                console.log('header_row', header_cells);
+                console.log('elem', elem);
+                var these_header_cells = header_cells.clone();
+                $(elem).after(these_header_cells);
             }
             else {
-                var data_cells = $.map( // #todo deal with multiple rows per outer row
-                    field_names,
-                    function(field_name,idx) {
-                        console.log('elem',elem);
-                        var val = getDataKeyedByCellContents(elem, data, field_name);
-                        console.log('field_name',field_name);
-                        console.log('val',val);
-                        return $('<td>' + val + '</td>');
+                var subrows = getDataKeyedByCellContents(elem, data); //, field_name);
+                //console.log('elem',elem);
+                //console.log('subrows',subrows);
+
+                var table_subrows = subrows.map(
+                    function(data_subrow, idx, arr){
+                        var table_subrow = $.map(
+                            field_names,
+                            function(field_name,idx2) {
+                                //console.log('field_name',field_name);
+                                var val = data_subrow[field_name];
+                                //console.log('val',val);
+                                return $('<td>' + val + '</td>');
+                            }
+                        );
+                        console.log('table_subrow',table_subrow);
+                        return table_subrow;
                     }
                 );
-                var new_rows = [ // #todo generalize
-                    data_cells
-                    //$('<td>test</td><td>test2</td>'),
-                    //$('<td>test3</td><td>test4</td>'),
-                    //$('<td>test4</td><td>test5</td>'),
-                ];
+                //console.log('table_subrows',table_subrows);
+
                 var col_num = elem.cellIndex;
-                addInnerRowsToRow(row, new_rows, col_num);
+                addInnerRowsToRow(row, table_subrows, col_num);
             }
         });
     }

@@ -169,7 +169,7 @@
 
                 $rows = Util::sql($sql);
                 if (count($rows)) {
-                    $data = self::keyRowsByField($rows, $fieldname);
+                    $data = self::keyRowsByFieldMulti($rows, $fieldname);
                     $table_rows[$table] = $data;
                 }
             }
@@ -182,6 +182,16 @@
 			foreach ($rows as $row) {
 				$idVal = $row[$keyField];
 				$data[$idVal] = $row;
+			}
+            return $data;
+        }
+
+        # same thing but allow multiple rows per key
+        public static function keyRowsByFieldMulti($rows, $keyField) {
+			$data = array();
+			foreach ($rows as $row) {
+				$idVal = $row[$keyField];
+				$data[$idVal][] = $row;
 			}
             return $data;
         }
