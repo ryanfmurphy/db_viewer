@@ -177,11 +177,16 @@
             return $tables;
         }
 
-        public static function rows_with_field_vals($fieldname, $vals, $data_type=NULL) {
-            #todo depending on $id_type, send e.g. $fieldname='inventory_id' for the 'id' field of inventory
-            $tables = self::tables_with_field($fieldname, $data_type);
+        #todo (front-end) depending on $id_type,
+            # send e.g. $fieldname='inventory_id' for the 'id' field of inventory
+        public static function rows_with_field_vals($fieldname, $vals, $table=NULL, $data_type=NULL) {
+
+            $tables = ($table === null
+                         ? self::tables_with_field($fieldname, $data_type)
+                         : array($table));
             $val_list = self::val_list_str($vals);
             $table_rows = array();
+
             foreach ($tables as $table) {
                 $sql = "
                     select * from $table
@@ -190,11 +195,23 @@
 
                 $rows = Util::sql($sql);
                 if (count($rows)) {
-                    $table_rows[$table] = $rows;
+                    $data = self::keyRowsByField($rows, $fieldname);
+                    $table_rows[$table] = $data;
                 }
             }
+
             return $table_rows;
         }
+
+        public static function keyRowsByField($rows, $keyField) {
+			$data = array();
+			foreach ($rows as $row) {
+				$idVal = $row[$keyField];
+				$data[$idVal] = $row;
+			}
+            return $data;
+        }
+
     }
 
     { # postgres-specific setup

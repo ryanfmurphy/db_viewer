@@ -31,11 +31,7 @@
             #die($query);
 			$rows = Util::sql($query, 'array');
 
-			$data = array();
-			foreach ($rows as $row) {
-				$idVal = $row[$joinField];
-				$data[$idVal] = $row;
-			}
+            $data = DbViewer::keyRowsByField($rows, $joinField);
 
 			die(json_encode($data));
 		}

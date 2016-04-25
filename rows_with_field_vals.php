@@ -14,13 +14,16 @@
             { # vars
                 $fieldname = $vars['fieldname'];
                 $vals = $vars['vals'];
-                $data_type = isset($vars['data_type'])
+                $table = (isset($vars['table'])
+                            ? $vars['table']
+                            : null);
+                $data_type = (isset($vars['data_type'])
                                 ? $vars['data_type']
-                                : null;
+                                : null);
             }
 
             if (is_array($vals)) {
-                $results = DbViewer::rows_with_field_vals($fieldname, $vals, $data_type);
+                $results = DbViewer::rows_with_field_vals($fieldname, $vals, $table, $data_type);
                 die(json_encode($results));
             }
             else { die('Invalid vals'); }
