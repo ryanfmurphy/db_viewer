@@ -174,7 +174,7 @@
 	}
 
 
-
+    // #todo if row is already split, increase rowspan if needed otherwise leave it alone
     function splitRow($row, num_rows) {
         $row.find('td').attr('rowspan', num_rows);
         var $last_row = $row;
@@ -191,26 +191,20 @@
     // given a row, add multiple rows that go alongside it
     // use rowspan to juxtapose the 1 row with the multiple joined rows
     // 1-to-many relationship
-    function multiRowJoin($row) {
-        var num_rows = 3;
+    function addInnerRowsToRow($row, new_rows, col_num) {
+        var num_rows = new_rows.length;
         var $rows = splitRow($row, num_rows);
-        var col_num = 0; // col to insert after
 
-        var elems_to_add = [
-            $('<td>test</td><td>test2</td>'),
-            $('<td>test3</td><td>test4</td>'),
-            $('<td>test4</td><td>test5</td>'),
-        ]
-
-        // add to top row - have to insert after the right <td>
+        // add to top row - some td's already present
+        // must insert after the correct <td>
         var $top_elem = $row.find('td').eq(col_num);
-        $top_elem.after(elems_to_add[0]);
+        $top_elem.after( $(new_rows[0]) );
 
-        // add to other rows - no td's to compete with
+        // add to subsequent rows - no existing td's to compete with
         for (var rowN = 1; rowN < num_rows; rowN++) {
             console.log('rowN',rowN);
             var $this_row = $rows[rowN];
-            $this_row.append(elems_to_add[rowN]);
+            $this_row.append( $(new_rows[rowN]) );
         }
     }
 
@@ -363,12 +357,28 @@
 
     }
 
+    function isHeaderRow(row) {
+        return row.children('th').length > 0;
+    }
+
     function addBacklinkedDataToTable(cells, data, exclude_fields) {
         console.log('data',data);
         cells.each(function(idx,elem){
             var row = $(elem).closest('tr');
-            var num_split_rows = 3; // #todo generalize
-            splitRow(row, num_split_rows);
+            if (isHeaderRow(row)) {
+                console.log('header row');
+                var headers = $('<th>new_header_1</th><th>new_header_2</th>'); // #todo generalize
+                $(elem).after(headers);
+            }
+            else {
+                var new_rows = [ // #todo generalize
+                    $('<td>test</td><td>test2</td>'),
+                    $('<td>test3</td><td>test4</td>'),
+                    $('<td>test4</td><td>test5</td>'),
+                ];
+                var col_num = elem.cellIndex;
+                addInnerRowsToRow(row, new_rows, col_num);
+            }
         });
     }
 

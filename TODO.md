@@ -18,3 +18,8 @@ To-Do List
 
 * provide a way to togger `show_hide_mode` so user can hide/show table rows and columns
 
+* color-code the sections in a round-robin style, with more color options
+    * (not in the current hierarchical way)
+    * allows adjacent sections of the same level to be different colors
+        * currently if you open 2 adjacent fields, they will both be red and thus look confusing
+
