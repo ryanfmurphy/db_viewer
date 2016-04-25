@@ -62,7 +62,7 @@
 <?php
 		foreach ($firstRow as $fieldName => $val) {
 ?>
-		<th>
+		<th class="popr" data-id="1">
 			<?= $fieldName ?>
 		</th>
 <?php
@@ -76,28 +76,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-<!-- load jQuery -->
-<script src="<?= $jquery_url ?>"></script>
+    <!-- load jQuery -->
+    <script src="<?= $jquery_url ?>"></script>
+    <script src="popr/popr.js"></script>
 
 <?php
 	if ($inlineCss && $cmp) {
 		$cssPath = __DIR__ . "/style.css.php";
 ?>
-<style>
+    <style>
 		<?php include($cssPath); ?>
-</style>
+        <?php include('popr/popr.css'); ?>
+    </style>
 <?php
 	}
 	else {
 ?>
-<link rel="stylesheet" type="text/css" href="style.css.php">
+    <link rel="stylesheet" type="text/css" href="style.css.php">
+    <link rel="stylesheet" type="text/css" href="popr/popr.css">
 <?php
 	}
 ?>
 
-<script>
+    <script>
+
+    // GLOBALS
+    var lastClickedElem;
+    var backlinkJoinTable;
+
 
 	function nthCol(n) {
+        console.log('nthCol', n);
         var n_plus_1 = (parseInt(n)+1).toString();
 		return $('#query_table tr > *:nth-child('
             + n_plus_1 +
@@ -210,7 +219,7 @@
         }
     }
 
-</script>
+    </script>
 
 </head>
 
@@ -510,6 +519,11 @@
 
     function openJoin(elem) {
 
+        // don't do openJoin if this is a popup menu click
+        if ($(elem).is('.popr-item')) {
+            return false;
+        }
+
         var field_name = elem.innerHTML.trim();
 
         if (isValidJoinField(field_name)) {
@@ -566,8 +580,6 @@
         }
     }
 
-    var BL_TABLE = 'contractor2campaign'; // #todo delete, replace with UI popup menu
-
     // reverse of openJoin - search the db for other tables
     // that have an id field pointing to this one
     function openBacklinkedJoin(elem) {
@@ -578,9 +590,9 @@
             var col_no = elem.cellIndex;
             var all_cells = nthCol(col_no);
             var val_cells = all_cells.filter('td');
-            var vals = getColVals(val_cells); // #todo generalize
-            var table = BL_TABLE; // #todo generalize
-            var data_type = null; // #todo generalize
+            var vals = getColVals(val_cells);
+            var table = backlinkJoinTable;
+            var data_type = null; // #todo generalize if necessary
 
             console.log('field_name',field_name);
 
@@ -642,7 +654,7 @@
         }
         else { // not already opened - do open
             if (e.altKey) {
-                openBacklinkedJoin(elem);
+                // backlinked join handled by popr popup menu
             }
             else {
                 openJoin(elem);
@@ -695,5 +707,25 @@
 	}
 }
 ?>
+
+    <!-- init popup menu -->
+    <div class="popr-box" data-box-id="1">
+        <!-- #todo dynamically populate with relevant tables -->
+        <div class="popr-item">contractor2campaign</div>
+        <div class="popr-item">note2campaign</div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('.popr').popr();
+            $(document).on('click', '.popr-item', function(e){
+                var elem = lastClickedElem;
+                var popupItemElem = e.target;
+                backlinkJoinTable = popupItemElem.innerHTML.trim();
+                console.log('elem',elem);
+                console.log('backlinkJoinTable',backlinkJoinTable);
+                openBacklinkedJoin(elem);
+            });
+        });
+    </script>
 </body>
 </html>
