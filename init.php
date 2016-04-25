@@ -60,6 +60,9 @@
 				$root = substr($field_name, 0, -strlen($suffix));
 
                 #todo move into full_tablename()
+                #todo make sure that this is a FALLBACK:
+                #     if there's a full field_name match, use that
+                #     otherwise try this loop
 				{   # if it's not as simple as `contractor_id`
                     # try to find a table that this id might be pointing to
                     # e.g. `parent_contractor_id` also links to contractor
@@ -108,13 +111,12 @@
             if ($db_type == 'mysql') {
                 $rows = Util::sql('show tables');
             }
-            else {
-                $rows = Util::sql("select table_name from information_schema.tables where table_schema in ('public')");
-
-                /*return array( #todo use real query
-                    'food'=>1, 'ate'=>1, 'person'=>1,
-                    'company'=>1, 'quote'=>1,
-                );*/
+            else { # probably pgsql
+                $rows = Util::sql("
+                    select table_name
+                    from information_schema.tables
+                    where table_schema in ('public')
+                ");
             }
 
             $tables = array();
