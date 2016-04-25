@@ -1,16 +1,30 @@
 <?php
-    require_once('db_config.php');
-    $db = new PDO(
-        "$db_type:host=$db_host;dbname=$db_name",
-        $db_user, $db_password
-    );
+    {   # some programs may provide
+        # a DB connection and Util class themselves
+        if (!class_exists('Util')) {
+            require_once('db_config.php');
+            $db = new PDO(
+                "$db_type:host=$db_host;dbname=$db_name",
+                $db_user, $db_password
+            );
 
-    class Util {
+            class Util {
 
-        public static function sql($query, $returnType='array') {
-            global $db;
-            return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
+                public static function sql($query, $returnType='array') {
+                    global $db;
+                    return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
+                }
+
+                public static function endsWith($needle,$haystack) {
+                    $len = strlen($needle);
+                    $LEN = strlen($haystack);
+                    return substr($haystack, $LEN - $len) == $needle;
+                }
+            }
         }
+    }
+
+    class DbViewer {
 
         public static function has_valid_join_field_suffix($field_name) {
             $suffix = substr($field_name, -3);
@@ -66,7 +80,7 @@
 				{   # if it's not as simple as `contractor_id`
                     # try to find a table that this id might be pointing to
                     # e.g. `parent_contractor_id` also links to contractor
-                    $possible_tables = Util::sqlTables();
+                    $possible_tables = DbViewer::sqlTables();
 
                     if (!isset($possible_tables[$root])) {
                         # loop looking for table ending in $table
@@ -95,15 +109,9 @@
 			}
 		}
 
-		public static function endsWith($needle,$haystack) {
-			$len = strlen($needle);
-			$LEN = strlen($haystack);
-			return substr($haystack, $LEN - $len) == $needle;
-		}
-
 		# result is keyed by table_name, all vals are 1
 		# for fast lookup, can use e.g.:
-			# $tables = Util::sqlTables();
+			# $tables = DbViewer::sqlTables();
 			# if (isset($tables['contractor'])) ...
 		public static function sqlTables() {
             global $db_type;
@@ -188,9 +196,11 @@
         }
     }
 
-    #$jquery_url = "/js/jquery.min.js"; #todo #fixme give cdn url by default
-
-    if ($pg && isset($search_path)) {
-        Util::sql("set search_path to $search_path");
+    { # postgres-specific setup
+        if (isset($pg) && $pg) {
+            if (isset($search_path)) {
+                Util::sql("set search_path to $search_path");
+            }
+        }
     }
 ?>

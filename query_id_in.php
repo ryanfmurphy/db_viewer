@@ -6,15 +6,12 @@
 
     #todo change interface to take join_field and figure out table
 
-	$cmp = class_exists('Util'); #todo #fixme no val_list_str function
-	if (!$cmp) {
-		require_once('init.php');
-	}
+    require_once('init.php');
 
     $ids = $_POST['ids'];
 	if (isset($_POST['join_field'])) {
 
-		list($table, $joinField) = Util::choose_table_and_field($_POST['join_field']);
+		list($table, $joinField) = DbViewer::choose_table_and_field($_POST['join_field']);
 
 		#todo error checking
 		#todo accept POST
@@ -23,7 +20,7 @@
 		#todo allow non-integer expansion
 		#if (preg_match('/^[0-9,]+$/', $ids)) {
         if (is_array($ids)) {
-            $ids_str = Util::val_list_str($ids);
+            $ids_str = DbViewer::val_list_str($ids);
 
 			# do query
 			$query = "

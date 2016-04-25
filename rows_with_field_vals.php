@@ -5,11 +5,7 @@
     # specifically for many-to-many / back-linked relationships
 
     { # init
-        $cmp = class_exists('Util'); #todo #fixme no val_list_str function
-        if (!$cmp) {
-            require_once('init.php');
-        }
-
+        require_once('init.php');
         $vars = array_merge($_GET, $_POST);
     }
 
@@ -24,7 +20,7 @@
             }
 
             if (is_array($vals)) {
-                $results = Util::rows_with_field_vals($fieldname, $vals, $data_type);
+                $results = DbViewer::rows_with_field_vals($fieldname, $vals, $data_type);
                 die(json_encode($results));
             }
             else { die('Invalid vals'); }

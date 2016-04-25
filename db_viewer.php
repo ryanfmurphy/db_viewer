@@ -24,21 +24,28 @@
             # even if the varchar is collated as case insensitive
 
     { # init
-        $cmp = class_exists('Util'); #todo don't call the class Util, call it DbViewer and allow it to be overloaded
+        $cmp = class_exists('Util');
         $oldJquery = $inlineCss = $cmp;
 
-        # other larger programs can integrate this one
-        # by writing their own Util class with a sql()
-        # function that takes a $query and returns an
-        # array of rows, with each row itself an array
-        if ($cmp) {
-            #todo move out
-            $jquery_url = "https://mbeta.contractormarketingpros.com/js/shared/jquery.current.js";
-            $maybe_url_php_ext = ""; # no .php on end of url
-        }
-        else {
+        # other larger programs that have their own db setup
+        # can integrate with DbViwer by providing their own
+        # Util class with a sql() function that takes a $query
+        # and returns an array of rows, each row an array
+
+        {   # init: defines $db, DbViewer,
+            # and Util (if not already present)
             require_once('init.php');
-            $maybe_url_php_ext = ".php"; # .php on end of url
+        }
+
+        { # url & resource setup - jquery etc
+            if ($cmp) {
+                #todo move out
+                $jquery_url = "https://mbeta.contractormarketingpros.com/js/shared/jquery.current.js";
+                $maybe_url_php_ext = ""; # no .php on end of url
+            }
+            else {
+                $maybe_url_php_ext = ".php"; # .php on end of url
+            }
         }
     }
 
