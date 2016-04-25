@@ -15,10 +15,6 @@
     # run a sql query
     # then build an html table to display the results
     
-    #todo when you fetch more rows, incorporate all the joins you've done
-        # but then you have to mark all those columns so you can collapse them
-    #todo implement limit and offset
-
     #caveat - may have to set max_input_vars in php.ini for large views
     #caveat - names / text fields can be used to join, but they must match exactly,
             # even if the varchar is collated as case insensitive
@@ -47,9 +43,18 @@
                 $maybe_url_php_ext = ".php"; # .php on end of url
             }
         }
+
+        { # get sql query (if any) from incoming request
+            if (isset($_GET['sql'])) {
+                $sql = $_GET['sql'];
+            }
+            else {
+                $sql = null;
+            }
+        }
     }
 
-	# header row html
+	# header row html <th>'s, functionalized because it's repeated every so many rows
 	function headerRow(&$rows, $rowN) {
 		$firstRow = current($rows);
 ?>
@@ -66,15 +71,6 @@
 	</tr>
 <?php
 	}
-
-    { # get sql query (if any) from incoming request
-        if (isset($_GET['sql'])) {
-            $sql = $_GET['sql'];
-        }
-        else {
-            $sql = null;
-        }
-    }
 
 ?>
 <!DOCTYPE html>
@@ -316,44 +312,49 @@
         var field_names = getObjKeysRev(first_obj);
 
         // loop thru cells and add additional cells after
-        cells.each(function(row_index,e){
-
-            var cols_open = 0;
-
-            // loop thru all fields and add a column for each row
-            for (i in field_names) {
-
-                var field_name = field_names[i];
-                if (field_name in exclude_fields) continue;
-
-                var cell_val = e.innerHTML.trim();
-                var key = cell_val;
-
-                var val = (key in data
-                                ? data[key][field_name]
-                                : '');
-
-                var TD_or_TH = e.tagName;
-                var display_val = (TD_or_TH == 'TH'
-                                        ? field_name
-                                        : showVal(val));
-                var content = '\
-                            <'+TD_or_TH+'                   \
-                                class="level'+innerLevel+'" \
-                                level="'+innerLevel+'"      \
-                            >                               \
-                                '+display_val+'             \
-                            </'+TD_or_TH+'>                 \
-                           ';
-                $(e).after(content);
-
-                cols_open++;
-            }
-
-            $(e).addClass('level'+innerLevel+'handle')
-                .attr('cols_open', cols_open);
-
+        cells.each(function(row_index, elem){
+            return addColsToRow(elem, data, field_names, innerLevel, exclude_fields);
         });
+
+    }
+
+    function addColsToRow(elem, data, field_names_reversed, level, exclude_fields){
+
+        var field_names = field_names_reversed;
+        var cols_open = 0;
+
+        // loop thru all fields and add a column for each row
+        for (i in field_names) {
+
+            var field_name = field_names[i];
+            if (field_name in exclude_fields) continue;
+
+            var cell_val = elem.innerHTML.trim();
+            var key = cell_val;
+
+            var val = (key in data
+                            ? data[key][field_name]
+                            : '');
+
+            var TD_or_TH = elem.tagName;
+            var display_val = (TD_or_TH == 'TH'
+                                    ? field_name
+                                    : showVal(val));
+            var content = '\
+                        <'+TD_or_TH+'                   \
+                            class="level' + level + '" \
+                            level="' + level + '"      \
+                        >                               \
+                            '+display_val+'             \
+                        </'+TD_or_TH+'>                 \
+                       ';
+            $(elem).after(content);
+
+            cols_open++;
+        }
+
+        $(elem).addClass('level' + level + 'handle')
+            .attr('cols_open', cols_open);
 
     }
 
@@ -362,7 +363,11 @@
     }
 
     function addBacklinkedDataToTable(cells, data, exclude_fields) {
+
+        var num_cols_to_add = data[0];
+
         console.log('data',data);
+
         cells.each(function(idx,elem){
             var row = $(elem).closest('tr');
             if (isHeaderRow(row)) {

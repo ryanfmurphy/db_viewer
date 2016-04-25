@@ -23,3 +23,8 @@ To-Do List
     * allows adjacent sections of the same level to be different colors
         * currently if you open 2 adjacent fields, they will both be red and thus look confusing
 
+* when you fetch more rows, incorporate all the joins you've done
+    * but then you have to mark all those columns so you can collapse them
+
+* implement limit and offset
+
