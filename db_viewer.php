@@ -194,7 +194,8 @@
         // add to top row - some td's already present
         // must insert after the correct <td>
         var $top_elem = $row.find('td').eq(col_num);
-        $top_elem.after( $(new_rows[0]) );
+        var new_content = new_rows[0];
+        $top_elem.after( new_content );
 
         // add to subsequent rows - no existing td's to compete with
         for (var rowN = 1; rowN < num_rows; rowN++) {
@@ -318,6 +319,17 @@
 
     }
 
+    function getDataKeyedByCellContents(elem, data, field_name) {
+        var cell_val = elem.innerHTML.trim();
+        var key = cell_val;
+
+        var val = (key in data
+                        ? data[key][field_name]
+                        : '');
+
+        return val;
+    }
+
     function addColsToRow(elem, data, field_names_reversed, level, exclude_fields){
 
         var field_names = field_names_reversed;
@@ -329,12 +341,7 @@
             var field_name = field_names[i];
             if (field_name in exclude_fields) continue;
 
-            var cell_val = elem.innerHTML.trim();
-            var key = cell_val;
-
-            var val = (key in data
-                            ? data[key][field_name]
-                            : '');
+            var val = getDataKeyedByCellContents(elem, data, field_name);
 
             var TD_or_TH = elem.tagName;
             var display_val = (TD_or_TH == 'TH'
@@ -364,22 +371,42 @@
 
     function addBacklinkedDataToTable(cells, data, exclude_fields) {
 
-        var num_cols_to_add = data[0];
-
+        // get # fields from first row of data
+        var first_obj = data[firstObjKey(data)];
+        var field_names = getObjKeys(first_obj);
         console.log('data',data);
+        console.log('field_names',field_names);
+
+        var header_cells = $.map(
+            field_names,
+            function(field_name,idx){
+                return $('<th>' + field_name + '</th>');
+            }
+        );
+        console.log('header_cells',header_cells);
 
         cells.each(function(idx,elem){
             var row = $(elem).closest('tr');
             if (isHeaderRow(row)) {
                 console.log('header row');
-                var headers = $('<th>new_header_1</th><th>new_header_2</th>'); // #todo generalize
-                $(elem).after(headers);
+                $(elem).after(header_cells);
             }
             else {
+                var data_cells = $.map( // #todo deal with multiple rows per outer row
+                    field_names,
+                    function(field_name,idx) {
+                        console.log('elem',elem);
+                        var val = getDataKeyedByCellContents(elem, data, field_name);
+                        console.log('field_name',field_name);
+                        console.log('val',val);
+                        return $('<td>' + val + '</td>');
+                    }
+                );
                 var new_rows = [ // #todo generalize
-                    $('<td>test</td><td>test2</td>'),
-                    $('<td>test3</td><td>test4</td>'),
-                    $('<td>test4</td><td>test5</td>'),
+                    data_cells
+                    //$('<td>test</td><td>test2</td>'),
+                    //$('<td>test3</td><td>test4</td>'),
+                    //$('<td>test4</td><td>test5</td>'),
                 ];
                 var col_num = elem.cellIndex;
                 addInnerRowsToRow(row, new_rows, col_num);
