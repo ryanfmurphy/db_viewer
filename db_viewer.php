@@ -388,11 +388,13 @@
         console.log('data',data);
         console.log('field_names',field_names);
 
-        var header_cells = $();
+        var header_cells_str = '';
         for (i in field_names) {
             field_name = field_names[i];
-            $.extend(header_cells, $('<th>' + field_name + '</th>'));
+            console.log('looping headers, field_name', field_name);
+            header_cells_str += '<th>' + field_name + '</th>';
         }
+        var header_cells = $(header_cells_str);
         console.log('header_cells',header_cells);
 
         cells.each(function(idx,elem){
@@ -542,6 +544,8 @@
         }
     }
 
+    var BL_TABLE = 'contractor2campaign'; // #todo delete, replace with UI popup menu
+
     // reverse of openJoin - search the db for other tables
     // that have an id field pointing to this one
     function openBacklinkedJoin(elem) {
@@ -553,7 +557,7 @@
             var all_cells = nthCol(col_no);
             var val_cells = all_cells.filter('td');
             var vals = getColVals(val_cells); // #todo generalize
-            var table = 'contractor2campaign'; // #todo generalize
+            var table = BL_TABLE; // #todo generalize
             var data_type = null; // #todo generalize
 
             console.log('field_name',field_name);
