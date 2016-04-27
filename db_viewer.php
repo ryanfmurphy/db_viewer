@@ -637,6 +637,57 @@
         });
     }
 
+    // get all tables in database with a field called `fieldname`
+    function tablesWithField(fieldname, data_type, callback) {
+
+        var uri = 'tables_with_field<?= $maybe_url_php_ext ?>';
+        var request_data = {
+            fieldname: fieldname,
+            data_type: data_type
+        };
+
+        { // make request
+            $.ajax({
+                url: uri,
+                type: 'POST',
+                data: request_data,
+                dataType: 'json',
+                success: callback,
+                error: function(r) {
+                    alert("Failure");
+                }
+            });
+        }
+    }
+
+    function updatePopupContent(content) {
+        console.log('content', content);
+        $('.popr-box, .popr_content').html(content);
+    }
+
+    // by rfm - callback injected in popr popup menu
+    // get dynamic popup content via ajax request
+    function injectJoinTablesInPopupContent(elem) {
+
+        var fieldname = elem.innerHTML.trim();
+        var data_type = null; // #todo use if necessary
+
+        tablesWithField(
+            fieldname, data_type,
+            function(data) {
+                console.log(data);
+                var popupContent = '';
+                for (i in data) {
+                    tablename = data[i];
+                    popupContent += '<div class="popr-item">' + tablename + '</div>';
+                }
+                updatePopupContent(popupContent);
+            }
+        );
+
+        // #todo pull up the popup asynchronously so it's always after the content is updated
+    }
+
 
     // GLOBALS
     var show_hide_mode = false;
