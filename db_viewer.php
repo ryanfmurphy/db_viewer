@@ -666,7 +666,11 @@
 
     // by rfm - callback injected in popr popup menu
     // get dynamic popup content via ajax request
-    function injectJoinTablesInPopupContent(fieldname) {
+    function popupJoinTableOptions(
+        fieldname,
+        // all these params needed for showPopup popr callback:
+        thisThing, event, popr_show, set, popr_cont
+    ) {
 
         var data_type = null; // #todo use if necessary
 
@@ -679,6 +683,7 @@
                     popupContent += '<div class="popr-item">' + tablename + '</div>';
                 }
                 updatePopupContent(popupContent);
+                showPopup(thisThing, event, popr_show, set, popr_cont);
             }
         );
 
