@@ -661,21 +661,18 @@
     }
 
     function updatePopupContent(content) {
-        console.log('content', content);
         $('.popr-box, .popr_content').html(content);
     }
 
     // by rfm - callback injected in popr popup menu
     // get dynamic popup content via ajax request
-    function injectJoinTablesInPopupContent(elem) {
+    function injectJoinTablesInPopupContent(fieldname) {
 
-        var fieldname = elem.innerHTML.trim();
         var data_type = null; // #todo use if necessary
 
         tablesWithField(
             fieldname, data_type,
             function(data) {
-                console.log(data);
                 var popupContent = '';
                 for (i in data) {
                     tablename = data[i];

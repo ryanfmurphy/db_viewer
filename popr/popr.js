@@ -26,12 +26,14 @@ http://www.tipue.com/popr
                {
                     if (event.altKey) { // modified by rfm - wanted popup only on alt-click
 
-                        injectJoinTablesInPopupContent(event.target); // added by rfm
+                        var fieldname = event.target.innerHTML.trim();
+                        injectJoinTablesInPopupContent(fieldname); // added by rfm
 
                         // rfm put all this in a timeout
                         // #todo don't rely on this janky hack
                         // put all this code in the callback
-                        //setTimeout(function() {
+                        var outerThis = this;
+                        setTimeout(function() {
                             $('.popr_container_top').remove();
                             $('.popr_container_bottom').remove();
                             
@@ -46,9 +48,9 @@ http://www.tipue.com/popr
                             }                   
                             
                             var d_m = set.mode;
-                            if ($(this).attr('data-mode'))
+                            if ($(outerThis).attr('data-mode'))
                             {
-                                 d_m = $(this).attr('data-mode')
+                                 d_m = $(outerThis).attr('data-mode')
                                  popr_cont = '.popr_container_' + d_m;   
                             }
                             
@@ -56,20 +58,20 @@ http://www.tipue.com/popr
                                 <div class="popr_container_' + d_m + '">\
                                     <div class="popr_point_' + d_m + '">\
                                         <div class="popr_content">\
-                                            ' + $('div[data-box-id="' + $(this).attr('data-id') + '"]').html() + '\
+                                            ' + $('div[data-box-id="' + $(outerThis).attr('data-id') + '"]').html() + '\
                                         </div>\
                                     </div>\
                                 </div>\
                             ';
                             
-                            $(this).append(out);
+                            $(outerThis).append(out);
                        
                             var w_t = $(popr_cont).outerWidth();
-                            var w_e = $(this).width();
+                            var w_e = $(outerThis).width();
                             var m_l = (w_e / 2) - (w_t / 2);
                        
                             $(popr_cont).css('margin-left', m_l + 'px');
-                            $(this).removeAttr('title alt');
+                            $(outerThis).removeAttr('title alt');
                             
                             if (d_m == 'top')
                             {
@@ -86,7 +88,7 @@ http://www.tipue.com/popr
                             if (!$(elem).is('.popr-item')) {
                                 lastClickedElem = event.target;
                             }
-                        //}, 1000);
+                        }, 500);
                     }
                });
                             
