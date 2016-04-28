@@ -5,6 +5,7 @@
     # get list of tables that have a certain field
 
     { # init
+		ini_set('memory_limit', '1000M');
         require_once('init.php');
         $vars = array_merge($_GET, $_POST);
     }

@@ -30,7 +30,7 @@
 
     { # init
         $cmp = class_exists('Util');
-        $oldJquery = $inlineCss = $cmp;
+        $inlineCss = $cmp;
 
         # other larger programs that have their own db setup
         # can integrate with DbViwer by providing their own
@@ -43,9 +43,10 @@
         }
 
         { # url & resource setup - jquery etc
+			$jsPath = ($cmp ? '/js/shared' : '/js');
+			$jquery_url = "$jsPath/jquery-1.12.3.js";
             if ($cmp) {
                 #todo move out
-                $jquery_url = "https://mbeta.contractormarketingpros.com/js/shared/jquery.current.js";
                 $maybe_url_php_ext = ""; # no .php on end of url
             }
             else {
@@ -793,14 +794,8 @@
     };
 
 
-<?php if ($oldJquery) { ?>
-    $('td').live('click', tdClickHandler);
-    $('th').live('click', thClickHandler);
-<?php } else { ?>
     $('table').on('click', 'td', tdClickHandler);
     $('table').on('click', 'th', thClickHandler);
-<?php }
-?>
 
 </script>
 
