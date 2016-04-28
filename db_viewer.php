@@ -425,36 +425,41 @@
                 var these_header_cells = header_cells.clone();
                 $(elem).after(these_header_cells);
             }
-            else {
+            else { // data row - may have data to splice in
                 var subrows = getDataKeyedByCellContents(elem, data); //, field_name);
                 //console.log('elem',elem);
                 //console.log('subrows',subrows);
 
-                var table_subrows = subrows.map(
-                    function(data_subrow, idx, arr){
-                        var table_subrow = $.map(
-                            field_names,
-                            function(field_name,idx2) {
-                                //console.log('field_name',field_name);
-                                var val = data_subrow[field_name];
-                                //console.log('val',val);
-                                return $('\
-                                    <td class="level' + innerLevel + '"\
-                                        level="' + innerLevel + '"\
-                                    >\
-                                        ' + val + '\
-                                    </td>\
-                                ');
-                            }
-                        );
-                        console.log('table_subrow',table_subrow);
-                        return table_subrow;
-                    }
-                );
-                //console.log('table_subrows',table_subrows);
+                if ($.isArray(subrows)) {
+                    var table_subrows = subrows.map(
+                        function(data_subrow, idx, arr){
+                            var table_subrow = $.map(
+                                field_names,
+                                function(field_name,idx2) {
+                                    //console.log('field_name',field_name);
+                                    var val = data_subrow[field_name];
+                                    //console.log('val',val);
+                                    return $('\
+                                        <td class="level' + innerLevel + '"\
+                                            level="' + innerLevel + '"\
+                                        >\
+                                            ' + val + '\
+                                        </td>\
+                                    ');
+                                }
+                            );
+                            console.log('table_subrow',table_subrow);
+                            return table_subrow;
+                        }
+                    );
 
-                var col_no = elem.cellIndex;
-                addInnerRowsToRow(row, table_subrows, col_no);
+                    var col_no = elem.cellIndex;
+                    addInnerRowsToRow(row, table_subrows, col_no);
+                }
+                else {
+                    console.log('subrows not array, skipping',subrows);
+                    // #todo insert extra blank rows
+                }
             }
 
             // update elem's css classes / color / etc
@@ -480,7 +485,7 @@
     function closeJoin(elem) {
 
         var col_no = elem.cellIndex;
-        var all_cells = nthCol(col_no);
+        var all_cells = nthCol(col_no); // #todo factor to allColCells()?
         var cols_open = parseInt($(elem).attr('cols_open'));
 
         var handle_class;
@@ -538,7 +543,7 @@
                     //var table_name = prefix;
 
                     var col_no = elem.cellIndex;
-                    var all_cells = nthCol(col_no);
+                    var all_cells = nthCol(col_no); // #todo factor to allColCells() or one of those?
                     var val_cells = all_cells.filter('td');
                     var ids = getColVals(val_cells);
                     var non_null_ids = ids.filter(isTruthy)
@@ -588,7 +593,7 @@
         if (isValidJoinField(field_name)) {
 
             var col_no = elem.cellIndex;
-            var all_cells = nthCol(col_no);
+            var all_cells = nthCol(col_no); // #todo factor to allColCells() or one of those?
             var val_cells = all_cells.filter('td');
             var vals = getColVals(val_cells);
             var table = backlinkJoinTable;
