@@ -51,6 +51,8 @@
             else {
                 $maybe_url_php_ext = ".php"; # .php on end of url
             }
+
+			$poprJsPath = ($cmp ? '/js/shared/' : '');
         }
 
         { # get sql query (if any) from incoming request
@@ -87,7 +89,7 @@
 <head>
     <!-- load jQuery -->
     <script src="<?= $jquery_url ?>"></script>
-    <script src="popr/popr.js"></script>
+    <script src="<?= $poprJsPath ?>popr/popr.js"></script>
 
 <?php
 	if ($inlineCss && $cmp) {
