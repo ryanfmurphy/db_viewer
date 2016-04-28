@@ -3,6 +3,7 @@
 
     DB Viewer - database table view with inline dynamic joins
     =========================================================
+    Copyright (c) 2016 Ryan Murphy
 
     This program provides a PHP-HTML-Javascript web interface
     for a SQL Database, allowing you to type in queries and view
@@ -10,14 +11,22 @@
     columns, and click on key fields to join in data from new
     tables.
 
-    */
 
-    # run a sql query
-    # then build an html table to display the results
+    Summary of This File
+    --------------------
+    * run a sql query
+    * build an html table to display the results
+    * javascript to allow splicing in join data from other tables
     
-    #caveat - may have to set max_input_vars in php.ini for large views
-    #caveat - names / text fields can be used to join, but they must match exactly,
-            # even if the varchar is collated as case insensitive
+    Caveats
+    -------
+    * may have to set max_input_vars in php.ini for large views
+      because column vals[] sent in POST as array - sometimes hits max
+
+    * names / text fields can be used to join, but they must match exactly,
+      even if the varchar is collated as case insensitive
+
+    */
 
     { # init
         $cmp = class_exists('Util');
@@ -454,11 +463,22 @@
                     );
 
                     var col_no = elem.cellIndex;
+
                     addInnerRowsToRow(row, table_subrows, col_no);
                 }
-                else {
-                    console.log('subrows not array, skipping',subrows);
-                    // #todo insert extra blank rows
+                else { // null join field - insert blank row
+                    console.log('subrows not array, adding blanks',subrows);
+                    var num_new_cols = field_names.length;
+
+                    for (var i=0; i<num_new_cols; i++) {
+                        // #todo factor td html into a function
+                        $(elem).after('\
+                            <td class="level' + innerLevel + '"\
+                                level="' + innerLevel + '"\
+                            >\
+                            </td>\
+                        ');
+                    }
                 }
             }
 
@@ -790,12 +810,15 @@
     <!-- init popup menu -->
     <div class="popr-box" data-box-id="1">
         <!-- #todo dynamically populate with relevant tables -->
-        <div class="popr-item">contractor2campaign</div>
-        <div class="popr-item">note2campaign</div>
+        <div class="popr-item">example</div>
+        <div class="popr-item">popup</div>
+        <div class="popr-item">data</div>
+        <div class="popr-item">(will be dynamically overridden)</div>
     </div>
     <script>
         $(document).ready(function() {
             $('.popr').popr();
+            // on click popup item
             $(document).on('click', '.popr-item', function(e){
                 var elem = lastClickedElem;
                 var popupItemElem = e.target;
