@@ -122,33 +122,46 @@
             return implode(',', $val_reps);
         }
 
-        public static function tables_with_field($fieldname, $data_type=NULL) {
-            {   ob_start();
-?>
-                select table_schema, table_name
-                from information_schema.columns
-                where column_name='<?= $fieldname ?>'
-<?php
-                if ($data_type) {
-?>
-                    and data_type='<?= $data_type ?>'
-<?php
-                }
-                $sql = ob_get_clean();
-            }
-            $rows = Util::sql($sql);
+        public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
 
-            $tables = array();
-            foreach ($rows as $row) {
-                $schema = $row['table_schema'];
-                $table_name = $row['table_name'];
-                if ($schema != 'public') {
-                    $table_name = "$schema.$table_name";
-                }
-                $tables[] = $table_name;
-            }
+            $has_vals = (is_array($vals) && count($vals));
 
-            return $tables;
+            # get only the tables that actually would have rows for those vals
+            if ($has_vals) {
+                $rows = self::rows_with_field_vals($fieldname, $vals, null, $data_type);
+                return array_keys($rows);
+            }
+            # get all tables with the fieldname, regardless of whether rows will actually be returned
+            else {
+
+                {   ob_start();
+?>
+                    select table_schema, table_name
+                    from information_schema.columns
+                    where column_name='<?= $fieldname ?>'
+<?php
+                    if ($data_type) {
+?>
+                        and data_type='<?= $data_type ?>'
+<?php
+                    }
+                    $sql = ob_get_clean();
+                }
+                $rows = Util::sql($sql);
+
+                $tables = array();
+                foreach ($rows as $row) {
+                    $schema = $row['table_schema'];
+                    $table_name = $row['table_name'];
+                    if ($schema != 'public') {
+                        $table_name = "$schema.$table_name";
+                    }
+                    $tables[] = $table_name;
+                }
+
+                return $tables;
+
+            }
         }
 
         #todo (front-end) depending on $id_type,

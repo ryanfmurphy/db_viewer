@@ -16,9 +16,12 @@
                 $data_type = (isset($vars['data_type'])
                                 ? $vars['data_type']
                                 : null);
+                $vals = (isset($vars['vals'])
+                                ? $vars['vals']
+                                : null);
             }
 
-            $results = DbViewer::tables_with_field($fieldname, $data_type=NULL);
+            $results = DbViewer::tables_with_field($fieldname, $data_type, $vals);
             die(json_encode($results));
         }
         else {

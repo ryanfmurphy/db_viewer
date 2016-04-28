@@ -453,8 +453,8 @@
                 );
                 //console.log('table_subrows',table_subrows);
 
-                var col_num = elem.cellIndex;
-                addInnerRowsToRow(row, table_subrows, col_num);
+                var col_no = elem.cellIndex;
+                addInnerRowsToRow(row, table_subrows, col_no);
             }
 
             // update elem's css classes / color / etc
@@ -638,12 +638,13 @@
     }
 
     // get all tables in database with a field called `fieldname`
-    function tablesWithField(fieldname, data_type, callback) {
+    function tablesWithField(fieldname, data_type, vals, callback) {
 
         var uri = 'tables_with_field<?= $maybe_url_php_ext ?>';
         var request_data = {
             fieldname: fieldname,
-            data_type: data_type
+            data_type: data_type,
+            vals: vals,
         };
 
         { // make request
@@ -664,6 +665,22 @@
         $('.popr-box, .popr_content').html(content);
     }
 
+    function colNo(elem) {
+        return elem.cellIndex;
+    }
+
+    function allColCells(elem) {
+        return nthCol(colNo(elem));
+    }
+
+    function colValCells(elem) {
+        return allColCells(elem).filter('td');
+    }
+
+    function colVals(elem) {
+        return getColVals(colValCells(elem));
+    }
+
     // by rfm - callback injected in popr popup menu
     // get dynamic popup content via ajax request
     function popupJoinTableOptions(
@@ -673,21 +690,25 @@
     ) {
 
         var data_type = null; // #todo use if necessary
+        var elem = event.target;
+        console.log(elem);
+        var vals = colVals(elem);
 
-        tablesWithField(
-            fieldname, data_type,
-            function(data) {
-                var popupContent = '';
-                for (i in data) {
-                    tablename = data[i];
-                    popupContent += '<div class="popr-item">' + tablename + '</div>';
-                }
-                updatePopupContent(popupContent);
-                showPopup(thisThing, event, popr_show, set, popr_cont);
+        var callback = function(data) {
+            var popupContent = '';
+            for (i in data) {
+                tablename = data[i];
+                popupContent += '<div class="popr-item">' + tablename + '</div>';
             }
-        );
+            updatePopupContent(popupContent);
 
-        // #todo pull up the popup asynchronously so it's always after the content is updated
+            // pull up the popup asynchronously from this callback
+            // so it's always after the content is updated.
+            // this jumps into the main popr code for triggering a popup:
+            showPopup(thisThing, event, popr_show, set, popr_cont);
+        }
+
+        tablesWithField(fieldname, data_type, vals, callback);
     }
 
 

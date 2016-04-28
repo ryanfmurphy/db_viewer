@@ -1,17 +1,11 @@
 To-Do List
 ==========
 
-* support many-to-many and back-linking relationships
-    * build out the JS interface
-        * alt-click on a primary_key, make a menu come up asking which connection you want
-        * (done) JS makes an AJAX and the associated data back
-        * (done) insert that data into the DOM, html `<table>` style
-          with a `rowspan` in the many-to-1 case
-        * properly color-code and allow to be closed
-    * work out kinks
-        * provide smart cellIndex that takes rowspan into consideration
-          so joins within a backlink-expanded splice will work properly
-        * once you have a rowspan, new joins should properly include it
+* many-to-many back-linking relationships - work out kinks
+    * when it hits a null value it fails out
+    * provide smart cellIndex that takes rowspan into consideration
+      so joins within a backlink-expanded splice will work properly
+    * once you have a rowspan, new joins should properly include it
 
 * change module/repo name to `db_viewer` - underscore not hyphen
 
@@ -32,4 +26,7 @@ To-Do List
     * but then you have to mark all those columns so you can collapse them
 
 * implement limit and offset
+
+
+
 
