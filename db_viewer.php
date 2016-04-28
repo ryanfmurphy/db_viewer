@@ -465,7 +465,7 @@
                         }
                     );
 
-                    var col_no = elem.cellIndex;
+                    var col_no = colNo(elem);
 
                     addInnerRowsToRow(row, table_subrows, col_no);
                 }
@@ -507,7 +507,7 @@
     // close all the rows that have been opened from the join
     function closeJoin(elem) {
 
-        var col_no = elem.cellIndex;
+        var col_no = colNo(elem);
         var all_cells = nthCol(col_no); // #todo factor to allColCells()?
         var cols_open = parseInt($(elem).attr('cols_open'));
 
@@ -565,7 +565,7 @@
                 { // figure out what data to ask for based on ids in col
                     //var table_name = prefix;
 
-                    var col_no = elem.cellIndex;
+                    var col_no = colNo(elem);
                     var all_cells = nthCol(col_no); // #todo factor to allColCells() or one of those?
                     var val_cells = all_cells.filter('td');
                     var ids = getColVals(val_cells);
@@ -615,7 +615,7 @@
 
         if (isValidJoinField(field_name)) {
 
-            var col_no = elem.cellIndex;
+            var col_no = colNo(elem);
             var all_cells = nthCol(col_no); // #todo factor to allColCells() or one of those?
             var val_cells = all_cells.filter('td');
             var vals = getColVals(val_cells);
@@ -781,7 +781,7 @@
             }
             // no alt to fold/unfold col
             else {
-                colN = e.target.cellIndex;
+                colN = colNo(e.target);
                 if (e.shiftKey) {
                     unfoldColsFrom(colN);
                 }
