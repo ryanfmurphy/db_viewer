@@ -191,7 +191,9 @@
 	}
 
 
-    // #todo if row is already split, increase rowspan if needed otherwise leave it alone
+    // if tr's tds doesn't already have a rowspan, give it a rowspan for num_rows rows
+    // add subrows to fill out the rowspan
+    // if row is already split, add additional rows as needed otherwise leave it alone
     function splitRow($row, num_rows) {
         console.log('splitRow, num_rows =', num_rows);
         { // adjust rowspan on tds
@@ -215,7 +217,7 @@
 
         var $rows = [$row];
         console.log('adding already-existent extra rows');
-        var already_existent_extra_rows = $row.nextUntil(':not(.extra-row)');
+        var already_existent_extra_rows = extraRowsUnder($row);
         console.log('already-existent extra rows:', already_existent_extra_rows.length, already_existent_extra_rows);
         already_existent_extra_rows.each(function(idx,elem){
             console.log('adding already-existent extra row', elem);
@@ -233,6 +235,19 @@
         }
 
         return $rows;
+    }
+
+    function extraRowsUnder($row) {
+        return $row.nextUntil(':not(.extra-row)');
+    }
+
+    // undo the split created by splitRow
+    function unsplitRow($row) {
+        // remove tr.extra-row's underneath
+        var extra_rows = extraRowsUnder($row);
+        extra_rows.remove();
+        // remove rowspan
+        $row.children('td').removeAttr('rowspan');
     }
 
     // given a row, add multiple rows that go alongside it

@@ -2,7 +2,6 @@ To-Do List
 ==========
 
 * many-to-many back-linking relationships - work out kinks
-    * when it joins a null value it should add a blank row
     * provide smart cellIndex that takes rowspan into consideration
       so joins within a backlink-expanded splice will work properly
     * once you have a rowspan, new joins should properly include it
