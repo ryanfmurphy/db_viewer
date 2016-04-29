@@ -118,7 +118,7 @@
 
 
 	function nthCol(n) {
-        console.log('nthCol', n);
+        //console.log('nthCol', n);
         var n_plus_1 = (parseInt(n)+1).toString();
 		return $('#query_table tr > *:nth-child('
             + n_plus_1 +
@@ -193,15 +193,45 @@
 
     // #todo if row is already split, increase rowspan if needed otherwise leave it alone
     function splitRow($row, num_rows) {
-        $row.find('td').attr('rowspan', num_rows);
+        console.log('splitRow, num_rows =', num_rows);
+        { // adjust rowspan on tds
+            var existing_rowspan = $row.find('td:first').attr('rowspan');
+            var existing_rows = existing_rowspan || 1;
+            console.log('existing_rowspan', existing_rowspan);
+
+            var rowspan_increase;
+            var add_more_rows = (existing_rows < num_rows);
+            rowspan_increase = (add_more_rows
+                                    ? num_rows - existing_rows
+                                    : 0);
+
+            if (add_more_rows || existing_rowspan === undefined) {
+                $row.find('td').attr('rowspan', num_rows);
+            }
+            console.log('rowspan_increase', rowspan_increase);
+        }
+
         var $last_row = $row;
+
         var $rows = [$row];
-        for (var rowN = 1; rowN < num_rows; rowN++) {
-            var $new_row = $('<tr></tr>');
+        console.log('adding already-existent extra rows');
+        var already_existent_extra_rows = $row.nextUntil(':not(.extra-row)');
+        console.log('already-existent extra rows:', already_existent_extra_rows.length, already_existent_extra_rows);
+        already_existent_extra_rows.each(function(idx,elem){
+            console.log('adding already-existent extra row', elem);
+            $rows.push($(elem));
+        });
+
+        // add any rows that aren't already there
+        console.log('adding new extra rows');
+        for (var rowN = 0; rowN < rowspan_increase; rowN++) {
+            console.log('adding new extra row');
+            var $new_row = $('<tr class="extra-row"></tr>');
             $rows.push($new_row); // array to return
             $last_row.after($new_row); // add to DOM
             $last_row = $new_row;
         }
+
         return $rows;
     }
 
@@ -417,7 +447,7 @@
         var header_cells_str = '';
         for (i in field_names) {
             field_name = field_names[i];
-            console.log('looping headers, field_name', field_name);
+            //console.log('looping headers, field_name', field_name);
             header_cells_str += '\
                 <th class="level' + innerLevel + '"\
                     level="' + innerLevel + '"\
@@ -433,7 +463,7 @@
             var row = $(elem).closest('tr');
             if (isHeaderRow(row)) {
                 console.log('header_row', header_cells);
-                console.log('elem', elem);
+                //console.log('elem', elem);
                 var these_header_cells = header_cells.clone();
                 $(elem).after(these_header_cells);
             }
@@ -448,9 +478,7 @@
                             var table_subrow = $.map(
                                 field_names,
                                 function(field_name,idx2) {
-                                    //console.log('field_name',field_name);
                                     var val = data_subrow[field_name];
-                                    //console.log('val',val);
                                     return $('\
                                         <td class="level' + innerLevel + '"\
                                             level="' + innerLevel + '"\
@@ -460,7 +488,7 @@
                                     ');
                                 }
                             );
-                            console.log('table_subrow',table_subrow);
+                            //console.log('table_subrow',table_subrow);
                             return table_subrow;
                         }
                     );
@@ -719,7 +747,7 @@
 
         var data_type = null; // #todo use if necessary
         var elem = event.target;
-        console.log(elem);
+        //console.log(elem);
         var vals = colVals(elem);
 
         var callback = function(data) {
