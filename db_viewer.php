@@ -290,44 +290,62 @@
 
 # get and display query data
 {
+    #todo infinite scroll using OFFSET and LIMIT
 	if ($sql) {
 		$rows = Util::sql($sql,'array');
-		#todo check if there's some rows
-        #todo infinite scroll using OFFSET and LIMIT
+
+        if (is_array($rows)) {
+            # check if there's some rows
 ?>
-    <script>
-        //var rows = <?= json_encode($rows) ?>;
-    </script>
 
 <table id="query_table">
 <?php
-		$headerEvery = isset($_GET['header_every'])
-		                  ? $_GET['header_every']
-		                  : 15;
+            $headerEvery = isset($_GET['header_every'])
+                              ? $_GET['header_every']
+                              : 15;
 
-		$rowN = 0;
-		foreach ($rows as $row) {
-			if ($rowN % $headerEvery == 0) {
-				headerRow($rows, $rowN);
-				$rowN++;
-			}
+            $rowN = 0;
+            foreach ($rows as $row) {
+                if ($rowN % $headerEvery == 0) {
+                    headerRow($rows, $rowN);
+                    $rowN++;
+                }
 ?>
 	<tr data-row="<?= $rowN ?>">
 <?php
-			foreach ($row as $val) {
+                foreach ($row as $val) {
 ?>
 		<td>
 			<?= $val ?>
 		</td>
 <?php
-			}
+                }
 ?>
 	</tr>
 <?php
-			$rowN++;
-		}
+                $rowN++;
+            }
 ?>
 </table>
+<?php
+        }
+        else {
+?>
+<div>
+    <p>
+        <b>Oops! Could not get a valid result.</b>
+    </p>
+    <p>
+        PDO::errorCode(): <?= $db->errorCode() ?>
+    </p>
+    <div>
+        PDO::errorInfo():
+        <pre><?php print_r($db->errorInfo()) ?></pre>
+    </div>
+</div>
+<?php
+        }
+?>
 
 <script>
 
@@ -423,12 +441,12 @@
                                     ? field_name
                                     : showVal(val));
             var content = '\
-                        <'+TD_or_TH+' \
-                            class="level' + level + '" \
-                            level="' + level + '" \
+                        <'+TD_or_TH+'\
+                            class="level' + level + '"\
+                            level="' + level + '"\
                         > \
-                            '+display_val+' \
-                        </'+TD_or_TH+'> \
+                            '+display_val+'\
+                        </'+TD_or_TH+'>\
                        ';
             $(elem).after(content);
 
@@ -514,7 +532,7 @@
                 }
                 else { // null join field - insert blank row
                     console.log('subrows not array, adding blanks',subrows);
-                    var num_new_cols = field_names.length;
+                    //var num_new_cols = field_names.length;
 
                     for (var i=0; i<num_new_cols; i++) {
                         // #todo factor td html into a function
@@ -584,6 +602,9 @@
 
             $(elem).removeClass(handle_class); // restores earlier color
             $(elem).removeAttr('cols_open');
+
+            // if rowspan is no longer needed or not all rows needed,
+            // #todo unsplitRow or reduceSplit depending what split rows are still needed
 
         });
     }

@@ -3,7 +3,13 @@
 
         public static function sql($query, $returnType='array') {
             global $db;
-            return $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
+            $result = $db->query($query);
+            if (is_a($result, 'PDOStatement')) {
+                return $result->fetchAll(PDO::FETCH_ASSOC);
+            }
+            else {
+                return $result;
+            }
         }
 
         public static function endsWith($needle,$haystack) {
