@@ -1,6 +1,10 @@
 To-Do List
 ==========
 
+* store source table on td's
+
+* store data type on td's
+
 * many-to-many back-linking relationships - work out kinks
     * provide smart cellIndex that takes rowspan into consideration
       so joins within a backlink-expanded splice will work properly
