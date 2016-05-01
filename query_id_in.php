@@ -31,9 +31,15 @@
             #die($query);
 			$rows = Util::sql($query, 'array');
 
-            $data = DbViewer::keyRowsByField($rows, $joinField);
-
-			die(json_encode($data));
+            if (is_array($rows)) {
+                $data = DbViewer::keyRowsByField($rows, $joinField);
+                die(json_encode($data));
+            }
+            else {
+                DbViewer::outputDbError($db);
+                echo "\n\nquery = $query\n";
+                die();
+            }
 		}
 		else { die('Invalid ids'); }
 	}

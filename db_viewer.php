@@ -330,20 +330,7 @@
 <?php
         }
         else {
-?>
-<div>
-    <p>
-        <b>Oops! Could not get a valid result.</b>
-    </p>
-    <p>
-        PDO::errorCode(): <?= $db->errorCode() ?>
-    </p>
-    <div>
-        PDO::errorInfo():
-        <pre><?php print_r($db->errorInfo()) ?></pre>
-    </div>
-</div>
-<?php
+            DbViewer::outputDbError($db);
         }
 ?>
 
