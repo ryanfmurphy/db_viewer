@@ -13,6 +13,19 @@
         }
     }
 
+	{ # vars
+		if (!isset($search_path)) {
+			if ($db_type == 'pgsql') {
+				$search_path = 'public'; #todo this is not really going to work for mysql
+			}
+			else {
+				$search_path = $db_name;
+			}
+		}
+
+		$schemas_in_path = explode(',', $search_path);
+	}
+
     require_once('classes/DbViewer.php');
 
     { # postgres-specific setup

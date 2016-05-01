@@ -41,6 +41,14 @@
             }
         }
 
+		# peel off schema/database
+		public static function just_tablename($full_tablename) {
+			$dotPos = strpos($full_tablename, '.');
+			return ($dotPos !== false
+						? substr($full_tablename, $dotPos+1)
+						: $full_tablename);
+		}
+
 		public static function choose_table_and_field($field_name) {
             global $id_mode;
 
@@ -48,13 +56,19 @@
 			if ($suffix) {
 				$root = substr($field_name, 0, -strlen($suffix));
 
-                #todo move into full_tablename()
-                #todo make sure that this is a FALLBACK:
-                #     if there's a full field_name match, use that
-                #     otherwise try this loop
 				{   # if it's not as simple as `contractor_id`
                     # try to find a table that this id might be pointing to
                     # e.g. `parent_contractor_id` also links to contractor
+
+					#todo move into full_tablename()
+
+					#todo make sure that this is a FALLBACK:
+					#     if there's a full field_name match, use that
+					#     otherwise try this loop
+
+					#todo use longest match as suffix / and_or require "_" before suffix
+					#	  because for example, lead_id has ad_id at the end!
+
                     $possible_tables = DbViewer::sqlTables();
 
                     if (!isset($possible_tables[$root])) {
@@ -174,13 +188,33 @@
             $val_list = self::val_list_str($vals);
             $table_rows = array();
 
-            foreach ($tables as $table) {
-                $sql = "
-                    select * from $table
-                    where $fieldname in ($val_list)
-                ";
+			$slow_tables = array( #todo put in config
+				'lead','note2campaign','lead_call','lead_contact_email2campaign',
+				# 'ad_cost2campaign'
+			);
 
-                $rows = Util::sql($sql);
+			# search through the tables one by one and
+			# only include the tables that actually have matching rows
+            foreach ($tables as $table) {
+				if (in_array(self::just_tablename($table), $slow_tables)) {
+					$includeTable = true; # just assume it's included, skip slow query
+				}
+				else {
+					#$T0 = microtime();
+					#echo "T0 = $T0\n";
+					$sql = "
+						select * from $table
+						where $fieldname in ($val_list)
+					";
+					#echo "sql = $sql\n";
+
+					$rows = Util::sql($sql);
+					#$delta0 = Util::timeSince($T0);
+					#echo "delta0 = $delta0\n";
+
+					$includeTable = (count($rows) > 0);
+				}
+
                 if (count($rows)) {
                     $data = self::keyRowsByFieldMulti($rows, $fieldname);
                     $table_rows[$table] = $data;
