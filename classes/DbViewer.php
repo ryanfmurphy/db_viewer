@@ -226,5 +226,15 @@
 <?php
         }
 
+        # convert postgres array str into php array
+        public static function pgArray2array($pgArrayStr, $itemType='text') {
+            $arrayType = $itemType.'[]';
+            $query = "select array_to_json('$pgArrayStr'::$arrayType)";
+            $rows = Util::sql($query);
+            $row = $rows[0];
+            $val = $row['array_to_json'];
+            return json_decode($val);
+        }
+
     }
 
