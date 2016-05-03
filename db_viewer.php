@@ -282,6 +282,12 @@
 
 <body>
 	<form>
+        <h2 id="query_header">
+            Enter SQL Query
+        </h2>
+        <p id="limit_warning">
+            Warning: BYOL - "Bring Your Own Limit" (otherwise query may be slow)
+        </p>
 		<textarea name="sql"><?= $sql ?></textarea>
 		<br>
 		<input type="submit">

@@ -47,7 +47,21 @@ td, th {
 
 textarea, input {
     font-family: sans-serif;
-    margin: 1em;
+}
+textarea {
+    font-size: 1em;
+    margin-bottom: .5em;
+}
+input[type=submit] {
+    margin-bottom: 1.5em;
+}
+
+#query_header {
+    margin-bottom: .2em;
+}
+#limit_warning {
+    margin-top: .2em;
+    font-size: 70%;
 }
 
 textarea, input[type=text] {
