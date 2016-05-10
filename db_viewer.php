@@ -29,9 +29,12 @@
     */
 
     { # init
-        $requestVars = array_merge($_GET, $_POST);
-        $cmp = class_exists('Util');
-        $inlineCss = $cmp;
+
+        { # vars
+            $requestVars = array_merge($_GET, $_POST);
+            $cmp = class_exists('Util');
+            $inlineCss = $cmp;
+        }
 
         # other larger programs that have their own db setup
         # can integrate with DbViwer by providing their own
@@ -85,9 +88,13 @@
 <?php
 	}
 
+    { # html
 ?>
 <!DOCTYPE html>
 <html>
+<?php
+        { # <head> (including js)
+?>
 <head>
     <!-- load jQuery -->
     <script src="<?= $jquery_url ?>"></script>
@@ -298,13 +305,17 @@
     </script>
 
 <?php
-    $backgroundImages = array(
-        'plant' => "/imgroot/plants/turmeric-plants.jpg",
-        'book' => "/imgroot/books.jpg",
-    );
-    $backgroundImageUrl = $backgroundImages['plant'];
+            { # background images
+                $backgroundImages = array(
+                    'plant' => "/imgroot/plants/turmeric-plants.jpg",
+                    'book' => "/imgroot/books.jpg",
+                );
+                $backgroundImageUrl = $backgroundImages['plant'];
 
-    if (isset($backgroundImageUrl) && $backgroundImageUrl) {
+                $hasBackgroundImage = (isset($backgroundImageUrl)
+                                    && $backgroundImageUrl);
+
+                if ($hasBackgroundImage) {
 ?>
     <style>
     body {
@@ -324,11 +335,71 @@
     }
     </style>
 <?php
-    }
+                }
+            }
+
+            { # join colors
+                if ($hasBackgroundImage) {
+                    $joinColors = array(
+                        1 => array(
+                            'handle' => 'rgba(225, 0, 0, .5)', #'#ff9999',
+                            'row' => 'rgba(150, 0, 0, .5)', #'#ffbbbb',
+                        ),
+                        2 => array(
+                            'handle' => 'rgba(0, 225, 0, .5)', # '#99ff99',
+                            'row' => 'rgba(0, 150, 0, .5)', # '#bbffbb',
+                        ),
+                        3 => array(
+                            'handle' => 'rgba(0, 0, 225, .5)', # '#9999ff',
+                            'row' => 'rgba(0, 0, 150, .5)', # '#bbbbff',
+                        ),
+                    );
+                }
+                else {
+                    $joinColors = array(
+                        1 => array(
+                            'handle' => '#ff9999',
+                            'row' => '#ffbbbb',
+                        ),
+                        2 => array(
+                            'handle' => '#99ff99',
+                            'row' => '#bbffbb',
+                        ),
+                        3 => array(
+                            'handle' => '#9999ff',
+                            'row' => '#bbbbff',
+                        ),
+                    );
+                }
+?>
+
+    <style>
+<?php
+                for ($level = 1; $level <= 3; $level++) {
+?>
+.level<?= $level ?>handle {
+    background: <?= $joinColors[$level]['handle'] ?>;
+}
+.level<?= $level ?> {
+    background: <?= $joinColors[$level]['row'] ?>;
+}
+<?php
+                }
+?>
+    </style>
+
+<?php
+            }
 ?>
 
 </head>
+<?php
+        }
 
+        { # body
+
+            { # form
+?>
 <body>
 	<form method="post">
         <h2 id="query_header">
@@ -346,53 +417,56 @@
 		<input type="submit">
 	</form>
 <?php
+            }
 
-# get and display query data
-{
-    #todo infinite scroll using OFFSET and LIMIT
-	if ($sql) {
-		$rows = Util::sql($sql,'array');
+            { # get & display query data, & js interface
 
-        if (is_array($rows)) {
-            # check if there's some rows
+                #todo infinite scroll using OFFSET and LIMIT
+                if ($sql) {
+                    $rows = Util::sql($sql,'array');
+
+                    # table
+                    if (is_array($rows)) {
+                        # check if there's some rows
 ?>
 
 <table id="query_table">
 <?php
-            $headerEvery = isset($requestVars['header_every'])
-                              ? $requestVars['header_every']
-                              : 15;
+                        $headerEvery = isset($requestVars['header_every'])
+                                          ? $requestVars['header_every']
+                                          : 15;
 
-            $rowN = 0;
-            foreach ($rows as $row) {
-                if ($rowN % $headerEvery == 0) {
-                    headerRow($rows, $rowN);
-                    $rowN++;
-                }
+                        $rowN = 0;
+                        foreach ($rows as $row) {
+                            if ($rowN % $headerEvery == 0) {
+                                headerRow($rows, $rowN);
+                                $rowN++;
+                            }
 ?>
 	<tr data-row="<?= $rowN ?>">
 <?php
-                foreach ($row as $val) {
+                            foreach ($row as $val) {
 ?>
 		<td>
 			<?= $val ?>
 		</td>
 <?php
-                }
+                            }
 ?>
 	</tr>
 <?php
-                $rowN++;
-            }
+                            $rowN++;
+                        }
 ?>
 </table>
 <?php
-        }
-        else {
-            DbViewer::outputDbError($db);
-        }
-?>
+                    }
+                    else {
+                        DbViewer::outputDbError($db);
+                    }
 
+                    { # js
+?>
 <script>
 
     function getColVals(cells) {
@@ -919,8 +993,9 @@
 </script>
 
 <?php
-	}
-}
+                    }
+                }
+            }
 ?>
 
     <!-- init popup menu -->
@@ -946,4 +1021,10 @@
         });
     </script>
 </body>
+<?php
+        }
+?>
 </html>
+<?php
+    }
+?>
