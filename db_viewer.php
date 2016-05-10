@@ -266,16 +266,16 @@
 
     // given a row, split it into multiple rows that go alongside it
     // for 1-to-many relationship
-    function addInnerRowsToRow($row, new_rows, col_num, mark_odd_row) {
+    function addExtraRowsBelowRow($row, new_rows, col_no, mark_odd_row) {
         var num_rows = new_rows.length;
-        // add the rowspan and any needed empty extra-rows
+        // add the needed rows
         var $rows = splitRow($row, num_rows, mark_odd_row);
 
         for (var rowN = 0; rowN < num_rows; rowN++) {
             // add to top row - some td's already present
             // must insert after the correct <td>
             var this_row = $rows[rowN];
-            var first_elem = this_row.find('td').eq(col_num);
+            var first_elem = this_row.find('td').eq(col_no);
             var new_content = new_rows[rowN];
             //console.log('new_content', new_content);
             first_elem.after(new_content);
@@ -373,6 +373,7 @@
                         return "rgba($colorStr)";
                     }
 
+                    $oddRowDarkness = .9;
                     for ($level = 1; $level <= 3; $level++) {
 ?>
     .join_color_<?= $level ?>_handle {
@@ -384,10 +385,10 @@
 
     /* darker for odd-row's */
     .odd-row .join_color_<?= $level ?>_handle {
-        background: <?= rgbaColor($joinColors[$level]['handle'], .8) ?>;
+        background: <?= rgbaColor($joinColors[$level]['handle'], $oddRowDarkness) ?>;
     }
     .odd-row .join_color_<?= $level ?> {
-        background: <?= rgbaColor($joinColors[$level]['row'], .8) ?>;
+        background: <?= rgbaColor($joinColors[$level]['row'], $oddRowDarkness) ?>;
     }
     .odd-row {
         background: rgb(220,220,220); /* #todo adjust for dark bg & backgroundImage */
@@ -419,7 +420,7 @@
         <p id="limit_warning">
             Warning: BYOL - "Bring Your Own Limit" (otherwise query may be slow)
         </p>
-		<textarea name="sql"><?= $sql ?></textarea>
+		<textarea id="query-box" name="sql"><?= $sql ?></textarea>
 		<br>
         <div>
             <label for="db_type">DB Type</label>
@@ -603,6 +604,27 @@
         return row.children('th').length > 0;
     }
 
+    function cellHTML(val, level, joinColor, tag) {
+        tag = tag || 'td';
+        val = val || '';
+        return '\
+            <'+tag+' class="level'+level+' join_color_'+joinColor+'"\
+                level="'+level+'"\
+            >\
+                ' + val + '\
+            </'+tag+'>\
+        ';
+    }
+
+    function blankTableRow(field_names, innerLevel, joinColor) {
+        return $.map(
+            field_names,
+            function(field_name,idx) {
+                return $(cellHTML(null, innerLevel, joinColor));
+            }
+        );
+    }
+
     function addBacklinkedDataToTable(cells, data, exclude_fields) {
 
         // get # fields from first row of data
@@ -655,9 +677,11 @@
                 $(elem).after(these_header_cells);
             }
             else { // data row - may have data to splice in
-                var subrows = getDataKeyedByCellContents(elem, data); //, field_name);
                 //console.log('elem',elem);
                 //console.log('subrows',subrows);
+
+                var col_no = colNo(elem);
+                var subrows = getDataKeyedByCellContents(elem, data); //, field_name);
 
                 if ($.isArray(subrows)) {
                     var table_subrows = subrows.map(
@@ -666,38 +690,20 @@
                                 field_names,
                                 function(field_name,idx2) {
                                     var val = data_subrow[field_name];
-                                    return $('\
-                                        <td class="level' + innerLevel + ' join_color_' + joinColor + '"\
-                                            level="' + innerLevel + '"\
-                                        >\
-                                            ' + val + '\
-                                        </td>\
-                                    ');
+                                    return $(cellHTML(val, innerLevel, joinColor));
                                 }
                             );
-                            //console.log('table_subrow',table_subrow);
                             return table_subrow;
                         }
                     );
-
-                    var col_no = colNo(elem);
-
-                    addInnerRowsToRow(row, table_subrows, col_no, mark_odd_row);
                 }
                 else { // null join field - insert blank row
                     console.log('subrows not array, adding blanks',subrows);
-                    //var num_new_cols = field_names.length;
-
-                    for (var i=0; i<num_new_cols; i++) {
-                        // #todo factor td html into a function
-                        $(elem).after('\
-                            <td class="level' + innerLevel + '"\
-                                level="' + innerLevel + '"\
-                            >\
-                            </td>\
-                        ');
-                    }
+                    var table_subrow = blankTableRow(field_names, innerLevel, joinColor);
+                    table_subrows = [table_subrow];
                 }
+
+                addExtraRowsBelowRow(row, table_subrows, col_no, mark_odd_row);
             }
 
         });
@@ -930,13 +936,7 @@
     }
 
     function colNo(elem) {
-        var col_num_attr = elem.getAttribute('col_num');
-        if (col_num_attr !== null) {
-            return col_num_attr;
-        }
-        else {
-            return elem.cellIndex;
-        }
+        return elem.cellIndex;
     }
 
     function allColCells(elem) {
@@ -983,7 +983,7 @@
 
 
     // GLOBALS
-    var show_hide_mode = false;
+    var show_hide_mode = 0;
 
 
     // HANDLERS
@@ -991,7 +991,6 @@
     // click on header field name (e.g. site_id) - joins to that table, e.g. site
     // displays join inline and allows you to toggle it back
     var thClickHandler = function(e){
-        console.log('thClickHandler');
         var elem = e.target;
         if ($(elem).attr('cols_open')) {
             // already opened - close
@@ -1009,7 +1008,6 @@
 
     // fold / unfold via click
     var tdClickHandler = function(e){
-        console.log('tdClickHandler');
 
         if (show_hide_mode) {
             // alt to fold/unfold row
@@ -1041,6 +1039,11 @@
     $('table').on('click', 'td', tdClickHandler);
     $('table').on('click', 'th', thClickHandler);
 
+
+    function queryBoxElem() {
+        return document.getElementById('query-box');
+    }
+
 </script>
 
 <?php
@@ -1060,6 +1063,7 @@
     <script>
         $(document).ready(function() {
             $('.popr').popr();
+
             // on click popup item
             $(document).on('click', '.popr-item', function(e){
                 var elem = lastClickedElem;
@@ -1068,6 +1072,25 @@
                 console.log('elem',elem);
                 console.log('backlinkJoinTable',backlinkJoinTable);
                 openBacklinkedJoin(elem);
+            });
+
+            // show_hide_mode toggle
+            $(document).on('keypress', 'body', function(e){
+                if (queryBoxElem() !== document.activeElement) {
+                    var H_code = 104;
+                    if (e.keyCode == H_code) {
+                        show_hide_mode = 1 - show_hide_mode;
+                        if (show_hide_mode) {
+                            alert('Show/Hide Mode Enabled:\n\n\
+Click a column to hide it, shift-click to reveal it again.\n\
+Alt-Click a row to hide it, alt-shift-click to reveal it again.\n\
+Press H again to disable.');
+                        }
+                        else {
+                            alert('Show/Hide Mode Disabled');
+                        }
+                    }
+                }
             });
         });
     </script>
