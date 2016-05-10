@@ -88,13 +88,35 @@ tr.shadowing th {
     border: solid 2px #aaa;
 }
 
-.level1handle {
-    background: #ff9999;
-}
-.level1 {
-    background: #ffbbbb;
-}
+<?php
+    $joinColors = array(
+        1 => array(
+            'handle' => '#a00', #'#ff9999',
+            'row' => 'rgba(150, 0, 0, .5)', #'#ffbbbb',
+        ),
+        2 => array(
+            'handle' => '#0a0', # '#99ff99',
+            'row' => 'rgba(0, 150, 0, .5)', # '#bbffbb',
+        ),
+        3 => array(
+            'handle' => '#00a', # '#9999ff',
+            'row' => 'rgba(0, 0, 150, .5)', # '#bbbbff',
+        ),
+    );
 
+    for ($level = 1; $level <= 3; $level++) {
+?>
+.level<?= $level ?>handle {
+    background: <?= $joinColors[$level]['handle'] ?>;
+}
+.level<?= $level ?> {
+    background: <?= $joinColors[$level]['row'] ?>;
+}
+<?php
+    }
+?>
+
+/*
 .level2handle {
     background: #99ff99;
 }
@@ -108,3 +130,4 @@ tr.shadowing th {
 .level3 {
     background: #bbbbff;
 }
+*/
