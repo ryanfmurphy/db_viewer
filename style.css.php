@@ -91,15 +91,15 @@ tr.shadowing th {
 <?php
     $joinColors = array(
         1 => array(
-            'handle' => '#a00', #'#ff9999',
+            'handle' => 'rgba(225, 0, 0, .5)', #'#ff9999',
             'row' => 'rgba(150, 0, 0, .5)', #'#ffbbbb',
         ),
         2 => array(
-            'handle' => '#0a0', # '#99ff99',
+            'handle' => 'rgba(0, 225, 0, .5)', # '#99ff99',
             'row' => 'rgba(0, 150, 0, .5)', # '#bbffbb',
         ),
         3 => array(
-            'handle' => '#00a', # '#9999ff',
+            'handle' => 'rgba(0, 0, 225, .5)', # '#9999ff',
             'row' => 'rgba(0, 0, 150, .5)', # '#bbbbff',
         ),
     );
