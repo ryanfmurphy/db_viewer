@@ -57,8 +57,8 @@
         }
 
         { # get sql query (if any) from incoming request
-            if (isset($_GET['sql'])) {
-                $sql = $_GET['sql'];
+            if (isset($requestVars['sql'])) {
+                $sql = $requestVars['sql'];
             }
             else {
                 $sql = null;
@@ -119,6 +119,11 @@
 
 	function nthCol(n) {
         //console.log('nthCol', n);
+
+        // #todo better nthCol that takes into accound extra-row's
+
+        // #caveat - this only works right if there are no .extra-rows
+        // .extra-rows will have their cellIndex / nth-child-ness off
         var n_plus_1 = (parseInt(n)+1).toString();
 		return $('#query_table tr > *:nth-child('
             + n_plus_1 +
@@ -255,6 +260,7 @@
     // 1-to-many relationship
     function addInnerRowsToRow($row, new_rows, col_num) {
         var num_rows = new_rows.length;
+        // add the rowspan and any needed empty extra-rows
         var $rows = splitRow($row, num_rows);
 
         // add to top row - some td's already present
@@ -269,7 +275,19 @@
         for (var rowN = 1; rowN < num_rows; rowN++) {
             //console.log('rowN',rowN);
             var $this_row = $rows[rowN];
+
             var new_content = new_rows[rowN];
+            //console.log('new_content', new_content);
+
+            // save col_num on cells to make colIndex
+            // easy to figure out for extra-rows
+            for (var i=0; i<new_content.length; i++) {
+                var this_elem = new_content[i];
+                //console.log('this_elem',this_elem);
+                //console.log('i',i);
+                this_elem.attr('col_num', col_num+i+1);
+            }
+
             //console.log('new_content', new_content);
             $this_row.append(new_content);
             //console.log('appended');
@@ -278,10 +296,40 @@
 
     </script>
 
+<?php
+    $backgroundImages = array(
+        'plant' => "/imgroot/plants/turmeric-plants.jpg",
+        'book' => "/imgroot/books.jpg",
+    );
+    $backgroundImageUrl = $backgroundImages['plant'];
+
+    if (isset($backgroundImageUrl) && $backgroundImageUrl) {
+?>
+    <style>
+    body {
+        background-color: black;
+        background-image: url(<?= $backgroundImageUrl ?>);
+        background-position: center;
+        background-repeat: no-repeat;
+        color: white;
+    }
+    td,th {
+        border: solid 1px white;
+    }
+    table, textarea {
+        color: white;
+        background: rgba(100,100,100,.5);
+        border: solid 1px white;
+    }
+    </style>
+<?php
+    }
+?>
+
 </head>
 
 <body>
-	<form>
+	<form method="post">
         <h2 id="query_header">
             Enter SQL Query
         </h2>
@@ -290,6 +338,10 @@
         </p>
 		<textarea name="sql"><?= $sql ?></textarea>
 		<br>
+        <div>
+            <label for="db_type">DB Type</label>
+            <input name="db_type" value="<?= $db_type ?>">
+        </div>
 		<input type="submit">
 	</form>
 <?php
@@ -306,8 +358,8 @@
 
 <table id="query_table">
 <?php
-            $headerEvery = isset($_GET['header_every'])
-                              ? $_GET['header_every']
+            $headerEvery = isset($requestVars['header_every'])
+                              ? $requestVars['header_every']
                               : 15;
 
             $rowN = 0;
@@ -634,7 +686,8 @@
                     var uri = 'query_id_in<?= $maybe_url_php_ext ?>';
                     var request_data = {
                         ids: non_null_ids,
-                        join_field: field_name
+                        join_field: field_name,
+                        db_type: "<?= str_replace('"', '\"', $db_type) ?>",
                     };
 
                 }
@@ -751,7 +804,13 @@
     }
 
     function colNo(elem) {
-        return elem.cellIndex;
+        var col_num_attr = elem.getAttribute('col_num');
+        if (col_num_attr !== null) {
+            return col_num_attr;
+        }
+        else {
+            return elem.cellIndex;
+        }
     }
 
     function allColCells(elem) {
@@ -806,6 +865,7 @@
     // click on header field name (e.g. site_id) - joins to that table, e.g. site
     // displays join inline and allows you to toggle it back
     var thClickHandler = function(e){
+        console.log('thClickHandler');
         var elem = e.target;
         if ($(elem).attr('cols_open')) {
             // already opened - close
@@ -823,6 +883,7 @@
 
     // fold / unfold via click
     var tdClickHandler = function(e){
+        console.log('tdClickHandler');
 
         if (show_hide_mode) {
             // alt to fold/unfold row

@@ -53,6 +53,7 @@ textarea {
     margin-bottom: .5em;
 }
 input[type=submit] {
+    margin-top: 1em;
     margin-bottom: 1.5em;
 }
 
