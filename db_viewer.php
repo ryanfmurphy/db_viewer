@@ -121,8 +121,13 @@
     <script>
 
     // GLOBALS
+
     var lastClickedElem;
     var backlinkJoinTable;
+
+    // keep track of table joins
+    // for color choice if nothing else
+    var joinNum = 0;
 
 
 	function nthCol(n) {
@@ -377,10 +382,10 @@
 <?php
                 for ($level = 1; $level <= 3; $level++) {
 ?>
-.level<?= $level ?>handle {
+.join_color_<?= $level ?>_handle {
     background: <?= $joinColors[$level]['handle'] ?>;
 }
-.level<?= $level ?> {
+.join_color_<?= $level ?> {
     background: <?= $joinColors[$level]['row'] ?>;
 }
 <?php
@@ -504,6 +509,13 @@
         return true;
     }
 
+    function getJoinColor(joinNum) {
+        console.log('getJoinColor', joinNum);
+        var val = ((joinNum-1) % 3) + 1;
+        console.log('  val', val);
+        return val;
+    }
+
     // data is keyed by id
     // add to HTML Table, lined up with relevant row
     function addDataToTable(cells, data, exclude_fields) {
@@ -548,6 +560,8 @@
         var field_names = field_names_reversed;
         var cols_open = 0;
 
+        var joinColor = getJoinColor(joinNum);
+
         // loop thru all fields and add a column for each row
         for (i in field_names) {
 
@@ -562,7 +576,7 @@
                                     : showVal(val));
             var content = '\
                         <'+TD_or_TH+'\
-                            class="level' + level + '"\
+                            class="level' + level + ' join_color_' + joinColor + '"\
                             level="' + level + '"\
                         > \
                             '+display_val+'\
@@ -574,6 +588,7 @@
         }
 
         $(elem).addClass('level' + level + 'handle')
+            .addClass('join_color_' + joinColor + '_handle')
             .attr('cols_open', cols_open);
 
     }
@@ -597,12 +612,15 @@
                             || 0;
         var innerLevel = outerLevel + 1;
 
+        joinNum++; // rotate join colors (joinNum is global)
+        var joinColor = getJoinColor(joinNum);
+
         var header_cells_str = '';
         for (i in field_names) {
             field_name = field_names[i];
-            //console.log('looping headers, field_name', field_name);
+
             header_cells_str += '\
-                <th class="level' + innerLevel + '"\
+                <th class="level' + innerLevel + ' join_color_' + joinColor + '"\
                     level="' + innerLevel + '"\
                 >\
                     ' + field_name + '\
@@ -633,7 +651,7 @@
                                 function(field_name,idx2) {
                                     var val = data_subrow[field_name];
                                     return $('\
-                                        <td class="level' + innerLevel + '"\
+                                        <td class="level' + innerLevel + ' join_color_' + joinColor + '"\
                                             level="' + innerLevel + '"\
                                         >\
                                             ' + val + '\
@@ -668,6 +686,7 @@
 
             // update elem's css classes / color / etc
             $(elem).addClass('level' + innerLevel + 'handle')
+                .addClass('join_color_' + joinColor + '_handle')
                 .attr('cols_open', num_new_cols);
 
         });
@@ -692,9 +711,10 @@
         var all_cells = nthCol(col_no); // #todo factor to allColCells()?
         var cols_open = parseInt($(elem).attr('cols_open'));
 
-        var handle_class;
+        var handle_class, join_color_handle_class;
 
-        { // find handle_class ("levelXhandle" class) to remove to undo color
+        { // find handle_class ("levelXhandle" class)
+          // and join_color_X_handle to remove to undo color
 
             // use first cell as an example - all of them are the same
             var first_cell = all_cells.first();
@@ -703,13 +723,25 @@
 
             for (var i in cell_classes) {
                 var classname = cell_classes[i];
-                var is_handle_class = (classname.indexOf('handle') != -1);
+                var is_handle_class = (classname.indexOf('handle') != -1)
+                                    && (classname.indexOf('join_color_') == -1)
+                                    ;
                 if (is_handle_class) {
                     handle_class = classname;
                     break;
                 }
             }
 
+            for (var i in cell_classes) {
+                var classname = cell_classes[i];
+                var is_join_color_handle_class = (classname.indexOf('handle') != -1)
+                                               && (classname.indexOf('join_color_') != -1)
+                                               ;
+                if (is_join_color_handle_class) {
+                    join_color_handle_class = classname;
+                    break;
+                }
+            }
         }
 
         // for each row, remove all the open columns after that cell
@@ -720,7 +752,10 @@
                 $(elem).next().remove();
             }
 
-            $(elem).removeClass(handle_class); // restores earlier color
+            $(elem)
+                .removeClass(handle_class)
+                .removeClass(join_color_handle_class) // restores earlier color
+                ;
             $(elem).removeAttr('cols_open');
 
             // if rowspan is no longer needed or not all rows needed,
@@ -735,6 +770,8 @@
         if ($(elem).is('.popr-item')) {
             return false;
         }
+
+        joinNum++; // rotate join colors (joinNum is global)
 
         var field_name = elem.innerHTML.trim();
 
@@ -797,6 +834,8 @@
     // that have an id field pointing to this one
     function openBacklinkedJoin(elem) {
         var field_name = elem.innerHTML.trim();
+
+        joinNum++; // rotate join colors (joinNum is global)
 
         if (isValidJoinField(field_name)) {
 
