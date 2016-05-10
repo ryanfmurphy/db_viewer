@@ -68,25 +68,25 @@
                 $sql = null;
             }
         }
-    }
 
-	# header row html <th>'s, functionalized because it's repeated every so many rows
-	function headerRow(&$rows, $rowN) {
-		$firstRow = current($rows);
+        # header row html <th>'s, functionalized because it's repeated every so many rows
+        function headerRow(&$rows, $rowN) {
+            $firstRow = current($rows);
 ?>
 	<tr data-row="<?= $rowN ?>">
 <?php
-		foreach ($firstRow as $fieldName => $val) {
+            foreach ($firstRow as $fieldName => $val) {
 ?>
 		<th class="popr" data-id="1">
 			<?= $fieldName ?>
 		</th>
 <?php
-		}
+            }
 ?>
 	</tr>
 <?php
-	}
+        }
+    }
 
     { # html
 ?>
@@ -96,12 +96,15 @@
         { # <head> (including js)
 ?>
 <head>
+<?php
+            { # links/scripts
+?>
     <!-- load jQuery -->
     <script src="<?= $jquery_url ?>"></script>
     <script src="<?= $poprJsPath ?>popr/popr.js"></script>
 
 <?php
-	if ($inlineCss && $cmp) {
+                if ($inlineCss && $cmp) {
 		$cssPath = __DIR__ . "/style.css.php";
 ?>
     <style>
@@ -109,15 +112,17 @@
         <?php include('popr/popr.css'); ?>
     </style>
 <?php
-	}
-	else {
+                }
+                else {
 ?>
     <link rel="stylesheet" type="text/css" href="style.css.php">
     <link rel="stylesheet" type="text/css" href="popr/popr.css">
 <?php
-	}
-?>
+                }
+            }
 
+            { # inline js
+?>
     <script>
 
     // GLOBALS
@@ -308,19 +313,22 @@
     }
 
     </script>
-
 <?php
-            { # background images
-                $backgroundImages = array(
-                    'plant' => "/imgroot/plants/turmeric-plants.jpg",
-                    'book' => "/imgroot/books.jpg",
-                );
-                $backgroundImageUrl = $backgroundImages['plant'];
+            }
 
-                $hasBackgroundImage = (isset($backgroundImageUrl)
-                                    && $backgroundImageUrl);
+            { # dynamic style / CSS choices
 
-                if ($hasBackgroundImage) {
+                { # choose background image if any
+                    $backgroundImages = array(
+                        'plant' => "/imgroot/plants/turmeric-plants.jpg",
+                        'book' => "/imgroot/books.jpg",
+                    );
+                    $backgroundImageUrl = $backgroundImages['plant'];
+
+                    $hasBackgroundImage = (isset($backgroundImageUrl)
+                                        && $backgroundImageUrl);
+
+                    if ($hasBackgroundImage) {
 ?>
     <style>
     body {
@@ -340,60 +348,61 @@
     }
     </style>
 <?php
+                    }
                 }
-            }
 
-            { # join colors
-                if ($hasBackgroundImage) {
-                    $joinColors = array(
-                        1 => array(
-                            'handle' => 'rgba(225, 0, 0, .5)', #'#ff9999',
-                            'row' => 'rgba(150, 0, 0, .5)', #'#ffbbbb',
-                        ),
-                        2 => array(
-                            'handle' => 'rgba(0, 225, 0, .5)', # '#99ff99',
-                            'row' => 'rgba(0, 150, 0, .5)', # '#bbffbb',
-                        ),
-                        3 => array(
-                            'handle' => 'rgba(0, 0, 225, .5)', # '#9999ff',
-                            'row' => 'rgba(0, 0, 150, .5)', # '#bbbbff',
-                        ),
-                    );
-                }
-                else {
-                    $joinColors = array(
-                        1 => array(
-                            'handle' => '#ff9999',
-                            'row' => '#ffbbbb',
-                        ),
-                        2 => array(
-                            'handle' => '#99ff99',
-                            'row' => '#bbffbb',
-                        ),
-                        3 => array(
-                            'handle' => '#9999ff',
-                            'row' => '#bbbbff',
-                        ),
-                    );
-                }
+                { # join colors
+                    if ($hasBackgroundImage) {
+                        $joinColors = array(
+                            1 => array(
+                                'handle' => 'rgba(225, 0, 0, .5)', #'#ff9999',
+                                'row' => 'rgba(150, 0, 0, .5)', #'#ffbbbb',
+                            ),
+                            2 => array(
+                                'handle' => 'rgba(0, 225, 0, .5)', # '#99ff99',
+                                'row' => 'rgba(0, 150, 0, .5)', # '#bbffbb',
+                            ),
+                            3 => array(
+                                'handle' => 'rgba(0, 0, 225, .5)', # '#9999ff',
+                                'row' => 'rgba(0, 0, 150, .5)', # '#bbbbff',
+                            ),
+                        );
+                    }
+                    else {
+                        $joinColors = array(
+                            1 => array(
+                                'handle' => '#ff9999',
+                                'row' => '#ffbbbb',
+                            ),
+                            2 => array(
+                                'handle' => '#99ff99',
+                                'row' => '#bbffbb',
+                            ),
+                            3 => array(
+                                'handle' => '#9999ff',
+                                'row' => '#bbbbff',
+                            ),
+                        );
+                    }
 ?>
 
     <style>
 <?php
-                for ($level = 1; $level <= 3; $level++) {
+                    for ($level = 1; $level <= 3; $level++) {
 ?>
-.join_color_<?= $level ?>_handle {
-    background: <?= $joinColors[$level]['handle'] ?>;
-}
-.join_color_<?= $level ?> {
-    background: <?= $joinColors[$level]['row'] ?>;
-}
+    .join_color_<?= $level ?>_handle {
+        background: <?= $joinColors[$level]['handle'] ?>;
+    }
+    .join_color_<?= $level ?> {
+        background: <?= $joinColors[$level]['row'] ?>;
+    }
 <?php
-                }
+                    }
 ?>
-    </style>
+        </style>
 
 <?php
+                }
             }
 ?>
 
@@ -401,7 +410,7 @@
 <?php
         }
 
-        { # body
+        { # <body>
 
             { # form
 ?>
