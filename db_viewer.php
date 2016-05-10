@@ -29,6 +29,7 @@
     */
 
     { # init
+        $requestVars = array_merge($_GET, $_POST);
         $cmp = class_exists('Util');
         $inlineCss = $cmp;
 
