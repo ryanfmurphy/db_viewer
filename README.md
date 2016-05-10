@@ -30,5 +30,5 @@ Many-to-many and Back-linking Relationships
     * A menu come up asking which connection you want
     * Click a connection and the database will automatically be queried to get the related data you asked for
     * The data will then be spliced into your existing table view.
-    * The newly-opened data is colored to distinguish it from the data from the original table.
+    * The newly-opened data is now colored to distinguish it from the data from the original table.
 
