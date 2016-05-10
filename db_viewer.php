@@ -213,72 +213,72 @@
     // don't use a rowspan - it's simpler just to duplicate the id_field
         // might not look quite as cool but much simpler to code
         // also allows for tabular copy-and-paste into unix-style programs
-    function splitRow($row, num_rows) {
+    function splitRow($row, num_rows, mark_odd_row) {
         console.log('splitRow, num_rows =', num_rows);
 
-        var $prev_row = $row;
         var $rows = [$row];
 
-        // add rows
-        console.log('adding new rows');
-        for (var rowN = 0; rowN < num_rows; rowN++) {
-            console.log('adding new extra row');
+        // classes on the original (top) row
+        // (even if we don't actually add any rows)
+        $row.addClass('has-extra-rows');
+        if (mark_odd_row) {
+            $row.addClass('odd-row');
+        }
 
-            var $new_row = $row.clone();
-            $new_row.addClass('extra-row');
+        if (num_rows > 1) {
 
-            $rows.push($new_row);      // add to return array
-            $prev_row.after($new_row); // add to DOM
-            $prev_row = $new_row;
+            var $prev_row = $row;
+            console.log('adding new rows');
+
+            // add rows
+            for (var rowN = 1; rowN < num_rows; rowN++) {
+                console.log('adding new extra row');
+
+                var $new_row = $row.clone();
+                $new_row.addClass('extra-row');
+                if (mark_odd_row) {
+                    $new_row.addClass('odd-row');
+                }
+
+                $rows.push($new_row);      // add to return array
+                $prev_row.after($new_row); // add to DOM
+                $prev_row = $new_row;
+            }
+        }
+        else {
+            console.log('no extra rows to add!');
         }
 
         return $rows;
     }
 
-    // undo the split created by splitRow #todo #fixme now that we have no rowspan
-    function unsplitRow($row) {
-        // remove tr.extra-row's underneath
-        var extra_rows = extraRowsUnder($row); // #todo #fixme this function is gone now
-        extra_rows.remove();
-        // remove rowspan
-        $row.children('td').removeAttr('rowspan');
+    function extraRowsUnder($row) {
+        return $row.nextUntil(':not(.extra-row)');
     }
 
-    // given a row, add multiple rows that go alongside it
-    // use rowspan to juxtapose the 1 row with the multiple joined rows
-    // 1-to-many relationship
-    function addInnerRowsToRow($row, new_rows, col_num) {
+    // undo the split created by splitRow
+    function unsplitRow($row) {
+        // remove tr.extra-row's underneath
+        var extra_rows = extraRowsUnder($row);
+        extra_rows.remove();
+        $row.children('td').removeClass('has-extra-rows');
+    }
+
+    // given a row, split it into multiple rows that go alongside it
+    // for 1-to-many relationship
+    function addInnerRowsToRow($row, new_rows, col_num, mark_odd_row) {
         var num_rows = new_rows.length;
         // add the rowspan and any needed empty extra-rows
-        var $rows = splitRow($row, num_rows);
+        var $rows = splitRow($row, num_rows, mark_odd_row);
 
-        // add to top row - some td's already present
-        // must insert after the correct <td>
-        var $top_elem = $row.find('td').eq(col_num);
-        var new_content = new_rows[0];
-        //console.log('new_content', new_content);
-        $top_elem.after(new_content);
-        //console.log('appended');
-
-        // add to subsequent rows - no existing td's to compete with
-        for (var rowN = 1; rowN < num_rows; rowN++) {
-            //console.log('rowN',rowN);
-            var $this_row = $rows[rowN];
-
+        for (var rowN = 0; rowN < num_rows; rowN++) {
+            // add to top row - some td's already present
+            // must insert after the correct <td>
+            var this_row = $rows[rowN];
+            var first_elem = this_row.find('td').eq(col_num);
             var new_content = new_rows[rowN];
             //console.log('new_content', new_content);
-
-            // save col_num on cells to make colIndex
-            // easy to figure out for extra-rows
-            for (var i=0; i<new_content.length; i++) {
-                var this_elem = new_content[i];
-                //console.log('this_elem',this_elem);
-                //console.log('i',i);
-                this_elem.attr('col_num', col_num+i+1);
-            }
-
-            //console.log('new_content', new_content);
-            $this_row.append(new_content);
+            first_elem.after(new_content);
             //console.log('appended');
         }
     }
@@ -294,7 +294,7 @@
                         'plant' => "/imgroot/plants/turmeric-plants.jpg",
                         'book' => "/imgroot/books.jpg",
                     );
-                    $backgroundImageUrl = $backgroundImages['plant'];
+                    $backgroundImageUrl = null; #$backgroundImages['plant'];
 
                     $hasBackgroundImage = (isset($backgroundImageUrl)
                                         && $backgroundImageUrl);
@@ -326,32 +326,32 @@
                     if ($hasBackgroundImage) {
                         $joinColors = array(
                             1 => array(
-                                'handle' => 'rgba(225, 0, 0, .5)', #'#ff9999',
-                                'row' => 'rgba(150, 0, 0, .5)', #'#ffbbbb',
+                                'handle' => array(225, 0, 0, .5), #'#ff9999',
+                                'row' => array(150, 0, 0, .5), #'#ffbbbb',
                             ),
                             2 => array(
-                                'handle' => 'rgba(0, 225, 0, .5)', # '#99ff99',
-                                'row' => 'rgba(0, 150, 0, .5)', # '#bbffbb',
+                                'handle' => array(0, 225, 0, .5), # '#99ff99',
+                                'row' => array(0, 150, 0, .5), # '#bbffbb',
                             ),
                             3 => array(
-                                'handle' => 'rgba(0, 0, 225, .5)', # '#9999ff',
-                                'row' => 'rgba(0, 0, 150, .5)', # '#bbbbff',
+                                'handle' => array(0, 0, 225, .5), # '#9999ff',
+                                'row' => array(0, 0, 150, .5), # '#bbbbff',
                             ),
                         );
                     }
                     else {
                         $joinColors = array(
                             1 => array(
-                                'handle' => '#ff9999',
-                                'row' => '#ffbbbb',
+                                'handle' => array(255, 153, 153, 1),
+                                'row' => array(255, 187, 187, 1),
                             ),
                             2 => array(
-                                'handle' => '#99ff99',
-                                'row' => '#bbffbb',
+                                'handle' => array(153, 255, 153, 1),
+                                'row' => array(187, 255, 187, 1),
                             ),
                             3 => array(
-                                'handle' => '#9999ff',
-                                'row' => '#bbbbff',
+                                'handle' => array(153, 153, 255, 1),
+                                'row' => array(187, 187, 255, 1),
                             ),
                         );
                     }
@@ -359,14 +359,40 @@
 
     <style>
 <?php
+                    # template out rgba() color in CSS based on array
+                    function rgbaColor($colorArray, $mult=1) {
+                        if ($mult !== 1) {
+                            foreach ($colorArray as $i => &$color) {
+                                if ($i < 3) { // alpha stays the same
+                                    $color *= $mult;
+                                    $color &= (int)(round($color));
+                                }
+                            }
+                        }
+                        $colorStr = implode(",", $colorArray);
+                        return "rgba($colorStr)";
+                    }
+
                     for ($level = 1; $level <= 3; $level++) {
 ?>
     .join_color_<?= $level ?>_handle {
-        background: <?= $joinColors[$level]['handle'] ?>;
+        background: <?= rgbaColor($joinColors[$level]['handle']) ?>;
     }
     .join_color_<?= $level ?> {
-        background: <?= $joinColors[$level]['row'] ?>;
+        background: <?= rgbaColor($joinColors[$level]['row']) ?>;
     }
+
+    /* darker for odd-row's */
+    .odd-row .join_color_<?= $level ?>_handle {
+        background: <?= rgbaColor($joinColors[$level]['handle'], .8) ?>;
+    }
+    .odd-row .join_color_<?= $level ?> {
+        background: <?= rgbaColor($joinColors[$level]['row'], .8) ?>;
+    }
+    .odd-row {
+        background: rgb(220,220,220); /* #todo adjust for dark bg & backgroundImage */
+    }
+
 <?php
                     }
 ?>
@@ -610,7 +636,17 @@
         var header_cells = $(header_cells_str);
         console.log('header_cells',header_cells);
 
+        var mark_odd_row = 0;
+
         cells.each(function(idx,elem){
+
+            mark_odd_row = 1 - mark_odd_row;
+
+            // update elem's css classes / color / etc
+            $(elem).addClass('level' + innerLevel + 'handle')
+                .addClass('join_color_' + joinColor + '_handle')
+                .attr('cols_open', num_new_cols);
+
             var row = $(elem).closest('tr');
             if (isHeaderRow(row)) {
                 console.log('header_row', header_cells);
@@ -646,7 +682,7 @@
 
                     var col_no = colNo(elem);
 
-                    addInnerRowsToRow(row, table_subrows, col_no);
+                    addInnerRowsToRow(row, table_subrows, col_no, mark_odd_row);
                 }
                 else { // null join field - insert blank row
                     console.log('subrows not array, adding blanks',subrows);
@@ -663,11 +699,6 @@
                     }
                 }
             }
-
-            // update elem's css classes / color / etc
-            $(elem).addClass('level' + innerLevel + 'handle')
-                .addClass('join_color_' + joinColor + '_handle')
-                .attr('cols_open', num_new_cols);
 
         });
     }
@@ -813,6 +844,7 @@
     // reverse of openJoin - search the db for other tables
     // that have an id field pointing to this one
     function openBacklinkedJoin(elem) {
+
         var field_name = elem.innerHTML.trim();
 
         joinNum++; // rotate join colors (joinNum is global)
