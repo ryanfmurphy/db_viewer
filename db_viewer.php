@@ -137,11 +137,6 @@
 
 	function nthCol(n) {
         //console.log('nthCol', n);
-
-        // #todo better nthCol that takes into accound extra-row's
-
-        // #caveat - this only works right if there are no .extra-rows
-        // .extra-rows will have their cellIndex / nth-child-ness off
         var n_plus_1 = (parseInt(n)+1).toString();
 		return $('#query_table tr > *:nth-child('
             + n_plus_1 +
@@ -214,60 +209,36 @@
 	}
 
 
-    // if tr's tds doesn't already have a rowspan, give it a rowspan for num_rows rows
-    // add subrows to fill out the rowspan
-    // if row is already split, add additional rows as needed otherwise leave it alone
+    // split the row into `num_rows` rows
+    // don't use a rowspan - it's simpler just to duplicate the id_field
+        // might not look quite as cool but much simpler to code
+        // also allows for tabular copy-and-paste into unix-style programs
     function splitRow($row, num_rows) {
         console.log('splitRow, num_rows =', num_rows);
-        { // adjust rowspan on tds
-            var existing_rowspan = $row.find('td:first').attr('rowspan');
-            var existing_rows = existing_rowspan || 1;
-            console.log('existing_rowspan', existing_rowspan);
 
-            var rowspan_increase;
-            var add_more_rows = (existing_rows < num_rows);
-            rowspan_increase = (add_more_rows
-                                    ? num_rows - existing_rows
-                                    : 0);
-
-            if (add_more_rows || existing_rowspan === undefined) {
-                $row.find('td').attr('rowspan', num_rows);
-            }
-            console.log('rowspan_increase', rowspan_increase);
-        }
-
-        var $last_row = $row;
-
+        var $prev_row = $row;
         var $rows = [$row];
-        console.log('adding already-existent extra rows');
-        var already_existent_extra_rows = extraRowsUnder($row);
-        console.log('already-existent extra rows:', already_existent_extra_rows.length, already_existent_extra_rows);
-        already_existent_extra_rows.each(function(idx,elem){
-            console.log('adding already-existent extra row', elem);
-            $rows.push($(elem));
-        });
 
-        // add any rows that aren't already there
-        console.log('adding new extra rows');
-        for (var rowN = 0; rowN < rowspan_increase; rowN++) {
+        // add rows
+        console.log('adding new rows');
+        for (var rowN = 0; rowN < num_rows; rowN++) {
             console.log('adding new extra row');
-            var $new_row = $('<tr class="extra-row"></tr>');
-            $rows.push($new_row); // array to return
-            $last_row.after($new_row); // add to DOM
-            $last_row = $new_row;
+
+            var $new_row = $row.clone();
+            $new_row.addClass('extra-row');
+
+            $rows.push($new_row);      // add to return array
+            $prev_row.after($new_row); // add to DOM
+            $prev_row = $new_row;
         }
 
         return $rows;
     }
 
-    function extraRowsUnder($row) {
-        return $row.nextUntil(':not(.extra-row)');
-    }
-
-    // undo the split created by splitRow
+    // undo the split created by splitRow #todo #fixme now that we have no rowspan
     function unsplitRow($row) {
         // remove tr.extra-row's underneath
-        var extra_rows = extraRowsUnder($row);
+        var extra_rows = extraRowsUnder($row); // #todo #fixme this function is gone now
         extra_rows.remove();
         // remove rowspan
         $row.children('td').removeAttr('rowspan');
