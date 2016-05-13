@@ -767,8 +767,25 @@
 
         var handle_class, join_color_handle_class;
 
+        { // close any nested open joins
+            var cells_w_nested_openings =
+                $(elem).nextAll()
+                    .slice(0,cols_open)
+                    .filter('[cols_open]')
+                    .get().reverse()
+                    ;
+            $(cells_w_nested_openings).each(
+                function(idx,elem) {
+                    console.log('closing a nested opening');
+                    console.log('idx',idx, ' - elem',elem);
+                    closeJoin(elem);
+                }
+            );
+        }
+
         unsplitRows(all_cells); // remove any many-to-one backlink-join-expanded rows
 
+        // #todo factor this into a function
         { // find handle_class ("levelXhandle" class)
           // and join_color_X_handle to remove to undo color
 
@@ -802,21 +819,15 @@
 
         // for each row, remove all the open columns after that cell
         all_cells.each(function(idx,elem){
-
             // loop through and remove that many cells
             for (var i = 0; i < cols_open; i++) {
                 $(elem).next().remove();
             }
 
-            $(elem)
-                .removeClass(handle_class)
-                .removeClass(join_color_handle_class) // restores earlier color
-                ;
+            $(elem).removeClass(handle_class)
+                   .removeClass(join_color_handle_class) // restores earlier color
+                   ;
             $(elem).removeAttr('cols_open');
-
-            // if rowspan is no longer needed or not all rows needed,
-            // #todo unsplitRow or reduceSplit depending what split rows are still needed
-
         });
     }
 
