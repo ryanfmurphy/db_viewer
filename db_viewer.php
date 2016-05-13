@@ -752,10 +752,30 @@
         }
     }
 
-    // how many columns are open starting with the column of elem?
-    // (doesn't include nested open joins)
-    function getColsOpen(elem) {
+    function getColsOpenFlat(elem) {
         return parseInt($(elem).attr('cols_open'));
+    }
+
+    // how many columns are open starting with the column of elem?
+    // include nested open joins
+    function getColsOpen(elem) {
+        // start with flat number not including nested folds
+        // (will go in a loop & sum a running count of nested open joins)
+        var cols_open = getColsOpenFlat(elem);
+        // jquery elem to iterate thru via .next
+        var $elem = $(elem);
+        for (var i = 0; i < cols_open; i++) {
+            $elem = $elem.next();
+            var this_elem = $elem.get(0);
+            var inner_cols_open = getColsOpenFlat(this_elem);
+            if (inner_cols_open > 0) {
+                // increase the running count of cols_open
+                // thus giving more time in this loop
+                // to keep finding more nested open joins
+                cols_open += inner_cols_open;
+            }
+        }
+        return cols_open;
     }
 
     // elem is the pivot <th> element you click on to
@@ -766,22 +786,6 @@
         var cols_open = getColsOpen(elem);
 
         var handle_class, join_color_handle_class;
-
-        { // close any nested open joins
-            var cells_w_nested_openings =
-                $(elem).nextAll()
-                    .slice(0,cols_open)
-                    .filter('[cols_open]')
-                    .get().reverse()
-                    ;
-            $(cells_w_nested_openings).each(
-                function(idx,elem) {
-                    console.log('closing a nested opening');
-                    console.log('idx',idx, ' - elem',elem);
-                    closeJoin(elem);
-                }
-            );
-        }
 
         unsplitRows(all_cells); // remove any many-to-one backlink-join-expanded rows
 
