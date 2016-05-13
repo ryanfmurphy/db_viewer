@@ -31,7 +31,6 @@
     { # init
 
         { # vars
-            $requestVars = array_merge($_GET, $_POST);
             $cmp = class_exists('Util');
             $inlineCss = $cmp;
         }
@@ -828,12 +827,9 @@
                         data: request_data,
                         dataType: 'json',
                         success: function(data) {
-
                             var exclude_fields = {};
                             exclude_fields[field_name] = 1;
-
                             addDataToTable(all_cells, data, exclude_fields);
-
                         },
                         error: function(r) {
                             alert("Failure");
