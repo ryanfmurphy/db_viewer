@@ -1,5 +1,10 @@
 <?php
-    $requestVars = array_merge($_GET, $_POST);
+
+    { # basic init
+        ini_set('memory_limit', '4000M');
+        $requestVars = array_merge($_GET, $_POST);
+    }
+
 	require_once('db_config.php');
 
     {   # some programs may provide

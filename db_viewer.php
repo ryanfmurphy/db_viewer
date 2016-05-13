@@ -255,12 +255,27 @@
         return $row.nextUntil(':not(.extra-row)');
     }
 
+    function rowOf(elem) {
+        return $(elem).closest('tr');
+    }
+
     // undo the split created by splitRow
     function unsplitRow($row) {
         // remove tr.extra-row's underneath
         var extra_rows = extraRowsUnder($row);
         extra_rows.remove();
-        $row.children('td').removeClass('has-extra-rows');
+        $row.children('td');
+        $row.removeClass('has-extra-rows')
+            .removeClass('odd-row')
+            ;
+    }
+
+    // unsplitRow for each row of each cell in cells
+    function unsplitRows($cells) {
+        $cells.each(function(idx,elem) {
+            var $row = rowOf(elem);
+            unsplitRow($row)
+        });
     }
 
     // given a row, split it into multiple rows that go alongside it
@@ -723,11 +738,12 @@
     // close all the rows that have been opened from the join
     function closeJoin(elem) {
 
-        var col_no = colNo(elem);
-        var all_cells = nthCol(col_no); // #todo factor to allColCells()?
+        var all_cells = allColCells(elem);
         var cols_open = parseInt($(elem).attr('cols_open'));
 
         var handle_class, join_color_handle_class;
+
+        unsplitRows(all_cells); // remove any many-to-one backlink-join-expanded rows
 
         { // find handle_class ("levelXhandle" class)
           // and join_color_X_handle to remove to undo color
@@ -1036,14 +1052,22 @@
     $('table').on('click', 'th', thClickHandler);
 
 
+</script>
+
+<?php
+                    }
+                }
+
+                { # js to show even if there's no query in play
+?>
+<script>
+
     function queryBoxElem() {
         return document.getElementById('query-box');
     }
 
 </script>
-
 <?php
-                    }
                 }
             }
 ?>
