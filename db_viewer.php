@@ -259,6 +259,9 @@
         return $(elem).closest('tr');
     }
 
+    // jQuery allows handling multiple elements the same as 1
+    rowsOf = rowOf;
+
     // undo the split created by splitRow
     function unsplitRow($row) {
         // remove tr.extra-row's underneath
@@ -673,10 +676,25 @@
         console.log('header_cells',header_cells);
 
         var mark_odd_row = 0;
+        var current_id_val = null;
 
         cells.each(function(idx,elem){
 
-            mark_odd_row = 1 - mark_odd_row;
+            // change color only when primary key changes
+            // so the join is still easy to visualize
+            var this_val = elem.innerText;
+            console.log('a new cell', elem, 'idx', idx);
+            console.log('current id val', current_id_val, 'new val', this_val);
+            if (!current_id_val
+                || this_val !== current_id_val
+            ) {
+                console.log('changing colors');
+                mark_odd_row = 1 - mark_odd_row;
+                current_id_val = this_val;
+            }
+            else {
+                console.log('not changing colors');
+            }
 
             // update elem's css classes / color / etc
             $(elem).addClass('level' + innerLevel + 'handle')
@@ -734,12 +752,18 @@
         }
     }
 
+    // how many columns are open starting with the column of elem?
+    // (doesn't include nested open joins)
+    function getColsOpen(elem) {
+        return parseInt($(elem).attr('cols_open'));
+    }
+
     // elem is the pivot <th> element you click on to
     // close all the rows that have been opened from the join
     function closeJoin(elem) {
 
         var all_cells = allColCells(elem);
-        var cols_open = parseInt($(elem).attr('cols_open'));
+        var cols_open = getColsOpen(elem);
 
         var handle_class, join_color_handle_class;
 
@@ -869,12 +893,15 @@
 
         if (isValidJoinField(field_name)) {
 
-            var col_no = colNo(elem);
-            var all_cells = nthCol(col_no); // #todo factor to allColCells() or one of those?
+            var all_cells = allColCells(elem);
             var val_cells = all_cells.filter('td');
             var vals = getColVals(val_cells);
             var table = backlinkJoinTable;
             var data_type = null; // #todo generalize if necessary
+
+            // clear odd-row coloring so we can reapply it cleanly
+            var rows = rowsOf(all_cells);
+            rows.removeClass('odd-row');
 
             console.log('field_name',field_name);
 
@@ -1004,15 +1031,15 @@
     // displays join inline and allows you to toggle it back
     var thClickHandler = function(e){
         var elem = e.target;
-        if ($(elem).attr('cols_open')) {
-            // already opened - close
-            closeJoin(elem);
+        if (e.altKey) {
+            // backlinked join handled by popr popup menu
         }
-        else { // not already opened - do open
-            if (e.altKey) {
-                // backlinked join handled by popr popup menu
+        else {
+            if (getColsOpen(elem) > 0) {
+                // already opened - close
+                closeJoin(elem);
             }
-            else {
+            else { // not already opened - do open
                 openJoin(elem);
             }
         }
