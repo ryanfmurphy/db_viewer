@@ -1,6 +1,11 @@
 To-Do List
 ==========
 
+* When you alt-click the `name` field, it should look
+  for any tables that have a `<table_name>` field.
+  E.g. if you're on the `song` table and you alt-click `name`
+  it should find any table with a `song` field
+
 * make a way to save "views"
     * as a SQL query?
     * or as a series of clicks/actions to replay in the view?
