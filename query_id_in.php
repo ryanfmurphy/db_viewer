@@ -1,8 +1,7 @@
 <?php
     # query-ids-in.php
     # ----------------
-    # support endpoint for the expansion "join-splice" feature
-    # within db-viewer
+    # support endpoint for the expansion "join-splice" feature in db_viewer
 
     #todo change interface to take join_field and figure out table
 
