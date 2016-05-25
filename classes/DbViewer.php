@@ -128,9 +128,10 @@
         public static function val_list_str($vals) {
             $val_reps = array_map(
                 function($val) {
-                    global $db; #todo will this global work in all cases?
+					return "'$val'";
+                    #global $db; #todo will this global work in all cases?
                     #todo #fixme might not work for nulls?
-                    return $db->quote($val); #todo maybe make a fn for quote?
+                    #return $db->quote($val); #todo maybe make a fn for quote?
                 },
                 $vals
             );
