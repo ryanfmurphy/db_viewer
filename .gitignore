@@ -1,3 +1,4 @@
 *.sw*
 /db_config.php
 /.git2
+/db_config.php.bak
