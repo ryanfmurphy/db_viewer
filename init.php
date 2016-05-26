@@ -35,7 +35,7 @@
     require_once('classes/DbViewer.php');
 
     { # postgres-specific setup
-        if (isset($pg) && $pg) {
+        if ($db_type == 'pgsql') {
             if (isset($search_path)) {
                 Util::sql("set search_path to $search_path");
             }
