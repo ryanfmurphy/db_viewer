@@ -311,7 +311,7 @@
                         'plant' => "/imgroot/plants/turmeric-plants.jpg",
                         'book' => "/imgroot/books.jpg",
                     );
-                    $backgroundImageUrl = null; #$backgroundImages['plant'];
+                    $backgroundImageUrl = $backgroundImages['plant'];
 
                     $hasBackgroundImage = (isset($backgroundImageUrl)
                                         && $backgroundImageUrl);
