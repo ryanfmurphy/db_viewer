@@ -18,7 +18,11 @@
             }
         }
 
-        # get table schema etc
+
+        # table name manipulation functions
+        #----------------------------------
+
+        # prepend table schema etc
         public static function full_tablename($tablename) {
             global $db_type;
 
@@ -53,6 +57,37 @@
         public static function pluralize($tablename) {
             return $tablename . 's'; #todo make pluralizing less dumb
         }
+
+
+        # Database Searching Functions
+        #-----------------------------
+
+		# result is keyed by table_name, all vals are 1
+		# for fast lookup, can use e.g.:
+			# $tables = DbViewer::sqlTables();
+			# if (isset($tables['contractor'])) ...
+		public static function sqlTables() {
+            global $db_type; #todo #fixme - global scope won't work for CMP/SD - use static class variables
+
+            if ($db_type == 'pgsql') {
+                $rows = Util::sql("
+                    select table_name
+                    from information_schema.tables
+                    where table_schema in ('public')
+                ");
+            }
+			else { # probably mysql
+                $rows = Util::sql('show tables');
+            }
+
+            $tables = array();
+            foreach ($rows as $row) {
+                $table = current($row);
+                $tables[$table] = 1;
+            }
+
+            return $tables;
+		}
 
         # used in joins to determine which table to join to from a field_name
 		public static function choose_table_and_field($field_name) {
@@ -109,46 +144,7 @@
 			}
 		}
 
-		# result is keyed by table_name, all vals are 1
-		# for fast lookup, can use e.g.:
-			# $tables = DbViewer::sqlTables();
-			# if (isset($tables['contractor'])) ...
-		public static function sqlTables() {
-            global $db_type; #todo #fixme - global scope won't work for CMP/SD - use static class variables
-
-            if ($db_type == 'pgsql') {
-                $rows = Util::sql("
-                    select table_name
-                    from information_schema.tables
-                    where table_schema in ('public')
-                ");
-            }
-			else { # probably mysql
-                $rows = Util::sql('show tables');
-            }
-
-            $tables = array();
-            foreach ($rows as $row) {
-                $table = current($row);
-                $tables[$table] = 1;
-            }
-
-            return $tables;
-		}
-
-        public static function val_list_str($vals) {
-            $val_reps = array_map(
-                function($val) {
-					return "'$val'";
-                    #global $db; #todo will this global work in all cases?
-                    #todo #fixme might not work for nulls?
-                    #return $db->quote($val); #todo maybe make a fn for quote?
-                },
-                $vals
-            );
-            return implode(',', $val_reps);
-        }
-
+        # get all tables with that fieldname, optionally filtering by vals
         public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
 
             $has_vals = (is_array($vals) && count($vals));
@@ -192,19 +188,16 @@
         }
 
         #todo (front-end) depending on $id_type,
-            # send e.g. $fieldname='inventory_id' for the 'id' field of inventory
+            #todo return e.g. $fieldname='inventory_id' for the 'id' field of inventory
+            #todo return e.g. $fieldname='inventory' for the 'name' field of inventory
         public static function rows_with_field_vals($fieldname, $vals, $table=NULL, $data_type=NULL) {
+            global $slow_tables;
 
             $tables = ($table === null
                          ? self::tables_with_field($fieldname, $data_type)
                          : array($table));
             $val_list = self::val_list_str($vals);
             $table_rows = array();
-
-			$slow_tables = array( #todo put in config
-				'lead','note2campaign','lead_call','lead_contact_email2campaign',
-				# 'ad_cost2campaign'
-			);
 
 			# search through the tables one by one and
 			# only include the tables that actually have matching rows
@@ -235,6 +228,23 @@
             }
 
             return $table_rows;
+        }
+
+
+        # Util functions
+        #---------------
+
+        public static function val_list_str($vals) {
+            $val_reps = array_map(
+                function($val) {
+					return "'$val'";
+                    #global $db; #todo will this global work in all cases?
+                    #todo #fixme might not work for nulls?
+                    #return $db->quote($val); #todo maybe make a fn for quote?
+                },
+                $vals
+            );
+            return implode(',', $val_reps);
         }
 
         public static function keyRowsByField($rows, $keyField) {
@@ -281,6 +291,18 @@
             $row = $rows[0];
             $val = $row['array_to_json'];
             return json_decode($val);
+        }
+
+
+        # Query Manipulation / Interpretation Functions
+        #----------------------------------------------
+
+        public static function infer_table_from_query($query) {
+            #todo improve inference - fix corner cases
+            if (preg_match("/\bfrom (\w+)\b/", $query, $matches)) {
+                $table = $matches[1];
+                return $table;
+            }
         }
 
     }

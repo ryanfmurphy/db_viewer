@@ -7,9 +7,10 @@
 
     { # vars - initial values
         $pluralize_table_names = false;
-    }
+        $slow_tables = array();
 
-	require_once('db_config.php');
+        require_once('db_config.php');
+    }
 
     {   # some programs may provide
         # a DB connection and Util class themselves
@@ -23,7 +24,7 @@
         }
     }
 
-	{ # vars
+	{ # vars adjustments
         { # search_path
             if (!isset($search_path)) {
                 if ($db_type == 'pgsql') {

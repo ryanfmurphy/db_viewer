@@ -1,4 +1,5 @@
 <?php
+    {
     /*
 
     DB Viewer - database table view with inline dynamic joins
@@ -27,6 +28,7 @@
       even if the varchar is collated as case insensitive
 
     */
+    }
 
     { # init
 
@@ -60,30 +62,31 @@
         }
 
         { # get sql query (if any) from incoming request
-            if (isset($requestVars['sql'])) {
-                $sql = $requestVars['sql'];
-            }
-            else {
-                $sql = null;
-            }
+            $sql = (isset($requestVars['sql'])
+                        ? $requestVars['sql']
+                        : null);
         }
 
-        # header row html <th>'s, functionalized because it's repeated every so many rows
-        function headerRow(&$rows, $rowN) {
-            $firstRow = current($rows);
+        { # render the header row html <th>'s
+            # factored into a function because
+            # the <th>'s are repeated every so many rows
+            # so it's easier to see what column you're on
+            function headerRow(&$rows, $rowN) {
+                $firstRow = current($rows);
 ?>
 	<tr data-row="<?= $rowN ?>">
 <?php
-            foreach ($firstRow as $fieldName => $val) {
+                foreach ($firstRow as $fieldName => $val) {
 ?>
 		<th class="popr" data-id="1">
 			<?= $fieldName ?>
 		</th>
 <?php
-            }
+                }
 ?>
 	</tr>
 <?php
+            }
         }
     }
 
@@ -307,7 +310,7 @@
             { # dynamic style / CSS choices
 
                 { # choose background image if any
-                    $backgroundImages = array(
+                    $backgroundImages = array( #todo move to config
                         'plant' => "/imgroot/plants/turmeric-plants.jpg",
                         'book' => "/imgroot/books.jpg",
                     );
@@ -430,6 +433,17 @@
             { # form
 ?>
 <body>
+<?php
+                if ($sql) {
+                    $inferred_table = DbViewer::infer_table_from_query($sql);
+?>
+    <p> Query seems to be with respect to the
+        <code><?= $inferred_table ?></code>
+        table
+    </p>
+<?php
+                }
+?>
 	<form method="post">
         <h2 id="query_header">
             Enter SQL Query
