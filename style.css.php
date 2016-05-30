@@ -55,6 +55,7 @@ textarea {
 input[type=submit] {
     margin-top: 1em;
     margin-bottom: 1.5em;
+    padding: .2em;
 }
 
 #query_header {

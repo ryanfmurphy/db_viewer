@@ -433,17 +433,6 @@
             { # form
 ?>
 <body>
-<?php
-                if ($sql) {
-                    $inferred_table = DbViewer::infer_table_from_query($sql);
-?>
-    <p> Query seems to be with respect to the
-        <code><?= $inferred_table ?></code>
-        table
-    </p>
-<?php
-                }
-?>
 	<form method="post">
         <h2 id="query_header">
             Enter SQL Query
@@ -457,9 +446,21 @@
             <label for="db_type">DB Type</label>
             <input name="db_type" value="<?= $db_type ?>">
         </div>
-		<input type="submit">
+		<input type="submit" value="Submit">
 	</form>
 <?php
+            }
+
+            { # inferred table
+                if ($sql) {
+                    $inferred_table = DbViewer::infer_table_from_query($sql);
+?>
+    <p> Query seems to be with respect to the
+        <code><?= $inferred_table ?></code>
+        table
+    </p>
+<?php
+                }
             }
 
             { # get & display query data, & js interface
@@ -884,7 +885,7 @@
                     var request_data = {
                         ids: non_null_ids,
                         join_field: field_name,
-                        db_type: "<?= str_replace('"', '\"', $db_type) ?>",
+                        db_type: <?= json_encode($db_type) ?>,
                     };
 
                 }
@@ -934,8 +935,10 @@
 
             console.log('field_name',field_name);
 
+            var base_table = <?= json_encode($inferred_table) ?>;
             ajaxRowsWithFieldVals(
-                field_name, vals, table, data_type,
+                field_name, vals, table,
+                data_type, base_table,
 
                 function(data) {
                     console.log('data', data);
@@ -951,7 +954,7 @@
     // database-wide search for tables with matching fieldname
     // and specifically for rows from those tables
     // whose that_field matches one of vals
-    function ajaxRowsWithFieldVals(fieldname, vals, table, data_type, callback) {
+    function ajaxRowsWithFieldVals(fieldname, vals, table, data_type, base_table, callback) {
 
         var uri = 'rows_with_field_vals<?= $maybe_url_php_ext ?>';
 
@@ -959,7 +962,9 @@
             fieldname: fieldname,
             vals: vals,
             table: table,
-            data_type: data_type
+            data_type: data_type,
+            base_table: base_table,
+            db_type: <?= json_encode($db_type) ?>
         };
 
         $.ajax({
@@ -976,13 +981,15 @@
     }
 
     // get all tables in database with a field called `fieldname`
-    function tablesWithField(fieldname, data_type, vals, callback) {
+    function tablesWithField(fieldname, data_type, vals, base_table, callback) {
 
         var uri = 'tables_with_field<?= $maybe_url_php_ext ?>';
         var request_data = {
             fieldname: fieldname,
             data_type: data_type,
             vals: vals,
+            base_table: base_table,
+            db_type: <?= json_encode($db_type) ?>
         };
 
         { // make request
@@ -1046,7 +1053,8 @@
             showPopup(thisThing, event, popr_show, set, popr_cont);
         }
 
-        tablesWithField(fieldname, data_type, vals, callback);
+        var base_table = <?= json_encode($inferred_table) ?>;
+        tablesWithField(fieldname, data_type, vals, base_table, callback);
     }
 
 

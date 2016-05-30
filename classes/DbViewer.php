@@ -190,8 +190,10 @@
         #todo (front-end) depending on $id_type,
             #todo return e.g. $fieldname='inventory_id' for the 'id' field of inventory
             #todo return e.g. $fieldname='inventory' for the 'name' field of inventory
+            #todo do we need this $table arg?
         public static function rows_with_field_vals($fieldname, $vals, $table=NULL, $data_type=NULL) {
             global $slow_tables;
+            self::log("rows_with_field_vals(fieldname=$fieldname,vals=".json_encode($vals).",table=$table,data_type=$data_type)\n");
 
             $tables = ($table === null
                          ? self::tables_with_field($fieldname, $data_type)
@@ -213,15 +215,17 @@
 						where $fieldname in ($val_list)
 					";
 					#echo "sql = $sql\n";
+                    #die();
 
 					$rows = Util::sql($sql);
 					#$delta0 = Util::timeSince($T0);
 					#echo "delta0 = $delta0\n";
 
-					$includeTable = (count($rows) > 0);
+					$includeTable = (is_array($rows)
+                                     && count($rows) > 0);
 				}
 
-                if (count($rows)) {
+                if ($includeTable) {
                     $data = self::keyRowsByFieldMulti($rows, $fieldname);
                     $table_rows[$table] = $data;
                 }
@@ -234,13 +238,17 @@
         # Util functions
         #---------------
 
+        public static function log($msg) {
+            error_log($msg, 3, 'error_log');
+        }
+
         public static function val_list_str($vals) {
             $val_reps = array_map(
                 function($val) {
-					return "'$val'";
-                    #global $db; #todo will this global work in all cases?
+					#return "'$val'";
+                    global $db; #todo will this global work in all cases?
                     #todo #fixme might not work for nulls?
-                    #return $db->quote($val); #todo maybe make a fn for quote?
+                    return $db->quote($val); #todo maybe make a fn for quote?
                 },
                 $vals
             );
@@ -293,13 +301,30 @@
             return json_decode($val);
         }
 
+        public static function fieldname_given_base_table($fieldname, $base_table) {
+            if ($base_table) {
+                if ($fieldname == 'name') {
+                    return $base_table;
+                }
+                elseif ($fieldname == 'id') {
+                    return $base_table.'_id';
+                }
+                elseif ($fieldname == 'iid') {
+                    return $base_table.'_iid';
+                }
+            }
+            else {
+                return $fieldname;
+            }
+        }
+
 
         # Query Manipulation / Interpretation Functions
         #----------------------------------------------
 
         public static function infer_table_from_query($query) {
             #todo improve inference - fix corner cases
-            if (preg_match("/\bfrom (\w+)\b/", $query, $matches)) {
+            if (preg_match("/\bfrom ((?:\w|.)+)\b/", $query, $matches)) {
                 $table = $matches[1];
                 return $table;
             }

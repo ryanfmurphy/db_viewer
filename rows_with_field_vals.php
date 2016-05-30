@@ -20,13 +20,24 @@
                 $data_type = (isset($vars['data_type'])
                                 ? $vars['data_type']
                                 : null);
+                $base_table = (isset($vars['base_table'])
+                                ? $vars['base_table']
+                                : null);
             }
 
-            if (is_array($vals)) {
-                $results = DbViewer::rows_with_field_vals($fieldname, $vals, $table, $data_type);
-                die(json_encode($results));
+            { # take base_table into account
+                if ($base_table) {
+                    $fieldname = DbViewer::fieldname_given_base_table($fieldname, $base_table);
+                }
             }
-            else { die('Invalid vals'); }
+
+            { # do the query
+                if (is_array($vals)) {
+                    $results = DbViewer::rows_with_field_vals($fieldname, $vals, $table, $data_type);
+                    die(json_encode($results));
+                }
+                else { die('Invalid vals'); }
+            }
         }
         else {
             die('Need fieldname and vals');

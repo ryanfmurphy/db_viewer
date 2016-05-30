@@ -19,10 +19,21 @@
                 $vals = (isset($vars['vals'])
                                 ? $vars['vals']
                                 : null);
+                $base_table = (isset($vars['base_table'])
+                                ? $vars['base_table']
+                                : null);
             }
 
-            $results = DbViewer::tables_with_field($fieldname, $data_type, $vals);
-            die(json_encode($results));
+            { # take base_table into account
+                if ($base_table) {
+                    $fieldname = DbViewer::fieldname_given_base_table($fieldname, $base_table);
+                }
+            }
+
+            { # do the query
+                $results = DbViewer::tables_with_field($fieldname, $data_type, $vals);
+                die(json_encode($results));
+            }
         }
         else {
             die('Need fieldname');
