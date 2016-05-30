@@ -5,6 +5,10 @@
         $requestVars = array_merge($_GET, $_POST);
     }
 
+    { # vars - initial values
+        $pluralize_table_names = false;
+    }
+
 	require_once('db_config.php');
 
     {   # some programs may provide
@@ -20,16 +24,21 @@
     }
 
 	{ # vars
-		if (!isset($search_path)) {
-			if ($db_type == 'pgsql') {
-				$search_path = 'public'; #todo this is not really going to work for mysql
-			}
-			else {
-				$search_path = $db_name;
-			}
-		}
+        { # search_path
+            if (!isset($search_path)) {
+                if ($db_type == 'pgsql') {
+                    $search_path = 'public';
+                }
+                else {
+                    $search_path = $db_name;
+                }
+            }
 
-		$schemas_in_path = explode(',', $search_path);
+            { # get as array
+                $search_path_no_spaces = str_replace($search_path, ' ', '');
+                $schemas_in_path = explode(',', $search_path_no_spaces);
+            }
+        }
 	}
 
     require_once('classes/DbViewer.php');

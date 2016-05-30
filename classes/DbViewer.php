@@ -1,6 +1,7 @@
 <?php
     class DbViewer {
 
+        # ends with _id or _iid
         public static function has_valid_join_field_suffix($field_name) {
             $suffix = substr($field_name, -3);
             if ($suffix === '_id') {
@@ -49,33 +50,39 @@
 						: $full_tablename);
 		}
 
+        public static function pluralize($tablename) {
+            return $tablename . 's'; #todo make pluralizing less dumb
+        }
+
+        # used in joins to determine which table to join to from a field_name
 		public static function choose_table_and_field($field_name) {
-            global $id_mode;
+            global $id_mode, $pluralize_table_names;
 
 			$suffix = self::has_valid_join_field_suffix($field_name);
 			if ($suffix) {
-				$root = substr($field_name, 0, -strlen($suffix));
+				$tablename_root = substr($field_name, 0, -strlen($suffix));
 
-				{   # if it's not as simple as `contractor_id`
+				{ # allow prefixes in id field
+
+                    # if it's not as simple as `contractor_id`
                     # try to find a table that this id might be pointing to
                     # e.g. `parent_contractor_id` also links to contractor
-
-					#todo move into full_tablename()
 
 					#todo make sure that this is a FALLBACK:
 					#     if there's a full field_name match, use that
 					#     otherwise try this loop
 
-					#todo use longest match as suffix / and_or require "_" before suffix
-					#	  because for example, lead_id has ad_id at the end!
-
                     $possible_tables = DbViewer::sqlTables();
 
-                    if (!isset($possible_tables[$root])) {
+                    if (!isset($possible_tables[$tablename_root])) {
                         # loop looking for table ending in $table
                         foreach (array_keys($possible_tables) as $this_table_name) {
-                            if (Util::endsWith($this_table_name, $root)) {
-                                $root = $this_table_name;
+                            if (Util::endsWith($this_table_name, $tablename_root)) {
+                                #todo use longest match as suffix / and_or require "_" before suffix
+                                #	  because for example, lead_id has ad_id at the end!
+                                #     so instead of breaking, only replace if it's longer
+
+                                $tablename_root = $this_table_name;
                                 $field_name = $this_table_name.$suffix;
                                 break;
                             }
@@ -83,13 +90,17 @@
                     }
                 }
 
-                $root = self::full_tablename($root);
+                if ($pluralize_table_names) {
+                    $tablename_root = DbViewer::pluralize($tablename_root);
+                }
+
+                $tablename_root = self::full_tablename($tablename_root);
 
 				#todo maybe error out if didn't match a table?
                 if ($id_mode == 'id_only') {
                     $field_name = ltrim($suffix,'_');
                 }
-				return array($root, $field_name);
+				return array($tablename_root, $field_name);
 			}
 			else { # this else not used yet
 				$table = self::full_tablename($field_name);
