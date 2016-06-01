@@ -47,24 +47,28 @@
             require_once('init.php');
         }
 
-        { # url & resource setup - jquery etc
-			$jsPath = ($cmp ? '/js/shared' : '/js');
-			$jquery_url = "$jsPath/jquery-1.12.3.js";
-            if ($cmp) {
-                #todo move out
-                $maybe_url_php_ext = ""; # no .php on end of url
-            }
-            else {
-                $maybe_url_php_ext = ".php"; # .php on end of url
+        { # vars
+            { # url & resource setup - jquery etc
+                $jsPath = ($cmp ? '/js/shared' : '/js');
+                $jquery_url = "$jsPath/jquery-1.12.3.js";
+                if ($cmp) {
+                    #todo move out
+                    $maybe_url_php_ext = ""; # no .php on end of url
+                }
+                else {
+                    $maybe_url_php_ext = ".php"; # .php on end of url
+                }
+
+                $poprJsPath = ($cmp ? '/js/shared/' : '');
             }
 
-			$poprJsPath = ($cmp ? '/js/shared/' : '');
-        }
+            { # get sql query (if any) from incoming request
+                $sql = (isset($requestVars['sql'])
+                            ? $requestVars['sql']
+                            : null);
+            }
 
-        { # get sql query (if any) from incoming request
-            $sql = (isset($requestVars['sql'])
-                        ? $requestVars['sql']
-                        : null);
+            $inferred_table = DbViewer::infer_table_from_query($sql);
         }
 
         { # render the header row html <th>'s
@@ -310,11 +314,12 @@
             { # dynamic style / CSS choices
 
                 { # choose background image if any
-                    $backgroundImages = array( #todo move to config
-                        'plant' => "/imgroot/plants/turmeric-plants.jpg",
-                        'book' => "/imgroot/books.jpg",
-                    );
-                    $backgroundImageUrl = $backgroundImages['plant'];
+                    if (!isset($backgroundImages)) $backgroundImages = array();
+
+                    $backgroundImageUrl = (isset($inferred_table)
+                                           && isset($backgroundImages[$inferred_table])
+                                                ? $backgroundImages[$inferred_table]
+                                                : null); #$backgroundImages['plant']);
 
                     $hasBackgroundImage = (isset($backgroundImageUrl)
                                         && $backgroundImageUrl);
@@ -453,7 +458,6 @@
 
             { # inferred table
                 if ($sql) {
-                    $inferred_table = DbViewer::infer_table_from_query($sql);
 ?>
     <p> Query seems to be with respect to the
         <code><?= $inferred_table ?></code>

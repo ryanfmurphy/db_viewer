@@ -40,6 +40,7 @@
                 $schemas_in_path = explode(',', $search_path_no_spaces);
             }
         }
+
 	}
 
     require_once('classes/DbViewer.php');
