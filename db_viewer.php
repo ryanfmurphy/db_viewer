@@ -319,7 +319,10 @@
                     $backgroundImageUrl = (isset($inferred_table)
                                            && isset($backgroundImages[$inferred_table])
                                                 ? $backgroundImages[$inferred_table]
-                                                : null); #$backgroundImages['plant']);
+                                                : (isset($backgroundImages['fallback image'])
+                                                    ? $backgroundImages['fallback image']
+                                                    : null)
+                                          );
 
                     $hasBackgroundImage = (isset($backgroundImageUrl)
                                         && $backgroundImageUrl);

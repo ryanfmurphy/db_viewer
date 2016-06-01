@@ -27,3 +27,13 @@ $db_name = 'mysql_database';
 
 #$background = 'dark'; # vs 'light', the default
 
+# background images URLs for different tables
+# (can use a local path or an online image URL)
+/*
+$backgroundImages = array(
+    'plant' => "/imgroot/plants/turmeric-plants.jpg",
+    'book' => "/imgroot/books.jpg",
+    'fallback image' => "/imgroot/plants/turmeric-plants.jpg",
+);
+*/
+
