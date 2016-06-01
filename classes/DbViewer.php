@@ -324,7 +324,7 @@
 
         public static function infer_table_from_query($query) {
             #todo improve inference - fix corner cases
-            if (preg_match("/\bfrom ((?:\w|.)+)\b/", $query, $matches)) {
+            if (preg_match("/\bfrom ((?:\w|\.)+)\b/", $query, $matches)) {
                 $table = $matches[1];
                 return $table;
             }
