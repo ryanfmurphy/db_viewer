@@ -6,15 +6,17 @@
 
     { # init
         require_once('init.php');
-		do_log(date('c') . " - db_viewer.tables_with_field received a request\n");
+		do_log("\n" . date('c') . " - db_viewer.tables_with_field received a request\n");
         $vars = array_merge($_GET, $_POST);
 		do_log(print_r($vars,1));
     }
 
     { # do it
         if (isset($vars['fieldname'])) {
+			do_log("  has fieldname\n");
             { # vars
                 $fieldname = $vars['fieldname'];
+				do_log("  fieldname=$fieldname\n");
                 $data_type = (isset($vars['data_type'])
                                 ? $vars['data_type']
                                 : null);
@@ -33,6 +35,7 @@
             }
 
             { # do the query
+				do_log("  about to call tables_with_field using fieldname=$fieldname\n");
                 $results = DbViewer::tables_with_field($fieldname, $data_type, $vals);
                 die(json_encode($results));
             }

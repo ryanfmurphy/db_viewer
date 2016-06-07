@@ -148,6 +148,7 @@
         public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
 			$args = print_r(get_defined_vars(),1);
 			do_log("top of tables_with_field, get_defined_vars()=$args");
+			do_log("  fieldname=$fieldname, data_type=$data_type, vals=".print_r($vals,1));
 
             $has_vals = (is_array($vals) && count($vals));
 
@@ -312,6 +313,9 @@
                 elseif ($fieldname == 'iid') {
                     return $base_table.'_iid';
                 }
+				else {
+					return $fieldname;
+				}
             }
             else {
                 return $fieldname;
