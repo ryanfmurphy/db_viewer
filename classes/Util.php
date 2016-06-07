@@ -17,4 +17,10 @@
             $LEN = strlen($haystack);
             return substr($haystack, $LEN - $len) == $needle;
         }
+
+		public static function quote($val) {
+			global $db; #todo will this global work in all cases?
+			#todo #fixme might not work for nulls?
+			return $db->quote($val);
+		}
     }

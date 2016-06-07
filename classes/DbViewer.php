@@ -146,6 +146,8 @@
 
         # get all tables with that fieldname, optionally filtering by vals
         public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
+			$args = print_r(get_defined_vars(),1);
+			do_log("top of tables_with_field, get_defined_vars()=$args");
 
             $has_vals = (is_array($vals) && count($vals));
 
@@ -239,16 +241,14 @@
         #---------------
 
         public static function log($msg) {
-            error_log($msg, 3, 'error_log');
+            error_log($msg, 3, __DIR__.'/error_log');
         }
 
         public static function val_list_str($vals) {
             $val_reps = array_map(
                 function($val) {
+					return Util::quote($val);
 					#return "'$val'";
-                    global $db; #todo will this global work in all cases?
-                    #todo #fixme might not work for nulls?
-                    return $db->quote($val); #todo maybe make a fn for quote?
                 },
                 $vals
             );
