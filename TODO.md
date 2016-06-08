@@ -1,6 +1,10 @@
 To-Do List
 ==========
 
+* Weird colors need to be fixed:
+  To reproduce, try with the plants in the bg, and then do a backjoin.
+  Weird too-pale alternating colors.
+
 * Allow nested backlink joins
   (dynamically bind alt-clicks to newly alt-click-spawned columns)
 
