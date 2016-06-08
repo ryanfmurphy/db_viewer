@@ -295,7 +295,8 @@
         # convert postgres array str into php array
         public static function pgArray2array($pgArrayStr, $itemType='text') {
             $arrayType = $itemType.'[]';
-            $query = "select array_to_json('$pgArrayStr'::$arrayType)";
+            $pgArrayStrQuoted = Util::quote($pgArrayStr);
+            $query = "select array_to_json($pgArrayStrQuoted::$arrayType)";
             $rows = Util::sql($query);
             $row = $rows[0];
             $val = $row['array_to_json'];
@@ -319,6 +320,71 @@
             }
             else {
                 return $fieldname;
+            }
+        }
+
+        #todo improve pg_array guess, maybe user column type
+        public static function seems_like_pg_array($val) {
+            if (is_string($val)) {
+                $len = strlen($val);
+                if ($len >= 2
+                    && $val[0] == "{"
+                    && $val[$len-1] == "}"
+                ) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+
+        public static function is_url($val) {
+            if (is_string($val)) {
+                $url_parts = parse_url($val);
+                $is_url = (isset($url_parts['scheme']));
+                return $is_url;
+            }
+            else {
+                return false;
+            }
+        }
+
+        # formal $val as HTML to put in <td>
+        public static function val_html($val) {
+            $val = htmlentities($val);
+            if (self::seems_like_pg_array($val)) {
+                $vals = self::pgArray2array($val);
+                { ob_start();
+?>
+        <ul>
+<?php
+                    foreach ($vals as $val) {
+?>
+            <li><?= $val ?></li>
+<?php
+                    }
+?>
+        </ul>
+<?php
+                    return ob_get_clean();
+                }
+            }
+            elseif (self::is_url($val)) {
+                { ob_start();
+?>
+        <a href="<?= $val ?>" target="_blank">
+            <?= $val ?>
+        </a>
+<?php
+                    return ob_get_clean();
+                }
+            }
+            else {
+                return $val;
             }
         }
 

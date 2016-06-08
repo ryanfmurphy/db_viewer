@@ -89,3 +89,18 @@ tr.shadowing th {
     border: solid 2px #aaa;
 }
 
+li {
+    margin-top: .3em;
+    margin-bottom: .3em;
+}
+
+<?php
+    if ($background='dark') {
+?>
+a {
+    color: #88f;
+}
+<?php
+    }
+?>
+
