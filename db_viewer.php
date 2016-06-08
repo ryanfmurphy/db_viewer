@@ -499,7 +499,7 @@
                             foreach ($row as $val) {
 ?>
 		<td>
-			<?= $val ?>
+			<?= htmlentities($val) ?>
 		</td>
 <?php
                             }
