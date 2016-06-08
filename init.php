@@ -11,6 +11,10 @@
 	}
 
     { # basic init
+        #todo generalize timezone
+        # btw - why are we not allowed to use the system's timezone setting??
+        date_default_timezone_set("America/Chicago");
+
 		do_log(date('c') . " - db_viewer received a request\n");
         ini_set('memory_limit', '4000M');
         $requestVars = array_merge($_GET, $_POST);
