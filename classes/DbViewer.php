@@ -54,8 +54,23 @@
 						: $full_tablename);
 		}
 
+
+        # Language Manipulation
+        #----------------------
+
         public static function pluralize($tablename) {
             return $tablename . 's'; #todo make pluralizing less dumb
+        }
+
+        public static function depluralize($tablename) {
+            return (self::is_plural($tablename)
+                        ? substr($tablename, 0, -1) #todo make depluralizing less dumb
+                        : $tablename);
+        }
+
+        public static function is_plural($tablename) {
+            $len = strlen($tablename);
+            return ($tablename[$len-1] == 's'); #todo make less dumb
         }
 
 
@@ -385,6 +400,16 @@
             }
             else {
                 return $val;
+            }
+        }
+
+        # postgres-specific setup
+        public static function setDbSearchPath($search_path) {
+            global $db_type;
+            if ($db_type == 'pgsql') {
+                if ($search_path) {
+                    Util::sql("set search_path to $search_path");
+                }
             }
         }
 

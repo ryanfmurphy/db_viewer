@@ -1,5 +1,4 @@
 <?php
-
 	function do_log($msg) {
 		$logPath = __DIR__.'/error_log';
 		#$msg .= " (to $logPath)";
@@ -24,7 +23,8 @@
         $pluralize_table_names = false;
         $slow_tables = array();
 
-        require_once('db_config.php');
+        $db_config_path = __DIR__.'/db_config.php';
+        require_once($db_config_path);
     }
 
     {   # some programs may provide
@@ -55,15 +55,11 @@
                 $schemas_in_path = explode(',', $search_path_no_spaces);
             }
         }
-
 	}
 
     require_once('classes/DbViewer.php');
 
-    { # postgres-specific setup
-        if ($db_type == 'pgsql') {
-            if (isset($search_path)) {
-                Util::sql("set search_path to $search_path");
-            }
-        }
+    { # more settings / tweaks
+        DbViewer::setDbSearchPath($search_path);
     }
+
