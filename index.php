@@ -8,7 +8,7 @@
     { #vars
         $table = isset($requestVars['table'])
                     ? $requestVars['table']
-                    : "example_table";
+                    : null;
 
         { # get fields
             $rows = Util::sql("
@@ -16,7 +16,10 @@
                     table_schema, table_name, column_name
                 from information_schema.columns
                 where table_name='$table'
-            ");
+                    and table_schema='public'
+            " #todo allow more flexible schemas / non-postgres options
+                # be compatible with $search_path
+            );
             $fields = array_map(
                 function($x) {
                     return $x['column_name'];
@@ -26,17 +29,26 @@
             #$fields = array("name","txt");
 
             { #todo fields2skip
+                $fields2skip = array(
+                    "iid","id",
+                    "time","time_added",
+                    "tags", #todo make tags ok
+                    "stars",
+                );
+
                 switch ($table) {
                     case "example_table": {
-                        $fields2skip = array(
+                        $tblFields2skip = array(
                             "iid","id","time",
                             "tags", #todo
                         );
                     } break;
 
                     default:
-                        $fields2skip = array("iid","id","time");
+                        $tblFields2skip = array("iid","id","time");
                 }
+
+                $fields2skip = array_merge($fields2skip, $tblFields2skip);
             }
         }
 
@@ -78,6 +90,12 @@ form#mainForm label {
 #whoami {
     font-size: 80%;
 }
+
+#table_header > * {
+    display: inline-block;
+    vertical-align: middle;
+    margin: .5rem;
+}
         </style>
         <script>
         function setFormAction(url) {
@@ -88,11 +106,16 @@ form#mainForm label {
     </head>
     <body>
         <p id="whoami">Dash</p>
-        <h1>
-            <code><?= $table ?></code> table
-        </h1>
+        <div id="table_header">
+            <h1>
+                <code><?= $table ?></code> table
+            </h1>
+            <a href="/db_viewer/db_viewer.php?sql=select * from <?= $table ?>">
+                view all
+            </a>
+        </div>
 
-        <form id="mainForm" action="/ormrouter/<?= $action ?>_<?= $table ?>">
+        <form id="mainForm" action="/ormrouter/<?= $action ?>_<?= $table ?>" target="_blank">
 <?php
     foreach ($fields as $name) {
         if (in_array($name, $fields2skip)) {
@@ -114,8 +137,7 @@ form#mainForm label {
             <div id="submits">
                 <input onclick="setFormAction('/ormrouter/create_<?= $table ?>')" value="Create" type="submit" />
                 <input onclick="setFormAction('/ormrouter/update_<?= $table ?>')" value="Update" type="submit" />
-                <input onclick="setFormAction('/ormrouter/get_<?= $table ?>s?use_db_viewer=1')" value="View" type="submit" />
-                    <!-- set action="/ormrouter/get_<?= $table ?>s?use_db_viewer=1" -->
+                <input onclick="setFormAction('/ormrouter/view_<?= $table ?>')" value="View" type="submit" />
                 <input onclick="setFormAction('/ormrouter/delete_<?= $table ?>')" value="Delete" type="submit" />
             </div>
         </form>
