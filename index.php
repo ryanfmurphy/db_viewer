@@ -3,6 +3,15 @@
     { # init - #todo don't rely on DbViewer
         include("../db_viewer/init.php");
         $requestVars = array_merge($_GET, $_POST);
+
+        function getGlobalFields2skip() {
+            return array(
+                "iid","id",
+                "time","time_added",
+                "tags", #todo make tags ok
+                "stars",
+            );
+        }
     }
 
     { #vars
@@ -11,7 +20,7 @@
                     : null;
 
         { # get fields
-            $rows = Util::sql("
+            $dbRowsReFields = Util::sql("
                 select
                     table_schema, table_name, column_name
                 from information_schema.columns
@@ -24,17 +33,11 @@
                 function($x) {
                     return $x['column_name'];
                 },
-                $rows
+                $dbRowsReFields
             );
-            #$fields = array("name","txt");
 
-            { #todo fields2skip
-                $fields2skip = array(
-                    "iid","id",
-                    "time","time_added",
-                    "tags", #todo make tags ok
-                    "stars",
-                );
+            { # fields2skip
+                $fields2skip = getGlobalFields2Skip();
 
                 switch ($table) {
                     case "example_table": {
@@ -49,6 +52,14 @@
                 }
 
                 $fields2skip = array_merge($fields2skip, $tblFields2skip);
+
+                { # allow addition of more omitted fields
+                    $omit = isset($requestVars['omit'])
+                                ? $requestVars['omit']
+                                : null;
+                    $omitted_fields = explode(',', $omit);
+                    $fields2skip = array_merge($fields2skip, $omitted_fields);
+                }
             }
         }
 
@@ -67,6 +78,12 @@
 body {
     font-family: sans-serif;
     margin: 3em;
+
+    background: black; /* $background='dark' */
+    color: white; /* $background='dark' */
+}
+a {
+    color: yellow; /* $background='dark' */
 }
 form#mainForm {
 }
