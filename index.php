@@ -102,6 +102,32 @@ form#mainForm label {
             var form = document.getElementById('mainForm');
             form.action = url;
         }
+        function removeUnneededFields() {
+            var form = document.getElementById('mainForm');
+            console.log('form', form);
+            var inputs = form.getElementsByTagName('input');
+            console.log('inputs', inputs);
+            var len = inputs.length;
+            console.log('len', len);
+            
+            // #todo getting mixed up - getting submits and not getting textarea
+            for (var i = 0; i < len; i++) {
+                console.log('i', i);
+                var elem = inputs[i];
+                console.log('looping', elem);
+                var type = elem.getAttribute('type');
+                console.log(type);
+                if (type == 'submit') {
+                    console.log('  submit, continuing');
+                    continue;
+                }
+                var parentNode = elem.parentNode;
+                console.log('parent', parentNode);
+                parentNode.removeChild(elem);
+                console.log('removed', elem, 'from', parentNode);
+            }
+            console.log(form);
+        }
         </script>
     </head>
     <body>
@@ -110,7 +136,9 @@ form#mainForm label {
             <h1>
                 <code><?= $table ?></code> table
             </h1>
-            <a href="/db_viewer/db_viewer.php?sql=select * from <?= $table ?>">
+            <a href="/db_viewer/db_viewer.php?sql=select * from <?= $table ?>"
+               target="_blank"
+            >
                 view all
             </a>
         </div>
@@ -125,7 +153,7 @@ form#mainForm label {
                         ? "textarea"
                         : "input");
 ?>
-            <div class="formInput">
+            <div class="formInput" remove="true">
                 <label for="<?= $name ?>">
                     <?= $name ?>
                 </label>
@@ -135,10 +163,10 @@ form#mainForm label {
     }
 ?>
             <div id="submits">
-                <input onclick="setFormAction('/ormrouter/create_<?= $table ?>')" value="Create" type="submit" />
-                <input onclick="setFormAction('/ormrouter/update_<?= $table ?>')" value="Update" type="submit" />
-                <input onclick="setFormAction('/ormrouter/view_<?= $table ?>')" value="View" type="submit" />
-                <input onclick="setFormAction('/ormrouter/delete_<?= $table ?>')" value="Delete" type="submit" />
+                <input onclick="removeUnneededFields(); setFormAction('/ormrouter/create_<?= $table ?>')" value="Create" type="submit" />
+                <input onclick="removeUnneededFields(); setFormAction('/ormrouter/update_<?= $table ?>')" value="Update" type="submit" />
+                <input onclick="removeUnneededFields(); setFormAction('/ormrouter/view_<?= $table ?>')" value="View" type="submit" />
+                <input onclick="removeUnneededFields(); setFormAction('/ormrouter/delete_<?= $table ?>')" value="Delete" type="submit" />
             </div>
         </form>
 
