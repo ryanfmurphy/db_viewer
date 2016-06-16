@@ -1,32 +1,25 @@
 <?php
 {
     { # init
-        {
+        { # includes & misc
             $trunk = __DIR__;
             include("$trunk/init.php");
             $requestVars = array_merge($_GET, $_POST);
         }
-
-        function getGlobalFields2omit() {
-            return array(
-                "iid","id",
-                "time","time_added",
-                "tags", #todo make tags ok
-                "stars",
-            );
-        }
-
-        $schemas_in_path = DbViewer::schemas_in_path($search_path);
-        $schemas_val_list = DbViewer::val_list_str($schemas_in_path);
     }
 
-    { #vars
-        $table = isset($requestVars['table'])
-                    ? $requestVars['table']
-                    : null;
+    { # main logic
+        { # vars
+            $schemas_in_path = DbViewer::schemas_in_path($search_path);
+            $schemas_val_list = DbViewer::val_list_str($schemas_in_path);
 
-        { 
-            if ($table) { # get fields
+            $table = isset($requestVars['table'])
+                        ? $requestVars['table']
+                        : null;
+        }
+
+        { # get fields
+            if ($table) {
                 $dbRowsReFields = Util::sql("
                     select
                         table_schema, table_name, column_name
@@ -45,42 +38,37 @@
                 );
 
                 { # fields2omit
-                    $fields2omit = getGlobalFields2omit();
+                    $fields2omit = $fields2omit_global;
 
-                    { # fields2omit
-                        { # from config
-                            $tblFields2omit = (isset($fields2omit_by_table[$table])
-                                                    ? $fields2omit_by_table[$table]
-                                                    : array());
+                    { # from config
+                        $tblFields2omit = (isset($fields2omit_by_table[$table])
+                                                ? $fields2omit_by_table[$table]
+                                                : array());
 
-                            $fields2omit = array_merge($fields2omit, $tblFields2omit);
-                        }
-
-                        { # 'omit' get var - allow addition of more omitted fields
-                            $omit = isset($requestVars['omit'])
-                                        ? $requestVars['omit']
-                                        : null;
-                            $omitted_fields = explode(',', $omit);
-                            $fields2omit = array_merge($fields2omit, $omitted_fields);
-                        }
+                        $fields2omit = array_merge($fields2omit, $tblFields2omit);
                     }
 
-                    { # fields2keep - allow addition of more kept fields
-                        $keep = isset($requestVars['keep'])
-                                    ? $requestVars['keep']
+                    { # 'omit' get var - allow addition of more omitted fields
+                        $omit = isset($requestVars['omit'])
+                                    ? $requestVars['omit']
                                     : null;
-                        $kept_fields = explode(',', $keep);
-                        $fields2keep = $kept_fields;
+                        $omitted_fields = explode(',', $omit);
+                        $fields2omit = array_merge($fields2omit, $omitted_fields);
                     }
+                }
+
+                { # fields2keep - allow addition of more kept fields
+                    $keep = isset($requestVars['keep'])
+                                ? $requestVars['keep']
+                                : null;
+                    $kept_fields = explode(',', $keep);
+                    $fields2keep = $kept_fields;
                 }
             }
         }
     }
 }
 ?>
-
-
-
 
 <html>
     <head>
