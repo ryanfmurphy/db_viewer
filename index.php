@@ -4,7 +4,7 @@
         include("../db_viewer/init.php");
         $requestVars = array_merge($_GET, $_POST);
 
-        function getGlobalFields2skip() {
+        function getGlobalFields2omit() {
             return array(
                 "iid","id",
                 "time","time_added",
@@ -12,6 +12,9 @@
                 "stars",
             );
         }
+
+        $schemas_in_path = DbViewer::schemas_in_path($search_path);
+        $schemas_val_list = DbViewer::val_list_str($schemas_in_path);
     }
 
     { #vars
@@ -19,51 +22,60 @@
                     ? $requestVars['table']
                     : null;
 
-        { # get fields
-            $dbRowsReFields = Util::sql("
-                select
-                    table_schema, table_name, column_name
-                from information_schema.columns
-                where table_name='$table'
-                    and table_schema='public'
-            " #todo allow more flexible schemas / non-postgres options
-                # be compatible with $search_path
-            );
-            $fields = array_map(
-                function($x) {
-                    return $x['column_name'];
-                },
-                $dbRowsReFields
-            );
+        { 
+            if ($table) { # get fields
+                $dbRowsReFields = Util::sql("
+                    select
+                        table_schema, table_name, column_name
+                    from information_schema.columns
+                    where table_name='$table'
+                        and table_schema in ($schemas_val_list)
+                "
+                    #todo fix issue where redundant tables in multiple schemas
+                        # lead to redundant fields
+                );
+                $fields = array_map(
+                    function($x) {
+                        return $x['column_name'];
+                    },
+                    $dbRowsReFields
+                );
 
-            { # fields2skip
-                $fields2skip = getGlobalFields2Skip();
+                { # fields2omit
+                    $fields2omit = getGlobalFields2omit();
 
-                switch ($table) {
-                    case "example_table": {
-                        $tblFields2skip = array(
-                            "iid","id","time",
-                            "tags", #todo
-                        );
-                    } break;
+                    switch ($table) {
+                        case "example_table": {
+                            $tblFields2skip = array(
+                                "iid","id","time",
+                                "tags", #todo
+                            );
+                        } break;
 
-                    default:
-                        $tblFields2skip = array("iid","id","time");
-                }
+                        default:
+                            $tblFields2omit = array("iid","id","time");
+                    }
 
-                $fields2skip = array_merge($fields2skip, $tblFields2skip);
+                    $fields2omit = array_merge($fields2omit, $tblFields2omit);
 
-                { # allow addition of more omitted fields
-                    $omit = isset($requestVars['omit'])
-                                ? $requestVars['omit']
-                                : null;
-                    $omitted_fields = explode(',', $omit);
-                    $fields2skip = array_merge($fields2skip, $omitted_fields);
+                    { # allow addition of more omitted fields
+                        $omit = isset($requestVars['omit'])
+                                    ? $requestVars['omit']
+                                    : null;
+                        $omitted_fields = explode(',', $omit);
+                        $fields2omit = array_merge($fields2omit, $omitted_fields);
+                    }
+
+                    { # allow addition of more kept fields
+                        $keep = isset($requestVars['keep'])
+                                    ? $requestVars['keep']
+                                    : null;
+                        $kept_fields = explode(',', $keep);
+                        $fields2keep = $kept_fields;
+                    }
                 }
             }
         }
-
-        $action = "create"; #todo or "update"
     }
 }
 ?>
@@ -78,13 +90,18 @@
 body {
     font-family: sans-serif;
     margin: 3em;
-
-    background: black; /* $background='dark' */
-    color: white; /* $background='dark' */
+}
+<?php /* # $background='dark'
+?>
+body {
+    background: black;
+    color: white;
 }
 a {
-    color: yellow; /* $background='dark' */
+    color: yellow;
 }
+<?php */
+?>
 form#mainForm {
 }
 form#mainForm label {
@@ -122,6 +139,10 @@ form#mainForm label {
         </script>
     </head>
     <body>
+<?php
+    {
+        if ($table) {
+?>
         <p id="whoami">Dash</p>
         <div id="table_header">
             <h1>
@@ -134,15 +155,18 @@ form#mainForm label {
             </a>
         </div>
 
-        <form id="mainForm" action="/ormrouter/<?= $action ?>_<?= $table ?>" target="_blank">
+        <!-- action gets set via js -->
+        <form id="mainForm" target="_blank">
 <?php
-    foreach ($fields as $name) {
-        if (in_array($name, $fields2skip)) {
-            continue;
-        }
-        $inputTag = ($name == "txt"
-                        ? "textarea"
-                        : "input");
+            foreach ($fields as $name) {
+                if (in_array($name, $fields2omit)
+                    && !in_array($name, $fields2keep)
+                ) {
+                    continue;
+                }
+                $inputTag = ($name == "txt"
+                                ? "textarea"
+                                : "input");
 ?>
             <div class="formInput" remove="true">
                 <label for="<?= $name ?>">
@@ -151,7 +175,7 @@ form#mainForm label {
                 <<?= $inputTag ?> name="<?= $name ?>"><?= "</$inputTag>" ?>
             </div>
 <?php
-    }
+            }
 ?>
             <div id="submits">
                 <input onclick="setFormAction('/ormrouter/create_<?= $table ?>')" value="Create" type="submit" />
@@ -160,6 +184,12 @@ form#mainForm label {
                 <input onclick="setFormAction('/ormrouter/delete_<?= $table ?>')" value="Delete" type="submit" />
             </div>
         </form>
-
+<?php
+        }
+        else {
+            include("choose_table.php");
+        }
+    }
+?>
     </body>
 </html>
