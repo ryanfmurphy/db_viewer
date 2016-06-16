@@ -35,7 +35,7 @@
                         and table_schema in ($schemas_val_list)
                 "
                     #todo fix issue where redundant tables in multiple schemas
-                        # lead to redundant fields
+                        # leads to redundant fields
                 );
                 $fields = array_map(
                     function($x) {
@@ -47,28 +47,25 @@
                 { # fields2omit
                     $fields2omit = getGlobalFields2omit();
 
-                    $fields2omit_by_table = array(
-                        'example_table' => array(
-                            "iid","id","time",
-                            "tags", #todo
-                        ),
-                    );
+                    { # fields2omit
+                        { # from config
+                            $tblFields2omit = (isset($fields2omit_by_table[$table])
+                                                    ? $fields2omit_by_table[$table]
+                                                    : array());
 
-                    $tblFields2omit = (isset($fields2omit_by_table[$table])
-                                            ? $fields2omit_by_table[$table]
-                                            : array());
+                            $fields2omit = array_merge($fields2omit, $tblFields2omit);
+                        }
 
-                    $fields2omit = array_merge($fields2omit, $tblFields2omit);
-
-                    { # allow addition of more omitted fields
-                        $omit = isset($requestVars['omit'])
-                                    ? $requestVars['omit']
-                                    : null;
-                        $omitted_fields = explode(',', $omit);
-                        $fields2omit = array_merge($fields2omit, $omitted_fields);
+                        { # 'omit' get var - allow addition of more omitted fields
+                            $omit = isset($requestVars['omit'])
+                                        ? $requestVars['omit']
+                                        : null;
+                            $omitted_fields = explode(',', $omit);
+                            $fields2omit = array_merge($fields2omit, $omitted_fields);
+                        }
                     }
 
-                    { # allow addition of more kept fields
+                    { # fields2keep - allow addition of more kept fields
                         $keep = isset($requestVars['keep'])
                                     ? $requestVars['keep']
                                     : null;
