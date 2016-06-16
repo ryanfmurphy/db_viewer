@@ -44,17 +44,16 @@
                 { # fields2omit
                     $fields2omit = getGlobalFields2omit();
 
-                    switch ($table) {
-                        case "example_table": {
-                            $tblFields2skip = array(
-                                "iid","id","time",
-                                "tags", #todo
-                            );
-                        } break;
+                    $fields2omit_by_table = array(
+                        'example_table' => array(
+                            "iid","id","time",
+                            "tags", #todo
+                        ),
+                    );
 
-                        default:
-                            $tblFields2omit = array("iid","id","time");
-                    }
+                    $tblFields2omit = (isset($fields2omit_by_table[$table])
+                                            ? $fields2omit_by_table[$table]
+                                            : array("iid","id","time"));
 
                     $fields2omit = array_merge($fields2omit, $tblFields2omit);
 
