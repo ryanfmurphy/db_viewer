@@ -53,7 +53,7 @@
 
                     $tblFields2omit = (isset($fields2omit_by_table[$table])
                                             ? $fields2omit_by_table[$table]
-                                            : array("iid","id","time"));
+                                            : array());
 
                     $fields2omit = array_merge($fields2omit, $tblFields2omit);
 
