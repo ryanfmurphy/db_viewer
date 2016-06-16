@@ -1,8 +1,11 @@
 <?php
 {
-    { # init - #todo don't rely on DbViewer
-        include("../db_viewer/init.php");
-        $requestVars = array_merge($_GET, $_POST);
+    { # init
+        {
+            $trunk = __DIR__;
+            include("$trunk/init.php");
+            $requestVars = array_merge($_GET, $_POST);
+        }
 
         function getGlobalFields2omit() {
             return array(
