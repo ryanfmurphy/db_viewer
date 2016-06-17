@@ -10,8 +10,8 @@
 
     { # main logic
         { # vars
-            $schemas_in_path = DbViewer::schemas_in_path($search_path);
-            $schemas_val_list = DbViewer::val_list_str($schemas_in_path);
+            $schemas_in_path = DbUtil::schemas_in_path($search_path);
+            $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
             $table = isset($requestVars['table'])
                         ? $requestVars['table']
@@ -20,7 +20,7 @@
 
         { # get fields
             if ($table) {
-                $dbRowsReFields = Util::sql("
+                $dbRowsReFields = Db::sql("
                     select
                         table_schema, table_name, column_name
                     from information_schema.columns
