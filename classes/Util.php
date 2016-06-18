@@ -1,4 +1,5 @@
 <?php
+    #todo use Db class instead for db stuff
     class Util {
 
         public static function sql($query, $returnType='array') {

@@ -106,7 +106,7 @@
 ?>
 <head>
 <?php
-            include('html/links_and_scripts.php'); #todo fix paths for $cmp
+            include('html/links_and_scripts.php'); #todo fix paths for $cmp if there's an issue
             include('js/inline_js.php');
             include('dynamic_style.php');
 ?>
@@ -115,27 +115,10 @@
         }
 
         { # <body>
-
-            { # form
 ?>
 <body>
-	<form method="post">
-        <h2 id="query_header">
-            Enter SQL Query
-        </h2>
-        <p id="limit_warning">
-            Warning: BYOL - "Bring Your Own Limit" (otherwise query may be slow)
-        </p>
-		<textarea id="query-box" name="sql"><?= $sql ?></textarea>
-		<br>
-        <div>
-            <label for="db_type">DB Type</label>
-            <input name="db_type" value="<?= $db_type ?>">
-        </div>
-		<input type="submit" value="Submit">
-	</form>
 <?php
-            }
+            include('html/query_form.php'); # form
 
             { # inferred table
                 if ($sql) {
@@ -148,14 +131,15 @@
                 }
             }
 
-            { # get & display query data, & js interface
+            { # get & display query data ...
+              # & provide js interface
 
                 #todo infinite scroll using OFFSET and LIMIT
                 if ($sql) {
                     $rows = Util::sql($sql,'array');
 
-                    include('html/results_table.php');
-                    include('js/inline_js_2.php');
+                    include('html/results_table.php'); # html
+                    include('js/inline_js_2.php'); # js
                 }
 
                 { # js to show even if there's no query in play

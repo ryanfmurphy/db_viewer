@@ -36,6 +36,11 @@
 </table>
 <?php
                             }
+                            else {
+?>
+                        0 Rows
+<?php
+                            }
                         }
                         else {
                             DbViewer::outputDbError($db);

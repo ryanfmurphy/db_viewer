@@ -3,17 +3,19 @@
     # ----------------
     # support endpoint for the expansion "join-splice" feature in db_viewer
 
-	#todo change interface to take join_field and figure out table
-
 	{
 		require_once('init.php');
 		do_log(date('c') . " - db_viewer.query_ids_in received a request\n");
+        do_log(print_r($_POST,1));
 		$ids = $_POST['ids'];
 	}
 
+	# take join_field, figure out table
 	if (isset($_POST['join_field'])) {
-
 		list($table, $joinField) = DbViewer::choose_table_and_field($_POST['join_field']);
+
+        do_log("  table = $table\n");
+        do_log("  joinField = $joinField\n");
 
 		#todo error checking
 		#todo accept POST
@@ -32,6 +34,7 @@
 			";
             #die($query);
 			$rows = Util::sql($query, 'array');
+            do_log("\n  query = $query\n");
 
             if (is_array($rows)) {
                 $data = DbViewer::keyRowsByField($rows, $joinField);
