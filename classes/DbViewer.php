@@ -413,6 +413,13 @@
             }
         }
 
+        # get comma-sep search_path as array of schemas
+        public static function schemas_in_path($search_path) {
+            $search_path_no_spaces = str_replace(' ', '', $search_path);
+            $schemas_in_path = explode(',', $search_path_no_spaces);
+            return $schemas_in_path;
+        }
+
 
         # Query Manipulation / Interpretation Functions
         #----------------------------------------------
