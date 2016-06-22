@@ -185,10 +185,13 @@
                     if (e.which == H_code) {
                         show_hide_mode = 1 - show_hide_mode;
                         if (show_hide_mode) {
-                            alert('Show/Hide Mode Enabled:\n\n\
+                            alert('\
+Show/Hide Mode Enabled:\n\
+\n\
 Click a column to hide it, shift-click to reveal it again.\n\
 Alt-Click a row to hide it, alt-shift-click to reveal it again.\n\
-Press H again to disable.');
+Press H again to disable.\
+');
                         }
                         else {
                             alert('Show/Hide Mode Disabled');
