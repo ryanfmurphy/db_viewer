@@ -121,7 +121,7 @@
             include('html/query_form.php'); # form
 
             { # inferred table
-                if ($sql) {
+                if ($inferred_table) {
 ?>
     <p> Query seems to be with respect to the
         <code><?= $inferred_table ?></code>
