@@ -360,8 +360,31 @@
         public static function is_url($val) {
             if (is_string($val)) {
                 $url_parts = parse_url($val);
-                $is_url = (isset($url_parts['scheme']));
-                return $is_url;
+                $schema = (isset($url_parts['scheme'])
+                                ? $url_parts['scheme']
+                                : null);
+
+                if ($schema) {
+                    # prevent false positives where after the colon we have stuff other than a link
+                    # e.g. just some notes to self, but with a colon after the header
+
+                    $colonPos = strpos($val, ':');
+                    $hasStuffAfterColon = strlen($val) > $colonPos + 1;
+                    if ($hasStuffAfterColon) {
+                        $charAfterColon = $val[$colonPos + 1];
+                        $isWhitespace = ctype_space($charAfterColon);
+                        return ( !$isWhitespace
+                                    ? true # probably a url
+                                    : false # might be notes etc
+                               );
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else {
+                    return false;
+                }
             }
             else {
                 return false;
