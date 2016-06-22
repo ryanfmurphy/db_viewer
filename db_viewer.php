@@ -182,7 +182,7 @@
             $(document).on('keypress', 'body', function(e){
                 if (queryBoxElem() !== document.activeElement) {
                     var H_code = 104;
-                    if (e.keyCode == H_code) {
+                    if (e.which == H_code) {
                         show_hide_mode = 1 - show_hide_mode;
                         if (show_hide_mode) {
                             alert('Show/Hide Mode Enabled:\n\n\
