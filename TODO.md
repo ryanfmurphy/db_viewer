@@ -50,3 +50,5 @@ To-Do List
 
 * change module/repo name to `db_viewer` - underscore not hyphen
 
+* Ctrl-Enter should submit the textarea
+
