@@ -69,6 +69,12 @@
                 $sql = (isset($requestVars['sql'])
                             ? $requestVars['sql']
                             : null);
+
+                { # just tablename? turn to select statement
+                    if (strpos($sql, ' ') === false) {
+                        $sql = "select * from $sql";
+                    } 
+                }
             }
 
             $inferred_table = DbViewer::infer_table_from_query($sql);
@@ -131,7 +137,8 @@
                     if (isset($dash_links) && $dash_links) {
 ?>
         <a href="/dash/index.php?table=<?= $inferred_table ?>" target="_blank">
-            Create a new <?= $inferred_table ?>
+            Create a new
+            <code><?= $inferred_table ?></code>
         </a>
 <?php
                     }
