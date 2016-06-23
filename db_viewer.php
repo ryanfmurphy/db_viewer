@@ -125,7 +125,17 @@
 ?>
     <p> Query seems to be with respect to the
         <code><?= $inferred_table ?></code>
-        table
+        table.
+
+<?php
+                    if (isset($dash_links) && $dash_links) {
+?>
+        <a href="/dash/index.php?table=<?= $inferred_table ?>" target="_blank">
+            Create a new <?= $inferred_table ?>
+        </a>
+<?php
+                    }
+?>
     </p>
 <?php
                 }
