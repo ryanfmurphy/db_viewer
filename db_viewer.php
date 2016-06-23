@@ -113,9 +113,10 @@
 ?>
 <head>
 <?php
-            include('html/links_and_scripts.php'); #todo fix paths for $cmp if there's an issue
-            include('js/inline_js.php');
-            include('dynamic_style.php');
+            $trunk = __DIR__;
+            include("$trunk/html/links_and_scripts.php");
+            include("$trunk/js/inline_js.php");
+            include("$trunk/dynamic_style.php");
 ?>
 </head>
 <?php
