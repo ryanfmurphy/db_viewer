@@ -71,7 +71,8 @@
                             : null);
 
                 { # just tablename? turn to select statement
-                    if (strpos($sql, ' ') === false) {
+                    $sqlHasNoSpaces = (strpos($sql, ' ') === false);
+                    if (strlen($sql) > 0 && $sqlHasNoSpaces) {
                         $sql = "select * from $sql";
                     } 
                 }
