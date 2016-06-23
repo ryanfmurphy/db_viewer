@@ -1,13 +1,15 @@
 <?php
-	function do_log($msg) {
-		$logPath = __DIR__.'/error_log';
-		#$msg .= " (to $logPath)";
-		error_log("$msg", 3, $logPath);
-	}
-	function log_and_say($msg) {
-		echo $msg;
-		do_log($msg);
-	}
+    { # some misc functions
+        function do_log($msg) {
+            $logPath = __DIR__.'/error_log';
+            #$msg .= " (to $logPath)";
+            error_log("$msg", 3, $logPath);
+        }
+        function log_and_say($msg) {
+            echo $msg;
+            do_log($msg);
+        }
+    }
 
     { # basic init
         #todo generalize timezone
@@ -19,15 +21,16 @@
         $requestVars = array_merge($_GET, $_POST);
     }
 
-    { # vars - initial values
+    { # vars - initial values & db_config
         $pluralize_table_names = false;
         $slow_tables = array();
 
-        $db_config_path = __DIR__.'/db_config.php';
-        require_once($db_config_path);
+        $trunk = __DIR__;
+        require_once("$trunk/db_config.php");
     }
 
-    {   # some programs may provide
+    { # Util class
+        # some programs may provide
         # a DB connection and Util class themselves
         if (!class_exists('Util')) {
             $db = new PDO(
@@ -35,13 +38,16 @@
                 $db_user, $db_password
             );
 
-            require_once('classes/Util.php');
+            require_once("$trunk/classes/Util.php");
         }
     }
 
-    require_once('classes/DbViewer.php');
+    { # Db util functions
+        #todo use DbUtil not DbViewer for some/all of these fns
+        require_once("$trunk/classes/DbViewer.php");
+    }
 
-	{ # vars adjustments
+	{ # vars adjustments now that we've included that stuff
         { # search_path
             if (!isset($search_path)) {
                 if ($db_type == 'pgsql') {
