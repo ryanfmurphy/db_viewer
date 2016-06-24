@@ -1,7 +1,7 @@
 <?php
             { # form
 ?>
-	<form method="post">
+	<form id="query_form" method="post">
         <h2 id="query_header">
             Enter SQL Query
         </h2>

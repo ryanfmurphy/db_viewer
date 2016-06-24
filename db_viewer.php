@@ -192,14 +192,23 @@
                 var elem = lastClickedElem;
                 var popupItemElem = e.target;
                 backlinkJoinTable = popupItemElem.innerHTML.trim();
-                console.log('elem',elem);
-                console.log('backlinkJoinTable',backlinkJoinTable);
+                //console.log('elem',elem);
+                //console.log('backlinkJoinTable',backlinkJoinTable);
                 openBacklinkedJoin(elem);
             });
 
-            // show_hide_mode toggle
+            // show_hide_mode toggle - #todo add ctrl-enter
             $(document).on('keypress', 'body', function(e){
-                if (queryBoxElem() !== document.activeElement) {
+                var focusedElem = document.activeElement;
+                if (queryBoxElem() === focusedElem) { // Ctrl-Click
+                    var Enter_code = 13;
+                    if (e.ctrlKey
+                        && e.which == Enter_code
+                    ) {
+                        $('#query_form').submit();
+                    }
+                }
+                else { // show-hide mode
                     var H_code = 104;
                     if (e.which == H_code) {
                         show_hide_mode = 1 - show_hide_mode;
