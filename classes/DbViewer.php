@@ -425,7 +425,11 @@
             elseif (self::isTableNameVal($val, $fieldname)) {
                 { # vars
                     $tablename = $val;
-                    $local_uri = 'db_viewer.php';
+                    $cmp = class_exists('Campaign');
+                    $hasPhpExt = !$cmp;
+                    $local_uri = ($hasPhpExt
+                                    ? 'db_viewer.php'
+                                    : 'db_viewer');
                 }
 
                 { ob_start(); # provide a link
