@@ -1,4 +1,40 @@
 <?php
+    {
+    /*
+    WHAT TO CALL THIS FILE?
+
+    getColVals(cells)
+    firstObjKey(obj)
+    getObjKeys(obj)
+    getObjKeysRev(obj)
+    showVal(val)
+    isValidJoinField(field_name)
+    getJoinColor(joinNum)
+
+    addDataToTable(cells, data, exclude_fields)
+    getDataKeyedByCellContents(elem, data, field_name)
+    addColsToRow(elem, data, field_names_reversed, level, exclude_fields
+    isHeaderRow(row)
+    cellHTML(val, level, joinColor, tag)
+    blankTableRow(field_names, innerLevel, joinColor)
+    addBacklinkedDataToTable(cells, data, exclude_fields)
+    isTruthy(x)
+    trimIfString(x)
+    getColsOpenFlat(elem)
+    getColsOpen(elem)
+    closeJoin(elem)
+    openJoin(elem)
+    openBacklinkedJoin(elem)
+    ajaxRowsWithFieldVals(fieldname, vals, table, data_type, base_table, callback)
+    tablesWithField(fieldname, data_type, vals, base_table, callback)
+    updatePopupContent(content)
+    colNo(elem)
+    allColCells(elem)
+    colValCells(elem)
+    colVals(elem)
+    popupJoinTableOptions
+    */
+    }
                     { # js
 ?>
 <script>
