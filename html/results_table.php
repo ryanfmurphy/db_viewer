@@ -1,4 +1,6 @@
 <?php
+    #todo bring the headerRow function in here too
+
                     { # table
                         if (is_array($rows)) {
                             if (count($rows) > 0) {
@@ -20,10 +22,10 @@
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php
-                                    foreach ($row as $val) {
+                                    foreach ($row as $fieldname => $val) {
 ?>
         <td>
-            <?= DbViewer::val_html($val) ?>
+            <?= DbViewer::val_html($val, $fieldname) ?>
         </td>
 <?php
                                     }

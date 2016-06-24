@@ -392,7 +392,8 @@
         }
 
         # formal $val as HTML to put in <td>
-        public static function val_html($val) {
+        public static function val_html($val, $fieldname) {
+            do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
             $val = htmlentities($val);
             if (self::seems_like_pg_array($val)) {
                 $vals = self::pgArray2array($val);
@@ -421,9 +422,31 @@
                     return ob_get_clean();
                 }
             }
+            elseif (self::isTableNameVal($val, $fieldname)) {
+                { # vars
+                    $tablename = $val;
+                    $local_uri = 'db_viewer.php';
+                }
+
+                { ob_start(); # provide a link
+?>
+        <a href="<?= $local_uri ?>?sql=SELECT * FROM <?= $tablename ?>" target="_blank">
+            <?= $val ?>
+        </a>
+<?php
+                    return ob_get_clean();
+                }
+            }
             else {
                 return $val;
             }
+        }
+
+        public static function isTableNameVal($val, $fieldName) {
+            return ((preg_match('/Tables_in_/', $fieldName)
+                     || $fieldName == "Name")
+                            ? true
+                            : false);
         }
 
         # postgres-specific setup
