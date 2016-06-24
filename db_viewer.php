@@ -51,8 +51,10 @@
         { # vars
             { # url & resource setup - jquery etc
                 {
-                    $jsPath = ($cmp ? '/js/shared' : '/js');
-                    $jquery_url = "$jsPath/jquery-1.12.3.js";
+                    if (!isset($js_path)) { # allow js_path to be specified in config
+                        $js_path = ($cmp ? '/js/shared' : '/js');
+                    }
+                    $jquery_url = "$js_path/jquery-1.12.3.js";
                 }
                 if ($cmp) {
                     #todo move out
