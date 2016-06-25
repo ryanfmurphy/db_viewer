@@ -20,6 +20,7 @@
 
         { # get fields
             if ($table) {
+                # get fields of table from db
                 $dbRowsReFields = Db::sql("
                     select
                         table_schema, table_name, column_name
@@ -118,6 +119,7 @@ form#mainForm label {
     margin: .5rem;
 }
         </style>
+
         <script>
         function setFormAction(url) {
             var form = document.getElementById('mainForm');
@@ -165,10 +167,18 @@ form#mainForm label {
             }
 ?>
             <div id="submits">
-                <input onclick="setFormAction('/ormrouter/create_<?= $table ?>')" value="Create" type="submit" />
-                <input onclick="setFormAction('/ormrouter/update_<?= $table ?>')" value="Update" type="submit" />
-                <input onclick="setFormAction('/ormrouter/view_<?= $table ?>')" value="View" type="submit" />
-                <input onclick="setFormAction('/ormrouter/delete_<?= $table ?>')" value="Delete" type="submit" />
+                <input onclick="setFormAction('/ormrouter/create_<?= $table ?>')"
+                    value="Create" type="submit"
+                />
+                <input onclick="setFormAction('/ormrouter/update_<?= $table ?>')"
+                    value="Update" type="submit"
+                />
+                <input onclick="setFormAction('/ormrouter/view_<?= $table ?>')"
+                    value="View" type="submit"
+                />
+                <input onclick="setFormAction('/ormrouter/delete_<?= $table ?>')"
+                    value="Delete" type="submit"
+                />
             </div>
         </form>
 <?php
