@@ -153,9 +153,11 @@ form#mainForm label {
                 ) {
                     continue;
                 }
-                $inputTag = ($name == "txt"
-                                ? "textarea"
-                                : "input");
+                $inputTag = (( $name == "txt"
+                               || $name == "src"
+                             )
+                                    ? "textarea"
+                                    : "input");
 ?>
             <div class="formInput" remove="true">
                 <label for="<?= $name ?>">
