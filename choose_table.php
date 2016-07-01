@@ -1,9 +1,9 @@
 <?php
-    $tables = array('example_table1','example_table2');
+    $tables2list = array('example_table1','example_table2');
 ?>
 <ul>
 <?php
-    foreach ($tables as $table) {
+    foreach ($tables2list as $table) {
 ?>
     <li>
         <a href="?table=<?= $table ?>">
