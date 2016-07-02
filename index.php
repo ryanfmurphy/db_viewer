@@ -81,7 +81,9 @@
             { # html
 ?>
         <div class="formInput" remove="true">
-            <label for="<?= $name ?>">
+            <label for="<?= $name ?>"
+                   onclick="removeFormField(this)"
+            >
                 <?= $name ?> 
             </label>
             <<?= $inputTag ?> name="<?= $name ?>"><?= "</$inputTag>" ?> 
@@ -147,6 +149,9 @@ form#mainForm label {
 .formInput {
     margin: 2rem auto;
 }
+.formInput label {
+    cursor: not-allowed; /* looks like delete */
+}
 
 .formInput input,
 .formInput textarea
@@ -180,7 +185,7 @@ form#mainForm label {
         form.action = url;
     }
 
-    function openAddNewField(elem) {
+    function openAddNewField(elem) { // #todo don't need elem: it's always that +
         console.log(elem);
         var parentElem = elem.parentNode;
         var grandParent = parentElem.parentNode;
@@ -197,6 +202,14 @@ form#mainForm label {
             console.log('newField', newField);
             grandParent.insertBefore(newField, parentElem);
         }
+    }
+
+    function removeFormField(clickedElem) {
+        var formRow = clickedElem.parentNode;
+        console.log('formRow', formRow);
+        var parentElem = formRow.parentNode;
+        console.log('parentElem', parentElem);
+        parentElem.removeChild(formRow);
     }
 
         </script>
