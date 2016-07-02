@@ -1,2 +1,4 @@
 /dash_config.php
 /db_config.php
+*.swp
+*.swo

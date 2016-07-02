@@ -68,17 +68,62 @@
             }
         }
     }
+
+    { # functions
+        function echoFormFieldHtml($name) {
+            { # vars
+                $inputTag = (( $name == "txt"
+                               || $name == "src"
+                             )
+                                    ? "textarea"
+                                    : "input");
+            }
+            { # html
+?>
+        <div class="formInput" remove="true">
+            <label for="<?= $name ?>">
+                <?= $name ?> 
+            </label>
+            <<?= $inputTag ?> name="<?= $name ?>"><?= "</$inputTag>" ?> 
+        </div>
+<?php
+            }
+        }
+
+        function echoFormFieldHtml_JsFormat($name) {
+            { ob_start();
+                echoFormFieldHtml("{{".$name."}}");
+                $txt = ob_get_clean();
+            }
+            $txt = str_replace("\n", "\\n\\"."\n", $txt);
+            $txt = str_replace("'", "\\'", $txt);
+            $txt = preg_replace(
+                        "/
+                            {{
+                                ( [A-Za-z0-9_]+ )
+                            }}
+                        /x",
+                        "'+\\1+'",
+                        $txt
+                   );
+            echo "'$txt'";
+        }
+    }
+
 }
 ?>
 
+<!DOCTYPE html>
 <html>
     <head>
         <title>Dash</title>
         <style type="text/css">
+
 body {
     font-family: sans-serif;
     margin: 3em;
 }
+
 <?php /* # $background='dark'
 ?>
 body {
@@ -90,8 +135,10 @@ a {
 }
 <?php */
 ?>
+
 form#mainForm {
 }
+
 form#mainForm label {
     min-width: 8rem;
     display: inline-block;
@@ -118,13 +165,40 @@ form#mainForm label {
     vertical-align: middle;
     margin: .5rem;
 }
+
+#addNewField {
+    font-size: 150%;
+    cursor: pointer;
+}
+
         </style>
 
         <script>
-        function setFormAction(url) {
-            var form = document.getElementById('mainForm');
-            form.action = url;
+
+    function setFormAction(url) {
+        var form = document.getElementById('mainForm');
+        form.action = url;
+    }
+
+    function openAddNewField(elem) {
+        console.log(elem);
+        var parentElem = elem.parentNode;
+        var grandParent = parentElem.parentNode;
+        console.log(parentElem);
+        console.log(grandParent);
+
+        var tempContainer = document.createElement('div');
+        var fieldName = prompt("Enter Field Name to add:");
+        if (fieldName) {
+            var html = <?= echoFormFieldHtml_JsFormat('fieldName'); ?>;
+            html = html.trim();
+            tempContainer.innerHTML = html;
+            var newField = tempContainer.firstChild;
+            console.log('newField', newField);
+            grandParent.insertBefore(newField, parentElem);
         }
+    }
+
         </script>
     </head>
     <body>
@@ -144,30 +218,34 @@ form#mainForm label {
             </a>
         </div>
 
-        <!-- action gets set via js -->
+        <!-- action gets set via js when you submit -->
         <form id="mainForm" target="_blank">
 <?php
-            foreach ($fields as $name) {
-                if (in_array($name, $fields2omit)
-                    && !in_array($name, $fields2keep)
-                ) {
-                    continue;
+            { # create form fields
+                foreach ($fields as $name) {
+                    if (in_array($name, $fields2omit)
+                        && !in_array($name, $fields2keep)
+                    ) {
+                        continue;
+                    }
+                    echoFormFieldHtml($name);
                 }
-                $inputTag = (( $name == "txt"
-                               || $name == "src"
-                             )
-                                    ? "textarea"
-                                    : "input");
+            }
+
+            { # dynamically add a new field
+                #todo add margin below
 ?>
-            <div class="formInput" remove="true">
-                <label for="<?= $name ?>">
-                    <?= $name ?>
-                </label>
-                <<?= $inputTag ?> name="<?= $name ?>"><?= "</$inputTag>" ?>
+            <div class="formInput">
+                <span id="addNewField"
+                      onclick="openAddNewField(this)"
+                >
+                    +
+                </span>
             </div>
 <?php
             }
 ?>
+
             <div id="submits">
                 <input onclick="setFormAction('/ormrouter/create_<?= $table ?>')"
                     value="Create" type="submit"
