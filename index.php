@@ -180,9 +180,100 @@ form#mainForm label {
 
         <script>
 
+    // get array of form inputs / textareas / etc
+    function getFormInputs(form) {
+
+        { // fetch all formInputs from document
+            var inputs = form.getElementsByTagName('input');
+            var textareas = form.getElementsByTagName('textarea');
+            var selects = form.getElementsByTagName('selects');
+        }
+
+        { // build up all formInputs in an array
+            var formInputs = [];
+
+            for (var i=0; i<inputs.length; i++) {
+                input = inputs[i];
+                // exclude submit inputs
+                if (input.type != 'submit') {
+                    formInputs.push(input);
+                }
+            }
+            for (var i=0; i<textareas.length; i++) {
+                item = textareas[i];
+                formInputs.push(item);
+            }
+            for (var i=0; i<selects.length; i++) {
+                item = selects[i];
+                formInputs.push(item);
+            }
+        }
+
+        return formInputs;
+    }
+
+    // Serialize an array of form elements
+    // into a query string - inspired by jQuery
+    function serializeForm(formInputs) {
+
+        { // vars
+            var prefix,
+                pairs = [],
+
+                // add a key-value pair to the array
+                addPair = function(key, value) {
+
+                    // Q. is this better/worse than pairs.push()?
+                    pairs[ pairs.length ] =
+                        encodeURIComponent( key ) + "=" +
+                        encodeURIComponent( value == null ? "" : value );
+
+                };
+        }
+
+        { // Serialize the form elements
+            for (var i = 0; i < formInputs.length; i++) {
+                pair = formInputs[i];
+                addPair(pair.name, pair.value);
+            }
+        }
+
+        { // Return the resulting serialization
+            return pairs.join( "&" );
+        }
+    };
+
     function setFormAction(url) {
         var form = document.getElementById('mainForm');
         form.action = url;
+    }
+
+    function submitForm(url) {
+        var form = document.getElementById('mainForm');
+
+        { // do ajax
+            var xhttp = new XMLHttpRequest();
+            { // callback
+                xhttp.onreadystatechange = function() {
+                    if (xhttp.readyState == 4
+                        && xhttp.status == 200
+                    ) {
+                        alert(xhttp.responseText);
+                    }
+                };
+            }
+            { // handle post
+                xhttp.open("POST", url, true);
+                xhttp.setRequestHeader(
+                    "Content-type",
+                    "application/x-www-form-urlencoded"
+                );
+                var postData = serializeForm(
+                    getFormInputs(form)
+                );
+            }
+            xhttp.send(postData);
+        }
     }
 
     function openAddNewField(elem) { // #todo don't need elem: it's always that +
@@ -231,7 +322,6 @@ form#mainForm label {
             </a>
         </div>
 
-        <!-- action gets set via js when you submit -->
         <form id="mainForm" target="_blank">
 <?php
             { # create form fields
@@ -260,16 +350,16 @@ form#mainForm label {
 ?>
 
             <div id="submits">
-                <input onclick="setFormAction('/ormrouter/create_<?= $table ?>')"
+                <input onclick="submitForm('/ormrouter/create_<?= $table ?>'); return false"
                     value="Create" type="submit"
                 />
-                <input onclick="setFormAction('/ormrouter/update_<?= $table ?>')"
+                <input onclick="submitForm('/ormrouter/update_<?= $table ?>'); return false"
                     value="Update" type="submit"
                 />
                 <input onclick="setFormAction('/ormrouter/view_<?= $table ?>')"
                     value="View" type="submit"
                 />
-                <input onclick="setFormAction('/ormrouter/delete_<?= $table ?>')"
+                <input onclick="submitForm('/ormrouter/delete_<?= $table ?>'); return false"
                     value="Delete" type="submit"
                 />
             </div>
