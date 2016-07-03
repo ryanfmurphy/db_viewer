@@ -397,20 +397,7 @@
             $val = htmlentities($val);
             if (self::seems_like_pg_array($val)) {
                 $vals = self::pgArray2array($val);
-                { ob_start();
-?>
-        <ul>
-<?php
-                    foreach ($vals as $val) {
-?>
-            <li><?= $val ?></li>
-<?php
-                    }
-?>
-        </ul>
-<?php
-                    return ob_get_clean();
-                }
+                return self::array_as_html_list($vals);
             }
             elseif (self::is_url($val)) {
                 { ob_start();
@@ -442,7 +429,25 @@
                 }
             }
             else {
+                $val = nl2br($val); # show newlines as <br>'s
                 return $val;
+            }
+        }
+
+        public static function array_as_html_list($array) {
+            { ob_start();
+?>
+        <ul>
+<?php
+                foreach ($array as $val) {
+?>
+            <li><?= $val ?></li>
+<?php
+                }
+?>
+        </ul>
+<?php
+                return ob_get_clean();
             }
         }
 
