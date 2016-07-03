@@ -92,6 +92,11 @@ tr.shadowing th {
     border: solid 2px #aaa;
 }
 
+ul {
+    /* reduce big indent */
+    padding-left: 1.2em;
+    padding-right: .5em;
+}
 li {
     margin-top: .3em;
     margin-bottom: .3em;
