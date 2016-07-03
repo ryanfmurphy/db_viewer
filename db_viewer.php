@@ -68,9 +68,15 @@
             }
 
             { # get sql query (if any) from incoming request
-                $sql = (isset($requestVars['sql'])
-                            ? $requestVars['sql']
-                            : null);
+                { # get sql and sanitize
+                    $sql = (isset($requestVars['sql'])
+                                ? $requestVars['sql']
+                                : null);
+
+                    # we just want normal newlines
+                    # www forms often post with \r\n
+                    $sql = str_replace("\r\n", "\n", $sql);
+                }
 
                 { # just tablename? turn to select statement
                     $sqlHasNoSpaces = (strpos($sql, ' ') === false);
