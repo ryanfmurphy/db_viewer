@@ -44,6 +44,9 @@ td, th {
     }
 ?>
 }
+td .wide_col {
+    width: 20em;
+}
 
 textarea, input {
     font-family: sans-serif;

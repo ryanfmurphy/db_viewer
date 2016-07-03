@@ -451,6 +451,23 @@
             }
             else {
                 $val = nl2br($val); # show newlines as <br>'s
+
+                { # get bigger column width for longform text fields
+                    #todo factor this logic in the 2 places we have it
+                    # (here and in dash)
+                    if ($fieldname == 'txt'
+                        || $fieldname == 'src'
+                    ) {
+                        ob_start();
+?>
+                        <div class="wide_col">
+                            <?= $val ?>
+                        </div>
+<?php
+                        return ob_get_clean();
+                    }
+                }
+
                 return $val;
             }
         }
