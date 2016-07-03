@@ -8,7 +8,7 @@
         }
     }
 
-    { # main logic
+    { # prep logic - get fields from db
         { # vars
             $schemas_in_path = DbUtil::schemas_in_path($search_path);
             $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
@@ -69,7 +69,7 @@
         }
     }
 
-    { # functions
+    { # PHP functions
         function echoFormFieldHtml($name) {
             { # vars
                 $inputTag = (( $name == "txt"
@@ -241,7 +241,7 @@ form#mainForm label {
         { // Return the resulting serialization
             return pairs.join( "&" );
         }
-    };
+    }
 
     function setFormAction(url) {
         var form = document.getElementById('mainForm');
@@ -307,8 +307,10 @@ form#mainForm label {
     </head>
     <body>
 <?php
-    {
+    { # body content
         if ($table) {
+
+            { # header stuff
 ?>
         <p id="whoami">Dash</p>
         <div id="table_header">
@@ -321,22 +323,25 @@ form#mainForm label {
                 view all
             </a>
         </div>
-
-        <form id="mainForm" target="_blank">
 <?php
-            { # create form fields
-                foreach ($fields as $name) {
-                    if (in_array($name, $fields2omit)
-                        && !in_array($name, $fields2keep)
-                    ) {
-                        continue;
-                    }
-                    echoFormFieldHtml($name);
-                }
             }
 
-            { # dynamically add a new field
-                #todo add margin below
+            { # the form
+?>
+        <form id="mainForm" target="_blank">
+<?php
+                { # create form fields
+                    foreach ($fields as $name) {
+                        if (in_array($name, $fields2omit)
+                            && !in_array($name, $fields2keep)
+                        ) {
+                            continue;
+                        }
+                        echoFormFieldHtml($name);
+                    }
+                }
+
+                { # dynamically add a new field
 ?>
             <div class="formInput">
                 <span id="addNewField"
@@ -346,7 +351,9 @@ form#mainForm label {
                 </span>
             </div>
 <?php
-            }
+                }
+
+                { # submit buttons
 ?>
 
             <div id="submits">
@@ -363,8 +370,12 @@ form#mainForm label {
                     value="Delete" type="submit"
                 />
             </div>
+<?php
+                }
+?>
         </form>
 <?php
+            }
         }
         else {
             include("choose_table.php");
