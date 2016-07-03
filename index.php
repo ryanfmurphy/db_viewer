@@ -180,6 +180,8 @@ form#mainForm label {
 
         <script>
 
+{ // main javascript
+
     // get array of form inputs / textareas / etc
     function getFormInputs(form) {
 
@@ -303,19 +305,45 @@ form#mainForm label {
         parentElem.removeChild(formRow);
     }
 
+    function selectTable() {
+        var selectTableInput = document.getElementById('selectTable');
+        document.location = '?table='+selectTableInput.value;
+    }
+
+    function selectTableOnEnter(keyEvent) {
+        var ENTER = 13;
+        if (keyEvent.which == ENTER) {
+            selectTable();
+        }
+    }
+
+}
+
         </script>
     </head>
     <body>
 <?php
-    { # body content
-        if ($table) {
-
-            { # header stuff
+        { # header stuff
 ?>
         <p id="whoami">Dash</p>
         <div id="table_header">
             <h1>
-                <code><?= $table ?></code> table
+<?php
+        if ($table) {
+?>
+                <code><?= $table ?></code>
+<?php
+        }
+        else {
+?>
+                <input id="selectTable"
+                       placeholder="select table"
+                       onkeypress="selectTableOnEnter(event)"
+                />
+<?php
+        }
+?>
+                table
             </h1>
             <a href="/db_viewer/db_viewer.php?sql=select * from <?= $table ?>"
                target="_blank"
@@ -324,7 +352,10 @@ form#mainForm label {
             </a>
         </div>
 <?php
-            }
+        }
+
+    { # body content
+        if ($table) {
 
             { # the form
 ?>
