@@ -42,35 +42,49 @@
                 }
 
                 { # join colors
-                    if ($hasBackgroundImage) {
+
+                    $isDarkBackground = (isset($background)
+                                         && $background == 'dark');
+
+                    if ($hasBackgroundImage
+                        || $isDarkBackground
+                    ) {
+                        {
+                            $handleColor = 225;
+                            $rowColor = 150;
+                        }
                         $joinColors = array(
                             1 => array(
-                                'handle' => array(225, 0, 0, .5), #'#ff9999',
-                                'row' => array(150, 0, 0, .5), #'#ffbbbb',
+                                'handle' => array($handleColor, 0, 0, .5), #'#ff9999',
+                                'row' => array($rowColor, 0, 0, .5), #'#ffbbbb',
                             ),
                             2 => array(
-                                'handle' => array(0, 225, 0, .5), # '#99ff99',
-                                'row' => array(0, 150, 0, .5), # '#bbffbb',
+                                'handle' => array(0, $handleColor, 0, .5), # '#99ff99',
+                                'row' => array(0, $rowColor, 0, .5), # '#bbffbb',
                             ),
                             3 => array(
-                                'handle' => array(0, 0, 225, .5), # '#9999ff',
-                                'row' => array(0, 0, 150, .5), # '#bbbbff',
+                                'handle' => array(0, 0, $handleColor, .5), # '#9999ff',
+                                'row' => array(0, 0, $rowColor, .5), # '#bbbbff',
                             ),
                         );
                     }
                     else {
+                        {
+                            $handleColor = 153;
+                            $rowColor = 187;
+                        }
                         $joinColors = array(
                             1 => array(
-                                'handle' => array(255, 153, 153, 1),
-                                'row' => array(255, 187, 187, 1),
+                                'handle' => array(255, $handleColor, $handleColor, 1),
+                                'row' => array(255, $rowColor, $rowColor, 1),
                             ),
                             2 => array(
-                                'handle' => array(153, 255, 153, 1),
-                                'row' => array(187, 255, 187, 1),
+                                'handle' => array($handleColor, 255, $handleColor, 1),
+                                'row' => array($rowColor, 255, $rowColor, 1),
                             ),
                             3 => array(
-                                'handle' => array(153, 153, 255, 1),
-                                'row' => array(187, 187, 255, 1),
+                                'handle' => array($handleColor, $handleColor, 255, 1),
+                                'row' => array($rowColor, $rowColor, 255, 1),
                             ),
                         );
                     }
@@ -92,7 +106,9 @@
                         return "rgba($colorStr)";
                     }
 
-                    $oddRowDarkness = .9;
+                    $oddRowDarkness = ($isDarkBackground
+                                        ? .4
+                                        : .9);
                     for ($level = 1; $level <= 3; $level++) {
 ?>
     .join_color_<?= $level ?>_handle {
@@ -110,7 +126,18 @@
         background: <?= rgbaColor($joinColors[$level]['row'], $oddRowDarkness) ?>;
     }
     .odd-row {
-        background: rgb(220,220,220); /* #todo adjust for dark bg & backgroundImage */
+<?php
+    if ($isDarkBackground) {
+?>
+        background: rgba(220,220,220, <?= $oddRowDarkness ?>); /* #todo adjust for dark bg & backgroundImage */
+<?php
+    }
+    else {
+?>
+        background: rgb(220,220,220);
+<?php
+    }
+?>
     }
 
 <?php

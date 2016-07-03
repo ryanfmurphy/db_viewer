@@ -2,13 +2,14 @@ To-Do List
 ==========
 
 * Weird colors need to be fixed:
-  To reproduce, try with the plants in the bg, and then do a backjoin.
-  Weird too-pale alternating colors.
+    * try with bg=dark with no background image, then do a backjoin.
+    * try with the plants in the bg, and then do a backjoin.
+      Weird too-pale alternating colors.
 
 * Allow nested backlink joins
   (dynamically bind alt-clicks to newly alt-click-spawned columns)
 
-* Bring back the `$db->quote` once you know
+* (done?) Bring back the `$db->quote` once you know
   how to make it work for all cases
 
 * When you alt-click the `name` field, it should look
