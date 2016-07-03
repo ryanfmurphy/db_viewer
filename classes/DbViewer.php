@@ -290,6 +290,27 @@
             return $data;
         }
 
+        # postgres-specific setup
+        public static function setDbSearchPath($search_path) {
+            global $db_type;
+            if ($db_type == 'pgsql') {
+                if ($search_path) {
+                    Util::sql("set search_path to $search_path");
+                }
+            }
+        }
+
+        # get comma-sep search_path as array of schemas
+        public static function schemas_in_path($search_path) {
+            $search_path_no_spaces = str_replace(' ', '', $search_path);
+            $schemas_in_path = explode(',', $search_path_no_spaces);
+            return $schemas_in_path;
+        }
+
+
+        # Rendering and Type-Recognition Functions
+        # ----------------------------------------
+
         public static function outputDbError($db) {
 ?>
 <div>
@@ -451,28 +472,12 @@
             }
         }
 
+
         public static function isTableNameVal($val, $fieldName) {
             return ((preg_match('/Tables_in_/', $fieldName)
                      || $fieldName == "Name")
                             ? true
                             : false);
-        }
-
-        # postgres-specific setup
-        public static function setDbSearchPath($search_path) {
-            global $db_type;
-            if ($db_type == 'pgsql') {
-                if ($search_path) {
-                    Util::sql("set search_path to $search_path");
-                }
-            }
-        }
-
-        # get comma-sep search_path as array of schemas
-        public static function schemas_in_path($search_path) {
-            $search_path_no_spaces = str_replace(' ', '', $search_path);
-            $schemas_in_path = explode(',', $search_path_no_spaces);
-            return $schemas_in_path;
         }
 
 
