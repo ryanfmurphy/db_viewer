@@ -28,13 +28,13 @@
 
             { # take base_table into account
                 if ($base_table) {
-                    $fieldname = DbViewer::fieldname_given_base_table($fieldname, $base_table);
+                    $fieldname = DbUtil::fieldname_given_base_table($fieldname, $base_table);
                 }
             }
 
             { # do the query
                 if (is_array($vals)) {
-                    $results = DbViewer::rows_with_field_vals($fieldname, $vals, $table, $data_type);
+                    $results = DbUtil::rows_with_field_vals($fieldname, $vals, $table, $data_type);
                     die(json_encode($results));
                 }
                 else { die('Invalid vals'); }

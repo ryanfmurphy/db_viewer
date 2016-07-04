@@ -61,11 +61,11 @@
             { # get as array
                 #$search_path_no_spaces = str_replace($search_path, ' ', '');
                 #$schemas_in_path = explode(',', $search_path_no_spaces);
-                $schemas_in_path = DbViewer::schemas_in_path($search_path);
+                $schemas_in_path = DbUtil::schemas_in_path($search_path);
             }
 
             { # more settings / tweaks
-                DbViewer::setDbSearchPath($search_path);
+                DbUtil::setDbSearchPath($search_path);
             }
         }
 	}

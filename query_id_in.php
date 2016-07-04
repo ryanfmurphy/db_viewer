@@ -17,7 +17,7 @@
 
         do_log("    doing choose_table_and_field\n");
         # take join_field, figure out table
-        list($table, $joinField) = DbViewer::choose_table_and_field($_POST['join_field']);
+        list($table, $joinField) = DbUtil::choose_table_and_field($_POST['join_field']);
         do_log("      now joinField = $joinField\n");
         do_log("      table = $table\n");
 
@@ -30,7 +30,7 @@
         do_log("      is ids an array?\n");
         if (is_array($ids)) {
             do_log("        yes: ".print_r($ids,1)."\n");
-            $ids_str = DbViewer::val_list_str($ids);
+            $ids_str = DbUtil::val_list_str($ids);
             do_log("        ids_str = $ids_str\n");
 
             # do query
@@ -46,7 +46,7 @@
             do_log("        got array of rows?\n");
             if (is_array($rows)) {
                 do_log("          got array of rows. doing keyRowsByField\n");
-                $data = DbViewer::keyRowsByField($rows, $joinField);
+                $data = DbUtil::keyRowsByField($rows, $joinField);
                 die(json_encode($data));
             }
             else {

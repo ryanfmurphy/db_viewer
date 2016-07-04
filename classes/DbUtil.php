@@ -122,7 +122,7 @@
 					#     if there's a full field_name match, use that
 					#     otherwise try this loop
 
-                    $possible_tables = DbViewer::sqlTables();
+                    $possible_tables = self::sqlTables();
 
                     if (!isset($possible_tables[$tablename_root])) {
                         # loop looking for table ending in $table
@@ -141,7 +141,7 @@
                 }
 
                 if ($pluralize_table_names) {
-                    $tablename_root = DbViewer::pluralize($tablename_root);
+                    $tablename_root = self::pluralize($tablename_root);
                 }
 
                 $tablename_root = self::full_tablename($tablename_root);
@@ -290,7 +290,7 @@
             return $data;
         }
 
-        public static function outputDbError($db) {
+        public static function outputDbError($db) { #kill
 ?>
 <div>
     <p>
@@ -369,7 +369,7 @@
         }
 
         # formal $val as HTML to put in <td>
-        public static function val_html($val) {
+        public static function val_html($val) { #kill
             $val = htmlentities($val);
             if (self::seems_like_pg_array($val)) {
                 $vals = self::pgArray2array($val);

@@ -86,7 +86,7 @@
                 }
             }
 
-            $inferred_table = DbViewer::infer_table_from_query($sql);
+            $inferred_table = DbUtil::infer_table_from_query($sql);
         }
 
         { # render the header row html <th>'s
