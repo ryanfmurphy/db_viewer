@@ -92,11 +92,7 @@
             }
         }
 
-        function echoFormFieldHtml_JsFormat($name) {
-            { ob_start();
-                echoFormFieldHtml("{{".$name."}}");
-                $txt = ob_get_clean();
-            }
+        function jsStringify($txt) {
             $txt = str_replace("\n", "\\n\\"."\n", $txt);
             $txt = str_replace("'", "\\'", $txt);
             $txt = preg_replace(
@@ -108,7 +104,32 @@
                         "'+\\1+'",
                         $txt
                    );
-            echo "'$txt'";
+            return "'$txt'";
+        }
+
+        function echoFormFieldHtml_JsFormat($name) {
+            { ob_start();
+                echoFormFieldHtml("{{".$name."}}");
+                $txt = ob_get_clean();
+            }
+            echo jsStringify($txt);
+        }
+
+        function echoSelectTableInputHtml() {
+?>
+                <input id="selectTable"
+                       placeholder="select table"
+                       onkeypress="selectTableOnEnter(event)"
+                />
+<?php
+        }
+
+        function echoSelectTableInputHtml_JsFormat() {
+            { ob_start();
+                echoSelectTableInputHtml();
+                $txt = ob_get_clean();
+            }
+            echo jsStringify($txt);
         }
     }
 
@@ -317,6 +338,18 @@ form#mainForm label {
         }
     }
 
+    function becomeSelectTableInput(elem) {
+        var parentElem = elem.parentNode;
+        var tempContainer = document.createElement('div');
+        var html = <?= echoSelectTableInputHtml_JsFormat() ?>;
+        html = html.trim();
+        tempContainer.innerHTML = html;
+        var selectTableInput = tempContainer.firstChild;
+        //console.log('selectTableInput', selectTableInput);
+        parentElem.replaceChild(selectTableInput, elem);
+        selectTableInput.focus();
+    }
+
 }
 
         </script>
@@ -331,15 +364,14 @@ form#mainForm label {
 <?php
         if ($table) {
 ?>
-                <code><?= $table ?></code>
+                <code onclick="becomeSelectTableInput(this)">
+                    <?= $table ?>
+                </code>
 <?php
         }
         else {
 ?>
-                <input id="selectTable"
-                       placeholder="select table"
-                       onkeypress="selectTableOnEnter(event)"
-                />
+                    <?= echoSelectTableInputHtml() ?>
 <?php
         }
 ?>
