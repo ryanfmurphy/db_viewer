@@ -29,7 +29,7 @@ class Db {
         }
     }
 
-    public static function error($msg, $sql) {
+    public static function error($msg=null, $sql=null) {
         $db = Db::conn();
         trigger_error(
 $msg . "
