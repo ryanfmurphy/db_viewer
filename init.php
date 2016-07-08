@@ -5,7 +5,11 @@
         #include("$trunkParent/db_viewer/init.php"); #todo don't depend on db_viewer
     }
 
-    { # config
+    { # default values
+        $fields2omit_global = array();
+    }
+
+    { # custom config
         include("$trunk/db_config.php");
         include("$trunk/dash_config.php");
     }
