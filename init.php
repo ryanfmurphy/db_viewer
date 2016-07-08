@@ -29,7 +29,7 @@
         require_once("$trunk/db_config.php");
     }
 
-    { # Util class
+    { # Util includes
         # some programs may provide
         # a DB connection and Util class themselves
         if (!class_exists('Util')) {
@@ -40,10 +40,10 @@
 
             require_once("$trunk/classes/Util.php");
         }
-    }
 
-    { # Db util functions
-        #todo use DbUtil not DbViewer for some/all of these fns
+        #todo #compatibility make work for deploys that have their sql fn in the Util class
+        require_once("$trunk/classes/Db.php");
+        require_once("$trunk/classes/DbUtil.php");
         require_once("$trunk/classes/DbViewer.php");
     }
 

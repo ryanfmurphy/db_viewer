@@ -55,6 +55,7 @@
 		}
 
 
+        /*
         # Language Manipulation
         #----------------------
 
@@ -72,8 +73,10 @@
             $len = strlen($tablename);
             return ($tablename[$len-1] == 's'); #todo make less dumb
         }
+        */
 
 
+        /*
         # Database Searching Functions
         #-----------------------------
 
@@ -103,7 +106,9 @@
 
             return $tables;
 		}
+        */
 
+        /*
         # used in joins to determine which table to join to from a field_name
 		public static function choose_table_and_field($field_name) {
             global $id_mode, $pluralize_table_names;
@@ -158,7 +163,9 @@
 				return array($table, $field_name);
 			}
 		}
+        */
 
+        /*
         # get all tables with that fieldname, optionally filtering by vals
         public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
 			$args = print_r(get_defined_vars(),1);
@@ -204,7 +211,9 @@
 
             }
         }
+        */
 
+        /*
         #todo (front-end) depending on $id_type,
             #todo return e.g. $fieldname='inventory_id' for the 'id' field of inventory
             #todo return e.g. $fieldname='inventory' for the 'name' field of inventory
@@ -216,13 +225,13 @@
             $tables = ($table === null
                          ? self::tables_with_field($fieldname, $data_type)
                          : array($table));
-            $val_list = self::val_list_str($vals);
+            $val_list = DbUtil::val_list_str($vals);
             $table_rows = array();
 
 			# search through the tables one by one and
 			# only include the tables that actually have matching rows
             foreach ($tables as $table) {
-				if (in_array(self::just_tablename($table), $slow_tables)) {
+				if (in_array(DbUtil::just_tablename($table), $slow_tables)) {
 					$includeTable = true; # just assume it's included, skip slow query
 				}
 				else {
@@ -244,18 +253,20 @@
 				}
 
                 if ($includeTable) {
-                    $data = self::keyRowsByFieldMulti($rows, $fieldname);
+                    $data = DbUtil::keyRowsByFieldMulti($rows, $fieldname);
                     $table_rows[$table] = $data;
                 }
             }
 
             return $table_rows;
         }
+        */
 
 
         # Util functions
         #---------------
 
+        /*
         public static function log($msg) {
             error_log($msg, 3, __DIR__.'/error_log');
         }
@@ -306,6 +317,7 @@
             $schemas_in_path = explode(',', $search_path_no_spaces);
             return $schemas_in_path;
         }
+        */
 
 
         # Rendering and Type-Recognition Functions
@@ -328,6 +340,7 @@
 <?php
         }
 
+        /*
         # convert postgres array str into php array
         public static function pgArray2array($pgArrayStr, $itemType='text') {
             $arrayType = $itemType.'[]';
@@ -377,7 +390,9 @@
                 return false;
             }
         }
+        */
 
+        #todo maybe move to different class?
         public static function is_url($val) {
             if (is_string($val)) {
                 $url_parts = parse_url($val);
@@ -415,13 +430,13 @@
         # formal $val as HTML to put in <td>
         public static function val_html($val, $fieldname) { #keep
             do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
-            $val = htmlentities($val);
-            if (self::seems_like_pg_array($val)) {
-                $vals = self::pgArray2array($val);
+            if (DbUtil::seems_like_pg_array($val)) {
+                $vals = DbUtil::pgArray2array($val);
                 return self::array_as_html_list($vals);
             }
             elseif (self::is_url($val)) {
                 { ob_start();
+                    $val = htmlentities($val);
 ?>
         <a href="<?= $val ?>" target="_blank">
             <?= $val ?>
@@ -441,8 +456,11 @@
                 }
 
                 { ob_start(); # provide a link
+                    $val = htmlentities($val);
 ?>
-        <a href="<?= $local_uri ?>?sql=SELECT * FROM <?= $tablename ?>" target="_blank">
+        <a href="<?= $local_uri ?>?sql=SELECT * FROM <?= $tablename ?>"
+           target="_blank"
+        >
             <?= $val ?>
         </a>
 <?php
@@ -450,6 +468,7 @@
                 }
             }
             else {
+                $val = htmlentities($val);
                 $val = nl2br($val); # show newlines as <br>'s
 
                 { # get bigger column width for longform text fields
@@ -472,7 +491,7 @@
             }
         }
 
-        public static function array_as_html_list($array) {
+        public static function array_as_html_list($array) { #keep
             { ob_start();
 ?>
         <ul>
@@ -489,8 +508,7 @@
             }
         }
 
-
-        public static function isTableNameVal($val, $fieldName) {
+        public static function isTableNameVal($val, $fieldName) { #keep
             return ((preg_match('/Tables_in_/', $fieldName)
                      || $fieldName == "Name")
                             ? true
@@ -501,6 +519,7 @@
         # Query Manipulation / Interpretation Functions
         #----------------------------------------------
 
+        /*
         public static function infer_table_from_query($query) {
             #todo improve inference - fix corner cases
             if (preg_match("/\bfrom ((?:\w|\.)+)\b/i", $query, $matches)) {
@@ -508,6 +527,7 @@
                 return $table;
             }
         }
+        */
 
     }
 
