@@ -368,6 +368,7 @@
             }
         }
 
+        /*
         # formal $val as HTML to put in <td>
         public static function val_html($val) { #kill
             $val = htmlentities($val);
@@ -402,6 +403,7 @@
                 return $val;
             }
         }
+        */
 
         # postgres-specific setup
         public static function setDbSearchPath($search_path) {
