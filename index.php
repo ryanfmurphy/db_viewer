@@ -74,6 +74,7 @@
             { # vars
                 $inputTag = (( $name == "txt"
                                || $name == "src"
+                               || $name == "lyrics"
                              )
                                     ? "textarea"
                                     : "input");
@@ -358,7 +359,11 @@ form#mainForm label {
 <?php
         { # header stuff
 ?>
-        <p id="whoami">Dash</p>
+        <p id="whoami">
+            <a href="/dash/index.php">
+                Dash
+            </a>
+        </p>
         <div id="table_header">
             <h1>
 <?php
