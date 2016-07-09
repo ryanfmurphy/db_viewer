@@ -340,15 +340,22 @@ form#mainForm label {
     }
 
     function becomeSelectTableInput(elem) {
+        var currentTableName = elem.innerText.trim();
         var parentElem = elem.parentNode;
+
+        // swap in new <input> DOM element
         var tempContainer = document.createElement('div');
         var html = <?= echoSelectTableInputHtml_JsFormat() ?>;
         html = html.trim();
         tempContainer.innerHTML = html;
         var selectTableInput = tempContainer.firstChild;
-        //console.log('selectTableInput', selectTableInput);
+        selectTableInput.value = currentTableName;
         parentElem.replaceChild(selectTableInput, elem);
+
+        // focus and select all text
         selectTableInput.focus();
+        selectTableInput.select();
+        //selectTableInput.setSelectionRange(0, this.value.length);
     }
 
 }
