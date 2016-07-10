@@ -20,23 +20,52 @@
 
         { # get fields
             if ($table) {
-                # get fields of table from db
-                $dbRowsReFields = Db::sql("
-                    select
-                        table_schema, table_name, column_name
-                    from information_schema.columns
-                    where table_name='$table'
-                        and table_schema in ($schemas_val_list)
-                "
-                    #todo fix issue where redundant tables in multiple schemas
-                        # leads to redundant fields
-                );
-                $fields = array_map(
-                    function($x) {
-                        return $x['column_name'];
-                    },
-                    $dbRowsReFields
-                );
+                { # get fields of table from db, #todo factor into fn
+                    { # do query
+                        $fieldsRows = Db::sql("
+                            select
+                                table_schema, table_name, column_name
+                            from information_schema.columns
+                            where table_name='$table'
+                                and table_schema in ($schemas_val_list)
+                        ");
+                    }
+
+                    { # group by schema
+                        $fieldsRowsBySchema = array();
+                        foreach ($fieldsRows as $fieldsRow) {
+                            $schema = $fieldsRow['table_schema'];
+                            $fieldsRowsBySchema[$schema][] = $fieldsRow;
+                        }
+                    }
+
+                    { # choose 1st schema that applies
+                        $schema = null;
+                        foreach ($schemas_in_path as $schema_in_path) {
+                            if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                $schema = $schema_in_path;
+                                break;
+                            }
+                        }
+                        if ($schema === null) {
+                            die("Whoops!  Couldn't select a DB schema for table $table");
+                        }
+                    }
+
+                    { # get just the column_names
+                        $fields = array_map(
+                            function($x) {
+                                return $x['column_name'];
+                            },
+                            $fieldsRowsBySchema[$schema]
+                        );
+                    }
+
+                    { # so we can give a warning/notice about it later
+                        $multipleTablesFoundInDifferentSchemas =
+                            count(array_keys($fieldsRowsBySchema)) > 1;
+                    }
+                }
 
                 { # fields2omit
                     $fields2omit = $fields2omit_global;
@@ -187,10 +216,19 @@ form#mainForm label {
     font-size: 80%;
 }
 
-#table_header > * {
+#table_header_top > * {
     display: inline-block;
     vertical-align: middle;
     margin: .5rem;
+}
+
+#table_header_top > h1 {
+    margin-left: 0;
+}
+
+#multipleTablesWarning {
+    font-size: 80%;
+    font-style: italic;
 }
 
 #addNewField {
@@ -403,7 +441,7 @@ form#mainForm label {
     </head>
     <body>
 <?php
-        { # header stuff
+    { # header stuff
 ?>
         <p id="whoami">
             <a href="/dash/index.php">
@@ -411,7 +449,8 @@ form#mainForm label {
             </a>
         </p>
         <div id="table_header">
-            <h1>
+            <div id="table_header_top">
+                <h1>
 <?php
         if ($table) {
 ?>
@@ -426,22 +465,36 @@ form#mainForm label {
 <?php
         }
 ?>
-                table
-            </h1>
+                    table
+                </h1>
 <?php
         if ($table) {
 ?>
-            <a href="/db_viewer/db_viewer.php?sql=select * from <?= $table ?>"
-               target="_blank"
-            >
-                view all
-            </a>
+                <a href="/db_viewer/db_viewer.php?sql=select * from <?= $table ?>"
+                   target="_blank"
+                >
+                    view all
+                </a>
+<?php
+        }
+?>
+            </div>
+<?php
+        if ($multipleTablesFoundInDifferentSchemas) {
+?>
+            <div id="multipleTablesWarning">
+                FYI: tables named
+                <code><?= $table ?></code>
+                were found in more than one schema.
+
+                This one is <code><?= "$schema.$table" ?></code>.
+            </div>
 <?php
         }
 ?>
         </div>
 <?php
-        }
+    }
 
     { # body content
         if ($table) {
