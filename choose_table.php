@@ -1,5 +1,7 @@
 <?php
-    $tables2list = array('example_table1','example_table2');
+    $tables2list = array(
+        #'example_table1','example_table2'
+    );
 ?>
 <ul>
 <?php
