@@ -428,11 +428,17 @@ form#mainForm label {
 ?>
                 table
             </h1>
+<?php
+        if ($table) {
+?>
             <a href="/db_viewer/db_viewer.php?sql=select * from <?= $table ?>"
                target="_blank"
             >
                 view all
             </a>
+<?php
+        }
+?>
         </div>
 <?php
         }
