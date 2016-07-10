@@ -358,6 +358,45 @@ form#mainForm label {
         //selectTableInput.setSelectionRange(0, this.value.length);
     }
 
+
+    { // durationTimer - used for `duration` field
+        var durationTimer = {}
+
+        function startTimer() {
+            durationTimer.t0 = new Date();
+            return durationTimer.t0;
+        }
+
+        function stopTimer() {
+            if ('t0' in durationTimer) {
+                durationTimer.t1 = new Date();
+                durationTimer.dur_ms = durationTimer.t1 - durationTimer.t0;
+                durationTimer.dur_min = durationTimer.dur_ms / 1000 / 60;
+                durationTimer.duration = durationTimer.dur_min.toString() + ' minutes';
+                return durationTimer.duration;
+            }
+            else {
+                console.log("Can't stopTimer - haven't started one!");
+            }
+        }
+
+        function setDuration() {
+            var duration = stopTimer();
+
+            // get duration input
+            var elems = document.getElementsByName('duration');
+            if (elems.length > 0) {
+                if (elems.length > 1) {
+                    console.log("Warning - more than one elem with name 'duration'");
+                }
+                var duration_input = elems[0];
+                duration_input.value = duration;
+            }
+            else {
+                console.log("No duration <input> to fill");
+            }
+        }
+    }
 }
 
         </script>
