@@ -7,6 +7,7 @@
 
     { # default values
         $fields2omit_global = array();
+        $multipleTablesFoundInDifferentSchemas = false;
     }
 
     { # custom config
