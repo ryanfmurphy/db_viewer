@@ -29,6 +29,9 @@
                             where table_name='$table'
                                 and table_schema in ($schemas_val_list)
                         ");
+                        if (count($fieldsRows) == 0) {
+                            die("Table $table doesn't exist");
+                        }
                     }
 
                     { # group by schema
