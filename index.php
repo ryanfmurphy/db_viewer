@@ -119,7 +119,16 @@
             >
                 <?= $name ?> 
             </label>
-            <<?= $inputTag ?> name="<?= $name ?>"><?= "</$inputTag>" ?> 
+            <<?= $inputTag ?>
+                name="<?= $name ?>"
+            ><?= "</$inputTag>" ?> 
+<?php
+                if ($name == 'duration') {
+?>
+            <span id="durationTimer" onclick="startTimer()">⧖</span>
+<?php
+                }
+?>
         </div>
 <?php
             }
@@ -236,6 +245,10 @@ form#mainForm label {
 
 #addNewField {
     font-size: 150%;
+    cursor: pointer;
+}
+
+#durationTimer {
     cursor: pointer;
 }
 
@@ -400,10 +413,19 @@ form#mainForm label {
     }
 
 
-    { // durationTimer - used for `duration` field
+    {   // durationTimer - used for `duration` field
+        // an hourglass appears next to the duration field
+        // clicking it starts the timer
+        // clicking it again stops the timer
+        // and puts the elapsed duration into the textbox
+
         var durationTimer = {}
 
         function startTimer() {
+            var timerElem = document.getElementById('durationTimer');
+            timerElem.innerHTML = '⧗';
+            timerElem.onclick = stopTimerAndSetDuration;
+
             durationTimer.t0 = new Date();
             return durationTimer.t0;
         }
@@ -421,7 +443,11 @@ form#mainForm label {
             }
         }
 
-        function setDuration() {
+        function stopTimerAndSetDuration() {
+            var timerElem = document.getElementById('durationTimer');
+            timerElem.innerHTML = '⧖';
+            timerElem.onclick = startTimer;
+
             var duration = stopTimer();
 
             // get duration input
