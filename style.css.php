@@ -28,6 +28,7 @@ body{
 table {
     border-spacing: 0;
     border-collapse: collapse;
+    margin: 1.2rem auto 2rem;
 }
 td, th {
     padding: .3em;
