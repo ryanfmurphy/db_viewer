@@ -119,10 +119,38 @@
             >
                 <?= $name ?> 
             </label>
+<?php
+                if ($name == 'artist') {
+                    $artists = Db::sql('select name from artist');
+?>
+            <div class="select_from_options">
+                <select name="<?= $name ?>">
+                    <option>
+                        custom
+                    </option>
+<?php
+                    foreach ($artists as $artist) {
+?>
+                    <option value="<?= $artist['name'] ?>">
+                        <?= $artist['name'] ?>
+                    </option>
+<?php
+                    }
+?>
+                </select>
+                <!--<br>
+                <input name="<?= $name ?>" >-->
+            </div>
+<?php
+                }
+                else {
+?>
             <<?= $inputTag ?>
                 name="<?= $name ?>"
             ><?= "</$inputTag>" ?> 
 <?php
+                }
+
                 if ($name == 'duration') {
 ?>
             <span id="durationTimer" onclick="startTimer()">⧖</span>
@@ -135,16 +163,19 @@
         }
 
         function jsStringify($txt) {
+            // add backslashes at end of line
             $txt = str_replace("\n", "\\n\\"."\n", $txt);
+            // escape single quotes
             $txt = str_replace("'", "\\'", $txt);
+            // fill-in {{vars}}
             $txt = preg_replace(
-                        "/
-                            {{
-                                ( [A-Za-z0-9_]+ )
-                            }}
-                        /x",
-                        "'+\\1+'",
-                        $txt
+                       "/
+                           {{
+                               ( [A-Za-z0-9_]+ )
+                           }}
+                       /x",
+                       "'+\\1+'",
+                       $txt
                    );
             return "'$txt'";
         }
@@ -252,6 +283,10 @@ form#mainForm label {
     cursor: pointer;
 }
 
+.select_from_options {
+    display: inline-block;
+}
+
         </style>
 
         <script>
@@ -264,7 +299,7 @@ form#mainForm label {
         { // fetch all formInputs from document
             var inputs = form.getElementsByTagName('input');
             var textareas = form.getElementsByTagName('textarea');
-            var selects = form.getElementsByTagName('selects');
+            var selects = form.getElementsByTagName('select');
         }
 
         { // build up all formInputs in an array
@@ -354,22 +389,30 @@ form#mainForm label {
         }
     }
 
+    // add the new form field html
+    // requires the funny container trick
+    function createElemFromHtml(html) {
+        var tempContainer = document.createElement('div');
+        html = html.trim();
+        tempContainer.innerHTML = html;
+        var newElem = tempContainer.firstChild;
+        return newElem;
+    }
+
     function openAddNewField(elem) { // #todo don't need elem: it's always that +
         console.log(elem);
-        var parentElem = elem.parentNode;
-        var grandParent = parentElem.parentNode;
-        console.log(parentElem);
-        console.log(grandParent);
+        var plusSignFormInputDiv = elem.parentNode;
+        var mainForm = plusSignFormInputDiv.parentNode;
+        console.log(plusSignFormInputDiv);
+        console.log(mainForm);
 
-        var tempContainer = document.createElement('div');
         var fieldName = prompt("Enter Field Name to add:");
         if (fieldName) {
-            var html = <?= echoFormFieldHtml_JsFormat('fieldName'); ?>;
-            html = html.trim();
-            tempContainer.innerHTML = html;
-            var newField = tempContainer.firstChild;
+            var newField = createElemFromHtml(
+                <?= echoFormFieldHtml_JsFormat('fieldName'); ?>
+            );
             console.log('newField', newField);
-            grandParent.insertBefore(newField, parentElem);
+            mainForm.insertBefore(newField, plusSignFormInputDiv);
         }
     }
 
