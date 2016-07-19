@@ -368,43 +368,6 @@
             }
         }
 
-        /*
-        # formal $val as HTML to put in <td>
-        public static function val_html($val) { #kill
-            $val = htmlentities($val);
-            if (self::seems_like_pg_array($val)) {
-                $vals = self::pgArray2array($val);
-                { ob_start();
-?>
-        <ul>
-<?php
-                    foreach ($vals as $val) {
-?>
-            <li><?= $val ?></li>
-<?php
-                    }
-?>
-        </ul>
-<?php
-                    return ob_get_clean();
-                }
-            }
-            elseif (self::is_url($val)) {
-                { ob_start();
-?>
-        <a href="<?= $val ?>" target="_blank">
-            <?= $val ?>
-        </a>
-<?php
-                    return ob_get_clean();
-                }
-            }
-            else {
-                return $val;
-            }
-        }
-        */
-
         # postgres-specific setup
         public static function setDbSearchPath($search_path) {
             global $db_type;

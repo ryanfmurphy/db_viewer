@@ -34,8 +34,8 @@ function showPopup(thisThing, event, popr_show, set, popr_cont) {
     var out = '\
         <div class="popr_container_' + d_m + '">\
             <div class="popr_point_' + d_m + '">\
-                <div class="popr_content">\
-                    ' + $('div[data-box-id="' + $(thisThing).attr('data-id') + '"]').html() + '\
+                <div class="popr_content">'
+                    + $('div[data-box-id="' + $(thisThing).attr('data-id') + '"]').html() + '\
                 </div>\
             </div>\
         </div>\
