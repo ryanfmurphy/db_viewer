@@ -340,58 +340,6 @@
 <?php
         }
 
-        /*
-        # convert postgres array str into php array
-        public static function pgArray2array($pgArrayStr, $itemType='text') {
-            $arrayType = $itemType.'[]';
-            $pgArrayStrQuoted = Util::quote($pgArrayStr);
-            $query = "select array_to_json($pgArrayStrQuoted::$arrayType)";
-            $rows = Util::sql($query);
-            $row = $rows[0];
-            $val = $row['array_to_json'];
-            return json_decode($val);
-        }
-
-        public static function fieldname_given_base_table($fieldname, $base_table) {
-            if ($base_table) {
-                if ($fieldname == 'name') {
-                    return $base_table;
-                }
-                elseif ($fieldname == 'id') {
-                    return $base_table.'_id';
-                }
-                elseif ($fieldname == 'iid') {
-                    return $base_table.'_iid';
-                }
-				else {
-					return $fieldname;
-				}
-            }
-            else {
-                return $fieldname;
-            }
-        }
-
-        #todo improve pg_array guess, maybe user column type
-        public static function seems_like_pg_array($val) {
-            if (is_string($val)) {
-                $len = strlen($val);
-                if ($len >= 2
-                    && $val[0] == "{"
-                    && $val[$len-1] == "}"
-                ) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-            else {
-                return false;
-            }
-        }
-        */
-
         #todo maybe move to different class?
         public static function is_url($val) {
             if (is_string($val)) {
