@@ -338,9 +338,12 @@
             }
         }
 
-        #todo improve pg_array guess, maybe user column type
+        #todo improve pg_array guess, maybe use column type
         public static function seems_like_pg_array($val) {
-            if (is_string($val)) {
+            global $db_type;
+            if ($db_type == 'pgsql'
+                && is_string($val)
+            ) {
                 $len = strlen($val);
                 if ($len >= 2
                     && $val[0] == "{"
