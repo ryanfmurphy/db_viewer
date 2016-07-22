@@ -30,13 +30,22 @@
 
             { # take base_table into account
                 if ($base_table) {
-                    $fieldname = DbUtil::fieldname_given_base_table($fieldname, $base_table);
+                    $fieldname = DbUtil::fieldname_given_base_table(
+                        $fieldname, $base_table
+                    );
                 }
             }
 
             { # do the query
-				do_log("  about to call tables_with_field using fieldname=$fieldname\n");
-                $results = DbUtil::tables_with_field($fieldname, $data_type, $vals);
+				do_log("
+    about to call tables_with_field
+        fieldname=$fieldname
+        data_type=$data_type
+        vals=".print_r($vals,1)."
+");
+                $results = DbUtil::tables_with_field(
+                    $fieldname, $data_type, $vals
+                );
                 die(json_encode($results));
             }
         }

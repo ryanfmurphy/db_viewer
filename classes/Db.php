@@ -15,17 +15,22 @@ class Db {
 
     # (cached) connection to db
     public static function conn() {
-        $db = ( isset($GLOBALS['db'])
-                   ? $GLOBALS['db']
-                   : Db::connectToDb() );
-        if (!$db) {
-            trigger_error(
-                'problem connecting to database',
-                E_USER_ERROR
-            );
+        if (self::doUtilOverride()) {
+            return Util::getDbConn();
         }
         else {
-            return $db;
+            $db = ( isset($GLOBALS['db'])
+                       ? $GLOBALS['db']
+                       : Db::connectToDb() );
+            if (!$db) {
+                trigger_error(
+                    'problem connecting to database',
+                    E_USER_ERROR
+                );
+            }
+            else {
+                return $db;
+            }
         }
     }
 
@@ -78,22 +83,43 @@ $msg . "
         #todo this is just postgres, return null for mysql?
         return $table.'_'.$field.'_seq';
     }
-    
-    public static function sql($query) {
-        $db = Db::conn();
-        $result = $db->query($query);
-        if (is_a($result, 'PDOStatement')) {
-            return $result->fetchAll(PDO::FETCH_ASSOC);
+
+    public static function doUtilOverride() {
+        if (class_exists('Util')
+            && method_exists('Util', 'sql')
+        ) {
+            return true;
         }
         else {
-            return $result;
+            return false;
+        }
+    }
+    
+    public static function sql($query) {
+        if (self::doUtilOverride()) {
+            return Util::sql($query);
+        }
+        else {
+            $db = Db::conn();
+            $result = $db->query($query);
+            if (is_a($result, 'PDOStatement')) {
+                return $result->fetchAll(PDO::FETCH_ASSOC);
+            }
+            else {
+                return $result;
+            }
         }
     }
     
     public static function quote($val) {
-        $db = Db::conn();
-        #todo #fixme might not work for nulls?
-        return $db->quote($val);
+        if (self::doUtilOverride()) {
+            return "'" . Util::quote($val) . "'";
+        }
+        else {
+            $db = Db::conn();
+            #todo #fixme might not work for nulls?
+            return $db->quote($val);
+        }
     }
 }
 
