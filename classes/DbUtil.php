@@ -404,10 +404,80 @@
 
         public static function infer_table_from_query($query) {
             #todo improve inference - fix corner cases
-            if (preg_match("/\bfrom ((?:\w|\.)+)\b/i", $query, $matches)) {
+            if (preg_match(
+                    "/ \b from \s+ ((?:\w|\.)+) \b /ix",
+                    $query, $matches)
+            ) {
                 $table = $matches[1];
                 return $table;
             }
+        }
+
+        public static function infer_limit_info_from_query($query) {
+            #todo improve inference - fix corner cases
+            $regex = "/ ^
+                        (?P<query_wo_limit>.*)
+                        \b
+                            limit
+                            \s+ (?P<limit>\d+)
+                            (?:
+                                \s+ offset
+                                \s+ (?P<offset>\d+)
+                            ) ?
+                        \b
+                        $ /ix";
+
+            $result = array(
+                'limit' => null,
+                'offset' => null,
+                'query_wo_limit' => null,
+            );
+
+            if (preg_match($regex, $query, $matches)) {
+                if (isset($matches['query_wo_limit'])) {
+                    $result['query_wo_limit'] = $matches['query_wo_limit'];
+                }
+                if (isset($matches['limit'])) {
+                    $result['limit'] = $matches['limit'];
+                }
+                if (isset($matches['offset'])) {
+                    $result['offset'] = $matches['offset'];
+                }
+            }
+            else {
+                do_log("
+infer_limit_from_query: query didn't match regex.
+    query = $$$query$$
+    regex = '$regex'
+");
+            }
+            return $result;
+        }
+
+        public static function link_to_prev_page($limit_info) {
+            $limit = $limit_info['limit'];
+            return self::link_to_query_w_limit(
+                $limit_info['query_wo_limit'],
+                $limit,
+                $limit_info['offset'] - $limit
+            );
+        }
+        public static function link_to_next_page($limit_info) {
+            $limit = $limit_info['limit'];
+            return self::link_to_query_w_limit(
+                $limit_info['query_wo_limit'],
+                $limit,
+                $limit_info['offset'] + $limit
+            );
+        }
+        public static function link_to_query_w_limit($query, $limit=null, $offset=null) {
+            $maybeLimit = ($limit !== null
+                                ? " limit $limit"
+                                : "");
+            $maybeOffset = ($offset !== null
+                                ? " offset $offset"
+                                : "");
+            return "?sql=$query" . $maybeLimit . $maybeOffset;
         }
 
     }

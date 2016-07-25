@@ -113,3 +113,10 @@ a {
     }
 ?>
 
+
+#page_links {
+    margin: auto 2em;
+}
+#num_per_page {
+    font-size: 80%;
+}

@@ -87,6 +87,7 @@
             }
 
             $inferred_table = DbUtil::infer_table_from_query($sql);
+            $limit_info = DbUtil::infer_limit_info_from_query($sql);
         }
 
         { # render the header row html <th>'s
