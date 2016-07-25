@@ -416,15 +416,18 @@
         public static function infer_limit_info_from_query($query) {
             #todo improve inference - fix corner cases
             $regex = "/ ^
+
                         (?P<query_wo_limit>.*)
-                        \b
-                            limit
-                            \s+ (?P<limit>\d+)
-                            (?:
-                                \s+ offset
-                                \s+ (?P<offset>\d+)
-                            ) ?
-                        \b
+
+                        \s+
+
+                        limit
+                        \s+ (?P<limit>\d+)
+                        (?:
+                            \s+ offset
+                            \s+ (?P<offset>\d+)
+                        ) ?
+
                         $ /ix";
 
             $result = array(
@@ -456,20 +459,31 @@ infer_limit_from_query: query didn't match regex.
 
         public static function link_to_prev_page($limit_info) {
             $limit = $limit_info['limit'];
+            $offset = $limit_info['offset'];
+            $new_offset = $offset - $limit;
+            if ($new_offset < 0) {
+                $new_offset = 0;
+            }
             return self::link_to_query_w_limit(
                 $limit_info['query_wo_limit'],
                 $limit,
-                $limit_info['offset'] - $limit
+                $new_offset
             );
         }
         public static function link_to_next_page($limit_info) {
             $limit = $limit_info['limit'];
+            $offset = $limit_info['offset'];
+            $new_offset = $offset + $limit;
+            if ($new_offset < 0) {
+                $new_offset = 0;
+            }
             return self::link_to_query_w_limit(
                 $limit_info['query_wo_limit'],
                 $limit,
-                $limit_info['offset'] + $limit
+                $new_offset
             );
         }
+
         public static function link_to_query_w_limit($query, $limit=null, $offset=null) {
             $maybeLimit = ($limit !== null
                                 ? " limit $limit"
