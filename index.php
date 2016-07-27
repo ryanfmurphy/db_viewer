@@ -186,7 +186,7 @@
 
             // show_hide_mode toggle - #todo add ctrl-enter
             $(document).on('keypress', 'body', function(e){
-                console.log('keypress e', e);
+                //console.log('keypress e', e);
                 var focusedElem = document.activeElement;
                 if (queryBoxElem() === focusedElem) { // Ctrl-Click
                     var Enter_code = 13;
