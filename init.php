@@ -24,6 +24,7 @@
     { # vars - initial values & db_config
         $pluralize_table_names = false;
         $slow_tables = array();
+        $js_path = '/db_viewer/js';
 
         $trunk = __DIR__;
         require_once("$trunk/db_config.php");

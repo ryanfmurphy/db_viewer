@@ -88,14 +88,14 @@
             global $db_type; #todo #fixme - global scope won't work for CMP/SD - use static class variables
 
             if ($db_type == 'pgsql') {
-                $rows = Util::sql("
+                $rows = Db::sql("
                     select table_name
                     from information_schema.tables
                     where table_schema in ('public')
                 ");
             }
 			else { # probably mysql
-                $rows = Util::sql('show tables');
+                $rows = Db::sql('show tables');
             }
 
             $tables = array();
@@ -195,7 +195,7 @@
                     }
                     $sql = ob_get_clean();
                 }
-                $rows = Util::sql($sql);
+                $rows = Db::sql($sql);
 
                 $tables = array();
                 foreach ($rows as $row) {
@@ -244,7 +244,7 @@
 					#echo "sql = $sql\n";
                     #die();
 
-					$rows = Util::sql($sql);
+					$rows = Db::sql($sql);
 					#$delta0 = Util::timeSince($T0);
 					#echo "delta0 = $delta0\n";
 
@@ -306,7 +306,7 @@
             global $db_type;
             if ($db_type == 'pgsql') {
                 if ($search_path) {
-                    Util::sql("set search_path to $search_path");
+                    Db::sql("set search_path to $search_path");
                 }
             }
         }
