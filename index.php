@@ -406,7 +406,7 @@ form#mainForm label {
         form.action = url;
     }
 
-    function submitForm(url) {
+    function submitForm(url, event) {
         var form = document.getElementById('mainForm');
 
         { // do ajax
@@ -416,7 +416,18 @@ form#mainForm label {
                     if (xhttp.readyState == 4
                         && xhttp.status == 200
                     ) {
-                        alert(xhttp.responseText);
+                        result = JSON.parse(xhttp.responseText);
+                        if (event.altKey) {
+                            alert('SQL Query Logged to Console');
+                            console.log(result.sql);
+                        }
+                        else if (result) {
+                            alert('Thanks! Row Saved');
+                        }
+                        else {
+                            alert('Failed... Try alt-clicking to see the Query');
+                        }
+                        console.log(result);
                     }
                 };
             }
@@ -426,9 +437,14 @@ form#mainForm label {
                     "Content-type",
                     "application/x-www-form-urlencoded"
                 );
-                var postData = serializeForm(
-                    getFormInputs(form)
-                );
+
+                var data = getFormInputs(form);
+                var postData = serializeForm(data);
+
+                // just show the query on altKey
+                if (event.altKey) {
+                    postData += "&show_sql_query=1"
+                }
             }
             xhttp.send(postData);
         }
@@ -647,16 +663,16 @@ form#mainForm label {
 ?>
 
             <div id="submits">
-                <input onclick="submitForm('/orm_router/create_<?= $table ?>'); return false"
+                <input onclick="submitForm('/orm_router/create_<?= $table ?>', event); return false"
                     value="Create" type="submit"
                 />
-                <input onclick="submitForm('/orm_router/update_<?= $table ?>'); return false"
+                <input onclick="submitForm('/orm_router/update_<?= $table ?>', event); return false"
                     value="Update" type="submit"
                 />
-                <input onclick="setFormAction('/orm_router/view_<?= $table ?>')"
+                <input onclick="setFormAction('/orm_router/view_<?= $table ?>', event)"
                     value="View" type="submit"
                 />
-                <input onclick="submitForm('/orm_router/delete_<?= $table ?>'); return false"
+                <input onclick="submitForm('/orm_router/delete_<?= $table ?>', event); return false"
                     value="Delete" type="submit"
                 />
             </div>
