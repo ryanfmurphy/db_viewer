@@ -1,5 +1,5 @@
 <?php
-{
+{ # pre-HTML
     { # init
         { # includes & misc
             $trunk = __DIR__;
@@ -259,7 +259,9 @@
     <head>
         <title>Dash</title>
         <style type="text/css">
-
+<?php
+    { # css style
+?>
 body {
     font-family: sans-serif;
     margin: 3em;
@@ -333,6 +335,9 @@ form#mainForm label {
 }
 
         </style>
+<?php
+    }
+?>
 
         <script>
 
