@@ -48,26 +48,23 @@
         require_once("$trunk/classes/DbViewer.php");
     }
 
-	{ # vars adjustments now that we've included that stuff
+	{ # vars adjustments after includes
+
         { # search_path
             if (!isset($search_path)) {
-                if ($db_type == 'pgsql') {
-                    $search_path = 'public';
-                }
-                else {
-                    $search_path = $db_name;
-                }
+                $search_path =
+                    ($db_type == 'pgsql'
+                        ? $search_path = 'public'
+                        : $search_path = $db_name
+                    );
             }
 
-            { # get as array
-                #$search_path_no_spaces = str_replace($search_path, ' ', '');
-                #$schemas_in_path = explode(',', $search_path_no_spaces);
-                $schemas_in_path = DbUtil::schemas_in_path($search_path);
-            }
+            $schemas_in_path
+                = DbUtil::schemas_in_path(
+                      $search_path
+                  );
 
-            { # more settings / tweaks
-                DbUtil::setDbSearchPath($search_path);
-            }
+            DbUtil::setDbSearchPath($search_path);
         }
 	}
 
