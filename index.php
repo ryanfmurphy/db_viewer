@@ -89,28 +89,6 @@
             $inferred_table = DbUtil::infer_table_from_query($sql);
             $limit_info = DbUtil::infer_limit_info_from_query($sql);
         }
-
-        { # render the header row html <th>'s
-            # factored into a function because
-            # the <th>'s are repeated every so many rows
-            # so it's easier to see what column you're on
-            function headerRow(&$rows, $rowN) {
-                $firstRow = current($rows);
-?>
-	<tr data-row="<?= $rowN ?>">
-<?php
-                foreach ($firstRow as $fieldName => $val) {
-?>
-		<th class="popr" data-id="1">
-			<?= $fieldName ?>
-		</th>
-<?php
-                }
-?>
-	</tr>
-<?php
-            }
-        }
     }
 
     { # html
