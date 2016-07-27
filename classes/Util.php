@@ -2,16 +2,20 @@
     #todo use Db class instead for db stuff
     class Util {
 
-        public static function sql($query, $returnType='array') {
+        /*
+        public static function sql($query, $returnType='array', $tempMain=false) {
             global $db;
+            #if ($tempMain) { die('tempMain'); }
             $result = $db->query($query);
             if (is_a($result, 'PDOStatement')) {
-                return $result->fetchAll(PDO::FETCH_ASSOC);
+                $results = $result->fetchAll(PDO::FETCH_ASSOC);
+                return $results;
             }
             else {
                 return $result;
             }
         }
+        */
 
         public static function endsWith($needle,$haystack) {
             $len = strlen($needle);
