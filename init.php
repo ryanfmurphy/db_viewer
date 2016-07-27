@@ -8,6 +8,9 @@
         $fields2omit_global = array();
         $multipleTablesFoundInDifferentSchemas = false;
         $search_path = null;
+        if (!isset($edit)) {
+            $edit = null;
+        }
     }
 
     { # custom config

@@ -8,16 +8,16 @@
         }
 
         { # edit?
-            if (isset($edit) && $edit) {
+            if ($edit) {
                 if (isset($_GET['primary_key'])) {
                     $primary_key_field = 'id'; #todo
                     $primary_key = $_GET['primary_key'];
-                    $primary_key = Db::sqlLiteral($primary_key);
+                    $primary_key__esc = Db::sqlLiteral($primary_key); # escape as sql literal
 
                     $table = $_GET['table'];
                     $sql = "
                         select * from $table
-                        where $primary_key_field = $primary_key
+                        where $primary_key_field = $primary_key__esc
                     ";
                     $all1rows = Db::sql($sql);
 
@@ -414,7 +414,7 @@ form#mainForm label {
         form.action = url;
     }
 
-    function submitForm(url, event) {
+    function submitForm(url, event, action) {
         var form = document.getElementById('mainForm');
 
         { // do ajax
@@ -427,6 +427,7 @@ form#mainForm label {
                         result = JSON.parse(xhttp.responseText);
                         if (event.altKey) {
                             alert('SQL Query Logged to Console');
+                            result = JSON.parse(xhttp.responseText);
                             console.log(result.sql);
                         }
                         else if (result) {
@@ -449,9 +450,23 @@ form#mainForm label {
                 var data = getFormInputs(form);
                 var postData = serializeForm(data);
 
-                // just show the query on altKey
-                if (event.altKey) {
-                    postData += "&show_sql_query=1"
+                {   // further additions to data
+                    // #todo be more civilized: join up an array
+
+                    // just show the query on altKey
+                    if (event.altKey) {
+                        postData += "&show_sql_query=1";
+                    }
+
+<?php
+                    $primary_key__esc = str_replace('"', '\"', $primary_key); # escape for js
+?>
+                    // update needs a where clause
+                    if (action == 'update') {
+                        console.log('update');
+                        postData += "&" + "where_clauses[<?= $primary_key_field ?>]"
+                                                    + "=" + "<?= $primary_key__esc ?>";
+                    }
                 }
             }
             xhttp.send(postData);
@@ -499,8 +514,10 @@ form#mainForm label {
     }
 
     function selectTableOnEnter(keyEvent) {
-        var ENTER = 13;
-        if (keyEvent.which == ENTER) {
+        var ENTER = 13, UNIX_ENTER = 10;
+        if (keyEvent.which == ENTER
+            || keyEvent.which == UNIX_ENTER
+        ) {
             selectTable();
         }
     }
@@ -671,16 +688,16 @@ form#mainForm label {
 ?>
 
             <div id="submits">
-                <input onclick="submitForm('/orm_router/create_<?= $table ?>', event); return false"
+                <input onclick="submitForm('/orm_router/create_<?= $table ?>', event, 'create'); return false"
                     value="Create" type="submit"
                 />
-                <input onclick="submitForm('/orm_router/update_<?= $table ?>', event); return false"
+                <input onclick="submitForm('/orm_router/update_<?= $table ?>', event, 'update'); return false"
                     value="Update" type="submit"
                 />
                 <input onclick="setFormAction('/orm_router/view_<?= $table ?>', event)"
                     value="View" type="submit"
                 />
-                <input onclick="submitForm('/orm_router/delete_<?= $table ?>', event); return false"
+                <input onclick="submitForm('/orm_router/delete_<?= $table ?>', event, 'delete'); return false"
                     value="Delete" type="submit"
                 />
             </div>
