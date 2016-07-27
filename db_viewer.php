@@ -212,8 +212,10 @@
                 var focusedElem = document.activeElement;
                 if (queryBoxElem() === focusedElem) { // Ctrl-Click
                     var Enter_code = 13;
+                    var UNIX_Enter_code = 10;
                     if (e.ctrlKey
-                        && e.which == Enter_code
+                        && (e.which == Enter_code
+                            || e.which == UNIX_Enter_code)
                     ) {
                         $('#query_form').submit();
                     }
