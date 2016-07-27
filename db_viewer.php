@@ -164,7 +164,7 @@
 
                 #todo infinite scroll using OFFSET and LIMIT
                 if ($sql) {
-                    $rows = Util::sql($sql,'array',true);
+                    $rows = Db::sql($sql); //,'array',true);
 
                     include('html/results_table.php'); # html
                     include('js/inline_js_2.php'); # js

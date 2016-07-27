@@ -41,7 +41,7 @@
             ";
             #die($query);
             do_log("        query = $query\n");
-            $rows = Util::sql($query, 'array');
+            $rows = Db::sql($query, 'array');
 
             do_log("        got array of rows?\n");
             if (is_array($rows)) {
