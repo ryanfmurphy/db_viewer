@@ -32,7 +32,7 @@
 <?php
                             if ($schemas_val_list) {
 ?>
-                                and table_schema in ($schemas_val_list)
+                                and table_schema in (<?= $schemas_val_list ?>)
 <?php
                             }
                             $get_columns_sql = ob_get_clean();
