@@ -628,7 +628,7 @@ form#mainForm label {
 <?php
         if ($table) {
 ?>
-                <a href="/db_viewer/db_viewer.php?sql=select * from <?= $table ?>"
+                <a href="<?= $db_viewer_path ?>?sql=select * from <?= $table ?> limit 100"
                    target="_blank"
                 >
                     view all
@@ -688,16 +688,16 @@ form#mainForm label {
 ?>
 
             <div id="submits">
-                <input onclick="submitForm('/orm_router/create_<?= $table ?>', event, 'create'); return false"
+                <input onclick="submitForm('<?= $orm_router_path ?>/create_<?= $table ?>', event, 'create'); return false"
                     value="Create" type="submit"
                 />
-                <input onclick="submitForm('/orm_router/update_<?= $table ?>', event, 'update'); return false"
+                <input onclick="submitForm('<?= $orm_router_path ?>/update_<?= $table ?>', event, 'update'); return false"
                     value="Update" type="submit"
                 />
-                <input onclick="setFormAction('/orm_router/view_<?= $table ?>', event)"
+                <input onclick="setFormAction('<?= $orm_router_path ?>/view_<?= $table ?>', event)"
                     value="View" type="submit"
                 />
-                <input onclick="submitForm('/orm_router/delete_<?= $table ?>', event, 'delete'); return false"
+                <input onclick="submitForm('<?= $orm_router_path ?>/delete_<?= $table ?>', event, 'delete'); return false"
                     value="Delete" type="submit"
                 />
             </div>
