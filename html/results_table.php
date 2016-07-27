@@ -7,6 +7,7 @@
                 $firstRow = current($rows);
 ?>
 	<tr data-row="<?= $rowN ?>">
+        <th></th>
 <?php
                 foreach ($firstRow as $fieldName => $val) {
 ?>
@@ -39,19 +40,39 @@
                             headerRow($rows, $rowN);
                             $rowN++;
                         }
+
+                        { # create table row
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php
-                        foreach ($row as $fieldname => $val) {
+                            {
+                                # edit-row link
+                                $primary_key_field = 'id';
+                                $primary_key = $row[$primary_key_field];
+?>
+        <td>
+            <a  href="/dash/edit.php?table=<?= $inferred_table ?>&primary_key=<?= $primary_key ?>"
+                target="_blank"
+            >
+                edit
+            </a>
+        </td>
+<?php
+                            }
+
+                            { # loop thru fields and make <td>s
+                                foreach ($row as $fieldname => $val) {
 ?>
         <td>
             <?= DbViewer::val_html($val, $fieldname) ?>
         </td>
 <?php
-                        }
+                                }
+                            }
 ?>
     </tr>
 <?php
+                        }
                         $rowN++;
                     }
 ?>
@@ -60,7 +81,7 @@
                 }
                 else {
 ?>
-            0 Rows
+                    0 Rows
 <?php
                 }
             }
