@@ -6,6 +6,33 @@
             include("$trunk/init.php");
             $requestVars = array_merge($_GET, $_POST);
         }
+
+        { # edit?
+            if (isset($edit) && $edit) {
+                if (isset($_GET['primary_key'])) {
+                    $primary_key_field = 'id'; #todo
+                    $primary_key = $_GET['primary_key'];
+                    $primary_key = Db::sqlLiteral($primary_key);
+                    $table = $_GET['table'];
+                    $all1rows = Db::sql("
+                        select * from $table
+                            where $primary_key_field = $primary_key
+                    ");
+                    if (count($all1rows)) {
+                        $row2edit = $all1rows[0];
+                    }
+                    else {
+                        die("couldn't find/edit the row with $primary_key_field = $primary_key");
+                    }
+                }
+                else {
+                    die("can't edit with no primary_key");
+                }
+            }
+            else {
+                $row2edit = null;
+            }
+        }
     }
 
     { # prep logic - get fields from db
@@ -113,7 +140,7 @@
     }
 
     { # PHP functions
-        function echoFormFieldHtml($name) {
+        function echoFormFieldHtml($name, $row2edit=null) {
             { # vars
                 $inputTag = (( $name == "txt"
                                || $name == "src"
@@ -158,6 +185,13 @@
 ?>
             <<?= $inputTag ?>
                 name="<?= $name ?>"
+<?php
+                    if ($row2edit) {
+?>
+                value="<?= $row2edit[$name] ?>"
+<?php
+                    }
+?>
             ><?= "</$inputTag>" ?> 
 <?php
                 }
@@ -191,9 +225,9 @@
             return "'$txt'";
         }
 
-        function echoFormFieldHtml_JsFormat($name) {
+        function echoFormFieldHtml_JsFormat($name, $row2edit=null) {
             { ob_start();
-                echoFormFieldHtml("{{".$name."}}");
+                echoFormFieldHtml("{{".$name."}}", $row2edit);
                 $txt = ob_get_clean();
             }
             echo jsStringify($txt);
@@ -593,7 +627,7 @@ form#mainForm label {
                         ) {
                             continue;
                         }
-                        echoFormFieldHtml($name);
+                        echoFormFieldHtml($name, $row2edit);
                     }
                 }
 
