@@ -273,7 +273,7 @@
         public static function val_list_str($vals) {
             $val_reps = array_map(
                 function($val) {
-					return Db::quote($val);
+					return Db::sqlLiteral($val);
 					#return "'$val'";
                 },
                 $vals
@@ -454,9 +454,12 @@ infer_limit_from_query: query didn't match regex.
     regex = '$regex'
 ");
             }
+            #die(print_r($result,1));
             return $result;
         }
 
+        #todo move these to DbViewer class
+        # while factoring some key sql-building part to leave here in DbUtil
         public static function link_to_prev_page($limit_info) {
             $limit = $limit_info['limit'];
             $offset = $limit_info['offset'];
@@ -485,13 +488,15 @@ infer_limit_from_query: query didn't match regex.
         }
 
         public static function link_to_query_w_limit($query, $limit=null, $offset=null) {
+            global $db_type;
             $maybeLimit = ($limit !== null
                                 ? " limit $limit"
                                 : "");
             $maybeOffset = ($offset !== null
                                 ? " offset $offset"
                                 : "");
-            return "?sql=$query" . $maybeLimit . $maybeOffset;
+            return "?sql=$query" . $maybeLimit . $maybeOffset
+                   . "&db_type=$db_type";
         }
 
     }
