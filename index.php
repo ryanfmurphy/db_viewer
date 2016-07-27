@@ -22,13 +22,22 @@
             if ($table) {
                 { # get fields of table from db, #todo factor into fn
                     { # do query
-                        $fieldsRows = Db::sql("
+                        { ob_start();
+?>
                             select
-                                table_schema, table_name, column_name
+                                table_schema, table_name,
+                                column_name
                             from information_schema.columns
-                            where table_name='$table'
+                            where table_name='<?= $table ?>'
+<?php
+                            if ($schemas_val_list) {
+?>
                                 and table_schema in ($schemas_val_list)
-                        ");
+<?php
+                            }
+                            $get_columns_sql = ob_get_clean();
+                        }
+                        $fieldsRows = Db::sql($get_columns_sql);
                         if (count($fieldsRows) == 0) {
                             die("Table $table doesn't exist");
                         }
@@ -43,15 +52,17 @@
                     }
 
                     { # choose 1st schema that applies
-                        $schema = null;
-                        foreach ($schemas_in_path as $schema_in_path) {
-                            if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                                $schema = $schema_in_path;
-                                break;
+                        if ($schemas_in_path) {
+                            $schema = null;
+                            foreach ($schemas_in_path as $schema_in_path) {
+                                if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                    $schema = $schema_in_path;
+                                    break;
+                                }
                             }
-                        }
-                        if ($schema === null) {
-                            die("Whoops!  Couldn't select a DB schema for table $table");
+                            if ($schema === null) {
+                                die("Whoops!  Couldn't select a DB schema for table $table");
+                            }
                         }
                     }
 

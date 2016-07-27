@@ -261,14 +261,18 @@
         }
 
         public static function val_list_str($vals) {
-            $val_reps = array_map(
-                function($val) {
-					return Db::quote($val);
-					#return "'$val'";
-                },
-                $vals
-            );
-            return implode(',', $val_reps);
+            if ($vals === null) {
+                return null;
+            }
+            else {
+                $val_reps = array_map(
+                    function($val) {
+                        return Db::quote($val);
+                    },
+                    $vals
+                );
+                return implode(',', $val_reps);
+            }
         }
 
         public static function keyRowsByField($rows, $keyField) {
@@ -415,9 +419,14 @@
 
         # get comma-sep search_path as array of schemas
         public static function schemas_in_path($search_path) {
-            $search_path_no_spaces = str_replace(' ', '', $search_path);
-            $schemas_in_path = explode(',', $search_path_no_spaces);
-            return $schemas_in_path;
+            if ($search_path == null) {
+                return null;
+            }
+            else {
+                $search_path_no_spaces = str_replace(' ', '', $search_path);
+                $schemas_in_path = explode(',', $search_path_no_spaces);
+                return $schemas_in_path;
+            }
         }
 
 
