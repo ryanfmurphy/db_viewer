@@ -602,16 +602,16 @@ form#mainForm label {
 ?>
 
             <div id="submits">
-                <input onclick="submitForm('/ormrouter/create_<?= $table ?>'); return false"
+                <input onclick="submitForm('/orm_router/create_<?= $table ?>'); return false"
                     value="Create" type="submit"
                 />
-                <input onclick="submitForm('/ormrouter/update_<?= $table ?>'); return false"
+                <input onclick="submitForm('/orm_router/update_<?= $table ?>'); return false"
                     value="Update" type="submit"
                 />
-                <input onclick="setFormAction('/ormrouter/view_<?= $table ?>')"
+                <input onclick="setFormAction('/orm_router/view_<?= $table ?>')"
                     value="View" type="submit"
                 />
-                <input onclick="submitForm('/ormrouter/delete_<?= $table ?>'); return false"
+                <input onclick="submitForm('/orm_router/delete_<?= $table ?>'); return false"
                     value="Delete" type="submit"
                 />
             </div>
