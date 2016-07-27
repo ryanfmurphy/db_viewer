@@ -8,6 +8,9 @@
         }
 
         { # edit?
+            $edit = (isset($requestVars['edit'])
+                    && $requestVars['edit']);
+
             if ($edit) {
                 if (isset($_GET['primary_key'])) {
                     $primary_key_field = 'id'; #todo
