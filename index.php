@@ -13,11 +13,14 @@
                     $primary_key_field = 'id'; #todo
                     $primary_key = $_GET['primary_key'];
                     $primary_key = Db::sqlLiteral($primary_key);
+
                     $table = $_GET['table'];
-                    $all1rows = Db::sql("
+                    $sql = "
                         select * from $table
-                            where $primary_key_field = $primary_key
-                    ");
+                        where $primary_key_field = $primary_key
+                    ";
+                    $all1rows = Db::sql($sql);
+
                     if (count($all1rows)) {
                         $row2edit = $all1rows[0];
                     }

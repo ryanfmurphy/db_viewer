@@ -20,3 +20,23 @@
         include("$trunk/classes/DbUtil.php");
     }
 
+	{ # vars adjustments after includes
+
+        { # search_path
+            if (!isset($search_path)) {
+                $search_path =
+                    ($db_type == 'pgsql'
+                        ? $search_path = 'public'
+                        : $search_path = $db_name
+                    );
+            }
+
+            $schemas_in_path
+                = DbUtil::schemas_in_path(
+                      $search_path
+                  );
+
+            DbUtil::setDbSearchPath($search_path);
+        }
+	}
+
