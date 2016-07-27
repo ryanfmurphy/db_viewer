@@ -13,11 +13,18 @@
 
             if ($edit) {
                 if (isset($_GET['primary_key'])) {
-                    $primary_key_field = 'id'; #todo
+
+                    $table = $_GET['table'];
+
+                    if ($id_mode == 'id_only') { #todo factor, we might have a function already
+                        $primary_key_field = 'id';
+                    }
+                    else {
+                        $primary_key_field = $table.'_id';
+                    }
                     $primary_key = $_GET['primary_key'];
                     $primary_key__esc = Db::sqlLiteral($primary_key); # escape as sql literal
 
-                    $table = $_GET['table'];
                     $sql = "
                         select * from $table
                         where $primary_key_field = $primary_key__esc
