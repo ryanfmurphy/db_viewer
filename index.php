@@ -262,6 +262,22 @@
             }
             echo jsStringify($txt);
         }
+
+        function doSkipField($fieldName, $fields2omit, $fields2keep, $only_include_these_fields=null) {
+            if (in_array($fieldName, $fields2omit)
+                && !in_array($fieldName, $fields2keep)
+            ) {
+                return true;
+            }
+
+            if (is_array($only_include_these_fields)
+                && !in_array($fieldName, $only_include_these_fields)
+            ) {
+                return true;
+            }
+
+            return false;
+        }
     }
 
 }
@@ -469,6 +485,7 @@ form#mainForm label {
                     }
 
 <?php
+            if ($edit) {
                     $primary_key__esc = str_replace('"', '\"', $primary_key); # escape for js
 ?>
                     // update needs a where clause
@@ -477,6 +494,9 @@ form#mainForm label {
                         postData += "&" + "where_clauses[<?= $primary_key_field ?>]"
                                                     + "=" + "<?= $primary_key__esc ?>";
                     }
+<?php
+            }
+?>
                 }
             }
             xhttp.send(postData);
@@ -673,9 +693,7 @@ form#mainForm label {
 <?php
                 { # create form fields
                     foreach ($fields as $name) {
-                        if (in_array($name, $fields2omit)
-                            && !in_array($name, $fields2keep)
-                        ) {
+                        if (doSkipField($name, $fields2omit, $fields2keep, $only_include_these_fields)) {
                             continue;
                         }
                         echoFormFieldHtml($name, $row2edit);

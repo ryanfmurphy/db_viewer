@@ -8,6 +8,8 @@
         $fields2omit_global = array();
         $multipleTablesFoundInDifferentSchemas = false;
         $search_path = null;
+        $only_include_these_fields = null;
+
         if (!isset($edit)) {
             $edit = null;
         }
