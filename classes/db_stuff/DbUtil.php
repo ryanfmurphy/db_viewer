@@ -122,7 +122,7 @@
 					#     if there's a full field_name match, use that
 					#     otherwise try this loop
 
-                    $possible_tables = DbViewer::sqlTables();
+                    $possible_tables = self::sqlTables();
 
                     if (!isset($possible_tables[$tablename_root])) {
                         # loop looking for table ending in $table
@@ -141,7 +141,7 @@
                 }
 
                 if ($pluralize_table_names) {
-                    $tablename_root = DbViewer::pluralize($tablename_root);
+                    $tablename_root = self::pluralize($tablename_root);
                 }
 
                 $tablename_root = self::full_tablename($tablename_root);
@@ -161,19 +161,25 @@
 
         # get all tables with that fieldname, optionally filtering by vals
         public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
+
 			$args = print_r(get_defined_vars(),1);
-			do_log("top of tables_with_field, get_defined_vars()=$args");
-			do_log("  fieldname=$fieldname, data_type=$data_type, vals=".print_r($vals,1));
+			do_log("top of tables_with_field, get_defined_vars()=$args\n");
+			do_log("  fieldname=$fieldname, data_type=$data_type, vals=".print_r($vals,1)."\n");
 
             $has_vals = (is_array($vals) && count($vals));
 
             # get only the tables that actually would have rows for those vals
+			do_log("  has_vals?\n");
             if ($has_vals) {
-                $rows = self::rows_with_field_vals($fieldname, $vals, null, $data_type);
+                do_log("    yes\n");
+                $rows = self::rows_with_field_vals(
+                    $fieldname, $vals, null, $data_type
+                );
                 return array_keys($rows);
             }
             # get all tables with the fieldname, regardless of whether rows will actually be returned
             else {
+                do_log("    no\n");
 
                 {   ob_start();
 ?>
@@ -188,17 +194,21 @@
                     }
                     $sql = ob_get_clean();
                 }
+                do_log("$sql\n");
                 $rows = Db::sql($sql);
 
+                do_log("about to loop thru rows\n");
                 $tables = array();
                 foreach ($rows as $row) {
+                    do_log("  row = ".print_r($row,1)."\n");
                     $schema = $row['table_schema'];
                     $table_name = $row['table_name'];
                     if ($schema != 'public') {
                         $table_name = "$schema.$table_name";
                     }
                     $tables[] = $table_name;
-                }
+                }  
+                do_log("  done looping, returning from tables_with_field\n");
 
                 return $tables;
 
@@ -263,7 +273,7 @@
         public static function val_list_str($vals) {
             $val_reps = array_map(
                 function($val) {
-					return Db::quote($val);
+					return Db::sqlLiteral($val);
 					#return "'$val'";
                 },
                 $vals
@@ -290,7 +300,7 @@
             return $data;
         }
 
-        public static function outputDbError($db) {
+        public static function outputDbError($db) { #kill
 ?>
 <div>
     <p>
@@ -340,7 +350,10 @@
 
         #todo improve pg_array guess, maybe user column type
         public static function seems_like_pg_array($val) {
-            if (is_string($val)) {
+            global $db_type;
+            if ($db_type == 'pgsql'
+                && is_string($val)
+            ) {
                 $len = strlen($val);
                 if ($len >= 2
                     && $val[0] == "{"
@@ -369,7 +382,7 @@
         }
 
         # formal $val as HTML to put in <td>
-        public static function val_html($val) {
+        public static function val_html($val) { #kill
             $val = htmlentities($val);
             if (self::seems_like_pg_array($val)) {
                 $vals = self::pgArray2array($val);
@@ -426,10 +439,99 @@
 
         public static function infer_table_from_query($query) {
             #todo improve inference - fix corner cases
-            if (preg_match("/\bfrom ((?:\w|\.)+)\b/", $query, $matches)) {
+            if (preg_match(
+                    "/ \b from \s+ ((?:\w|\.)+) \b /ix",
+                    $query, $matches)
+            ) {
                 $table = $matches[1];
                 return $table;
             }
+        }
+
+        public static function infer_limit_info_from_query($query) {
+            #todo improve inference - fix corner cases
+            $regex = "/ ^
+
+                        (?P<query_wo_limit>.*)
+
+                        \s+
+
+                        limit
+                        \s+ (?P<limit>\d+)
+                        (?:
+                            \s+ offset
+                            \s+ (?P<offset>\d+)
+                        ) ?
+
+                        $ /ix";
+
+            $result = array(
+                'limit' => null,
+                'offset' => null,
+                'query_wo_limit' => null,
+            );
+
+            if (preg_match($regex, $query, $matches)) {
+                if (isset($matches['query_wo_limit'])) {
+                    $result['query_wo_limit'] = $matches['query_wo_limit'];
+                }
+                if (isset($matches['limit'])) {
+                    $result['limit'] = $matches['limit'];
+                }
+                if (isset($matches['offset'])) {
+                    $result['offset'] = $matches['offset'];
+                }
+            }
+            else {
+                do_log("
+infer_limit_from_query: query didn't match regex.
+    query = $$$query$$
+    regex = '$regex'
+");
+            }
+            #die(print_r($result,1));
+            return $result;
+        }
+
+        #todo move these to DbViewer class
+        # while factoring some key sql-building part to leave here in DbUtil
+        public static function link_to_prev_page($limit_info) {
+            $limit = $limit_info['limit'];
+            $offset = $limit_info['offset'];
+            $new_offset = $offset - $limit;
+            if ($new_offset < 0) {
+                $new_offset = 0;
+            }
+            return self::link_to_query_w_limit(
+                $limit_info['query_wo_limit'],
+                $limit,
+                $new_offset
+            );
+        }
+        public static function link_to_next_page($limit_info) {
+            $limit = $limit_info['limit'];
+            $offset = $limit_info['offset'];
+            $new_offset = $offset + $limit;
+            if ($new_offset < 0) {
+                $new_offset = 0;
+            }
+            return self::link_to_query_w_limit(
+                $limit_info['query_wo_limit'],
+                $limit,
+                $new_offset
+            );
+        }
+
+        public static function link_to_query_w_limit($query, $limit=null, $offset=null) {
+            global $db_type;
+            $maybeLimit = ($limit !== null
+                                ? " limit $limit"
+                                : "");
+            $maybeOffset = ($offset !== null
+                                ? " offset $offset"
+                                : "");
+            return "?sql=$query" . $maybeLimit . $maybeOffset
+                   . "&db_type=$db_type";
         }
 
     }
