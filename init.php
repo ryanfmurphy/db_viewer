@@ -46,8 +46,8 @@
         }
 
         #todo #compatibility make work for deploys that have their sql fn in the Util class
-        require_once("$trunk/classes/Db.php");
-        require_once("$trunk/classes/DbUtil.php");
+        require_once("$trunk/classes/db_stuff/Db.php");
+        require_once("$trunk/classes/db_stuff/DbUtil.php");
         require_once("$trunk/classes/DbViewer.php");
     }
 
