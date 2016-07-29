@@ -21,8 +21,8 @@
     }
 
     { # classes
-        include("$trunk/classes/Db.php");
-        include("$trunk/classes/DbUtil.php");
+        include("$trunk/classes/db_stuff/Db.php");
+        include("$trunk/classes/db_stuff/DbUtil.php");
     }
 
     { # vars adjustments after includes
