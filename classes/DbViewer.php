@@ -406,7 +406,7 @@
                 { ob_start(); # provide a link
                     $val = htmlentities($val);
 ?>
-        <a href="<?= $local_uri ?>?sql=SELECT * FROM <?= $tablename ?>"
+        <a href="<?= $local_uri ?>?sql=select * from <?= $tablename ?> limit 100"
            target="_blank"
         >
             <?= $val ?>
