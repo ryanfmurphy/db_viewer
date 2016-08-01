@@ -623,6 +623,17 @@ form#mainForm label {
             }
         }
     }
+
+<?php
+    if (!$table) {
+?>
+    window.onload = function() {
+        var select_table_input = document.getElementById('selectTable');
+        select_table_input.focus();
+    }
+<?php
+    }
+?>
 }
 
         </script>
