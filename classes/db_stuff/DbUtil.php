@@ -1,4 +1,7 @@
 <?php
+
+if (!class_exists('DbUtil')) {
+
     class DbUtil {
 
         # ends with _id or _iid
@@ -535,4 +538,6 @@ infer_limit_from_query: query didn't match regex.
         }
 
     }
+
+}
 
