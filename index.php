@@ -45,7 +45,8 @@
                 # Util class with a sql() function that takes a $query
                 # and returns an array of rows, each row an array
 
-            require_once('init.php');
+            $trunk = __DIR__;
+            require_once("$trunk/init.php");
         }
 
         { # vars
@@ -56,12 +57,15 @@
                     }
                     $jquery_url = "$js_path/jquery-1.12.3.js";
                 }
-                if ($cmp) {
-                    #todo move out
-                    $maybe_url_php_ext = ""; # no .php on end of url
-                }
-                else {
-                    $maybe_url_php_ext = ".php"; # .php on end of url
+                #todo rename to something nicer
+                if (!isset($maybe_url_php_ext)) {
+                    if ($cmp) {
+                        #todo move out
+                        $maybe_url_php_ext = ""; # no .php on end of url
+                    }
+                    else {
+                        $maybe_url_php_ext = ".php"; # .php on end of url
+                    }
                 }
 
                 $poprJsPath = ($cmp ? '/js/shared/' : '');
@@ -100,7 +104,6 @@
 ?>
 <head>
 <?php
-            $trunk = __DIR__;
             include("$trunk/html/links_and_scripts.php");
             include("$trunk/js/inline_js.php");
             include("$trunk/dynamic_style.php");
@@ -113,7 +116,7 @@
 ?>
 <body>
 <?php
-            include('html/query_form.php'); # form
+            include("$trunk/html/query_form.php"); # form
 
             { # inferred table
                 if ($inferred_table) {
@@ -144,8 +147,8 @@
                 if ($sql) {
                     $rows = Db::sql($sql); //,'array',true);
 
-                    include('html/results_table.php'); # html
-                    include('js/inline_js_2.php'); # js
+                    include("$trunk/html/results_table.php"); # html
+                    include("$trunk/js/inline_js_2.php"); # js
                 }
 
                 { # js to show even if there's no query in play
