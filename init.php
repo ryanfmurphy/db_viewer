@@ -27,8 +27,6 @@
         $js_path = '/db_viewer/js';
         $dash_path = '/dash/index.php';
 
-        $maybe_url_php_ext = ($cmp ? "" : ".php");
-
         $trunk = __DIR__;
         require_once("$trunk/db_config.php");
     }

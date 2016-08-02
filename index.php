@@ -58,14 +58,11 @@
                     $jquery_url = "$js_path/jquery-1.12.3.js";
                 }
                 #todo rename to something nicer
-                if (!isset($maybe_url_php_ext)) {
-                    if ($cmp) {
-                        #todo move out
-                        $maybe_url_php_ext = ""; # no .php on end of url
-                    }
-                    else {
-                        $maybe_url_php_ext = ".php"; # .php on end of url
-                    }
+                if (!isset($php_ext)) {
+                    #todo move out
+                    $php_ext = ($cmp
+                                    ? false
+                                    : true);
                 }
 
                 $poprJsPath = ($cmp ? '/js/shared/' : '');

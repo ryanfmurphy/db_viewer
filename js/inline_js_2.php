@@ -407,7 +407,7 @@
                     ;
                     // #todo remove dups from non_null_ids
 
-                    var uri = 'query_id_in<?= $maybe_url_php_ext ?>';
+                    var uri = 'query_id_in<?= $php_ext ? '.php' : '' ?>';
                     var request_data = {
                         ids: non_null_ids,
                         join_field: field_name,
@@ -482,7 +482,7 @@
     // whose that_field matches one of vals
     function ajaxRowsWithFieldVals(fieldname, vals, table, data_type, base_table, callback) {
 
-        var uri = 'rows_with_field_vals<?= $maybe_url_php_ext ?>';
+        var uri = 'rows_with_field_vals<?= $php_ext ? '.php' : '' ?>';
 
         var request_data = {
             fieldname: fieldname,
@@ -509,7 +509,7 @@
     // get all tables in database with a field called `fieldname`
     function tablesWithField(fieldname, data_type, vals, base_table, callback) {
 
-        var uri = 'tables_with_field<?= $maybe_url_php_ext ?>';
+        var uri = 'tables_with_field<?= $php_ext ? '.php' : '' ?>';
         var request_data = {
             fieldname: fieldname,
             data_type: data_type,
