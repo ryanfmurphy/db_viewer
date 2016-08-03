@@ -542,7 +542,7 @@ form#mainForm label {
         var selectTableInput = document.getElementById('selectTable');
         var newLocation = '?table='+selectTableInput.value;
         if (keyEvent.ctrlKey) {
-            newLocation += '&amp;minimal';
+            newLocation += '&minimal';
         }
         document.location = newLocation;
     }
