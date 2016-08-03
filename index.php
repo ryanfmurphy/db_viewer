@@ -727,18 +727,34 @@ form#mainForm label {
 ?>
 
             <div id="submits">
-                <input onclick="submitForm('<?= $orm_router_path ?>/create_<?= $table ?>', event, 'create'); return false"
-                    value="Create" type="submit"
-                />
+<?php
+                    if ($edit) {
+?>
                 <input onclick="submitForm('<?= $orm_router_path ?>/update_<?= $table ?>', event, 'update'); return false"
                     value="Update" type="submit"
                 />
+<?php
+                    }
+                    else {
+?>
+                <input onclick="submitForm('<?= $orm_router_path ?>/create_<?= $table ?>', event, 'create'); return false"
+                    value="Create" type="submit"
+                />
+<?php
+                    }
+?>
                 <input onclick="setFormAction('<?= $orm_router_path ?>/view_<?= $table ?>', event)"
                     value="View" type="submit"
                 />
+<?php
+                    if ($edit) {
+?>
                 <input onclick="submitForm('<?= $orm_router_path ?>/delete_<?= $table ?>', event, 'delete'); return false"
                     value="Delete" type="submit"
                 />
+<?php
+                    }
+?>
             </div>
 <?php
                 }
