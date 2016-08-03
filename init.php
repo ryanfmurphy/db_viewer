@@ -28,23 +28,27 @@
         $dash_path = '/dash/index.php';
 
         $trunk = __DIR__;
-        require_once("$trunk/db_config.php");
+        include("$trunk/db_config.php");
     }
 
     { # Util includes
         # some programs may provide
         # a DB connection and Util class themselves
-        if (!class_exists('Util')) {
-            $db = new PDO(
-                "$db_type:host=$db_host;dbname=$db_name",
-                $db_user, $db_password
-            );
-
-            require_once("$trunk/classes/Util.php");
+        if (class_exists('Db')) {
+            $db = Db::conn();
         }
+        else {
+            if (!class_exists('Util')) {
+                $db = new PDO(
+                    "$db_type:host=$db_host;dbname=$db_name",
+                    $db_user, $db_password
+                );
 
-        #todo #compatibility make work for deploys that have their sql fn in the Util class
-        require_once("$trunk/classes/db_stuff/Db.php");
+                require_once("$trunk/classes/Util.php");
+            }
+
+            require_once("$trunk/classes/db_stuff/Db.php");
+        }
         require_once("$trunk/classes/db_stuff/DbUtil.php");
         require_once("$trunk/classes/DbViewer.php");
     }

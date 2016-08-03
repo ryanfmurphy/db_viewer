@@ -6,7 +6,8 @@
     #todo change interface to take join_field and figure out table
 
     {
-        require_once('init.php');
+        $trunk = __DIR__;
+        require_once("$trunk/init.php");
         do_log(date('c') . " - db_viewer.query_ids_in received a request\n");
         $ids = $_POST['ids'];
     }
