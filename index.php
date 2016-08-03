@@ -57,12 +57,9 @@
                     }
                     $jquery_url = "$js_path/jquery-1.12.3.js";
                 }
-                #todo rename to something nicer
+
                 if (!isset($php_ext)) {
-                    #todo move out
-                    $php_ext = ($cmp
-                                    ? false
-                                    : true);
+                    $php_ext = ($cmp ? false : true); #todo move out
                 }
 
                 $poprJsPath = ($cmp ? '/js/shared/' : '');
@@ -142,7 +139,7 @@
 
                 #todo infinite scroll using OFFSET and LIMIT
                 if ($sql) {
-                    $rows = Db::sql($sql); //,'array',true);
+                    $rows = Db::sql($sql);
 
                     include("$trunk/html/results_table.php"); # html
                     include("$trunk/js/inline_js_2.php"); # js
