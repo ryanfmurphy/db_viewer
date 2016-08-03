@@ -56,7 +56,8 @@
                 if ($minimal || $minimal==='') {
                     $only_include_these_fields = array(
                         "name",
-                        "txt"
+                        "txt",
+                        "what",
                     );
                     $tables2ignore_only_include_these_fields = array(
                         "effect",
