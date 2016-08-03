@@ -538,9 +538,13 @@ form#mainForm label {
         parentElem.removeChild(formRow);
     }
 
-    function selectTable() {
+    function selectTable(keyEvent) {
         var selectTableInput = document.getElementById('selectTable');
-        document.location = '?table='+selectTableInput.value;
+        var newLocation = '?table='+selectTableInput.value;
+        if (keyEvent.ctrlKey) {
+            newLocation += '&amp;minimal';
+        }
+        document.location = newLocation;
     }
 
     function selectTableOnEnter(keyEvent) {
@@ -548,7 +552,7 @@ form#mainForm label {
         if (keyEvent.which == ENTER
             || keyEvent.which == UNIX_ENTER
         ) {
-            selectTable();
+            selectTable(keyEvent);
         }
     }
 
