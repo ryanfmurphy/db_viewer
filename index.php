@@ -195,9 +195,11 @@
 <?php
                 }
                 else {
+                    #todo split off <input> and <textarea> cases
 ?>
             <<?= $inputTag ?>
                 name="<?= $name ?>"
+                onkeypress="removeFieldOnCtrlDelete(event,this)"
 <?php
                     if ($row2edit) {
 ?>
@@ -406,7 +408,7 @@ form#mainForm label {
 
     // Serialize an array of form elements
     // into a query string - inspired by jQuery
-    function serializeForm(formInputs) {
+    function serializeForm(formInputs, includeEmptyVals = false) {
 
         { // vars
             var prefix,
@@ -416,9 +418,13 @@ form#mainForm label {
                 addPair = function(key, value) {
 
                     // Q. is this better/worse than pairs.push()?
-                    pairs[ pairs.length ] =
-                        encodeURIComponent( key ) + "=" +
-                        encodeURIComponent( value == null ? "" : value );
+                    if (includeEmptyVals
+                        || value != ""
+                    ) {
+                        pairs[ pairs.length ] =
+                            encodeURIComponent( key ) + "=" +
+                            encodeURIComponent( value == null ? "" : value );
+                    }
 
                 };
         }
@@ -438,6 +444,8 @@ form#mainForm label {
     function setFormAction(url) {
         var form = document.getElementById('mainForm');
         form.action = url;
+        // #todo do this via js and location=...  so we can enjoy
+        // the includeEmptyVals=false option of serializeForm
     }
 
     function submitForm(url, event, action) {
@@ -466,7 +474,7 @@ form#mainForm label {
                     }
                 };
             }
-            { // handle post
+            { // do post
                 xhttp.open("POST", url, true);
                 xhttp.setRequestHeader(
                     "Content-type",
@@ -474,7 +482,12 @@ form#mainForm label {
                 );
 
                 var data = getFormInputs(form);
-                var postData = serializeForm(data);
+                var postData;
+
+                postData  = (action == 'delete'
+                                ? "" // don't include key-val pairs for delete
+                                     // (except where_clause for primary key)
+                                : serializeForm(data));
 
                 {   // further additions to data
                     // #todo be more civilized: join up an array
@@ -489,7 +502,9 @@ form#mainForm label {
                     $primary_key__esc = str_replace('"', '\"', $primary_key); # escape for js
 ?>
                     // update needs a where clause
-                    if (action == 'update') {
+                    if (   action == 'update'
+                        || action == 'delete'
+                    ) {
                         console.log('update');
                         postData += "&" + "where_clauses[<?= $primary_key_field ?>]"
                                                     + "=" + "<?= $primary_key__esc ?>";
@@ -629,15 +644,28 @@ form#mainForm label {
     }
 
 <?php
-    if (!$table) {
+    { # focus selectTable input if no table selected
+        if (!$table) {
 ?>
     window.onload = function() {
         var select_table_input = document.getElementById('selectTable');
         select_table_input.focus();
     }
 <?php
+        }
     }
 ?>
+
+    function removeFieldOnCtrlDelete(keyEvent, focusedElem) {
+        //console.log('keyEvent', keyEvent);
+        var DELETE_BS_KEY = 8;
+        if (keyEvent.which == DELETE_BS_KEY
+            && keyEvent.ctrlKey
+        ) {
+            removeFormField(focusedElem);
+        }
+    }
+
 }
 
         </script>
