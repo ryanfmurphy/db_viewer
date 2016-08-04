@@ -166,16 +166,26 @@
 ?>
         <div class="formInput" remove="true">
             <label for="<?= $name ?>"
-                   onclick="removeFormField(this)"
+                   onclick="removeFormField(getFormRow(this))"
             >
                 <?= $name ?> 
             </label>
 <?php
+                { ob_start();
+?>
+                name="<?= $name ?>"
+                onkeypress="removeFieldOnCtrlDelete(event,this)"
+<?php
+                    $inputAttrs = ob_get_clean();
+                }
+        
                 if ($name == 'artist') {
                     $artists = Db::sql('select name from artist');
 ?>
             <div class="select_from_options">
-                <select name="<?= $name ?>">
+                <select
+                    <?= $inputAttrs ?>
+                >
                     <option>
                         custom
                     </option>
@@ -198,8 +208,7 @@
                     #todo split off <input> and <textarea> cases
 ?>
             <<?= $inputTag ?>
-                name="<?= $name ?>"
-                onkeypress="removeFieldOnCtrlDelete(event,this)"
+                <?= $inputAttrs ?>
 <?php
                     if ($row2edit) {
 ?>
@@ -545,12 +554,26 @@ form#mainForm label {
         }
     }
 
-    function removeFormField(clickedElem) {
-        var formRow = clickedElem.parentNode;
-        console.log('formRow', formRow);
-        var parentElem = formRow.parentNode;
-        console.log('parentElem', parentElem);
-        parentElem.removeChild(formRow);
+    // <script>
+    function getFormRow(elemInside) { // get .formInput row
+        var node = elemInside.parentNode;
+
+        // sometimes there are nested elems, go out til we get a formInput row
+        //while (!formRow.classList.contains('formInput')) {
+        while (node && !isFormRow(node)) {
+            node = node.parentNode;
+        }
+        return node;
+    }
+
+    // <script>
+    function removeFormField(formRow) {
+        { // remove the elem
+            console.log('formRow', formRow);
+            var parentElem = formRow.parentNode;
+            console.log('parentElem', parentElem);
+            parentElem.removeChild(formRow);
+        }
     }
 
     function selectTable(keyEvent) {
@@ -591,6 +614,7 @@ form#mainForm label {
     }
 
 
+    // <script>
     {   // durationTimer - used for `duration` field
         // an hourglass appears next to the duration field
         // clicking it starts the timer
@@ -656,13 +680,59 @@ form#mainForm label {
     }
 ?>
 
+    // <script>
+    function isFormRow(elem) {
+        return (
+            elem.nodeType == 1 // is an element
+            && elem.classList.contains('formInput')
+        );
+    }
+
+    function getPrevFormRow(formRow) {
+        var node = formRow.previousSibling;
+        while (node && !isFormRow(node)) {
+            node = node.previousSibling;
+        }
+        return node;
+    }
+
+    function getInputIn(elem) {
+        var elems = elem.getElementsByTagName('input');
+        if (elems.length) {
+            return elems[0];
+        }
+        else {
+            elems = elem.getElementsByTagName('textarea');
+            if (elems.length) {
+                return elems[0];
+            }
+            else {
+                elems = elem.getElementsByTagName('select');
+                if (elems.length) {
+                    return elems[0];
+                }
+                else {
+                    return null;
+                }
+            }
+        }
+    }
+
     function removeFieldOnCtrlDelete(keyEvent, focusedElem) {
         //console.log('keyEvent', keyEvent);
         var DELETE_BS_KEY = 8;
         if (keyEvent.which == DELETE_BS_KEY
             && keyEvent.ctrlKey
         ) {
-            removeFormField(focusedElem);
+            var formRow = getFormRow(focusedElem);
+            var prevFormRow = getPrevFormRow(formRow);
+            removeFormField(formRow);
+            if (prevFormRow) {
+                var input = getInputIn(prevFormRow);
+                if (input) {
+                    input.focus();
+                }
+            }
         }
     }
 
