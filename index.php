@@ -205,9 +205,10 @@
 <?php
                 }
                 else {
-                    #todo split off <input> and <textarea> cases
+                    # split off <input> and <textarea> cases
+                    if ($inputTag == 'input') {
 ?>
-            <<?= $inputTag ?>
+            <input
                 <?= $inputAttrs ?>
 <?php
                     if ($row2edit) {
@@ -216,8 +217,23 @@
 <?php
                     }
 ?>
-            ><?= "</$inputTag>" ?> 
+            />
 <?php
+                    }
+                    elseif ($inputTag == 'textarea') {
+?>
+            <textarea
+                <?= $inputAttrs ?>
+            ><?php
+                    if ($row2edit) {
+                        echo $row2edit[$name];
+                    }
+            ?></textarea>
+<?php
+                    }
+                    else {
+                        die("unknown inputTag: '$inputTag'");
+                    }
                 }
 
                 if ($name == 'duration') {
@@ -418,6 +434,7 @@ form#mainForm label {
     // Serialize an array of form elements
     // into a query string - inspired by jQuery
     function serializeForm(formInputs, includeEmptyVals = false) {
+        console.log('includeEmptyVals',includeEmptyVals);
 
         { // vars
             var prefix,
@@ -450,12 +467,57 @@ form#mainForm label {
         }
     }
 
+    // prevent the blank vals from getting submitted in the form
+    function hideNamesForBlankVals(inputs) {
+        for (var i = 0; i < inputs.length; i++) {
+            var elem = inputs[i];
+
+            // hide name
+            if (elem.value == '') {
+                var name = elem.getAttribute('name');
+                elem.setAttribute('unname', name);
+                elem.removeAttribute('name');
+            }
+        }
+    }
+
+    // restore the names blank vals after form submit
+    // for future submits
+    function unhideNamesForBlankVals(inputs) {
+        for (var i = 0; i < inputs.length; i++) {
+            var elem = inputs[i];
+
+            // unhide name
+            if (elem.value == '') {
+                var unname = elem.getAttribute('unname');
+                elem.setAttribute('name', unname);
+                elem.removeAttribute('unname');
+            }
+        }
+    }
+
     function setFormAction(url) {
         var form = document.getElementById('mainForm');
-        form.action = url;
-        // #todo do this via js and location=...  so we can enjoy
-        // the includeEmptyVals=false option of serializeForm
+        var inputs = getFormInputs(form);
+        hideNamesForBlankVals(inputs);
+        form.action = url
+        setTimeout(function(){
+            unhideNamesForBlankVals(inputs);
+        }, 250);
     }
+
+    /*
+    // used for View button: go to db_viewer with the right vars
+    function getUrlWithVars(url) {
+        console.log('url',url);
+        var form = document.getElementById('mainForm');
+        var data = getFormInputs(form);
+        var queryString = serializeForm(data);
+        var fullUrl = url + '?' + queryString;
+        console.log('fullUrl',fullUrl);
+        return fullUrl;
+    }
+    */
 
     function submitForm(url, event, action) {
         var form = document.getElementById('mainForm');
@@ -845,7 +907,7 @@ form#mainForm label {
 <?php
                     }
 ?>
-                <input onclick="setFormAction('<?= $orm_router_path ?>/view_<?= $table ?>', event)"
+                <input onclick="setFormAction('<?= $orm_router_path ?>/view_<?= $table ?>')"
                     value="View" type="submit"
                 />
 <?php
