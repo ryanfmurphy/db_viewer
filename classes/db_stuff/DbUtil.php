@@ -107,60 +107,114 @@ if (!class_exists('DbUtil')) {
             return $tables;
 		}
 
-        # used in joins to determine which table to join to from a field_name
-		public static function choose_table_and_field($field_name) {
-            global $id_mode, $pluralize_table_names;
 
-			$suffix = self::has_valid_join_field_suffix($field_name);
-			if ($suffix) {
-				$tablename_root = substr($field_name, 0, -strlen($suffix));
+        # look through all tables to find if $tablename_root has some table name at the end of it
+        # allows prefixes in join field, e.g. "parent_topic" can link to topic table
+        # return an array of [$tablename_root, $field_name], modified if a match was found
+        static function findTablePrefix(
+            $tablename_root, $field_name=null, $suffix=null, $possible_tables=null
+        ) {
+            self::log("    looking for prefix in field\n",3);
 
-				{ # allow prefixes in id field
+            # if it's not as simple as `contractor_id`
+            # try to find a table that this id might be pointing to
+            # e.g. `parent_contractor_id` also links to contractor
 
-                    # if it's not as simple as `contractor_id`
-                    # try to find a table that this id might be pointing to
-                    # e.g. `parent_contractor_id` also links to contractor
+            #todo make sure that this is a FALLBACK:
+            #     if there's a full field_name match, use that
+            #     otherwise try this loop
 
-					#todo make sure that this is a FALLBACK:
-					#     if there's a full field_name match, use that
-					#     otherwise try this loop
+            if ($possible_tables === null) {
+                $possible_tables = self::sqlTables();
+            }
 
-                    $possible_tables = self::sqlTables();
+            if (!isset($possible_tables[$tablename_root])) {
+                # loop looking for table ending in $table
+                self::log("      loop looking for table ending in '$tablename_root'\n        ",3);
+                foreach (array_keys($possible_tables) as $this_table_name) {
+                    self::log(" $this_table_name",5);
+                    if (Util::endsWith($this_table_name, $tablename_root)) {
+                        #todo use longest match as suffix / and_or require "_" before suffix
+                        #     because for example, lead_id has ad_id at the end!
+                        #     so instead of returning, only replace if it's longer
 
-                    if (!isset($possible_tables[$tablename_root])) {
-                        # loop looking for table ending in $table
-                        foreach (array_keys($possible_tables) as $this_table_name) {
-                            if (Util::endsWith($this_table_name, $tablename_root)) {
-                                #todo use longest match as suffix / and_or require "_" before suffix
-                                #	  because for example, lead_id has ad_id at the end!
-                                #     so instead of breaking, only replace if it's longer
-
-                                $tablename_root = $this_table_name;
-                                $field_name = $this_table_name.$suffix;
-                                break;
-                            }
-                        }
+                        $tablename_root = $this_table_name;
+                        # overwrite field_name
+                        $field_name = ($suffix
+                                          ? $this_table_name.$suffix #todo does this work for id_only mode too?
+                                          : 'name');
+                        self::log("
+    found it!  table '$this_table_name' is the suffix of tablename_root '$tablename_root'
+    done looking for prefix in field:
+        tablename_root = $tablename_root,
+        field_name = $field_name
+",3);
+                        return array(
+                            $tablename_root,
+                            $field_name
+                        );
                     }
                 }
+            }
 
+            return array(
+                $tablename_root,
+                $field_name
+            );
+        }
+
+        # used in joins to determine which table to join to from a field_name
+        public static function choose_table_and_field($field_name) {
+            self::log("\ntop of choose_table_and_field(field_name = '$field_name')\n");
+            global $id_mode, $pluralize_table_names;
+
+            $suffix = self::has_valid_join_field_suffix($field_name);
+            self::log(" has_valid_join_field_suffix(field_name=$field_name)?\n");
+
+            if ($suffix) {
+                self::log("  yes, suffix\n");
+
+                { # chop off suffix
+                    $tablename_root = substr($field_name, 0, -strlen($suffix));
+                    self::log("  did substr to shave suffix: tablename_root = $tablename_root\n");
+                }
+            }
+            else { # no suffix - maybe a name field
+                self::log("  no suffix - maybe a name field\n");
+                $tablename_root = $field_name;
+            }
+
+            { # find table prefix if any
+                self::log("    about to findTablePrefix\n");
+                list($tablename_root, $field_name) =
+                    self::findTablePrefix($tablename_root, $field_name, $suffix);
+            }
+
+            { # doctor tablename
                 if ($pluralize_table_names) {
                     $tablename_root = self::pluralize($tablename_root);
                 }
 
                 $tablename_root = self::full_tablename($tablename_root);
+            }
 
-				#todo maybe error out if didn't match a table?
-                if ($id_mode == 'id_only') {
-                    $field_name = ltrim($suffix,'_');
+            { # doctor field_name
+                if ($suffix) {
+                    self::log("  id_only mode?\n");
+                    if ($id_mode == 'id_only') {
+                        self::log("    yes.  trimming before suffix (#todo do this earlier in findTablePrefix fn)\n");
+                        $field_name = ltrim($suffix,'_'); #todo this seems dangerous! will this really work in all cases?
+                        self::log("    now trimmed field_name = '$field_name'\n");
+                    }
+                    #todo maybe error out if didn't match a table?
                 }
-				return array($tablename_root, $field_name);
-			}
-			else { # this else not used yet
-				$table = self::full_tablename($field_name);
-				$field_name = 'name';
-				return array($table, $field_name);
-			}
-		}
+                #else {
+                #    $field_name = 'name';
+                #}
+            }
+
+            return array($tablename_root, $field_name);
+        }
 
         # get all tables with that fieldname, optionally filtering by vals
         public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
@@ -269,8 +323,11 @@ if (!class_exists('DbUtil')) {
         # Util functions
         #---------------
 
-        public static function log($msg) {
-            error_log($msg, 3, __DIR__.'/error_log');
+        public static function log($msg, $level=0) {
+            if ($level < 5) {
+                do_log($msg);
+            }
+            #error_log($msg, 3, __DIR__.'/error_log');
         }
 
         public static function val_list_str($vals) {
