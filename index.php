@@ -1,5 +1,7 @@
 <?php
+
 { # pre-HTML
+
     { # init: trunk, includes & requestVars, edit mode
 
         { # trunk, includes & requestVars
@@ -311,6 +313,8 @@
     }
 
 }
+
+{ # HTML and JS
 ?>
 
 <!DOCTYPE html>
@@ -624,7 +628,6 @@ form#mainForm label {
         var node = elemInside.parentNode;
 
         // sometimes there are nested elems, go out til we get a formInput row
-        //while (!formRow.classList.contains('formInput')) {
         while (node && !isFormRow(node)) {
             node = node.parentNode;
         }
@@ -826,7 +829,7 @@ form#mainForm label {
     </head>
     <body>
 <?php
-    { # header stuff
+    { # HTML for header stuff
 ?>
         <p id="whoami">
             <a href="/dash/index.php">
@@ -881,7 +884,7 @@ form#mainForm label {
 <?php
     }
 
-    { # body content
+    { # main HTML content
         if ($table) {
 
             { # the form
@@ -956,3 +959,6 @@ form#mainForm label {
 ?>
     </body>
 </html>
+<?php
+}
+?>
