@@ -1,13 +1,14 @@
 <?php
 { # pre-HTML
-    { # init
-        { # includes & misc
+    { # init: trunk, includes & requestVars, edit mode
+
+        { # trunk, includes & requestVars
             $trunk = __DIR__;
             include("$trunk/init.php");
             $requestVars = array_merge($_GET, $_POST);
         }
 
-        { # edit?
+        { # edit mode?
             $edit = (isset($requestVars['edit'])
                     && $requestVars['edit']);
 
@@ -49,6 +50,7 @@
     }
 
     { # prep logic - get fields from db
+
         { # vars
             $schemas_in_path = DbUtil::schemas_in_path($search_path);
             $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
@@ -58,7 +60,7 @@
                         : null;
         }
 
-        { # get fields
+        { # get fields from db
             if ($table) {
                 { # get fields of table from db, #todo factor into fn
                     { # do query
@@ -152,7 +154,8 @@
         }
     }
 
-    { # PHP functions
+    { # PHP functions: echoFormFieldHtml*, jsStringify, echoSelectTableInputHtml*, doSkipField
+
         function echoFormFieldHtml($name, $row2edit=null) {
             { # vars
                 $inputTag = (( $name == "txt"
@@ -399,6 +402,11 @@ form#mainForm label {
 
 { // main javascript
 
+    // global-ish state
+    scope = {
+        table_name: '<?= $table ?>'
+    };
+
     // get array of form inputs / textareas / etc
     function getFormInputs(form) {
 
@@ -496,6 +504,9 @@ form#mainForm label {
         }
     }
 
+    // for submitting the form in the traditional way
+    // while using js to dynamically change which action
+    // to submit to (used by View buttons for example)
     function setFormAction(url) {
         var form = document.getElementById('mainForm');
         var inputs = getFormInputs(form);
@@ -506,18 +517,10 @@ form#mainForm label {
         }, 250);
     }
 
-    /*
-    // used for View button: go to db_viewer with the right vars
-    function getUrlWithVars(url) {
-        console.log('url',url);
-        var form = document.getElementById('mainForm');
-        var data = getFormInputs(form);
-        var queryString = serializeForm(data);
-        var fullUrl = url + '?' + queryString;
-        console.log('fullUrl',fullUrl);
-        return fullUrl;
+    function viewButtonClickHandler(orm_router_path, table_name) {
+        var url = orm_router_path+'/view_'+table_name;
+        return setFormAction(url);
     }
-    */
 
     function submitForm(url, event, action) {
         var form = document.getElementById('mainForm');
@@ -638,14 +641,33 @@ form#mainForm label {
         }
     }
 
+
     function selectTable(keyEvent) {
+
         var selectTableInput = document.getElementById('selectTable');
-        var newLocation = '?table='+selectTableInput.value;
-        if (keyEvent.ctrlKey) {
-            newLocation += '&minimal';
+        var table = selectTableInput.value;
+        var newLocation = '?table='+table;
+
+        if (keyEvent.altKey) {
+            // change which table to submit to
+            scope.table_name = table;
+
+            // replace input with header again
+            document.getElementById('selectTable')
+                    .outerHTML = '\
+                            <code onclick="becomeSelectTableInput(this)">\
+                                ' + table + '\
+                            </code>\
+                    ';
         }
-        document.location = newLocation;
+        else {
+            if (keyEvent.ctrlKey) {
+                newLocation += '&minimal';
+            }
+            document.location = newLocation;
+        }
     }
+
 
     function selectTableOnEnter(keyEvent) {
         var ENTER = 13, UNIX_ENTER = 10;
@@ -895,26 +917,26 @@ form#mainForm label {
                     if ($edit) {
 ?>
                 <input onclick="submitForm('<?= $orm_router_path ?>/update_<?= $table ?>', event, 'update'); return false"
-                    value="Update" type="submit"
+                    value="Update" type="submit" id="update_button"
                 />
 <?php
                     }
                     else {
 ?>
                 <input onclick="submitForm('<?= $orm_router_path ?>/create_<?= $table ?>', event, 'create'); return false"
-                    value="Create" type="submit"
+                    value="Create" type="submit" id="create_button"
                 />
 <?php
                     }
 ?>
-                <input onclick="setFormAction('<?= $orm_router_path ?>/view_<?= $table ?>')"
-                    value="View" type="submit"
+                <input onclick="viewButtonClickHandler('<?= $orm_router_path ?>', scope.table_name)" <?php # view ?>
+                    value="View" type="submit" id="view_button"
                 />
 <?php
                     if ($edit) {
 ?>
                 <input onclick="submitForm('<?= $orm_router_path ?>/delete_<?= $table ?>', event, 'delete'); return false"
-                    value="Delete" type="submit"
+                    value="Delete" type="submit" id="delete_button"
                 />
 <?php
                     }
