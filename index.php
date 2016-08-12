@@ -314,7 +314,7 @@
 
 }
 
-{ # HTML and JS
+{ # CSS, JS, HTML
 ?>
 
 <!DOCTYPE html>
@@ -521,9 +521,27 @@ form#mainForm label {
         }, 250);
     }
 
-    function viewButtonClickHandler(orm_router_path, table_name) {
-        var url = orm_router_path+'/view_'+table_name;
-        return setFormAction(url);
+    { // submit button handlers
+
+        function createButtonClickHandler(orm_router_path, table_name, event) {
+            var url = orm_router_path+'/create_'+table_name;
+            submitForm(url, event, 'create');
+            return false;
+        }
+
+        function updateButtonClickHandler(orm_router_path, table_name, event) {
+            var url = orm_router_path+'/update_'+table_name;
+            submitForm(url, event, 'update');
+            return false;
+        }
+
+        function viewButtonClickHandler(orm_router_path, table_name) {
+            var url = orm_router_path+'/view_'+table_name;
+            return setFormAction(url);
+        }
+
+        // #todo delete handler for consistency?
+
     }
 
     function submitForm(url, event, action) {
@@ -651,7 +669,10 @@ form#mainForm label {
         var table = selectTableInput.value;
         var newLocation = '?table='+table;
 
+        // alt key - don't refresh page,
+        // just change the table we're pointing at
         if (keyEvent.altKey) {
+
             // change which table to submit to
             scope.table_name = table;
 
@@ -662,13 +683,27 @@ form#mainForm label {
                                 ' + table + '\
                             </code>\
                     ';
+
+            // change update button to create button
+            changeUpdateButtonToCreateButton();
+
         }
+        // no alt key - redirect page
         else {
             if (keyEvent.ctrlKey) {
                 newLocation += '&minimal';
             }
             document.location = newLocation;
         }
+    }
+
+    function changeUpdateButtonToCreateButton() {
+        var update_button = document.getElementById('update_button');
+        update_button.outerHTML = '\
+                <input onclick="return createButtonClickHandler(\'<?= $orm_router_path ?>\', scope.table_name, event)"\
+                    value="Create" type="submit" id="create_button"\
+                />\
+        ';
     }
 
 
@@ -822,7 +857,6 @@ form#mainForm label {
             }
         }
     }
-
 }
 
         </script>
@@ -919,14 +953,14 @@ form#mainForm label {
 <?php
                     if ($edit) {
 ?>
-                <input onclick="submitForm('<?= $orm_router_path ?>/update_<?= $table ?>', event, 'update'); return false"
+                <input onclick="return updateButtonClickHandler('<?= $orm_router_path ?>', scope.table_name, event)" <?php # update ?>
                     value="Update" type="submit" id="update_button"
                 />
 <?php
                     }
                     else {
 ?>
-                <input onclick="submitForm('<?= $orm_router_path ?>/create_<?= $table ?>', event, 'create'); return false"
+                <input onclick="return createButtonClickHandler('<?= $orm_router_path ?>', scope.table_name, event)" <?php # create ?>
                     value="Create" type="submit" id="create_button"
                 />
 <?php
