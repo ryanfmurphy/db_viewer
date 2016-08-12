@@ -54,14 +54,17 @@
             if (isset($_GET['minimal'])) {
                 $minimal = $_GET['minimal'];
                 if ($minimal || $minimal==='') {
-                    $only_include_these_fields = array(
-                        "name",
-                        "txt",
-                        "what",
-                    );
-                    $tables2ignore_only_include_these_fields = array(
+                    if (!isset($minimal_fields)) {
+                        $minimal_fields = array(
+                            "name",
+                            "txt",
+                            "what",
+                        );
+                    }
+                    $only_include_these_fields = &$minimal_fields;
+                    /*$tables2ignore_only_include_these_fields = array(
                         "effect",
-                    );
+                    );*/
                 }
             }
         }
