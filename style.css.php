@@ -58,6 +58,10 @@ td, th, textarea, input[type=text] {
 ?>
 }
 
+th {
+    color: #a99;
+}
+
 td .wide_col {
     width: 20em;
 }
