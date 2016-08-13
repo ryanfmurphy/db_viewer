@@ -14,7 +14,10 @@
 		<br>
         <div>
             <label for="db_type">DB Type</label>
-            <input name="db_type" value="<?= $db_type ?>">
+            <input name="db_type"
+                   value="<?= $db_type ?>"
+                   type="text"
+            >
 
 <?php
                 if ($limit_info['limit']) {

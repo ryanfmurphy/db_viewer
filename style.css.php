@@ -32,19 +32,32 @@ table {
 }
 td, th {
     padding: .3em;
+}
+
+input[type=text] {
+    font-size: 100%;
+    padding: .2em;
+}
+
+/* border color */
+td, th, textarea, input[type=text] {
+    background: none;
 <?php
-    if ($background=='dark') {
+    {
+        if ($background=='dark') {
 ?>
-    border: solid 1px #aaa; /* gray */
+    border: solid 1px #777; /* gray */
 <?php
-    }
-    else {
+        }
+        else {
 ?>
-    border: solid 1px gray;
+    border: solid 1px #bbb;
 <?php
+        }
     }
 ?>
 }
+
 td .wide_col {
     width: 20em;
 }
@@ -89,7 +102,8 @@ textarea {
 
 .shadowing,
 tr.shadowing td,
-tr.shadowing th {
+tr.shadowing th
+{
     border: solid 2px #aaa;
 }
 
