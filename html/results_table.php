@@ -39,14 +39,8 @@
                                       : 15;
 
                     { # primary key stuff for edit_link
-                        { # get id field - #todo use the fn we probably have for this / create one
-                            if ($id_mode == 'id_only') {
-                                $primary_key_field = 'id';
-                            }
-                            else {
-                                $primary_key_field = $inferred_table.'_id';
-                            }
-                        }
+                        $primary_key_field = DbUtil::getPrimaryKeyField($id_mode, $inferred_table);
+
                         $current_row = current($rows);
                         $has_primary_key = (isset($current_row[$primary_key_field])
                                                 ? true : false);

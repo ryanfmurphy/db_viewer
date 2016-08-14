@@ -602,6 +602,16 @@ infer_limit_from_query: query didn't match regex.
                    . "&db_type=$db_type";
         }
 
+        # get id field
+        public static function getPrimaryKeyField($id_mode, $table) {
+            if ($id_mode == 'id_only') {
+                $primary_key_field = 'id';
+            }
+            else {
+                $primary_key_field = $inferred_table.'_id';
+            }
+            return $primary_key_field;
+        }
     }
 
 }
