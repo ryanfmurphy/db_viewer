@@ -529,6 +529,8 @@ if (!class_exists('DbUtil')) {
                             \s+ (?P<offset>\d+)
                         ) ?
 
+                        ; ?
+
                         $
                         /six";
 
