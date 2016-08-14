@@ -15,7 +15,7 @@ Join-Splice more data into your view
     * connect fields named `<table>_id` to the `<table>_id` of the `<table>` table
         * or if `$id_mode == "id_only"`, to the `id` of the `<table>` table
     * connect fields named `<table>_iid` to the `<table>_iid` of the `<table>` table - #todo test
-        * or if `$id_mode == "iid_only"`, to the `iid` of the `<table>` table
+        * or if `$id_mode == "id_only"`, to the `iid` of the `<table>` table
     * connect fields named `<table>` to the `name` field of the `<table>` table
 
 Show and Hide Columns and Rows
