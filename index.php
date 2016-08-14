@@ -84,8 +84,25 @@
                 }
             }
 
-            $inferred_table = DbUtil::infer_table_from_query($sql);
-            $limit_info = DbUtil::infer_limit_info_from_query($sql);
+            { # vars
+                $inferred_table = DbUtil::infer_table_from_query($sql);
+
+                # limit, offset, query_wo_limit
+                $limit_info = DbUtil::infer_limit_info_from_query($sql);
+
+                # passed in limit takes precedence
+                # over one already baked into the query
+                if (isset($requestVars['limit'])) {
+
+                    # strip off limit if any
+                    if (isset($limit_info['query_wo_limit'])) {
+                        $sql = $limit_info['query_wo_limit'];
+                    }
+
+                    $limit = $limit_info['limit'] = $requestVars['limit'];
+                    $sql .= " limit $limit";
+                }
+            }
         }
     }
 
@@ -161,12 +178,12 @@
 
     <!-- init popup menu -->
     <div class="popr-box" data-box-id="1">
-        <!-- #todo dynamically populate with relevant tables -->
         <div class="popr-item">example</div>
         <div class="popr-item">popup</div>
         <div class="popr-item">data</div>
         <div class="popr-item">(will be dynamically overridden)</div>
     </div>
+
     <script>
         $(document).ready(function() {
             $('.popr').popr();
@@ -176,16 +193,13 @@
                 var elem = lastClickedElem;
                 var popupItemElem = e.target;
                 backlinkJoinTable = popupItemElem.innerHTML.trim();
-                //console.log('elem',elem);
-                //console.log('backlinkJoinTable',backlinkJoinTable);
                 openBacklinkedJoin(elem);
             });
 
-            // show_hide_mode toggle - #todo add ctrl-enter
+            // show_hide_mode toggle
             $(document).on('keypress', 'body', function(e){
-                //console.log('keypress e', e);
                 var focusedElem = document.activeElement;
-                if (queryBoxElem() === focusedElem) { // Ctrl-Click
+                if (queryBoxElem() === focusedElem) { // Ctrl-Enter
                     var Enter_code = 13;
                     var UNIX_Enter_code = 10;
                     if (e.ctrlKey

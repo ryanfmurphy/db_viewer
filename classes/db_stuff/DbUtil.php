@@ -534,7 +534,7 @@ if (!class_exists('DbUtil')) {
             $result = array(
                 'limit' => null,
                 'offset' => null,
-                'query_wo_limit' => null,
+                'query_wo_limit' => $query,
             );
 
             if (preg_match($regex, $query, $matches)) {
