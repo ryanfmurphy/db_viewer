@@ -446,7 +446,7 @@
 <?php
                 foreach ($array as $val) {
 ?>
-            <li><?= $val ?></li>
+            <li><?= htmlentities($val) ?></li>
 <?php
                 }
 ?>
