@@ -1,7 +1,7 @@
 <?php
             { # form
 ?>
-	<form id="query_form" method="post">
+	<form id="query_form" method="post" action="<?= DbViewer::get_submit_url($requestVars) ?>">
         <h2 id="query_header">
             Enter SQL Query
         </h2>

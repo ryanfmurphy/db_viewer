@@ -198,5 +198,11 @@
                             : false);
         }
 
+        public static function get_submit_url($requestVars) {
+            $uri = $_SERVER['REQUEST_URI'];
+            $uri_no_query = strtok($uri, '?');
+            return "$uri_no_query";
+        }
+
     }
 
