@@ -87,21 +87,59 @@
             { # vars
                 $inferred_table = DbUtil::infer_table_from_query($sql);
 
-                # limit, offset, query_wo_limit
-                $limit_info = DbUtil::infer_limit_info_from_query($sql);
+                { # limit/offset stuff: #todo factor into fn
 
-                # passed in limit takes precedence
-                # over one already baked into the query
-                if (isset($requestVars['limit'])) {
+                    # limit, offset, query_wo_limit
+                    $limit_info = DbUtil::infer_limit_info_from_query($sql);
 
-                    # strip off limit if any
-                    if (isset($limit_info['query_wo_limit'])) {
-                        $sql = $limit_info['query_wo_limit'];
+                    # passed in limit takes precedence
+                    # over one already baked into the sql query
+                    if (isset($requestVars['limit'])
+                        || isset($requestVars['offset'])
+                    ) {
+
+                        { # populate limit/offset from sql query
+                          # if not in GET vars
+                            if ($limit_info['limit'] !== null
+                                && !isset($requestVars['limit'])
+                            ) {
+                                $requestVars['limit'] = $limit_info['limit'];
+                            }
+
+                            if ($limit_info['offset'] !== null
+                                && !isset($requestVars['offset'])
+                            ) {
+                                $requestVars['offset'] = $limit_info['offset'];
+                            }
+                        }
+
+                        { # strip off limit/offset off sql query if any
+                            if (isset($limit_info['query_wo_limit'])) {
+                                $sql = $limit_info['query_wo_limit'];
+                            }
+                        }
+
+                        { # get vals from GET vars if any
+                          # GET vars supercede what's in the sql query
+                            if (isset($requestVars['limit'])) {
+                                $limit_info['limit'] = $requestVars['limit'];
+                            }
+                            if (isset($requestVars['offset'])) {
+                                $limit_info['offset'] = $requestVars['offset'];
+                            }
+                        }
+
+                        { # add limit/offset to sql query
+                            if ($limit_info['limit'] !== null) {
+                                $sql .= " limit $limit_info[limit]";
+                            }
+                            if ($limit_info['offset'] !== null) {
+                                $sql .= " offset $limit_info[offset]";
+                            }
+                        }
                     }
-
-                    $limit = $limit_info['limit'] = $requestVars['limit'];
-                    $sql .= " limit $limit";
                 }
+
             }
         }
     }
