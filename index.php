@@ -98,57 +98,59 @@
                     $order_by_time = (isset($requestVars['order_by_time'])
                                         && $requestVars['order_by_time']);
 
-                    # passed in limit takes precedence
-                    # over one already baked into the sql query
-                    if (isset($requestVars['limit'])
-                        || isset($requestVars['offset'])
-                        || $order_by_time
-                    ) {
+                    {
+                        # passed in limit takes precedence
+                        # over one already baked into the sql query
+                        if (isset($requestVars['limit'])
+                            || isset($requestVars['offset'])
+                            || $order_by_time
+                        ) {
 
-                        { # populate limit/offset from sql query
-                          # if not in GET vars
-                            if ($limit_info['limit'] !== null
-                                && !isset($requestVars['limit'])
-                            ) {
-                                $requestVars['limit'] = $limit_info['limit'];
-                            }
+                            { # populate limit/offset from sql query
+                              # if not in GET vars
+                                if ($limit_info['limit'] !== null
+                                    && !isset($requestVars['limit'])
+                                ) {
+                                    $requestVars['limit'] = $limit_info['limit'];
+                                }
 
-                            if ($limit_info['offset'] !== null
-                                && !isset($requestVars['offset'])
-                            ) {
-                                $requestVars['offset'] = $limit_info['offset'];
-                            }
-                        }
-
-                        { # strip off limit/offset off sql query if any
-                            #todo ensure that order gets stripped off too if there's an order var?
-                            if (isset($limit_info['query_wo_limit'])) {
-                                $sql = $limit_info['query_wo_limit'];
-                            }
-                        }
-
-                        { # get vals from GET vars if any
-                          # GET vars supercede what's in the sql query
-                            if (isset($requestVars['limit'])) {
-                                $limit_info['limit'] = $requestVars['limit'];
-                            }
-                            if (isset($requestVars['offset'])) {
-                                $limit_info['offset'] = $requestVars['offset'];
-                            }
-                        }
-
-                        { # add limit/offset to sql query
-                            if ($order_by_time) {
-                                $time_field = DbUtil::get_time_field($inferred_table, $schemas_in_path);
-                                if ($time_field) {
-                                    $sql .= " order by $time_field desc";
+                                if ($limit_info['offset'] !== null
+                                    && !isset($requestVars['offset'])
+                                ) {
+                                    $requestVars['offset'] = $limit_info['offset'];
                                 }
                             }
-                            if ($limit_info['limit'] !== null) {
-                                $sql .= " limit $limit_info[limit]";
+
+                            { # strip off limit/offset off sql query if any
+                                #todo ensure that order gets stripped off too if there's an order var?
+                                if (isset($limit_info['query_wo_limit'])) {
+                                    $sql = $limit_info['query_wo_limit'];
+                                }
                             }
-                            if ($limit_info['offset'] !== null) {
-                                $sql .= " offset $limit_info[offset]";
+
+                            { # get vals from GET vars if any
+                              # GET vars supercede what's in the sql query
+                                if (isset($requestVars['limit'])) {
+                                    $limit_info['limit'] = $requestVars['limit'];
+                                }
+                                if (isset($requestVars['offset'])) {
+                                    $limit_info['offset'] = $requestVars['offset'];
+                                }
+                            }
+
+                            { # add limit/offset to sql query
+                                if ($order_by_time) {
+                                    $time_field = DbUtil::get_time_field($inferred_table, $schemas_in_path);
+                                    if ($time_field) {
+                                        $sql .= " order by $time_field desc";
+                                    }
+                                }
+                                if ($limit_info['limit'] !== null) {
+                                    $sql .= " limit $limit_info[limit]";
+                                }
+                                if ($limit_info['offset'] !== null) {
+                                    $sql .= " offset $limit_info[offset]";
+                                }
                             }
                         }
                     }
