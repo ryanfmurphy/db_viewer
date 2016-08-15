@@ -77,7 +77,7 @@
                 }
 
                 { # just tablename? turn to select statement
-                    $sqlHasNoSpaces = (strpos($sql, ' ') === false);
+                    $sqlHasNoSpaces = (strpos(trim($sql), ' ') === false);
                     if (strlen($sql) > 0 && $sqlHasNoSpaces) {
                         $sql = "select * from $sql limit 100";
 
