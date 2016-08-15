@@ -892,7 +892,7 @@ form#mainForm label {
 <?php
         if ($table) {
 ?>
-                <a href="<?= $db_viewer_path ?>?sql=select * from <?= $table ?> limit 100"
+                <a href="<?= $db_viewer_path ?>?sql=<?= $table ?>"
                    target="_blank"
                 >
                     view all
