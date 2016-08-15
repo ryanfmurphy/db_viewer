@@ -80,10 +80,10 @@
                     $sqlHasNoSpaces = (strpos($sql, ' ') === false);
                     if (strlen($sql) > 0 && $sqlHasNoSpaces) {
                         $sql = "select * from $sql limit 100";
-                    } 
 
-                    # and order by time field if there is one
-                    $requestVars['order_by_time'] = true;
+                        # and order by time field if there is one
+                        $requestVars['order_by_time'] = true;
+                    } 
                 }
             }
 
@@ -96,7 +96,7 @@
                     $limit_info = DbUtil::infer_limit_info_from_query($sql);
 
                     $order_by_time = (isset($requestVars['order_by_time'])
-                                    && $requestVars['order_by_time']);
+                                        && $requestVars['order_by_time']);
 
                     # passed in limit takes precedence
                     # over one already baked into the sql query
