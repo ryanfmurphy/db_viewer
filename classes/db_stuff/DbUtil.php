@@ -611,7 +611,7 @@ infer_limit_from_query: query didn't match regex.
                 $primary_key_field = 'id';
             }
             else {
-                $primary_key_field = $inferred_table.'_id';
+                $primary_key_field = $table.'_id';
             }
             return $primary_key_field;
         }
@@ -638,6 +638,7 @@ infer_limit_from_query: query didn't match regex.
                     }
                     $get_columns_sql = ob_get_clean();
                 }
+                #die($get_columns_sql);
                 $fieldsRows = Db::sql($get_columns_sql);
                 if (count($fieldsRows) == 0) {
                     die("Table $table doesn't exist");
@@ -693,6 +694,7 @@ infer_limit_from_query: query didn't match regex.
             $possible_time_fields = array(
                 'time',
                 'time_added',
+                'creation_timestamp',
             );
             foreach ($possible_time_fields as $this_field) {
                 if (in_array($this_field, $fields)) {
