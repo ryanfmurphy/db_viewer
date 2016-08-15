@@ -218,7 +218,7 @@
 <?php
                     if ($row2edit) {
 ?>
-                value="<?= $row2edit[$name] ?>"
+                value="<?= htmlentities($row2edit[$name]) ?>"
 <?php
                     }
 ?>
@@ -408,7 +408,8 @@ form#mainForm label {
 
     // global-ish state
     scope = {
-        table_name: '<?= $table ?>'
+        table_name: '<?= $table ?>',
+        db_viewer_path: '<?= $db_viewer_path ?>'
     };
 
     // get array of form inputs / textareas / etc
@@ -687,6 +688,14 @@ form#mainForm label {
             // change update button to create button
             changeUpdateButtonToCreateButton();
 
+            // change "view all" link
+            console.log('doing view_all_link');
+            view_all_link = document.getElementById('view_all_link');
+            if (view_all_link) {
+                view_all_url = scope.db_viewer_path + '?sql=' + table;
+                view_all_link.setAttribute('href', view_all_url);
+            }
+
         }
         // no alt key - redirect page
         else {
@@ -699,11 +708,13 @@ form#mainForm label {
 
     function changeUpdateButtonToCreateButton() {
         var update_button = document.getElementById('update_button');
-        update_button.outerHTML = '\
+        if (update_button) {
+            update_button.outerHTML = '\
                 <input onclick="return createButtonClickHandler(\'<?= $orm_router_path ?>\', scope.table_name, event)"\
                     value="Create" type="submit" id="create_button"\
                 />\
-        ';
+            ';
+        }
     }
 
 
@@ -892,7 +903,7 @@ form#mainForm label {
 <?php
         if ($table) {
 ?>
-                <a href="<?= $db_viewer_path ?>?sql=<?= $table ?>"
+                <a id="view_all_link" href="<?= $db_viewer_path ?>?sql=<?= $table ?>"
                    target="_blank"
                 >
                     view all
