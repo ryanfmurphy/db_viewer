@@ -81,21 +81,28 @@
                     if (strlen($sql) > 0 && $sqlHasNoSpaces) {
                         $sql = "select * from $sql limit 100";
                     } 
+
+                    # and order by time field if there is one
+                    $requestVars['order_by_time'] = true;
                 }
             }
 
             { # vars
                 $inferred_table = DbUtil::infer_table_from_query($sql);
 
-                { # limit/offset stuff: #todo factor into fn
+                { # limit/offset/order_by_time stuff: #todo factor into fn
 
                     # limit, offset, query_wo_limit
                     $limit_info = DbUtil::infer_limit_info_from_query($sql);
+
+                    $order_by_time = (isset($requestVars['order_by_time'])
+                                    && $requestVars['order_by_time']);
 
                     # passed in limit takes precedence
                     # over one already baked into the sql query
                     if (isset($requestVars['limit'])
                         || isset($requestVars['offset'])
+                        || $order_by_time
                     ) {
 
                         { # populate limit/offset from sql query
@@ -114,6 +121,7 @@
                         }
 
                         { # strip off limit/offset off sql query if any
+                            #todo ensure that order gets stripped off too if there's an order var?
                             if (isset($limit_info['query_wo_limit'])) {
                                 $sql = $limit_info['query_wo_limit'];
                             }
@@ -130,6 +138,12 @@
                         }
 
                         { # add limit/offset to sql query
+                            if ($order_by_time) {
+                                $time_field = DbUtil::get_time_field($inferred_table, $schemas_in_path);
+                                if ($time_field) {
+                                    $sql .= " order by $time_field desc";
+                                }
+                            }
                             if ($limit_info['limit'] !== null) {
                                 $sql .= " limit $limit_info[limit]";
                             }

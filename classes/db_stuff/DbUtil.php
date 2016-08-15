@@ -615,6 +615,93 @@ infer_limit_from_query: query didn't match regex.
             }
             return $primary_key_field;
         }
+
+        # get fields of table from db
+        public static function get_table_fields($table, $schemas_in_path=null) {
+
+            { # do query
+
+                $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
+
+                { ob_start();
+?>
+                    select
+                        table_schema, table_name,
+                        column_name
+                    from information_schema.columns
+                    where table_name='<?= $table ?>'
+<?php
+                    if ($schemas_val_list) {
+?>
+                        and table_schema in (<?= $schemas_val_list ?>)
+<?php
+                    }
+                    $get_columns_sql = ob_get_clean();
+                }
+                $fieldsRows = Db::sql($get_columns_sql);
+                if (count($fieldsRows) == 0) {
+                    die("Table $table doesn't exist");
+                }
+            }
+
+            { # group by schema
+                $fieldsRowsBySchema = array();
+                foreach ($fieldsRows as $fieldsRow) {
+                    $schema = $fieldsRow['table_schema'];
+                    $fieldsRowsBySchema[$schema][] = $fieldsRow;
+                }
+            }
+
+            { # choose 1st schema that applies
+                if ($schemas_in_path) {
+                    $schema = null;
+
+                    foreach ($schemas_in_path as $schema_in_path) {
+                        if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                            $schema = $schema_in_path;
+                            break;
+                        }
+                    }
+
+                    if ($schema === null) {
+                        die("Whoops!  Couldn't select a DB schema for table $table");
+                    }
+                }
+            }
+
+            { # get just the column_names
+                $fields = array_map(
+                    function($x) {
+                        return $x['column_name'];
+                    },
+                    $fieldsRowsBySchema[$schema]
+                );
+            }
+
+            /* #todo pass this out
+            { # so we can give a warning/notice about it later
+                $multipleTablesFoundInDifferentSchemas =
+                    count(array_keys($fieldsRowsBySchema)) > 1;
+            }
+            */
+
+            return $fields;
+        }
+
+        public static function get_time_field($table, $schemas_in_path=null) {
+            $fields = self::get_table_fields($table, $schemas_in_path);
+            $possible_time_fields = array(
+                'time',
+                'time_added',
+            );
+            foreach ($possible_time_fields as $this_field) {
+                if (in_array($this_field, $fields)) {
+                    return $this_field;
+                }
+            }
+            return null;
+        }
+
     }
 
 }
