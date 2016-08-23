@@ -77,9 +77,34 @@
                             { # loop thru fields and make <td>s
                                 foreach ($row as $fieldname => $val) {
 ?>
-        <td>
-            <?= DbViewer::val_html($val, $fieldname) ?>
-        </td>
+        <td
+<?php
+                                    if ($fieldname == 'id') { #todo or ends with _id (make DbUtil fn)
+?>
+            class="id_field"
+            onclick="selectText(this)"
+<?php
+                                    }
+?>
+        ><?=
+            DbViewer::val_html($val, $fieldname)
+        ?></td>
+        <script>
+
+        function selectText(elem) {
+            if (document.selection) {
+                var range = document.body.createTextRange();
+                range.moveToElementText(elem);
+                range.select();
+            }
+            else if (window.getSelection) {
+                var range = document.createRange();
+                range.selectNode(elem);
+                window.getSelection().addRange(range);
+            }
+        }
+
+        </script>
 <?php
                                 }
                             }

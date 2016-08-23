@@ -134,3 +134,8 @@ a {
 #num_per_page {
     font-size: 80%;
 }
+
+.id_field { /* diminish */
+    font-size: 30%;
+    color: #ccc;
+}
