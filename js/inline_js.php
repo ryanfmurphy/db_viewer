@@ -179,6 +179,19 @@
         }
     }
 
+    function selectText(elem) {
+        if (document.selection) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(elem);
+            range.select();
+        }
+        else if (window.getSelection) {
+            var range = document.createRange();
+            range.selectNode(elem);
+            window.getSelection().addRange(range);
+        }
+    }
+
     </script>
 <?php
             }
