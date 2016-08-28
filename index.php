@@ -60,6 +60,13 @@
             $table = isset($requestVars['table'])
                         ? $requestVars['table']
                         : null;
+
+            # minimal_fields_by_table
+            if (isset($minimal_fields_by_table)
+                && isset($minimal_fields_by_table[$table])
+            ) {
+                $only_include_these_fields = &$minimal_fields_by_table[$table];
+            }
         }
 
         { # get fields from db

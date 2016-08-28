@@ -62,9 +62,6 @@
                         );
                     }
                     $only_include_these_fields = &$minimal_fields;
-                    /*$tables2ignore_only_include_these_fields = array(
-                        "effect",
-                    );*/
                 }
             }
         }
