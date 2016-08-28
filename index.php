@@ -519,14 +519,43 @@ form#mainForm label {
     // for submitting the form in the traditional way
     // while using js to dynamically change which action
     // to submit to (used by View buttons for example)
-    function setFormAction(url) {
+    function setFormAction(url, extra_vars = null) {
         var form = document.getElementById('mainForm');
         var inputs = getFormInputs(form);
+        console.log('extra_vars',extra_vars);
+        addVarsToForm(form, extra_vars);
         hideNamesForBlankVals(inputs);
         form.action = url
         setTimeout(function(){
             unhideNamesForBlankVals(inputs);
+            removeVarsFromForm(form, extra_vars);
         }, 250);
+    }
+
+    function addVarsToForm(form, vars) {
+        for (var name in vars) {
+            if (vars.hasOwnProperty(name)) {
+                var val = vars[name];
+                //console.log('k',k,'v',v);
+
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = val;
+                form.appendChild(input);
+            }
+        }
+    }
+
+    // only uses the keys from vars
+    function removeVarsFromForm(form, vars) {
+        var inputs = getFormInputs(form);
+        for (var i=0; i<inputs.length; i++) {
+            var input = inputs[i];
+            if (input.name in vars) {
+                input.parentNode.removeChild(input);
+            }
+        }
     }
 
     { // submit button handlers
@@ -543,9 +572,25 @@ form#mainForm label {
             return false;
         }
 
-        function viewButtonClickHandler(orm_router_path, table_name) {
+        function getFormKeys(form) {
+            var form_inputs = getFormInputs(form);
+            var fields = form_inputs.map(
+                function(elem){
+                    return elem.getAttribute('name')
+                }
+            );
+            return fields;
+        }
+
+        function viewButtonClickHandler(orm_router_path, keyEvent, table_name) {
             var url = orm_router_path+'/view_'+table_name;
-            return setFormAction(url);
+            var extra_vars = {};
+            if (keyEvent.altKey) {
+                var form = document.getElementById('mainForm');
+                var form_names = getFormKeys(form);
+                extra_vars.select_fields = form_names.join(', ');
+            }
+            return setFormAction(url, extra_vars);
         }
 
         // #todo delete handler for consistency?
@@ -569,7 +614,18 @@ form#mainForm label {
                             console.log(result.sql);
                         }
                         else if (result) {
-                            alert('Thanks! Row Saved');
+                            if (action == 'delete') {
+                                alert('Thanks! Row Deleted');
+                            }
+                            else if (action == 'create') {
+                                alert('Thanks! Row Created');
+                            }
+                            else if (action == 'update') {
+                                alert('Thanks! Row Updated');
+                            }
+                            else {
+                                alert('Thanks! Unknown action "' + action + '" done to Row');
+                            }
                         }
                         else {
                             alert('Failed... Try alt-clicking to see the Query');
@@ -984,7 +1040,7 @@ form#mainForm label {
 <?php
                     }
 ?>
-                <input onclick="viewButtonClickHandler('<?= $orm_router_path ?>', scope.table_name)" <?php # view ?>
+                <input onclick="viewButtonClickHandler('<?= $orm_router_path ?>', event, scope.table_name)" <?php # view ?>
                     value="View" type="submit" id="view_button"
                 />
 <?php
