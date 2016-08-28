@@ -62,8 +62,9 @@
                         : null;
 
             # minimal_fields_by_table
-            if (isset($minimal_fields_by_table)
-                && isset($minimal_fields_by_table[$table])
+            if ($minimal
+                && (isset($minimal_fields_by_table)
+                    && isset($minimal_fields_by_table[$table]))
             ) {
                 $only_include_these_fields = &$minimal_fields_by_table[$table];
             }
@@ -999,6 +1000,19 @@ form#mainForm label {
 ?>
         <form id="mainForm" target="_blank">
 <?php
+                { # get fields in order
+                    if (is_array($only_include_these_fields)) {
+                        $fields_in_order = $only_include_these_fields;
+                        foreach ($fields as $name) {
+                            if (!in_array($name, $fields_in_order)) {
+                                $fields_in_order[] = $name;
+                            }
+                        }
+
+                        $fields = $fields_in_order;
+                    }
+                }
+
                 { # create form fields
                     foreach ($fields as $name) {
                         if (doSkipField($name, $fields2omit, $fields2keep, $only_include_these_fields)) {

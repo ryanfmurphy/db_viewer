@@ -53,7 +53,12 @@
         { # minimal
             if (isset($_GET['minimal'])) {
                 $minimal = $_GET['minimal'];
-                if ($minimal || $minimal==='') {
+
+                # allow key without var in query str:
+                # /index.php?minimal
+                $minimal = ($minimal || $minimal==='');
+
+                if ($minimal) {
                     if (!isset($minimal_fields)) {
                         $minimal_fields = array(
                             "name",
@@ -63,6 +68,9 @@
                     }
                     $only_include_these_fields = &$minimal_fields;
                 }
+            }
+            else {
+                $minimal = null;
             }
         }
 
