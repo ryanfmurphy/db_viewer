@@ -1002,7 +1002,12 @@ form#mainForm label {
 <?php
                 { # get fields in order
                     if (is_array($only_include_these_fields)) {
-                        $fields_in_order = $only_include_these_fields;
+                        $fields_in_order = array();
+                        foreach ($only_include_these_fields as $name) {
+                            if (in_array($name, $fields)) {
+                                $fields_in_order[] = $name;
+                            }
+                        }
                         foreach ($fields as $name) {
                             if (!in_array($name, $fields_in_order)) {
                                 $fields_in_order[] = $name;
