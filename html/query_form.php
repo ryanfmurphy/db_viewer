@@ -22,9 +22,6 @@
                    value="<?= $db_type ?>"
                    type="text"
             >
-<?php
-    include('next_prev_page_links.php');
-?>
         </div>
 		<input type="submit" value="Submit">
 	</form>

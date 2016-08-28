@@ -32,6 +32,9 @@
                     # check if there's some rows
 ?>
 
+<?php
+    include('next_prev_page_links.php');
+?>
 <table id="query_table">
 <?php
                     $headerEvery = isset($requestVars['header_every'])
@@ -100,6 +103,9 @@
                     }
 ?>
 </table>
+<?php
+    include('next_prev_page_links.php');
+?>
 <?php
                 }
                 else {

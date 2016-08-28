@@ -16,6 +16,7 @@ html {
 body{
     margin: 0px;
     padding: 0;
+    padding-bottom: 1em;
 <?php
     if ($background=='dark') {
 ?>
@@ -28,7 +29,7 @@ body{
 table {
     border-spacing: 0;
     border-collapse: collapse;
-    margin: 1.2rem auto 2rem;
+    margin: 1.2rem auto;
 }
 td, th {
     padding: .3em;
@@ -128,10 +129,10 @@ a {
 ?>
 
 
-#page_links {
-    margin: auto 2em;
+.page_links {
+    padding: 1em;
 }
-#num_per_page {
+.num_per_page {
     font-size: 80%;
 }
 
