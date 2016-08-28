@@ -574,7 +574,7 @@ form#mainForm label {
         }
 
         function getFormKeys(form) {
-            var form_inputs = getFormInputs(form);
+            var form_inputs = getFormInputs(form); // #todo get them in order regardless of <tagname>
             var fields = form_inputs.map(
                 function(elem){
                     return elem.getAttribute('name')
