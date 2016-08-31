@@ -136,7 +136,19 @@ a {
     font-size: 80%;
 }
 
-.id_field { /* diminish */
+.id_field {
+    color: #ccc;
+    cursor: pointer;
+}
+.uuid_field {
     font-size: 30%;
+}
+
+.row_edit_link {
+    font-size: 80%;
+}
+
+.time_field {
     color: #ccc;
 }
+

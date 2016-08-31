@@ -68,6 +68,7 @@
 ?>
         <td>
             <a  href="<?= $dash_path ?>?edit=1&table=<?= $inferred_table ?>&primary_key=<?= $primary_key ?>"
+                class="row_edit_link"
                 target="_blank"
             >
                 edit
@@ -82,10 +83,34 @@
 ?>
         <td
 <?php
-                                    if ($fieldname == 'id') { #todo or ends with _id (make DbUtil fn)
+                                    #todo factor logic into DbUtil fn
+                                    {
+                                        $is_iid = false;
+                                        if ($fieldname == 'id'
+                                            || substr($fieldname, strlen($fieldname)-3) == '_id'
+                                            || ($is_iid = true # assignment
+                                                && ($fieldname == 'iid'
+                                                    || substr($fieldname, strlen($fieldname)-4) === '_iid'))
+                                        ) {
+                                            if ($is_iid) {
 ?>
             class="id_field"
+<?php
+                                            }
+                                            else {
+?>
+            class="id_field uuid_field"
+<?php
+                                            }
+?>
             onclick="selectText(this)"
+<?php
+                                        }
+                                    }
+
+                                    if ($fieldname == 'time' || $fieldname == 'time_added') {
+?>
+            class="time_field"
 <?php
                                     }
 ?>
