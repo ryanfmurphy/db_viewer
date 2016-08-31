@@ -182,6 +182,7 @@ if (!class_exists('DbUtil')) {
             else { # no suffix - maybe a name field
                 self::log("  no suffix - maybe a name field\n");
                 $tablename_root = $field_name;
+                # field_name set to 'name' later
             }
 
             { # find table prefix if any
@@ -208,9 +209,9 @@ if (!class_exists('DbUtil')) {
                     }
                     #todo maybe error out if didn't match a table?
                 }
-                #else {
-                #    $field_name = 'name';
-                #}
+                else { # no-suffix, probably a name field
+                    $field_name = 'name';
+                }
             }
 
             return array($tablename_root, $field_name);
