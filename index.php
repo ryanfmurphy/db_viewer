@@ -192,8 +192,11 @@
                     $inputAttrs = ob_get_clean();
                 }
         
-                if ($name == 'artist') {
-                    $artists = Db::sql('select name from artist');
+                function doSelectForInput() {
+                    return $name == 'artist';
+                }
+                if (doSelectForInput()) {
+                    $objs = Db::sql('select name from artist');
 ?>
             <div class="select_from_options">
                 <select
@@ -203,10 +206,10 @@
                         custom
                     </option>
 <?php
-                    foreach ($artists as $artist) {
+                    foreach ($objs as $obj) {
 ?>
-                    <option value="<?= $artist['name'] ?>">
-                        <?= $artist['name'] ?>
+                    <option value="<?= $obj['name'] ?>">
+                        <?= $obj['name'] ?>
                     </option>
 <?php
                     }
