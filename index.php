@@ -35,7 +35,7 @@
                     $all1rows = Db::sql($sql);
 
                     if (count($all1rows)) {
-                        $row2edit = $all1rows[0];
+                        $defaultValues = $all1rows[0];
                     }
                     else {
                         die("couldn't find/edit the row with $primary_key_field = $primary_key");
@@ -46,7 +46,7 @@
                 }
             }
             else {
-                $row2edit = null;
+                $defaultValues = null;
             }
         }
     }
@@ -166,7 +166,7 @@
 
     { # PHP functions: echoFormFieldHtml*, jsStringify, echoSelectTableInputHtml*, doSkipField
 
-        function echoFormFieldHtml($name, $row2edit=null) {
+        function echoFormFieldHtml($name, $defaultValues=null) {
             { # vars
                 $inputTag = (( $name == "txt"
                                || $name == "src"
@@ -227,9 +227,9 @@
             <input
                 <?= $inputAttrs ?>
 <?php
-                    if ($row2edit) {
+                    if ($defaultValues) {
 ?>
-                value="<?= htmlentities($row2edit[$name]) ?>"
+                value="<?= htmlentities($defaultValues[$name]) ?>"
 <?php
                     }
 ?>
@@ -241,8 +241,8 @@
             <textarea
                 <?= $inputAttrs ?>
             ><?php
-                    if ($row2edit) {
-                        echo $row2edit[$name];
+                    if ($defaultValues) {
+                        echo $defaultValues[$name];
                     }
             ?></textarea>
 <?php
@@ -281,9 +281,9 @@
             return "'$txt'";
         }
 
-        function echoFormFieldHtml_JsFormat($name, $row2edit=null) {
+        function echoFormFieldHtml_JsFormat($name, $defaultValues=null) {
             { ob_start();
-                echoFormFieldHtml("{{".$name."}}", $row2edit);
+                echoFormFieldHtml("{{".$name."}}", $defaultValues);
                 $txt = ob_get_clean();
             }
             echo jsStringify($txt);
@@ -1026,7 +1026,7 @@ form#mainForm label {
                         if (doSkipField($name, $fields2omit, $fields2keep, $only_include_these_fields)) {
                             continue;
                         }
-                        echoFormFieldHtml($name, $row2edit);
+                        echoFormFieldHtml($name, $defaultValues);
                     }
                 }
 
