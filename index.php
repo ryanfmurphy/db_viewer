@@ -14,6 +14,9 @@
             $edit = (isset($requestVars['edit'])
                     && $requestVars['edit']);
 
+            # pass requestVars in as default values
+            $defaultValues = $requestVars; #todo remove weird field names from other get vars
+
             if ($edit) {
                 if (isset($_GET['primary_key'])) {
 
@@ -35,7 +38,9 @@
                     $all1rows = Db::sql($sql);
 
                     if (count($all1rows)) {
-                        $defaultValues = $all1rows[0];
+                        $thisRow = $all1rows[0];
+                        $defaultValues = array_merge( $defaultValues,
+                                                      $thisRow );
                     }
                     else {
                         die("couldn't find/edit the row with $primary_key_field = $primary_key");
@@ -44,9 +49,6 @@
                 else {
                     die("can't edit with no primary_key");
                 }
-            }
-            else {
-                $defaultValues = null;
             }
         }
     }
@@ -166,7 +168,11 @@
 
     { # PHP functions: echoFormFieldHtml*, jsStringify, echoSelectTableInputHtml*, doSkipField
 
-        function echoFormFieldHtml($name, $defaultValues=null) {
+        function doSelectForInput($name) {
+            return $name == 'artist';
+        }
+
+        function echoFormFieldHtml($name, $defaultValues=array()) {
             { # vars
                 $inputTag = (( $name == "txt"
                                || $name == "src"
@@ -192,10 +198,7 @@
                     $inputAttrs = ob_get_clean();
                 }
         
-                function doSelectForInput() {
-                    return $name == 'artist';
-                }
-                if (doSelectForInput()) {
+                if (doSelectForInput($name)) {
                     $objs = Db::sql('select name from artist');
 ?>
             <div class="select_from_options">
@@ -227,7 +230,7 @@
             <input
                 <?= $inputAttrs ?>
 <?php
-                    if ($defaultValues) {
+                    if (isset($defaultValues[$name])) {
 ?>
                 value="<?= htmlentities($defaultValues[$name]) ?>"
 <?php
@@ -241,7 +244,7 @@
             <textarea
                 <?= $inputAttrs ?>
             ><?php
-                    if ($defaultValues) {
+                    if (isset($defaultValues[$name])) {
                         echo $defaultValues[$name];
                     }
             ?></textarea>
@@ -281,7 +284,7 @@
             return "'$txt'";
         }
 
-        function echoFormFieldHtml_JsFormat($name, $defaultValues=null) {
+        function echoFormFieldHtml_JsFormat($name, $defaultValues=array()) {
             { ob_start();
                 echoFormFieldHtml("{{".$name."}}", $defaultValues);
                 $txt = ob_get_clean();
