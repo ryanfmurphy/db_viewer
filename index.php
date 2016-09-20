@@ -260,6 +260,11 @@
             <span id="durationTimer" onclick="startTimer()">⧖</span>
 <?php
                 }
+                elseif ($name == 'done_time') {
+?>
+            <span id="doneTime" onclick="setDoneTime()">⌚</span>
+<?php
+                }
 ?>
         </div>
 <?php
@@ -410,7 +415,7 @@ form#mainForm label {
     cursor: pointer;
 }
 
-#durationTimer {
+#durationTimer, #doneTime {
     cursor: pointer;
 }
 
@@ -873,6 +878,34 @@ form#mainForm label {
             }
             else {
                 console.log("No duration <input> to fill");
+            }
+        }
+
+        function currentTimestamp() {
+            // offset in milliseconds
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+            var localISOTime = (new Date(Date.now() - tzoffset))
+                                    .toISOString()
+                                    .slice(0,-1) // remove Z for Zulu time
+                                    ;
+            return localISOTime;
+        }
+
+        function setDoneTime() { // #todo generalize 'name' to use on other timestamps
+            var timestamp = currentTimestamp();
+
+            // get duration input
+            var name = 'done_time';
+            var elems = document.getElementsByName(name);
+            if (elems.length > 0) {
+                if (elems.length > 1) {
+                    console.log("Warning - more than one elem with name '"+name+"'");
+                }
+                var input = elems[0];
+                input.value = timestamp;
+            }
+            else {
+                console.log("No '"+name+"' <input> to fill");
             }
         }
     }
