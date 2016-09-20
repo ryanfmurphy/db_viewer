@@ -633,17 +633,26 @@ form#mainForm label {
                             console.log(result.sql);
                         }
                         else if (result) {
-                            if (action == 'delete') {
-                                alert('Thanks! Row Deleted');
+                            if ('success' in result && !result.success) {
+                                var error_details = result.error_info[2];
+                                alert('Failed... Error '
+                                        + result.error_code + ': '
+                                        + error_details
+                                );
                             }
-                            else if (action == 'create') {
-                                alert('Thanks! Row Created');
-                            }
-                            else if (action == 'update') {
-                                alert('Thanks! Row Updated');
-                            }
-                            else {
-                                alert('Thanks! Unknown action "' + action + '" done to Row');
+                            else { // success
+                                if (action == 'delete') {
+                                    alert('Thanks! Row Deleted');
+                                }
+                                else if (action == 'create') {
+                                    alert('Thanks! Row Created');
+                                }
+                                else if (action == 'update') {
+                                    alert('Thanks! Row Updated');
+                                }
+                                else {
+                                    alert('Thanks! Unknown action "' + action + '" done to Row');
+                                }
                             }
                         }
                         else {
