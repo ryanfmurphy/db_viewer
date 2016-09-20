@@ -169,7 +169,7 @@
     { # PHP functions: echoFormFieldHtml*, jsStringify, echoSelectTableInputHtml*, doSkipField
 
         function doSelectForInput($name) {
-            return $name == 'artist';
+            return false; #$name == 'artist';
         }
 
         function echoFormFieldHtml($name, $defaultValues=array()) {
@@ -344,16 +344,23 @@ body {
     margin: 3em;
 }
 
-<?php /* # $background='dark'
+<?php 
+        if ($background=='dark') {
 ?>
 body {
     background: black;
     color: white;
 }
+input, textarea {
+    background: black;
+    color: white;
+    border: solid 1px white;
+}
 a {
     color: yellow;
 }
-<?php */
+<?php
+        }
 ?>
 
 form#mainForm {
