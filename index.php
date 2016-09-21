@@ -1,6 +1,6 @@
 <?php
 
-{ # pre-HTML
+{ # pre-HTML logic
 
     { # init: trunk, includes & requestVars, edit mode
 
@@ -73,94 +73,98 @@
         }
 
         { # get fields from db
+            $nonexistentTable = false;
             if ($table) {
                 { # get fields of table from db, #todo factor into fn
-                    { # do query
-                        { ob_start();
+                    { ob_start(); # do query
 ?>
-                            select
-                                table_schema, table_name,
-                                column_name
-                            from information_schema.columns
-                            where table_name='<?= $table ?>'
+                        select
+                            table_schema, table_name,
+                            column_name
+                        from information_schema.columns
+                        where table_name='<?= $table ?>'
 <?php
-                            if ($schemas_val_list) {
+                        if ($schemas_val_list) {
 ?>
-                                and table_schema in (<?= $schemas_val_list ?>)
+                            and table_schema in (<?= $schemas_val_list ?>)
 <?php
+                        }
+                        $get_columns_sql = ob_get_clean();
+                    }
+                    $fieldsRows = Db::sql($get_columns_sql);
+
+                    if (count($fieldsRows) > 0) {
+
+                        { # group by schema
+                            $fieldsRowsBySchema = array();
+                            foreach ($fieldsRows as $fieldsRow) {
+                                $schema = $fieldsRow['table_schema'];
+                                $fieldsRowsBySchema[$schema][] = $fieldsRow;
                             }
-                            $get_columns_sql = ob_get_clean();
                         }
-                        $fieldsRows = Db::sql($get_columns_sql);
-                        if (count($fieldsRows) == 0) {
-                            die("Table $table doesn't exist");
-                        }
-                    }
 
-                    { # group by schema
-                        $fieldsRowsBySchema = array();
-                        foreach ($fieldsRows as $fieldsRow) {
-                            $schema = $fieldsRow['table_schema'];
-                            $fieldsRowsBySchema[$schema][] = $fieldsRow;
-                        }
-                    }
-
-                    { # choose 1st schema that applies
-                        if ($schemas_in_path) {
-                            $schema = null;
-                            foreach ($schemas_in_path as $schema_in_path) {
-                                if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                                    $schema = $schema_in_path;
-                                    break;
+                        { # choose 1st schema that applies
+                            if ($schemas_in_path) {
+                                $schema = null;
+                                foreach ($schemas_in_path as $schema_in_path) {
+                                    if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                        $schema = $schema_in_path;
+                                        break;
+                                    }
+                                }
+                                if ($schema === null) {
+                                    die("Whoops!  Couldn't select a DB schema for table $table");
                                 }
                             }
-                            if ($schema === null) {
-                                die("Whoops!  Couldn't select a DB schema for table $table");
+                        }
+
+                        { # get just the column_names
+                            $fields = array_map(
+                                function($x) {
+                                    return $x['column_name'];
+                                },
+                                $fieldsRowsBySchema[$schema]
+                            );
+                        }
+
+                        { # so we can give a warning/notice about it later
+                            $multipleTablesFoundInDifferentSchemas =
+                                count(array_keys($fieldsRowsBySchema)) > 1;
+                        }
+
+                        { # manage fields settings
+                            { # fields2omit
+                                $fields2omit = $fields2omit_global;
+
+                                { # from config
+                                    $tblFields2omit = (isset($fields2omit_by_table[$table])
+                                                            ? $fields2omit_by_table[$table]
+                                                            : array());
+
+                                    $fields2omit = array_merge($fields2omit, $tblFields2omit);
+                                }
+
+                                { # 'omit' get var - allow addition of more omitted fields
+                                    $omit = isset($requestVars['omit'])
+                                                ? $requestVars['omit']
+                                                : null;
+                                    $omitted_fields = explode(',', $omit);
+                                    $fields2omit = array_merge($fields2omit, $omitted_fields);
+                                }
+                            }
+
+                            { # fields2keep - allow addition of more kept fields
+                                $keep = isset($requestVars['keep'])
+                                            ? $requestVars['keep']
+                                            : null;
+                                $kept_fields = explode(',', $keep);
+                                $fields2keep = $kept_fields;
                             }
                         }
                     }
-
-                    { # get just the column_names
-                        $fields = array_map(
-                            function($x) {
-                                return $x['column_name'];
-                            },
-                            $fieldsRowsBySchema[$schema]
-                        );
+                    else { # no rows
+                        $nonexistentTable = true;
                     }
-
-                    { # so we can give a warning/notice about it later
-                        $multipleTablesFoundInDifferentSchemas =
-                            count(array_keys($fieldsRowsBySchema)) > 1;
-                    }
-                }
-
-                { # fields2omit
-                    $fields2omit = $fields2omit_global;
-
-                    { # from config
-                        $tblFields2omit = (isset($fields2omit_by_table[$table])
-                                                ? $fields2omit_by_table[$table]
-                                                : array());
-
-                        $fields2omit = array_merge($fields2omit, $tblFields2omit);
-                    }
-
-                    { # 'omit' get var - allow addition of more omitted fields
-                        $omit = isset($requestVars['omit'])
-                                    ? $requestVars['omit']
-                                    : null;
-                        $omitted_fields = explode(',', $omit);
-                        $fields2omit = array_merge($fields2omit, $omitted_fields);
-                    }
-                }
-
-                { # fields2keep - allow addition of more kept fields
-                    $keep = isset($requestVars['keep'])
-                                ? $requestVars['keep']
-                                : null;
-                    $kept_fields = explode(',', $keep);
-                    $fields2keep = $kept_fields;
                 }
             }
         }
@@ -421,6 +425,10 @@ form#mainForm label {
 
 .select_from_options {
     display: inline-block;
+}
+
+#nonexistent_table {
+    margin: 2em auto 1em;
 }
 
         </style>
@@ -1001,10 +1009,19 @@ form#mainForm label {
             </a>
         </p>
         <div id="table_header">
+<?php
+        if ($nonexistentTable) {
+?>
+            <p id="nonexistent_table">
+                Table <code><?= $table ?></code> doesn't exist
+            </p>
+<?php
+        }
+?>
             <div id="table_header_top">
                 <h1>
 <?php
-        if ($table) {
+        if ($table && !$nonexistentTable) {
 ?>
                 <code onclick="becomeSelectTableInput(this)">
                     <?= $table ?>
@@ -1049,7 +1066,7 @@ form#mainForm label {
     }
 
     { # main HTML content
-        if ($table) {
+        if ($table && !$nonexistentTable) {
 
             { # the form
 ?>
