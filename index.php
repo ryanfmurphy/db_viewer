@@ -187,17 +187,17 @@
             }
             { # html
 ?>
-        <div class="formInput" remove="true">
-            <label for="<?= $name ?>"
-                   onclick="removeFormField(getFormRow(this))"
-            >
-                <?= $name ?> 
-            </label>
+            <div class="formInput" remove="true">
+                <label for="<?= $name ?>"
+                       onclick="removeFormField(getFormRow(this))"
+                >
+                    <?= $name ?> 
+                </label>
 <?php
                 { ob_start(); # what attrs go inside the <input>
 ?>
-                name="<?= $name ?>"
-                onkeypress="removeFieldOnCtrlDelete(event,this)"
+                    name="<?= $name ?>"
+                    onkeypress="removeFieldOnCtrlDelete(event,this)"
 <?php
                     $inputAttrs = ob_get_clean();
                 }
@@ -205,53 +205,53 @@
                 if (doSelectForInput($name)) {
                     $objs = Db::sql("select name from $name");
 ?>
-            <div class="select_from_options">
-                <select
-                    <?= $inputAttrs ?>
-                >
-                    <option>
-                        custom
-                    </option>
+                <div class="select_from_options">
+                    <select
+                        <?= $inputAttrs ?>
+                    >
+                        <option>
+                            custom
+                        </option>
 <?php
                     foreach ($objs as $obj) {
 ?>
-                    <option value="<?= $obj['name'] ?>">
-                        <?= $obj['name'] ?>
-                    </option>
+                        <option value="<?= $obj['name'] ?>">
+                            <?= $obj['name'] ?>
+                        </option>
 <?php
                     }
 ?>
-                </select>
-                <!--<br>
-                <input name="<?= $name ?>" >-->
-            </div>
+                    </select>
+                    <!--<br>
+                    <input name="<?= $name ?>" >-->
+                </div>
 <?php
                 }
                 else {
                     # split off <input> and <textarea> cases
                     if ($inputTag == 'input') {
 ?>
-            <input
-                <?= $inputAttrs ?>
+                <input
+                    <?= $inputAttrs ?>
 <?php
                     if (isset($defaultValues[$name])) {
 ?>
-                value="<?= htmlentities($defaultValues[$name]) ?>"
+                    value="<?= htmlentities($defaultValues[$name]) ?>"
 <?php
                     }
 ?>
-            />
+                />
 <?php
                     }
                     elseif ($inputTag == 'textarea') {
 ?>
-            <textarea
-                <?= $inputAttrs ?>
-            ><?php
-                    if (isset($defaultValues[$name])) {
-                        echo $defaultValues[$name];
-                    }
-            ?></textarea>
+                <textarea
+                    <?= $inputAttrs ?>
+                ><?php
+                        if (isset($defaultValues[$name])) {
+                            echo $defaultValues[$name];
+                        }
+                ?></textarea>
 <?php
                     }
                     else {
