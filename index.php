@@ -194,7 +194,7 @@
                 <?= $name ?> 
             </label>
 <?php
-                { ob_start();
+                { ob_start(); # what attrs go inside the <input>
 ?>
                 name="<?= $name ?>"
                 onkeypress="removeFieldOnCtrlDelete(event,this)"
@@ -203,7 +203,7 @@
                 }
         
                 if (doSelectForInput($name)) {
-                    $objs = Db::sql('select name from artist');
+                    $objs = Db::sql("select name from $name");
 ?>
             <div class="select_from_options">
                 <select
