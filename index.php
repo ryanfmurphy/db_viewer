@@ -1,6 +1,6 @@
 <?php
 
-{ # pre-HTML logic
+{ # pre-HTML logic, PHP functions, etc
 
     { # init: trunk, includes & requestVars, edit mode
 
