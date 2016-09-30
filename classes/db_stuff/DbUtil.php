@@ -57,6 +57,11 @@ if (!class_exists('DbUtil')) {
 						: $full_tablename);
 		}
 
+        public static function strip_quotes($tablename) {
+            global $db_type;
+            return str_replace(self::quote_char(), '', $tablename);
+        }
+
 
         # Language Manipulation
         #----------------------
@@ -504,10 +509,18 @@ if (!class_exists('DbUtil')) {
         # Query Manipulation / Interpretation Functions
         #----------------------------------------------
 
+        public static function quote_char() {
+            global $db_type;
+            return ($db_type == 'mysql'
+                            ? '`'
+                            : '"');
+        }
+
         public static function infer_table_from_query($query) {
             #todo improve inference - fix corner cases
+            $quote_char = self::quote_char();
             if (preg_match(
-                    "/ \b from \s+ ((?:\w|\.)+) \b /ix",
+                    "/ \b from \s+ ((?:\w|\.|$quote_char)+) /ix",
                     $query, $matches)
             ) {
                 $table = $matches[1];
@@ -703,6 +716,19 @@ infer_limit_from_query: query didn't match regex.
                 }
             }
             return null;
+        }
+
+        public static function quote_tablename($table) {
+            global $db_type;
+
+            $quote_char = self::quote_char();
+            $result = $quote_char
+                    . str_replace(
+                        '.',
+                        "$quote_char.$quote_char",
+                        $table)
+                    . $quote_char;
+            return $result;
         }
 
     }

@@ -78,8 +78,12 @@
 
         { # just tablename? turn to select statement
           $sqlHasNoSpaces = (strpos(trim($sql), ' ') === false);
-          if (strlen($sql) > 0 && $sqlHasNoSpaces) {
-            $sql = "select * from $sql limit 100";
+          if (strlen($sql) > 0
+              && $sqlHasNoSpaces
+          ) {
+            $sql = "select * from "
+                    .DbUtil::quote_tablename($sql)
+                    ." limit 100";
 
             # and order by time field if there is one
             $requestVars['order_by_time'] = true;
@@ -89,6 +93,9 @@
 
       { # vars
         $inferred_table = DbUtil::infer_table_from_query($sql);
+        $just_table = DbUtil::strip_quotes(
+            DbUtil::just_tablename($inferred_table)
+        );
 
         { # limit/offset/order_by_time stuff: #todo factor into fn
 
@@ -139,16 +146,17 @@
 
               { # add limit/offset to sql query
                 if ($order_by_time) {
-                  $time_field = DbUtil::get_time_field($inferred_table, $schemas_in_path);
+                  $time_field = DbUtil::get_time_field(
+                        $just_table, $schemas_in_path);
                   if ($time_field) {
-                    $sql .= " order by $time_field desc";
+                    $sql .= "\norder by $time_field desc";
                   }
                 }
                 if ($limit_info['limit'] !== null) {
-                  $sql .= " limit $limit_info[limit]";
+                  $sql .= "\nlimit $limit_info[limit]";
                 }
                 if ($limit_info['offset'] !== null) {
-                  $sql .= " offset $limit_info[offset]";
+                  $sql .= "\noffset $limit_info[offset]";
                 }
               }
             }
