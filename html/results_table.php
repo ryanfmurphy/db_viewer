@@ -65,9 +65,13 @@
                             { # edit-row link
                                 if ($add_edit_link) {
                                     $primary_key = $row[$primary_key_field];
+
+                                    # strip quotes because dash doesn't want quotes
+                                    # #todo will dash accept "schema.table" format?
+                                    $tablename4dash = DbUtil::strip_quotes($inferred_table);
 ?>
         <td>
-            <a  href="<?= $dash_path ?>?edit=1&table=<?= $inferred_table ?>&primary_key=<?= $primary_key ?>"
+            <a  href="<?= $dash_path ?>?edit=1&table=<?= $tablename4dash ?>&primary_key=<?= $primary_key ?>"
                 class="row_edit_link"
                 target="_blank"
             >
