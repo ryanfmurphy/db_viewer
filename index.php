@@ -1,4 +1,5 @@
 <?php
+#todo will dash accept "schema.table" format for table?
 
 { # pre-HTML logic, PHP functions, etc
 
@@ -868,7 +869,10 @@ form#mainForm label {
             if ('t0' in durationTimer) {
                 durationTimer.t1 = new Date();
                 durationTimer.dur_ms = durationTimer.t1 - durationTimer.t0;
-                durationTimer.dur_min = durationTimer.dur_ms / 1000 / 60;
+                existing_dur_min = (durationTimer.dur_min !== undefined
+                                        ? durationTimer.dur_min
+                                        : 0);
+                durationTimer.dur_min = (durationTimer.dur_ms / 1000 / 60) + existing_dur_min;
                 durationTimer.duration = durationTimer.dur_min.toString() + ' minutes';
                 return durationTimer.duration;
             }
@@ -886,6 +890,8 @@ form#mainForm label {
 
             // get duration input
             var elems = document.getElementsByName('duration');
+
+            // set duration value
             if (elems.length > 0) {
                 if (elems.length > 1) {
                     console.log("Warning - more than one elem with name 'duration'");
