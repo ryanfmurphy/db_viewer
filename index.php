@@ -33,7 +33,7 @@
                     $primary_key__esc = Db::sqlLiteral($primary_key); # escape as sql literal
 
                     $sql = "
-                        select * from $table
+                        select * from ".DbUtil::quote_tablename($table)."
                         where $primary_key_field = $primary_key__esc
                     ";
                     $all1rows = Db::sql($sql);
