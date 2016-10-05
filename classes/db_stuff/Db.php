@@ -114,17 +114,25 @@ if (!class_exists('Db')) {
             $db = Db::conn();
             $result = $db->query($query);
             if (is_a($result, 'PDOStatement')) {
-                $response = array(
-                    'success' => true,
-                    'rows' => $result->fetchAll(PDO::FETCH_ASSOC),
-                );
+
+                $rows = $result->fetchAll(PDO::FETCH_ASSOC);
+
                 if (isset($show_internal_result_details)
                     && $show_internal_result_details
                 ) {
+                    $response = array(
+                        'success' => true,
+                        'rows' => $rows,
+                    );
                     $response['result'] = $result;
                     $response['sql'] = $query;
                 }
+                else {
+                    $response = $rows;
+                }
+
                 return $response;
+
             }
             else {
                 return $result;
