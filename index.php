@@ -481,7 +481,10 @@ form#mainForm label {
 
     // Serialize an array of form elements
     // into a query string - inspired by jQuery
-    function serializeForm(formInputs, includeEmptyVals = false) {
+    function serializeForm(formInputs, includeEmptyVals) {
+        if (includeEmptyVals === undefined) {
+            includeEmptyVals = false;
+        }
         console.log('includeEmptyVals',includeEmptyVals);
 
         { // vars
