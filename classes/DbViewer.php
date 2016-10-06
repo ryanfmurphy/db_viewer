@@ -1,24 +1,6 @@
 <?php
     class DbViewer {
 
-        # ends with _id or _iid
-        public static function has_valid_join_field_suffix($field_name) {
-            $suffix = substr($field_name, -3);
-            if ($suffix === '_id') {
-                return $suffix;
-            }
-            else {
-                $suffix = substr($field_name, -4);
-                if ($suffix === '_iid') {
-                    return $suffix;
-                }
-                else {
-                    return false;
-                }
-            }
-        }
-
-
         # table name manipulation functions
         #----------------------------------
 
