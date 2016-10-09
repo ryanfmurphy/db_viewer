@@ -174,7 +174,8 @@
     { # PHP functions: echoFormFieldHtml*, jsStringify, echoSelectTableInputHtml*, doSkipField
 
         function doSelectForInput($name) {
-            return false; #$name == 'artist';
+            return $name == 'artist'
+                || $name == 'reading_id';
         }
 
         function echoFormFieldHtml($name, $defaultValues=array()) {
@@ -204,7 +205,14 @@
                 }
         
                 if (doSelectForInput($name)) {
-                    $objs = Db::sql("select name from $name");
+                    #todo check quoting on table/field
+                    list($join_table, $join_field) = DbUtil::choose_table_and_field($name);
+                    $objs = Db::sql("
+    select
+        name,
+        $join_field as value
+    from $join_table
+                    ");
 ?>
                 <div class="select_from_options">
                     <select
@@ -215,9 +223,11 @@
                         </option>
 <?php
                     foreach ($objs as $obj) {
+                        $txt = $obj['name'];
+                        $value = $obj['value'];
 ?>
-                        <option value="<?= $obj['name'] ?>">
-                            <?= $obj['name'] ?>
+                        <option value="<?= $value ?>">
+                            <?= $txt ?>
                         </option>
 <?php
                     }
