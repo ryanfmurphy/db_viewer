@@ -174,8 +174,10 @@
     { # PHP functions: echoFormFieldHtml*, jsStringify, echoSelectTableInputHtml*, doSkipField
 
         function doSelectForInput($name) {
-            return $name == 'artist'
-                || $name == 'reading_id';
+            global $fields_to_make_selects;
+            return in_array($name,
+                $fields_to_make_selects
+            );
         }
 
         function echoFormFieldHtml($name, $defaultValues=array()) {

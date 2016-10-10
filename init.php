@@ -74,5 +74,12 @@
             }
         }
 
+        {   # other fields that need to exist
+            # even if not present in config
+            if (!isset($fields_to_make_selects)) {
+                $fields_to_make_selects = array();
+            }
+        }
+
     }
 
