@@ -52,6 +52,9 @@
                 }
             }
         }
+
+        # misc: for <select> custom value, need unique placeholder
+        $custom_select_value = sha1('custom');
     }
 
     { # prep logic - get fields from db
@@ -182,6 +185,7 @@
 
         function echoFormFieldHtml($name, $defaultValues=array()) {
             { # vars
+                global $custom_select_value;
                 $inputTag = (( $name == "txt"
                                || $name == "src"
                                || $name == "lyrics"
@@ -219,8 +223,9 @@
                 <div class="select_from_options">
                     <select
                         <?= $inputAttrs ?>
+                        onchange="handleCustomValueInputForSelect(this)"
                     >
-                        <option>
+                        <option value="<?= $custom_select_value ?>">
                             custom
                         </option>
 <?php
@@ -1024,6 +1029,67 @@ form#mainForm label {
                     input.focus();
                 }
             }
+        }
+    }
+
+    scope.custom_select_value = "<?= $custom_select_value ?>";
+    function handleCustomValueInputForSelect(elem) {
+        // use magic value to detect if they chose "custom"
+        // so we can give them a custom <input> to type in
+        if (elem.value == scope.custom_select_value) {
+            var new_input = document.createElement('input');
+            new_input.addEventListener('change', function(){
+                useCustomValue(new_input);
+            });
+            new_input.setAttribute('class', "custom_value_input");
+            // #todo is .after well-supported JS?
+            elem.after(new_input);
+        }
+        else {
+            useSelectValue(elem);
+            removeCustomInput(elem);
+        }
+    }
+
+    // when you type in the custom <input> box tied to a <select>
+    // move the name from the <select> to the <input>
+    function useCustomValue(input_elem) {
+        var select_elem = input_elem.previousSibling;
+        var name = select_elem.getAttribute('name');
+        input_elem.setAttribute('name', name);
+        select_elem.removeAttribute('name');
+    }
+
+    // and the reverse - move name from <input> back to <select>
+    function useSelectValue(select_elem) {
+        var input_elem = select_elem.nextSibling;
+        if (input_elem
+            && input_elem.getAttribute
+        ) {
+            console.log('input_elem', input_elem);
+            var name = input_elem.getAttribute('name');
+            if (name) {
+                select_elem.setAttribute('name', name);
+                input_elem.removeAttribute('name');
+            }
+            else {
+                console.log('no name found on input_elem', input_elem,
+                            'select_elem =', select_elem);
+            }
+        }
+        else {
+            console.log('no input_elem in useSelectValue. select_elem =',
+                        select_elem);
+        }
+    }
+
+    // remove custom <input> after <select>, if any
+    function removeCustomInput(select_elem) {
+        var next = select_elem.nextSibling;
+        if (next.classList
+            && next.classList.contains('custom_value_input')
+        ) {
+            next.remove();
         }
     }
 }
