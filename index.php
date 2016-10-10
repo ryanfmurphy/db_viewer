@@ -378,6 +378,16 @@ input, textarea {
     color: white;
     border: solid 1px white;
 }
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: black;
+    color: white;
+    border: solid 1px white;
+}
+option {
+    border: none;
+}
 a {
     color: yellow;
 }
