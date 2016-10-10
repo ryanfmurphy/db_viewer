@@ -2,3 +2,4 @@
 /db_config.php
 *.swp
 *.swo
+error_log
