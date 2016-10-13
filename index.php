@@ -230,10 +230,20 @@
                         </option>
 <?php
                     foreach ($objs as $obj) {
-                        $txt = $obj['name'];
+                        $txt = htmlentities($obj['name']);
                         $value = $obj['value'];
 ?>
-                        <option value="<?= $value ?>">
+                        <option value="<?= $value ?>"
+<?php
+                        if (isset($defaultValues[$name])
+                            && $defaultValues[$name] == $value
+                        ) {
+?>
+                                selected="selected"
+<?php
+                        }
+?>
+                        >
                             <?= $txt ?>
                         </option>
 <?php
