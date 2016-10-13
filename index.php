@@ -200,8 +200,10 @@
           { # "create" link
               if (isset($dash_links) && $dash_links) {
 ?>
-    <a href="/dash/index.php?table=<?= $inferred_table ?>" target="_blank">
-      Create a new <code><?= $inferred_table ?></code>
+    <a href="/dash/index.php?table=<?= $just_table ?>&minimal"
+       target="_blank"
+    >
+      Create a new <code><?= $just_table ?></code>
     </a>
 <?php
               }
