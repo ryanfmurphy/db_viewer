@@ -670,7 +670,9 @@ form#mainForm label {
 
         { // do ajax
             var xhttp = new XMLHttpRequest();
-            { // callback
+            {   // callback
+                // #todo maybe try to bring this out into its own named fn?
+                // would need to make xhttp an explicit arg not a closure
                 xhttp.onreadystatechange = function() {
                     if (xhttp.readyState == 4
                         && xhttp.status == 200
@@ -695,6 +697,8 @@ form#mainForm label {
                                 }
                                 else if (action == 'create') {
                                     alert('Thanks! Row Created');
+                                    //#todo can only do this change if we get the primary_key var set
+                                    //changeCreateButtonToUpdateButton();
                                 }
                                 else if (action == 'update') {
                                     alert('Thanks! Row Updated');
@@ -736,7 +740,7 @@ form#mainForm label {
 
 <?php
             if ($edit) {
-                    $primary_key__esc = str_replace('"', '\"', $primary_key); # escape for js
+                $primary_key__esc = str_replace('"', '\"', $primary_key); # escape for js
 ?>
                     // update needs a where clause
                     if (   action == 'update'
@@ -852,6 +856,17 @@ form#mainForm label {
             update_button.outerHTML = '\
                 <input onclick="return createButtonClickHandler(\'<?= $orm_router_path ?>\', scope.table_name, event)"\
                     value="Create" type="submit" id="create_button"\
+                />\
+            ';
+        }
+    }
+
+    function changeCreateButtonToUpdateButton() {
+        var update_button = document.getElementById('create_button');
+        if (update_button) {
+            update_button.outerHTML = '\
+                <input onclick="return updateButtonClickHandler(\'<?= $orm_router_path ?>\', scope.table_name, event)"\
+                    value="Update" type="submit" id="update_button"\
                 />\
             ';
         }
@@ -973,18 +988,28 @@ form#mainForm label {
         }
     }
 
+    window.onload = function() {
+
 <?php
-    { # focus selectTable input if no table selected
+        # focus selectTable input if no table selected
         if (!$table) {
 ?>
-    window.onload = function() {
         var select_table_input = document.getElementById('selectTable');
         select_table_input.focus();
-    }
 <?php
         }
-    }
 ?>
+        
+        // if <select> is on Custom, don't send that hash value,
+        // and show the custom value <input>
+        var form = document.getElementById('mainForm');
+        var selects = form.getElementsByTagName('select');
+        for (var i=0; i < selects.length; i++) {
+            var elem = selects[i];
+            handleCustomValueInputForSelect(elem);
+        }
+    }
+
 
     // <script>
     function isFormRow(elem) {
@@ -1073,6 +1098,7 @@ form#mainForm label {
     // and the reverse - move name from <input> back to <select>
     function useSelectValue(select_elem) {
         var input_elem = select_elem.nextSibling;
+        console.log('top of useSelectValue()');
         if (input_elem
             && input_elem.getAttribute
         ) {
@@ -1083,12 +1109,12 @@ form#mainForm label {
                 input_elem.removeAttribute('name');
             }
             else {
-                console.log('no name found on input_elem', input_elem,
+                console.log('no name found on input_elem, doing nothing', input_elem,
                             'select_elem =', select_elem);
             }
         }
         else {
-            console.log('no input_elem in useSelectValue. select_elem =',
+            console.log('no input_elem in useSelectValue, doing nothing. select_elem =',
                         select_elem);
         }
     }
