@@ -665,55 +665,55 @@ form#mainForm label {
 
     }
 
+    function formSubmitCallback(xhttp, event, action) {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            result = JSON.parse(xhttp.responseText);
+            if (event.altKey) {
+                alert('SQL Query Logged to Console');
+                result = JSON.parse(xhttp.responseText);
+                console.log(result.sql);
+            }
+            else if (result) {
+                if ('success' in result && !result.success) {
+                    var error_details = result.error_info[2];
+                    alert('Failed... Error '
+                            + result.error_code + ': '
+                            + error_details
+                    );
+                }
+                else { // success
+                    if (action == 'delete') {
+                        alert('Thanks! Row Deleted');
+                    }
+                    else if (action == 'create') {
+                        alert('Thanks! Row Created');
+                        //#todo can only do this change if we get the primary_key var set
+                        //changeCreateButtonToUpdateButton();
+                    }
+                    else if (action == 'update') {
+                        alert('Thanks! Row Updated');
+                    }
+                    else {
+                        alert('Thanks! Unknown action "' + action + '" done to Row');
+                    }
+                }
+            }
+            else {
+                alert('Failed... Try alt-clicking to see the Query');
+            }
+            console.log(result);
+        }
+    }
+
     function submitForm(url, event, action) {
         var form = document.getElementById('mainForm');
 
         { // do ajax
             var xhttp = new XMLHttpRequest();
             {   // callback
-                // #todo maybe try to bring this out into its own named fn?
-                // would need to make xhttp an explicit arg not a closure
                 xhttp.onreadystatechange = function() {
-                    if (xhttp.readyState == 4
-                        && xhttp.status == 200
-                    ) {
-                        result = JSON.parse(xhttp.responseText);
-                        if (event.altKey) {
-                            alert('SQL Query Logged to Console');
-                            result = JSON.parse(xhttp.responseText);
-                            console.log(result.sql);
-                        }
-                        else if (result) {
-                            if ('success' in result && !result.success) {
-                                var error_details = result.error_info[2];
-                                alert('Failed... Error '
-                                        + result.error_code + ': '
-                                        + error_details
-                                );
-                            }
-                            else { // success
-                                if (action == 'delete') {
-                                    alert('Thanks! Row Deleted');
-                                }
-                                else if (action == 'create') {
-                                    alert('Thanks! Row Created');
-                                    //#todo can only do this change if we get the primary_key var set
-                                    //changeCreateButtonToUpdateButton();
-                                }
-                                else if (action == 'update') {
-                                    alert('Thanks! Row Updated');
-                                }
-                                else {
-                                    alert('Thanks! Unknown action "' + action + '" done to Row');
-                                }
-                            }
-                        }
-                        else {
-                            alert('Failed... Try alt-clicking to see the Query');
-                        }
-                        console.log(result);
-                    }
-                };
+                    return formSubmitCallback(xhttp, event, action);
+                }
             }
             { // do post
                 xhttp.open("POST", url, true);
