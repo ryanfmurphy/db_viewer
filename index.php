@@ -1069,16 +1069,20 @@ form#mainForm label {
 
     scope.custom_select_value = "<?= $custom_select_value ?>";
     function handleCustomValueInputForSelect(elem) {
+        console.log('handleCustomValueInputForSelect, elem=', elem);
         // use magic value to detect if they chose "custom"
         // so we can give them a custom <input> to type in
         if (elem.value == scope.custom_select_value) {
+            console.log('  matches magic value, creating input');
             var new_input = document.createElement('input');
-            new_input.addEventListener('change', function(){
-                useCustomValue(new_input);
-            });
+            // maybe we really just want this one time instead of onchange?
+            //new_input.addEventListener('change', function(){
+            //    useCustomValue(new_input);
+            //});
             new_input.setAttribute('class', "custom_value_input");
             // #todo is .after well-supported JS?
             elem.after(new_input);
+            useCustomValue(new_input);
         }
         else {
             useSelectValue(elem);
@@ -1089,6 +1093,7 @@ form#mainForm label {
     // when you type in the custom <input> box tied to a <select>
     // move the name from the <select> to the <input>
     function useCustomValue(input_elem) {
+        console.log('useCustomValue() input_elem=',input_elem);
         var select_elem = input_elem.previousSibling;
         var name = select_elem.getAttribute('name');
         input_elem.setAttribute('name', name);
