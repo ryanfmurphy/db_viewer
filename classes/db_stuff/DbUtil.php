@@ -615,7 +615,7 @@ infer_limit_from_query: query didn't match regex.
             $maybeOffset = ($offset !== null
                                 ? " offset $offset"
                                 : "");
-            return "?sql=$query" . $maybeLimit . $maybeOffset
+            return "?sql=" . urlencode($query) . $maybeLimit . $maybeOffset
                    . "&db_type=$db_type";
         }
 
