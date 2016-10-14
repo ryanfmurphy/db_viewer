@@ -626,6 +626,16 @@ form#mainForm label {
         }
     }
 
+    function getFormKeys(form) {
+        var form_inputs = getFormInputs(form); // #todo get them in order regardless of <tagname>
+        var fields = form_inputs.map(
+            function(elem){
+                return elem.getAttribute('name')
+            }
+        );
+        return fields;
+    }
+
     { // submit button handlers
 
         function createButtonClickHandler(orm_router_path, table_name, event) {
@@ -638,16 +648,6 @@ form#mainForm label {
             var url = orm_router_path+'/update_'+table_name;
             submitForm(url, event, 'update');
             return false;
-        }
-
-        function getFormKeys(form) {
-            var form_inputs = getFormInputs(form); // #todo get them in order regardless of <tagname>
-            var fields = form_inputs.map(
-                function(elem){
-                    return elem.getAttribute('name')
-                }
-            );
-            return fields;
         }
 
         function viewButtonClickHandler(orm_router_path, keyEvent, table_name) {
