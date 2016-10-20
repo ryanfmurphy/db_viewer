@@ -119,7 +119,7 @@ li {
 }
 
 <?php
-    if ($background='dark') {
+    if ($background=='dark') {
 ?>
 a {
     color: #88f;
