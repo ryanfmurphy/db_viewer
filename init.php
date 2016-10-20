@@ -21,12 +21,15 @@
         $requestVars = array_merge($_GET, $_POST);
     }
 
-    { # vars - initial values & db_config
+    { # vars - initial values
         $pluralize_table_names = false;
         $slow_tables = array();
         $js_path = '/db_viewer/js';
         $dash_path = '/dash/index.php';
+        $field_render_filters_by_table = array();
+    }
 
+    { # db_config include
         $trunk = __DIR__;
         include("$trunk/db_config.php");
     }

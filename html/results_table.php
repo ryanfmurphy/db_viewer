@@ -1,4 +1,9 @@
 <?php
+        { # vars
+            # strip quotes because e.g. dash doesn't want quotes
+            $tablename_no_quotes = DbUtil::strip_quotes($inferred_table);
+        }
+
         { # render the header row html <th>'s
             # factored into a function because
             # the <th>'s are repeated every so many rows
@@ -66,12 +71,10 @@
                                 if ($add_edit_link) {
                                     $primary_key = $row[$primary_key_field];
 
-                                    # strip quotes because dash doesn't want quotes
-                                    # #todo will dash accept "schema.table" format?
-                                    $tablename4dash = DbUtil::strip_quotes($inferred_table);
+                                    #todo will dash accept "schema.table" format?
 ?>
         <td>
-            <a  href="<?= $dash_path ?>?edit=1&table=<?= $tablename4dash ?>&primary_key=<?= $primary_key ?>"
+            <a  href="<?= DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) ?>"
                 class="row_edit_link"
                 target="_blank"
             >
@@ -119,7 +122,7 @@
                                     }
 ?>
         ><?=
-            DbViewer::val_html($val, $fieldname)
+            DbViewer::val_html($val, $fieldname, $tablename_no_quotes)
         ?></td>
 <?php
                                 }

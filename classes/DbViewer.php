@@ -93,15 +93,21 @@
         }
 
         # formal $val as HTML to put in <td>
-        public static function val_html($val, $fieldname) { #keep
+        #   ($table should have no quotes)
+        public static function val_html($val, $fieldname, $table=null) {
+            global $field_render_filters_by_table, $dash_path;
+
             do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
+
+            # pg array is <ul>
             if (DbUtil::seems_like_pg_array($val)) {
                 $vals = DbUtil::pgArray2array($val);
                 return self::array_as_html_list($vals);
             }
+            # urls are links
             elseif (self::is_url($val)) {
+                $val = htmlentities($val);
                 { ob_start();
-                    $val = htmlentities($val);
 ?>
         <a href="<?= $val ?>" target="_blank">
             <?= $val ?>
@@ -110,6 +116,7 @@
                     return ob_get_clean();
                 }
             }
+            # links from table_list
             elseif (self::isTableNameVal($val, $fieldname)) {
                 { # vars
                     $tablename = $val;
@@ -132,6 +139,14 @@
                     return ob_get_clean();
                 }
             }
+            # filters from array in db_config
+            elseif ($table !== null
+                    && isset($field_render_filters_by_table[$table][$fieldname])
+            ) {
+                $fn = $field_render_filters_by_table[$table][$fieldname];
+                return $fn($val, $dash_path, $fieldname);
+            }
+            # default quoting / handling of val
             else {
                 $val = htmlentities($val);
                 $val = nl2br($val); # show newlines as <br>'s
@@ -139,9 +154,7 @@
                 { # get bigger column width for longform text fields
                     #todo factor this logic in the 2 places we have it
                     # (here and in dash)
-                    if ($fieldname == 'txt'
-                        || $fieldname == 'src'
-                    ) {
+                    if ($fieldname == 'txt' || $fieldname == 'src') {
                         ob_start();
 ?>
                         <div class="wide_col">
@@ -184,6 +197,10 @@
             $uri = $_SERVER['REQUEST_URI'];
             $uri_no_query = strtok($uri, '?');
             return "$uri_no_query";
+        }
+
+        public static function dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) {
+            return "$dash_path?edit=1&table=$tablename_no_quotes&primary_key=$primary_key";
         }
 
     }
