@@ -38,7 +38,7 @@
                     ";
                     $all1rows = Db::sql($sql);
 
-                    if (count($all1rows)) {
+                    if (is_array($all1rows) && count($all1rows)) {
                         $thisRow = $all1rows[0];
                         $defaultValues = array_merge( $defaultValues,
                                                       $thisRow );
