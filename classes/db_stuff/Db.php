@@ -65,6 +65,8 @@ if (!class_exists('Db')) {
         }
 
         public static function sqlFieldsAndValsFromArray($vars) {
+            global $hash_password_field; # from config
+
             { # key list
                 $keys = array_keys($vars);
                 $varNameList = implode(', ', $keys);
@@ -81,7 +83,17 @@ if (!class_exists('Db')) {
         val = ".print_r($val,1)
                         );
                     }
-                    $varValLiterals[] = Db::sqlLiteral($val);
+
+                    if ($hash_password_field
+                        && strpos($key, 'password') !== false
+                    ) {
+                        $safeVal = password_hash($val, PASSWORD_BCRYPT);
+                    }
+                    else {
+                        $safeVal = $val;
+                    }
+                    $safeVal = Db::sqlLiteral($safeVal);
+                    $varValLiterals[] = $safeVal;
                 }
                 $varValList = implode(', ', $varValLiterals);
             }
@@ -98,7 +110,12 @@ if (!class_exists('Db')) {
             $db = Db::conn();
             $result = $db->query($query);
             if (is_a($result, 'PDOStatement')) {
-                return $result->fetchAll(PDO::FETCH_ASSOC);
+                return array(
+                    'success' => true,
+                    'result' => $result,
+                    'rows' => $result->fetchAll(PDO::FETCH_ASSOC),
+                    'sql' => $query,
+                );
             }
             else {
                 return $result;
@@ -163,7 +180,7 @@ if (!class_exists('Db')) {
             }
             else {
                 $db = Db::conn();
-                $result = $db->query($sql);
+                $result = self::sql($sql);
                 if ($result) {
                     return $result;
                 }
