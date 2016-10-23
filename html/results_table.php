@@ -39,7 +39,14 @@
                                       : 15;
 
                     { # primary key stuff for edit_link
-                        $primary_key_field = 'id';
+                        { # get id field - #todo use the fn we probably have for this / create one
+                            if ($id_mode == 'id_only') {
+                                $primary_key_field = 'id';
+                            }
+                            else {
+                                $primary_key_field = $inferred_table.'_id';
+                            }
+                        }
                         $current_row = current($rows);
                         $has_primary_key = (isset($current_row[$primary_key_field])
                                                 ? true : false);
@@ -63,7 +70,7 @@
                                     $primary_key = $row[$primary_key_field];
 ?>
         <td>
-            <a  href="/dash/edit.php?table=<?= $inferred_table ?>&primary_key=<?= $primary_key ?>"
+            <a  href="<?= $dash_path ?>?edit=1&table=<?= $inferred_table ?>&primary_key=<?= $primary_key ?>"
                 target="_blank"
             >
                 edit
