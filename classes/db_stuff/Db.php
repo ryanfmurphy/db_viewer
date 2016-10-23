@@ -42,6 +42,15 @@ if (!class_exists('Db')) {
             , E_USER_ERROR);
         }
 
+        public static function errorResult($sql=null) {
+            $result = array(
+                'error_code' => $db->errorCode(),
+                'error_info' => $db->errorInfo(),
+            );
+            if ($sql) { $result['sql'] = $sql; }
+            return $result;
+        }
+
         public static function sqlLiteral($val) {
             if (is_string($val)) {
                 $db = Db::conn();
@@ -154,7 +163,12 @@ if (!class_exists('Db')) {
             else {
                 $db = Db::conn();
                 $result = $db->query($sql);
-                return $result;
+                if ($result) {
+                    return $result;
+                }
+                else {
+                    return self::errorResult($sql);
+                }
             }
         }
 
