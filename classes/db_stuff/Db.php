@@ -179,8 +179,9 @@ if (!class_exists('Db')) {
             list($varNameList, $varValList)
                 = Db::sqlFieldsAndValsFromArray($rowVars);
 
+            $tableNameQuoted = DbUtil::quote_tablename($tableName);
             $sql = "
-                insert into $tableName ($varNameList)
+                insert into $tableNameQuoted ($varNameList)
                 values ($varValList);
             ";
 
@@ -243,7 +244,8 @@ if (!class_exists('Db')) {
         public static function buildUpdateSql($table_name, $setKeyVals, $whereClauses) {
 
             { # build sql
-                $sql = "update $table_name set ";
+                $table_name_quoted = DbUtil::quote_tablename($table_name);
+                $sql = "update $table_name_quoted set ";
 
                 $comma = false;
                 foreach ($setKeyVals as $key => $val) {

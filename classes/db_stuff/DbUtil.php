@@ -722,6 +722,7 @@ infer_limit_from_query: query didn't match regex.
             global $db_type;
 
             $quote_char = self::quote_char();
+            #todo don't try to quote if there are already quotes
             $result = $quote_char
                     . str_replace(
                         '.',
