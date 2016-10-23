@@ -488,7 +488,7 @@ if (!class_exists('DbUtil')) {
             else {
                 self::log("
 infer_limit_from_query: query didn't match regex.
-    query = $$$query$$
+    query = '$query'
     regex = '$regex'
 ");
             }
@@ -525,7 +525,9 @@ infer_limit_from_query: query didn't match regex.
             );
         }
 
-        public static function link_to_query_w_limit($query, $limit=null, $offset=null) {
+        public static function link_to_query_w_limit(
+            $query, $limit=null, $offset=null
+        ) {
             global $db_type;
             $maybeLimit = ($limit !== null
                                 ? " limit $limit"
