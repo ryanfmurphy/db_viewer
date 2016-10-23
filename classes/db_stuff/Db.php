@@ -84,7 +84,8 @@ if (!class_exists('Db')) {
                         );
                     }
 
-                    if ($hash_password_fields
+                    if (isset($hash_password_fields)
+                        && $hash_password_fields
                         && strpos($key, 'password') !== false
                     ) {
                         $safeVal = password_hash($val, PASSWORD_BCRYPT);
@@ -107,15 +108,22 @@ if (!class_exists('Db')) {
         }
 
         public static function sql($query) {
+            global $show_internal_result_details;
+
             $db = Db::conn();
             $result = $db->query($query);
             if (is_a($result, 'PDOStatement')) {
-                return array(
+                $response = array(
                     'success' => true,
-                    'result' => $result,
                     'rows' => $result->fetchAll(PDO::FETCH_ASSOC),
-                    'sql' => $query,
                 );
+                if (isset($show_internal_result_details)
+                    && $show_internal_result_details
+                ) {
+                    $response['result'] = $result;
+                    $response['sql'] = $query;
+                }
+                return $response;
             }
             else {
                 return $result;
