@@ -163,15 +163,15 @@
         public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
 
 			$args = print_r(get_defined_vars(),1);
-			do_log("top of tables_with_field, get_defined_vars()=$args\n");
-			do_log("  fieldname=$fieldname, data_type=$data_type, vals=".print_r($vals,1)."\n");
+			self::log("top of tables_with_field, get_defined_vars()=$args\n");
+			self::log("  fieldname=$fieldname, data_type=$data_type, vals=".print_r($vals,1)."\n");
 
             $has_vals = (is_array($vals) && count($vals));
 
             # get only the tables that actually would have rows for those vals
-			do_log("  has_vals?\n");
+			self::log("  has_vals?\n");
             if ($has_vals) {
-                do_log("    yes\n");
+                self::log("    yes\n");
                 $rows = self::rows_with_field_vals(
                     $fieldname, $vals, null, $data_type
                 );
@@ -179,7 +179,7 @@
             }
             # get all tables with the fieldname, regardless of whether rows will actually be returned
             else {
-                do_log("    no\n");
+                self::log("    no\n");
 
                 {   ob_start();
 ?>
@@ -194,13 +194,13 @@
                     }
                     $sql = ob_get_clean();
                 }
-                do_log("$sql\n");
+                self::log("$sql\n");
                 $rows = Db::sql($sql);
 
-                do_log("about to loop thru rows\n");
+                self::log("about to loop thru rows\n");
                 $tables = array();
                 foreach ($rows as $row) {
-                    do_log("  row = ".print_r($row,1)."\n");
+                    self::log("  row = ".print_r($row,1)."\n");
                     $schema = $row['table_schema'];
                     $table_name = $row['table_name'];
                     if ($schema != 'public') {
@@ -208,7 +208,7 @@
                     }
                     $tables[] = $table_name;
                 }  
-                do_log("  done looping, returning from tables_with_field\n");
+                self::log("  done looping, returning from tables_with_field\n");
 
                 return $tables;
 
@@ -483,7 +483,7 @@
                 }
             }
             else {
-                do_log("
+                self::log("
 infer_limit_from_query: query didn't match regex.
     query = $$$query$$
     regex = '$regex'
