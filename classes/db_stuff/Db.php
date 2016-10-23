@@ -190,12 +190,9 @@ if (!class_exists('Db')) {
             else {
                 $db = Db::conn();
                 $result = self::sql($sql);
-                if ($result) {
-                    return $result;
-                }
-                else {
-                    return self::errorResult($sql);
-                }
+                return ($result
+                            ? $result
+                            : self::errorResult($sql));
             }
         }
 
@@ -204,7 +201,10 @@ if (!class_exists('Db')) {
                 $whereClauses = $rowVars['where_clauses'];
                 unset($rowVars['where_clauses']);
                 $sql = self::buildUpdateSql($table_name, $rowVars, $whereClauses);
-                return self::queryFetch($sql);
+                $result = self::sql($sql);
+                return ($result
+                            ? $result
+                            : self::errorResult($sql));
             }
             else {
                 die("can't do updateRow without where_clauses");
