@@ -65,7 +65,7 @@ if (!class_exists('Db')) {
         }
 
         public static function sqlFieldsAndValsFromArray($vars) {
-            global $hash_password_field; # from config
+            global $hash_password_fields; # from config
 
             { # key list
                 $keys = array_keys($vars);
@@ -84,7 +84,7 @@ if (!class_exists('Db')) {
                         );
                     }
 
-                    if ($hash_password_field
+                    if ($hash_password_fields
                         && strpos($key, 'password') !== false
                     ) {
                         $safeVal = password_hash($val, PASSWORD_BCRYPT);
