@@ -94,6 +94,16 @@ if (!class_exists('Db')) {
                 return $result;
             }
         }
+
+        public static function sql_get1($query) {
+            $rows = self::sql($query);
+            if (count($rows) >= 1) {
+                return $rows[0];
+            }
+            else {
+                return null;
+            }
+        }
         
         public static function quote($val) {
             $db = Db::conn();
