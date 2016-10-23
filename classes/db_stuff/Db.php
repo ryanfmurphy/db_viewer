@@ -43,6 +43,7 @@ if (!class_exists('Db')) {
         }
 
         public static function errorResult($sql=null) {
+            $db = Db::conn();
             $result = array(
                 'error_code' => $db->errorCode(),
                 'error_info' => $db->errorInfo(),
