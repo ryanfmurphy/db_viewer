@@ -205,31 +205,47 @@ if (!class_exists('Db')) {
             }
         }
 
-        public static function updateRow($table_name, $rowVars) {
+        public static function updateRows($table_name, $rowVars, $allowEmptyWheres = false) {
             if (isset($rowVars['where_clauses'])) {
                 $whereClauses = $rowVars['where_clauses'];
                 unset($rowVars['where_clauses']);
-                $sql = self::buildUpdateSql($table_name, $rowVars, $whereClauses);
-                $result = self::sql($sql);
-                return ($result
-                            ? $result
-                            : self::errorResult($sql));
+                if (count($whereClauses) > 0 || $allowEmptyWheres) {
+
+                    $sql = self::buildUpdateSql($table_name, $rowVars, $whereClauses);
+                    $result = self::sql($sql);
+                    return ($result
+                                ? $result
+                                : self::errorResult($sql));
+
+                }
+                else {
+                    die("updateRows needs at least one where_clause, or allowEmptyWheres = true");
+                }
             }
             else {
-                die("can't do updateRow without where_clauses");
+                die("can't do updateRows without where_clauses");
             }
         }
 
-        public static function deleteRow($table_name, $rowVars) {
+        public static function deleteRows($table_name, $rowVars, $allowEmptyWheres = false) {
             if (isset($rowVars['where_clauses'])) {
                 $whereClauses = $rowVars['where_clauses'];
                 unset($rowVars['where_clauses']);
-                $sql = self::buildDeleteSql($table_name, $whereClauses);
-                return self::sql($sql);
-                #return self::queryFetch($sql);
+                if (count($whereClauses) > 0 || $allowEmptyWheres) {
+
+                    $sql = self::buildDeleteSql($table_name, $whereClauses);
+                    return self::sql($sql);
+                    #todo use return instead?
+                    #return ($result
+                    #            ? $result
+                    #            : self::errorResult($sql));
+                }
+                else {
+                    die("deleteRows needs at least one where_clause, or allowEmptyWheres = true");
+                }
             }
             else {
-                die("can't do updateRow without where_clauses");
+                die("can't do deleteRows without where_clauses");
             }
         }
 
@@ -242,6 +258,7 @@ if (!class_exists('Db')) {
                 #todo maybe use val_list fn
                 $select_fields = implode(',', $select_fields);
             }
+
             $sql = "select $select_fields from $table_name";
             $sql .= self::buildWhereClause($wheres);
             $sql .= ";";
@@ -273,6 +290,7 @@ if (!class_exists('Db')) {
         }
 
         public static function buildDeleteSql($table_name, $whereClauses) {
+
             { # build sql
                 $sql = "delete from $table_name ";
 
@@ -309,6 +327,7 @@ if (!class_exists('Db')) {
 
             $sql = self::buildSelectSql(
                 $table_name, $whereVars, $selectFields);
+
             return Db::viewQuery($sql);
         }
 
