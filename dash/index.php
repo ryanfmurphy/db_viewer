@@ -54,7 +54,7 @@
         }
 
         # misc: for <select> custom value, need unique placeholder
-        $custom_select_value = sha1('custom');
+        $custom_select_magic_value = sha1('custom');
     }
 
     { # prep logic - get fields from db
@@ -185,7 +185,7 @@
 
         function echoFormFieldHtml($name, $defaultValues=array()) {
             { # vars
-                global $custom_select_value;
+                global $custom_select_magic_value;
                 $inputTag = (( $name == "txt"
                                || $name == "src"
                                || $name == "lyrics"
@@ -221,34 +221,56 @@
                     ");
 ?>
                 <div class="select_from_options">
-                    <select
-                        <?= $inputAttrs ?>
-                        onchange="handleCustomValueInputForSelect(this)"
-                    >
-                        <option value="<?= $custom_select_value ?>">
-                            custom
-                        </option>
 <?php
-                    foreach ($objs as $obj) {
-                        $txt = htmlentities($obj['name']);
-                        $value = $obj['value'];
+                    { ob_start();
+                        # build up the <option>s first in a buffer
+                        # we wrap these in an ob_start because
+                        # we want to figure out whether one of these options
+                        # matches the default value (if any)
+                        # if not, we will put the default value into the custom <input>
+                        $found_default_in_options = false;
+                        foreach ($objs as $obj) {
+                            $txt = htmlentities($obj['name']);
+                            $value = $obj['value'];
 ?>
                         <option value="<?= $value ?>"
 <?php
-                        if (isset($defaultValues[$name])
-                            && $defaultValues[$name] == $value
-                        ) {
+                            if (isset($defaultValues[$name])
+                                && $defaultValues[$name] == $value
+                            ) {
+                                $found_default_in_options = true;
 ?>
                                 selected="selected"
 <?php
-                        }
+                            }
 ?>
                         >
                             <?= $txt ?>
                         </option>
 <?php
+                        }
+                        $non_custom_options = ob_get_clean();
                     }
 ?>
+                    <select
+<?php
+                    if (isset($defaultValues[$name])
+                        && !$found_default_in_options
+                    ) {
+                        # this special attribute is read by the JS later
+                        # and populated into the custom <input>
+?>
+                        data-custom_value="<?= htmlentities($defaultValues[$name]) ?>"
+<?php
+                    }
+?>
+                        <?= $inputAttrs ?>
+                        onchange="handleCustomValueInputForSelect(this)"
+                    >
+                        <option value="<?= $custom_select_magic_value ?>">
+                            custom
+                        </option>
+                        <?= $non_custom_options ?>
                     </select>
                     <!--<br>
                     <input name="<?= $name ?>" >-->
@@ -1068,12 +1090,13 @@ form#mainForm label {
         }
     }
 
-    scope.custom_select_value = "<?= $custom_select_value ?>";
+    scope.custom_select_magic_value = "<?= $custom_select_magic_value ?>";
+    // elem is <select> element
     function handleCustomValueInputForSelect(elem) {
         console.log('handleCustomValueInputForSelect, elem=', elem);
         // use magic value to detect if they chose "custom"
         // so we can give them a custom <input> to type in
-        if (elem.value == scope.custom_select_value) {
+        if (elem.value == scope.custom_select_magic_value) {
             console.log('  matches magic value, creating input');
             var new_input = document.createElement('input');
             // maybe we really just want this one time instead of onchange?
@@ -1081,6 +1104,17 @@ form#mainForm label {
             //    useCustomValue(new_input);
             //});
             new_input.setAttribute('class', "custom_value_input");
+
+            // put custom_value if any into input (e.g. default values)
+            var custom_value = (elem.hasAttribute('data-custom_value')
+                                    ? elem.getAttribute('data-custom_value')
+                                    : null);
+            console.log('custom_value',custom_value);
+            if (custom_value) {
+                new_input.value = custom_value;
+                elem.removeAttribute('data-custom_value');
+            }
+
             // #todo is .after well-supported JS?
             elem.after(new_input);
             useCustomValue(new_input);
