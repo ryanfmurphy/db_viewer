@@ -11,8 +11,8 @@
                 { # css - either inline via include or linked
                     $cssPath = "style.css" . ($php_ext ? ".php" : "");
                     if ($inlineCss && $cmp) {
-                        $trunk = dirname(__DIR__); #todo this may be already defined, hence redundant
-                        $cssFullPath =  "$trunk/$cssPath";
+                        $db_viewer_path = dirname(__DIR__); #todo this may be already defined, hence redundant
+                        $cssFullPath =  "$db_viewer_path/$cssPath";
 ?>
     <style>
         <?php include($cssPath); ?>

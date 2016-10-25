@@ -30,8 +30,9 @@
     }
 
     { # db_config include
-        $trunk = __DIR__;
-        include("$trunk/db_config.php");
+        $db_viewer_path = __DIR__;
+        $trunk = dirname(__DIR__);
+        include("$db_viewer_path/db_config.php");
     }
 
     { # Util includes
@@ -47,13 +48,13 @@
                     $db_user, $db_password
                 );
 
-                require_once("$trunk/classes/Util.php");
+                require_once("$db_viewer_path/classes/Util.php");
             }
 
-            require_once("$trunk/classes/db_stuff/Db.php");
+            require_once("$trunk/db_stuff/Db.php");
         }
-        require_once("$trunk/classes/db_stuff/DbUtil.php");
-        require_once("$trunk/classes/DbViewer.php");
+        require_once("$trunk/db_stuff/DbUtil.php");
+        require_once("$db_viewer_path/classes/DbViewer.php");
     }
 
 	{ # vars adjustments after includes

@@ -45,8 +45,8 @@
         # Util class with a sql() function that takes a $query
         # and returns an array of rows, each row an array
 
-      $trunk = __DIR__;
-      require_once("$trunk/init.php");
+      $db_viewer_path = __DIR__;
+      require_once("$db_viewer_path/init.php");
     }
 
     { # vars
@@ -176,9 +176,9 @@
 ?>
 <head>
 <?php
-      include("$trunk/html/links_and_scripts.php");
-      include("$trunk/js/inline_js.php");
-      include("$trunk/dynamic_style.php");
+      include("$db_viewer_path/html/links_and_scripts.php");
+      include("$db_viewer_path/js/inline_js.php");
+      include("$db_viewer_path/dynamic_style.php");
 ?>
 </head>
 <?php
@@ -188,7 +188,7 @@
 ?>
 <body>
 <?php
-      include("$trunk/html/query_form.php"); # form
+      include("$db_viewer_path/html/query_form.php"); # form
 
       { # report inferred table, create link
         if ($inferred_table) {
@@ -221,8 +221,8 @@
         if ($sql) {
           $rows = Db::sql($sql);
 
-          include("$trunk/html/results_table.php"); # html
-          include("$trunk/js/inline_js_2.php"); # js
+          include("$db_viewer_path/html/results_table.php"); # html
+          include("$db_viewer_path/js/inline_js_2.php"); # js
         }
 
         { # js to show even if there's no query in play
