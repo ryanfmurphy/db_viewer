@@ -1,4 +1,5 @@
 <?php
+    /*
     class DbUtil {
 
         # ends with _id or _iid
@@ -442,4 +443,5 @@
         }
 
     }
+    */
 

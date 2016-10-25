@@ -1,5 +1,6 @@
 <?php
 
+/*
 class Db {
 
     public static function connectToDb() {
@@ -246,4 +247,5 @@ $msg . "
     }
 
 }
+*/
 
