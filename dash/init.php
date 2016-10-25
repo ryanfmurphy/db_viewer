@@ -1,7 +1,7 @@
 <?php
     { # init
-        $trunk = __DIR__;
-        $trunkParent = dirname($trunk);
+        $dash_trunk = __DIR__;
+        $trunk = dirname($dash_trunk);
     }
 
     { # default values
@@ -16,13 +16,13 @@
     }
 
     { # custom config
-        include("$trunk/db_config.php");
-        include("$trunk/dash_config.php");
+        include("$dash_trunk/db_config.php");
+        include("$dash_trunk/dash_config.php");
     }
 
     { # classes
-        include("$trunk/classes/db_stuff/Db.php");
-        include("$trunk/classes/db_stuff/DbUtil.php");
+        include("$trunk/db_stuff/Db.php");
+        include("$trunk/db_stuff/DbUtil.php");
     }
 
     { # vars adjustments after includes

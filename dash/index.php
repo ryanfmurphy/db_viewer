@@ -6,8 +6,8 @@
     { # init: trunk, includes & requestVars, edit mode
 
         { # trunk, includes & requestVars
-            $trunk = __DIR__;
-            include("$trunk/init.php");
+            $dash_trunk = __DIR__;
+            include("$dash_trunk/init.php");
             $requestVars = array_merge($_GET, $_POST);
         }
 
