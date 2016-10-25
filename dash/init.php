@@ -45,8 +45,8 @@
                 $db_viewer_path = "/db_viewer/db_viewer.php";
             }
 
-            if (!isset($orm_router_path)) {
-                $orm_router_path = "/orm_router";
+            if (!isset($crud_api_path)) {
+                $crud_api_path = "/dash/crud_api.php";
             }
         }
 

@@ -661,70 +661,82 @@ form#mainForm label {
 
     { // submit button handlers
 
-        function createButtonClickHandler(orm_router_path, table_name, event) {
-            var url = orm_router_path+'/create_'+table_name;
+        function createButtonClickHandler(crud_api_path, table_name, event) {
+            var url = crud_api_path+'?action=create_'+table_name;
             submitForm(url, event, 'create');
             return false;
         }
 
-        function updateButtonClickHandler(orm_router_path, table_name, event) {
-            var url = orm_router_path+'/update_'+table_name;
+        function updateButtonClickHandler(crud_api_path, table_name, event) {
+            var url = crud_api_path+'?action=update_'+table_name;
             submitForm(url, event, 'update');
             return false;
         }
 
-        function viewButtonClickHandler(orm_router_path, keyEvent, table_name) {
-            var url = orm_router_path+'/view_'+table_name;
-            var extra_vars = {};
+        function deleteButtonClickHandler(crud_api_path, table_name, event) {
+            var url = crud_api_path+'?action=delete_'+table_name;
+            submitForm(url, event, 'delete');
+            return false;
+        }
+
+        function viewButtonClickHandler(crud_api_path, keyEvent, table_name) {
+            var url = crud_api_path;
+            var action = 'view_'+table_name;
+            var extra_vars = {'action': action};
             if (keyEvent.altKey) {
                 var form = document.getElementById('mainForm');
                 var form_names = getFormKeys(form);
                 extra_vars.select_fields = form_names.join(', ');
             }
+            console.log('url',url);
+            console.log('extra_vars',extra_vars);
             return setFormAction(url, extra_vars);
         }
-
-        // #todo delete handler for consistency?
 
     }
 
     function formSubmitCallback(xhttp, event, action) {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-            result = JSON.parse(xhttp.responseText);
-            if (event.altKey) {
-                alert('SQL Query Logged to Console');
+        if (xhttp.readyState == 4) {
+            if (xhttp.status == 200) {
                 result = JSON.parse(xhttp.responseText);
-                console.log(result.sql);
-            }
-            else if (result) {
-                if ('success' in result && !result.success) {
-                    var error_details = result.error_info[2];
-                    alert('Failed... Error '
-                            + result.error_code + ': '
-                            + error_details
-                    );
+                if (event.altKey) {
+                    alert('SQL Query Logged to Console');
+                    result = JSON.parse(xhttp.responseText);
+                    console.log(result.sql);
                 }
-                else { // success
-                    if (action == 'delete') {
-                        alert('Thanks! Row Deleted');
+                else if (result) {
+                    if ('success' in result && !result.success) {
+                        var error_details = result.error_info[2];
+                        alert('Failed... Error '
+                                + result.error_code + ': '
+                                + error_details
+                        );
                     }
-                    else if (action == 'create') {
-                        alert('Thanks! Row Created');
-                        //#todo can only do this change if we get the primary_key var set
-                        //changeCreateButtonToUpdateButton();
-                    }
-                    else if (action == 'update') {
-                        alert('Thanks! Row Updated');
-                    }
-                    else {
-                        alert('Thanks! Unknown action "' + action + '" done to Row');
+                    else { // success
+                        if (action == 'delete') {
+                            alert('Thanks! Row Deleted');
+                        }
+                        else if (action == 'create') {
+                            alert('Thanks! Row Created');
+                            //#todo can only do this change if we get the primary_key var set
+                            //changeCreateButtonToUpdateButton();
+                        }
+                        else if (action == 'update') {
+                            alert('Thanks! Row Updated');
+                        }
+                        else {
+                            alert('Thanks! Unknown action "' + action + '" done to Row');
+                        }
                     }
                 }
+                else {
+                    alert('Failed... Try alt-clicking to see the Query');
+                }
+                console.log(result);
             }
             else {
-                alert('Failed... Try alt-clicking to see the Query');
+                alert('Non-200 Response Code: ' + xhttp.status);
             }
-            console.log(result);
         }
     }
 
@@ -877,7 +889,7 @@ form#mainForm label {
         var update_button = document.getElementById('update_button');
         if (update_button) {
             update_button.outerHTML = '\
-                <input onclick="return createButtonClickHandler(\'<?= $orm_router_path ?>\', scope.table_name, event)"\
+                <input onclick="return createButtonClickHandler(\'<?= $crud_api_path ?>\', scope.table_name, event)"\
                     value="Create" type="submit" id="create_button"\
                 />\
             ';
@@ -888,7 +900,7 @@ form#mainForm label {
         var update_button = document.getElementById('create_button');
         if (update_button) {
             update_button.outerHTML = '\
-                <input onclick="return updateButtonClickHandler(\'<?= $orm_router_path ?>\', scope.table_name, event)"\
+                <input onclick="return updateButtonClickHandler(\'<?= $crud_api_path ?>\', scope.table_name, event)"\
                     value="Update" type="submit" id="update_button"\
                 />\
             ';
@@ -1291,26 +1303,26 @@ form#mainForm label {
 <?php
                     if ($edit) {
 ?>
-                <input onclick="return updateButtonClickHandler('<?= $orm_router_path ?>', scope.table_name, event)" <?php # update ?>
+                <input onclick="return updateButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)" <?php # update ?>
                     value="Update" type="submit" id="update_button"
                 />
 <?php
                     }
                     else {
 ?>
-                <input onclick="return createButtonClickHandler('<?= $orm_router_path ?>', scope.table_name, event)" <?php # create ?>
+                <input onclick="return createButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)" <?php # create ?>
                     value="Create" type="submit" id="create_button"
                 />
 <?php
                     }
 ?>
-                <input onclick="viewButtonClickHandler('<?= $orm_router_path ?>', event, scope.table_name)" <?php # view ?>
+                <input onclick="viewButtonClickHandler('<?= $crud_api_path ?>', event, scope.table_name)" <?php # view ?>
                     value="View" type="submit" id="view_button"
                 />
 <?php
                     if ($edit) {
 ?>
-                <input onclick="submitForm('<?= $orm_router_path ?>/delete_<?= $table ?>', event, 'delete'); return false"
+                <input onclick="return deleteButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)"
                     value="Delete" type="submit" id="delete_button"
                 />
 <?php

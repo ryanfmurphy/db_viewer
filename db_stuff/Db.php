@@ -259,7 +259,8 @@ if (!class_exists('Db')) {
                 $select_fields = implode(',', $select_fields);
             }
 
-            $sql = "select $select_fields from $table_name";
+            $table_name_quoted = DbUtil::quote_tablename($table_name);
+            $sql = "select $select_fields from $table_name_quoted ";
             $sql .= self::buildWhereClause($wheres);
             $sql .= ";";
             return $sql;
@@ -292,7 +293,8 @@ if (!class_exists('Db')) {
         public static function buildDeleteSql($table_name, $whereClauses) {
 
             { # build sql
-                $sql = "delete from $table_name ";
+                $table_name_quoted = DbUtil::quote_tablename($table_name);
+                $sql = "delete from $table_name_quoted ";
 
                 $sql .= self::buildWhereClause($whereClauses);
                 $sql .= ';';
@@ -312,7 +314,7 @@ if (!class_exists('Db')) {
         }
 
         private static function viewQuery($sql) {
-            $vars = requestVars();
+            $vars = array_merge($_GET,$_POST);
             $query_string = http_build_query(array(
                 'sql' => $sql,
             ));
