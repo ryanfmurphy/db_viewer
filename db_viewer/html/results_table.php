@@ -80,6 +80,72 @@
             >
                 edit
             </a>
+<?php
+                                { # special ops (if any)
+                                    $special_ops = [ #todo #fixme move to config
+                                        [   'name' => 'present',
+                                            'changes' => [
+                                                'tense' => 'present',
+                                            ],
+                                        ],
+                                        [   'name' => 'adj',
+                                            'changes' => [
+                                                'part_of_speech' => 'adj',
+                                            ],
+                                        ],
+                                        [   'name' => 'comp adj',
+                                            'changes' => [
+                                                'part_of_speech' => 'adj',
+                                                'comparative' => 't',
+                                            ],
+                                        ],
+                                        [   'name' => 'noun',
+                                            'changes' => [
+                                                'part_of_speech' => 'noun',
+                                            ],
+                                        ],
+                                        [   'name' => "don't know",
+                                            'changes' => [
+                                                'dont_know' => 't',
+                                            ],
+                                        ],
+                                    ];
+                                    if (isset($special_ops)
+                                        && is_array($special_ops)
+                                        && $primary_key
+                                    ) {
+
+                                        #todo factor this with the other def in dash
+                                        $crud_api_path = "/dash/crud_api.php";
+
+                                        foreach ($special_ops as $special_op) {
+                                            # query string
+                                            $query_vars = array_merge(
+                                                array(
+                                                    'action' => "update_$tablename_no_quotes",
+                                                    'where_clauses' => array(
+                                                        $primary_key_field => $primary_key,
+                                                    ),
+                                                ),
+                                                $special_op['changes']
+                                            );
+                                            $query_str = http_build_query($query_vars);
+
+                                            $special_op_url = "$crud_api_path?$query_str";
+?>
+            <nobr>
+                <a  href="<?= $special_op_url ?>"
+                    class="row_edit_link"
+                    target="_blank"
+                >
+                    <?= $special_op['name'] ?>
+                </a>
+            </nobr><br>
+<?php
+                                        }
+                                    }
+                                }
+?>
         </td>
 <?php
                                 }
