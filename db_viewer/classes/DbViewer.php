@@ -92,7 +92,7 @@
             }
         }
 
-        # formal $val as HTML to put in <td>
+        # format $val as HTML to put in <td>
         #   ($table should have no quotes)
         public static function val_html($val, $fieldname, $table=null) {
             global $field_render_filters_by_table, $dash_path;
