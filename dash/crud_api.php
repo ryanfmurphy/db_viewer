@@ -5,10 +5,14 @@
 { # vars / includes / setup
     $dash_trunk = __DIR__;
     $trunk = dirname($dash_trunk);
+    /*
     include("$dash_trunk/db_config.php");
     include("$trunk/db_stuff/Db.php");
     include("$trunk/db_stuff/DbUtil.php");
+    */
+    include("$dash_trunk/init.php");
 
+    #todo #fixme is this redundant?
     $vars = array_merge($_GET,$_POST);
 }
 
