@@ -1,5 +1,7 @@
 <?php
 
+#todo require_once DbUtil
+
 if (!class_exists('Db')) {
 
     class Db {
