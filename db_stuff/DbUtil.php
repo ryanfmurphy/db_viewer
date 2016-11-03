@@ -22,7 +22,7 @@ if (!class_exists('DbUtil')) {
 
     class DbUtil {
 
-        # ends with _id or _iid
+        # ends with _id or _iid: returns that suffix
         public static function has_valid_join_field_suffix($field_name) {
             $suffix = substr($field_name, -3);
             if ($suffix === '_id') {
@@ -32,6 +32,25 @@ if (!class_exists('DbUtil')) {
                 $suffix = substr($field_name, -4);
                 if ($suffix === '_iid') {
                     return $suffix;
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+
+        # returns e.g. 'id' or 'iid' or false if not an id field
+        public static function is_id_field($field_name) {
+            if ($field_name == 'id') {
+                return 'id';
+            }
+            elseif ($field_name == 'iid') {
+                return 'iid';
+            }
+            else {
+                $suffix = self::has_valid_join_field_suffix($field_name);
+                if ($suffix) {
+                    return substr($suffix,1);
                 }
                 else {
                     return false;

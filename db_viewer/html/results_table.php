@@ -131,26 +131,14 @@
 ?>
         <td
 <?php
-                                    #todo factor logic into DbUtil fn
-                                    {
-                                        $is_iid = false;
-                                        if ($fieldname == 'id'
-                                            || substr($fieldname, strlen($fieldname)-3) == '_id'
-                                            || ($is_iid = true # assignment
-                                                && ($fieldname == 'iid'
-                                                    || substr($fieldname, strlen($fieldname)-4) === '_iid'))
-                                        ) {
-                                            if ($is_iid) {
+                                    {   # id fields: make them smaller, and copy on click
+                                        $idness = DbUtil::is_id_field($fieldname);
+
+                                        if ($idness) {
 ?>
-            class="id_field"
-<?php
-                                            }
-                                            else {
-?>
-            class="id_field uuid_field"
-<?php
-                                            }
-?>
+            class="id_field <?= ($idness == 'id'
+                                    ? 'uuid_field'
+                                    : null) ?>"
             onclick="selectText(this)"
 <?php
                                         }
