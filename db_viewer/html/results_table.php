@@ -82,43 +82,50 @@
             </a>
 <?php
                                 { # special ops (if any)
-                                    $special_ops = [ #todo #fixme move to config
-                                        [   'name' => 'present',
-                                            'changes' => [
-                                                'tense' => 'present',
+                                    #todo #fixme move to config
+                                    $special_ops = [
+                                        'core_verb' => [
+                                            [   'name' => 'present',
+                                                'changes' => [
+                                                    'tense' => 'present',
+                                                ],
                                             ],
-                                        ],
-                                        [   'name' => 'adj',
-                                            'changes' => [
-                                                'part_of_speech' => 'adj',
+                                            [   'name' => 'adj',
+                                                'changes' => [
+                                                    'part_of_speech' => 'adj',
+                                                ],
                                             ],
-                                        ],
-                                        [   'name' => 'comp adj',
-                                            'changes' => [
-                                                'part_of_speech' => 'adj',
-                                                'comparative' => 't',
+                                            [   'name' => 'comp adj',
+                                                'changes' => [
+                                                    'part_of_speech' => 'adj',
+                                                    'comparative' => 't',
+                                                ],
                                             ],
-                                        ],
-                                        [   'name' => 'noun',
-                                            'changes' => [
-                                                'part_of_speech' => 'noun',
+                                            [   'name' => 'noun',
+                                                'changes' => [
+                                                    'part_of_speech' => 'noun',
+                                                ],
                                             ],
-                                        ],
-                                        [   'name' => "don't know",
-                                            'changes' => [
-                                                'dont_know' => 't',
+                                            [   'name' => "don't know",
+                                                'changes' => [
+                                                    'dont_know' => 't',
+                                                ],
                                             ],
                                         ],
                                     ];
                                     if (isset($special_ops)
                                         && is_array($special_ops)
+                                        && isset($special_ops[$tablename_no_quotes])
                                         && $primary_key
                                     ) {
+                                        
 
                                         #todo factor this with the other def in dash
                                         $crud_api_path = "/dash/crud_api.php";
 
-                                        foreach ($special_ops as $special_op) {
+                                        foreach ($special_ops[$tablename_no_quotes]
+                                                 as $special_op
+                                        ) {
                                             # query string
                                             $query_vars = array_merge(
                                                 array(
