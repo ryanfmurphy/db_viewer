@@ -68,6 +68,7 @@
     <tr data-row="<?= $rowN ?>">
 <?php
                             { # edit-row link
+                                #todo change conditional to $has_primary_key or something
                                 if ($add_edit_link) {
                                     $primary_key = $row[$primary_key_field];
 
@@ -81,64 +82,31 @@
                 edit
             </a>
 <?php
-                                { # special ops (if any)
-                                    #todo #fixme move to config
-                                    $special_ops = [
-                                        'core_verb' => [
-                                            [   'name' => 'present',
-                                                'changes' => [
-                                                    'tense' => 'present',
-                                                ],
-                                            ],
-                                            [   'name' => 'adj',
-                                                'changes' => [
-                                                    'part_of_speech' => 'adj',
-                                                ],
-                                            ],
-                                            [   'name' => 'comp adj',
-                                                'changes' => [
-                                                    'part_of_speech' => 'adj',
-                                                    'comparative' => 't',
-                                                ],
-                                            ],
-                                            [   'name' => 'noun',
-                                                'changes' => [
-                                                    'part_of_speech' => 'noun',
-                                                ],
-                                            ],
-                                            [   'name' => "don't know",
-                                                'changes' => [
-                                                    'dont_know' => 't',
-                                                ],
-                                            ],
-                                        ],
-                                    ];
-                                    if (isset($special_ops)
-                                        && is_array($special_ops)
-                                        && isset($special_ops[$tablename_no_quotes])
-                                        && $primary_key
-                                    ) {
-                                        
-
-                                        #todo factor this with the other def in dash
-                                        $crud_api_path = "/dash/crud_api.php";
-
-                                        foreach ($special_ops[$tablename_no_quotes]
-                                                 as $special_op
+                                    { # special ops (if any)
+                                        if (isset($special_ops)
+                                            && is_array($special_ops)
+                                            && isset($special_ops[$tablename_no_quotes])
+                                            && $primary_key
                                         ) {
-                                            # query string
-                                            $query_vars = array_merge(
-                                                array(
-                                                    'action' => "update_$tablename_no_quotes",
-                                                    'where_clauses' => array(
-                                                        $primary_key_field => $primary_key,
-                                                    ),
-                                                ),
-                                                $special_op['changes']
-                                            );
-                                            $query_str = http_build_query($query_vars);
+                                            #todo factor this with the other def in dash
+                                            $crud_api_path = "/dash/crud_api.php";
 
-                                            $special_op_url = "$crud_api_path?$query_str";
+                                            foreach ($special_ops[$tablename_no_quotes]
+                                                     as $special_op
+                                            ) {
+                                                # query string
+                                                $query_vars = array_merge(
+                                                    array(
+                                                        'action' => "update_$tablename_no_quotes",
+                                                        'where_clauses' => array(
+                                                            $primary_key_field => $primary_key,
+                                                        ),
+                                                    ),
+                                                    $special_op['changes']
+                                                );
+                                                $query_str = http_build_query($query_vars);
+
+                                                $special_op_url = "$crud_api_path?$query_str";
 ?>
             <nobr>
                 <a  href="<?= $special_op_url ?>"
@@ -149,9 +117,9 @@
                 </a>
             </nobr><br>
 <?php
+                                            }
                                         }
                                     }
-                                }
 ?>
         </td>
 <?php
