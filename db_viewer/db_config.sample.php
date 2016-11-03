@@ -37,3 +37,22 @@ $backgroundImages = array(
 );
 */
 
+# special_ops: you can define custom links that do things
+# to a row of a table within db_viewer
+# (keyed by table)
+/*
+    $special_ops = [
+        'core_verb' => [
+            [   'name' => 'present',
+                'changes' => [
+                    'tense' => 'present',
+                ],
+            ],
+            [   'name' => 'adj',
+                'changes' => [
+                    'part_of_speech' => 'adj',
+                ],
+            ],
+        ],
+    ];
+*/
