@@ -81,7 +81,28 @@
           if (strlen($sql) > 0
               && $sqlHasNoSpaces
           ) {
-            $sql = "select * from "
+            $tablename = $sql;
+
+            { # allow it to select minimal fields
+                #todo cleanup: $minimal var? ternary op?
+                #todo allow this for other queries, not just tablename "queries"
+                #todo we need to check that we only get fields that exist
+                /*
+                if (isset($requestVars['minimal'])) {
+                    $minimal_fields = isset($minimal_fields_by_table[$tablename])
+                                        ? $minimal_fields_by_table[$tablename]
+                                        : isset($minimal_fields)
+                                            ? $minimal_fields
+                                            : array('name,txt');
+                    $select_what = implode(',', $minimal_fields);
+                }
+                else {
+                */
+                    $select_what = '*';
+                #}
+            }
+
+            $sql = "select $select_what from "
                     .DbUtil::quote_tablename($sql)
                     ." limit 100";
 
