@@ -52,8 +52,6 @@
                         $current_row = current($rows);
                         $has_primary_key = (isset($current_row[$primary_key_field])
                                                 ? true : false);
-                        #$add_edit_link = ($has_primary_key
-                        #                    ? true : false);
                     }
 
                     $rowN = 0;
@@ -127,6 +125,7 @@
                                                     );
                                                 }
 ?>
+            <br>
             <nobr>
                 <a  href="<?= $special_op_url ?>"
                     class="row_edit_link"
@@ -134,7 +133,7 @@
                 >
                     <?= $special_op['name'] ?>
                 </a>
-            </nobr><br>
+            </nobr>
 <?php
                                             }
                                         }
