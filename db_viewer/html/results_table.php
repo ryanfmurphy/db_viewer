@@ -8,12 +8,12 @@
             # factored into a function because
             # the <th>'s are repeated every so many rows
             # so it's easier to see what column you're on
-            function headerRow(&$rows, $rowN, $add_edit_link) {
+            function headerRow(&$rows, $rowN, $add_actions_column) {
                 $currentRow = current($rows);
 ?>
 	<tr data-row="<?= $rowN ?>">
 <?php
-                if ($add_edit_link) {
+                if ($add_actions_column) {
 ?>
         <th></th>
 <?php
@@ -59,7 +59,7 @@
                     $rowN = 0;
                     foreach ($rows as $row) {
                         if ($rowN % $headerEvery == 0) {
-                            headerRow($rows, $rowN, $add_edit_link);
+                            headerRow($rows, $rowN, $has_primary_key);
                             $rowN++;
                         }
 
@@ -74,6 +74,9 @@
                                     #todo will dash accept "schema.table" format?
 ?>
         <td>
+<?php
+                                    { # edit link
+?>
             <a  href="<?= DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) ?>"
                 class="row_edit_link"
                 target="_blank"
@@ -81,6 +84,8 @@
                 edit
             </a>
 <?php
+                                    }
+
                                     { # special ops (if any)
                                         if (isset($special_ops)
                                             && is_array($special_ops)
@@ -93,19 +98,34 @@
                                             foreach ($special_ops[$tablename_no_quotes]
                                                      as $special_op
                                             ) {
-                                                # query string
-                                                $query_vars = array_merge(
-                                                    array(
-                                                        'action' => "update_$tablename_no_quotes",
-                                                        'where_clauses' => array(
-                                                            $primary_key_field => $primary_key,
+                                                # the kind of special_op that changes fields
+                                                if (isset($special_op['changes'])) {
+                                                    # query string
+                                                    $query_vars = array_merge(
+                                                        array(
+                                                            'action' => "update_$tablename_no_quotes",
+                                                            'where_clauses' => array(
+                                                                $primary_key_field => $primary_key,
+                                                            ),
                                                         ),
-                                                    ),
-                                                    $special_op['changes']
-                                                );
-                                                $query_str = http_build_query($query_vars);
+                                                        $special_op['changes']
+                                                    );
+                                                    $query_str = http_build_query($query_vars);
 
-                                                $special_op_url = "$crud_api_path?$query_str";
+                                                    $special_op_url = "$crud_api_path?$query_str";
+                                                }
+                                                # the kind of special_op that goes to a url
+                                                # with {{mustache_vars}} subbed in
+                                                elseif (isset($special_op['url'])) {
+                                                    $special_op_url = preg_replace_callback(
+                                                        '/{{([a-z_]+)}}/',
+                                                        function($match) use ($row) {
+                                                            $fieldname = $match[1];
+                                                            return $row[$fieldname];
+                                                        },
+                                                        $special_op['url']
+                                                    );
+                                                }
 ?>
             <nobr>
                 <a  href="<?= $special_op_url ?>"
