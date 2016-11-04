@@ -44,7 +44,7 @@
 <?php
                     $headerEvery = isset($requestVars['header_every'])
                                       ? $requestVars['header_every']
-                                      : 15;
+                                      : 15; #todo make this editable in config
 
                     { # primary key stuff for edit_link
                         $primary_key_field = DbUtil::getPrimaryKeyField($id_mode, $inferred_table);
@@ -52,8 +52,8 @@
                         $current_row = current($rows);
                         $has_primary_key = (isset($current_row[$primary_key_field])
                                                 ? true : false);
-                        $add_edit_link = ($has_primary_key
-                                            ? true : false);
+                        #$add_edit_link = ($has_primary_key
+                        #                    ? true : false);
                     }
 
                     $rowN = 0;
@@ -67,9 +67,8 @@
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php
-                            { # edit-row link
-                                #todo change conditional to $has_primary_key or something
-                                if ($add_edit_link) {
+                            {   # edit-row link & special_ops
+                                if ($has_primary_key) {
                                     $primary_key = $row[$primary_key_field];
 
                                     #todo will dash accept "schema.table" format?
@@ -131,9 +130,10 @@
 ?>
         <td
 <?php
-                                    {   # id fields: make them smaller, and copy on click
-                                        $idness = DbUtil::is_id_field($fieldname);
+                                    { # figure out classes, if any, for <td>
 
+                                        # id fields: make them smaller, and copy on click
+                                        $idness = DbUtil::is_id_field($fieldname);
                                         if ($idness) {
 ?>
             class="id_field <?= ($idness == 'id'
@@ -142,12 +142,11 @@
             onclick="selectText(this)"
 <?php
                                         }
-                                    }
-
-                                    if ($fieldname == 'time' || $fieldname == 'time_added') {
+                                        elseif ($fieldname == 'time' || $fieldname == 'time_added') {
 ?>
             class="time_field"
 <?php
+                                        }
                                     }
 ?>
         ><?=
