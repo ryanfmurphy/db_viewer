@@ -16,7 +16,13 @@
     }
 
     { # custom config
-        include("$dash_trunk/db_config.php");
+        #todo #fixme log which config you run
+        if (file_exists("$trunk/db_config.php")) {
+            include("$trunk/db_config.php");
+        }
+        elseif (file_exists("$dash_trunk/db_config.php")) {
+            include("$dash_trunk/db_config.php");
+        }
         include("$dash_trunk/dash_config.php");
     }
 

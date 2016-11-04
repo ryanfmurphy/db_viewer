@@ -32,7 +32,13 @@
     { # db_config include
         $db_viewer_path = __DIR__;
         $trunk = dirname(__DIR__);
-        include("$db_viewer_path/db_config.php");
+        #todo #fixme log which db_config you use
+        if (file_exists("$trunk/db_config.php")) {
+            include("$trunk/db_config.php");
+        }
+        else if (file_exists("$db_viewer_path/db_config.php")) {
+            include("$db_viewer_path/db_config.php");
+        }
     }
 
     { # Util includes
