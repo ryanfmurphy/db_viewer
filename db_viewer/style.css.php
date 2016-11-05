@@ -3,9 +3,9 @@
 
     if (!isset($background)) $background = 'light';
 
-	if (!isset($inlineCss) || !$inlineCss) {
-		header('Content-Type: text/css');
-	}
+    if (!isset($inlineCss) || !$inlineCss) {
+        header('Content-Type: text/css');
+    }
 ?>
 /*<style>*/
 html {
