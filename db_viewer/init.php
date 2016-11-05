@@ -24,6 +24,7 @@
         $pluralize_table_names = false;
         $slow_tables = array();
         $field_render_filters_by_table = array();
+        $special_ops = array();
         # URI paths
         $js_path = '/db_viewer/js';
         $dash_path = '/dash/index.php';

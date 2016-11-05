@@ -171,3 +171,20 @@ a {
     text-decoration: underline;
 }
 
+.action_cell ul > li {
+    list-style-type: none;
+}
+.action_cell ul {
+    padding-left: .5em;
+    padding-right: .5em;
+    font-size: 90%;
+    line-height: .7;
+<?php
+    if ($background=='dark') {
+?>
+    color: white;
+<?php
+    }
+?>
+}
+
