@@ -203,5 +203,81 @@
             return "$dash_path?edit=1&table=$tablename_no_quotes&primary_key=$primary_key";
         }
 
+        public static function echo_edit_link($dash_path, $tablename_no_quotes, $primary_key) {
+?>
+        <td class="action_cell">
+            <a  href="<?= DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) ?>"
+                class="row_edit_link"
+                target="_blank"
+            >
+                edit
+            </a>
+        </td>
+<?php
+        }
+
+        public static function echo_special_ops(
+            $special_ops_cols, $tablename_no_quotes,
+            $primary_key_field, $primary_key, $crud_api_path,
+            $row
+        ) {
+            foreach ($special_ops_cols as $special_ops_col) {
+?>
+        <td class="action_cell">
+            <ul>
+<?php
+                foreach ($special_ops_col as $special_op) {
+
+                    # the kind of special_op that changes fields
+                    if (isset($special_op['changes'])) {
+                        # query string
+                        $query_vars = array_merge(
+                            array(
+                                'action' => "update_$tablename_no_quotes",
+                                'where_clauses' => array(
+                                    $primary_key_field => $primary_key,
+                                ),
+                            ),
+                            $special_op['changes']
+                        );
+                        $query_str = http_build_query($query_vars);
+
+                        $special_op_url = "$crud_api_path?$query_str";
+                    }
+                    # the kind of special_op that goes to a url
+                    # with {{mustache_vars}} subbed in
+                    elseif (isset($special_op['url'])) {
+                        $special_op_url = preg_replace_callback(
+                            '/{{([a-z_]+)}}/',
+                            function($match) use ($row) {
+                                $fieldname = $match[1];
+                                return $row[$fieldname];
+                            },
+                            $special_op['url']
+                        );
+                    }
+?>
+            <li>
+                <nobr>
+                    <a  href="<?= $special_op_url ?>"
+                        class="row_edit_link"
+                        target="_blank"
+                    >
+                        <?= $special_op['name'] ?>
+                    </a>
+                </nobr>
+            </li>
+<?php
+                }
+?>
+        </ul>
+<?php
+            }
+?>
+    </td>
+<?php
+        }
+
+
     }
 
