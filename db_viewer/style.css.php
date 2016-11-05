@@ -1,5 +1,5 @@
 <?php
-	require_once('db_config.php');
+    require_once("init.php");
 
     if (!isset($background)) $background = 'light';
 
