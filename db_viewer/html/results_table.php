@@ -4,35 +4,50 @@
             $tablename_no_quotes = DbUtil::strip_quotes($inferred_table);
         }
 
+        function includeField($field_name, $minimal_fields) {
+            return (
+                !$minimal_fields
+                || in_array($field_name, $minimal_fields)
+            );
+        }
+
         { # render the header row html <th>'s
             # factored into a function because
             # the <th>'s are repeated every so many rows
             # so it's easier to see what column you're on
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
+                global $minimal_fields;
 
                 $currentRow = current($rows);
 ?>
-	<tr data-row="<?= $rowN ?>">
+    <tr data-row="<?= $rowN ?>">
 <?php
-                if ($has_edit_column) {
+                { # action columns
+                    if ($has_edit_column) {
 ?>
         <th class="action_cell"></th>
 <?php
-                }
-                for ($i=0; $i<$num_action_columns; $i++) {
+                    }
+                    for ($i=0; $i<$num_action_columns; $i++) {
 ?>
         <th class="action_cell"></th>
 <?php
+                    }
                 }
-                foreach ($currentRow as $fieldName => $val) {
+
+                { # regular data columns
+                    foreach ($currentRow as $field_name => $val) {
+                        if (includeField($field_name, $minimal_fields)) {
 ?>
-		<th class="popr" data-id="1">
-			<?= $fieldName ?>
-		</th>
+        <th class="popr" data-id="1">
+            <?= $field_name ?>
+        </th>
 <?php
+                        }
+                    }
                 }
 ?>
-	</tr>
+    </tr>
 <?php
             }
         }
@@ -103,33 +118,35 @@
                             }
 
                             { # loop thru fields and make <td>s
-                                foreach ($row as $fieldname => $val) {
+                                foreach ($row as $field_name => $val) {
+                                    if (includeField($field_name, $minimal_fields)) {
 ?>
         <td
 <?php
-                                    { # figure out classes, if any, for <td>
+                                        { # figure out classes, if any, for <td>
 
-                                        # id fields: make them smaller, and copy on click
-                                        $idness = DbUtil::is_id_field($fieldname);
-                                        if ($idness) {
+                                            # id fields: make them smaller, and copy on click
+                                            $idness = DbUtil::is_id_field($field_name);
+                                            if ($idness) {
 ?>
             class="id_field <?= ($idness == 'id'
                                     ? 'uuid_field'
                                     : null) ?>"
             onclick="selectText(this)"
 <?php
-                                        }
-                                        elseif ($fieldname == 'time' || $fieldname == 'time_added') {
+                                            }
+                                            elseif ($field_name == 'time' || $field_name == 'time_added') {
 ?>
             class="time_field"
 <?php
+                                            }
                                         }
-                                    }
 ?>
         ><?=
-            DbViewer::val_html($val, $fieldname, $tablename_no_quotes)
+            DbViewer::val_html($val, $field_name, $tablename_no_quotes)
         ?></td>
 <?php
+                                    }
                                 }
                             }
 ?>
