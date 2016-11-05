@@ -2,7 +2,6 @@
     { # some misc functions
         function do_log($msg) {
             $logPath = __DIR__.'/error_log';
-            #$msg .= " (to $logPath)";
             error_log("$msg", 3, $logPath);
         }
         function log_and_say($msg) {
@@ -24,43 +23,33 @@
     { # vars - initial values
         $pluralize_table_names = false;
         $slow_tables = array();
+        $field_render_filters_by_table = array();
+        # URI paths
         $js_path = '/db_viewer/js';
         $dash_path = '/dash/index.php';
-        $field_render_filters_by_table = array();
+        # include paths
+        $db_viewer_path = __DIR__;
+        $trunk = dirname(__DIR__);
     }
 
     { # db_config include
-        $db_viewer_path = __DIR__;
-        $trunk = dirname(__DIR__);
-        #todo #fixme log which db_config you use
         if (file_exists("$trunk/db_config.php")) {
-            include("$trunk/db_config.php");
+            $config_file_path = "$trunk/db_config.php";
         }
         else if (file_exists("$db_viewer_path/db_config.php")) {
-            include("$db_viewer_path/db_config.php");
+            $config_file_path = "$db_viewer_path/db_config.php";
+        }
+
+        if ($config_file_path) {
+            do_log("including config file: '$config_file_path'\n");
+            include($config_file_path);
         }
     }
 
     { # Util includes
-        # some programs may provide
-        # a DB connection and Util class themselves
-        if (class_exists('Db')) {
-            $db = Db::conn();
-        }
-        else {
-            if (!class_exists('Util')) {
-                $db = new PDO(
-                    "$db_type:host=$db_host;dbname=$db_name",
-                    $db_user, $db_password
-                );
-
-                require_once("$db_viewer_path/classes/Util.php");
-            }
-
-            require_once("$trunk/db_stuff/Db.php");
-        }
+        require_once("$trunk/db_stuff/Db.php");
         require_once("$trunk/db_stuff/DbUtil.php");
-        require_once("$db_viewer_path/classes/DbViewer.php");
+        require_once("$trunk/classes/DbViewer.php");
     }
 
 	{ # vars adjustments after includes
