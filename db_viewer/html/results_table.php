@@ -47,9 +47,9 @@
 
 <table id="query_table">
 <?php
-                    $headerEvery = isset($requestVars['header_every'])
-                                      ? $requestVars['header_every']
-                                      : 5; #todo make this editable in config
+                    #$header_every = isset($requestVars['header_every'])
+                    #                  ? $requestVars['header_every']
+                    #                  : 5; #todo make this editable in config
 
                     { # vars
                         $primary_key_field = DbUtil::getPrimaryKeyField(
@@ -78,7 +78,7 @@
                         }
 
                         { # sometimes add a header row
-                            if ($rowN % $headerEvery == 0) {
+                            if ($rowN % $header_every == 0) {
                                 $num_action_columns = count($special_ops_cols);
                                 headerRow($rows, $rowN, $primary_key !== null, $num_action_columns);
                                 $rowN++;

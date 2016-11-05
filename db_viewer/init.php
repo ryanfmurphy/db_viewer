@@ -21,6 +21,7 @@
     }
 
     { # vars - initial values
+        $header_every = 15;
         $pluralize_table_names = false;
         $slow_tables = array();
         $field_render_filters_by_table = array();
@@ -54,7 +55,6 @@
     }
 
 	{ # vars adjustments after includes
-
         { # search_path
             if (!isset($search_path)) {
                 $search_path =
@@ -70,6 +70,10 @@
                   );
 
             DbUtil::setDbSearchPath($search_path);
+        }
+
+        if (isset($requestVars['header_every'])) {
+            $header_every = $requestVars['header_every'];
         }
 	}
 
