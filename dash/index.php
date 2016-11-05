@@ -455,6 +455,15 @@ form#mainForm label {
     margin: 2em auto 1em;
 }
 
+.select_from_options select {
+    display: block;
+    margin-bottom: .5em;
+}
+.select_from_options input {
+    display: block;
+    margin-top: .5em;
+}
+
         </style>
 <?php
     }
