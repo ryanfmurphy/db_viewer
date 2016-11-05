@@ -136,6 +136,7 @@
                                 count(array_keys($fieldsRowsBySchema)) > 1;
                         }
 
+                        /*
                         { # manage fields settings
                             { # fields2omit
                                 $fields2omit = $fields2omit_global;
@@ -165,6 +166,7 @@
                                 $fields2keep = $kept_fields;
                             }
                         }
+                        */
                     }
                     else { # no rows
                         $nonexistentTable = true;
@@ -368,12 +370,14 @@
             echo jsStringify($txt);
         }
 
-        function doSkipField($fieldName, $fields2omit, $fields2keep, $only_include_these_fields=null) {
+        function doSkipField($fieldName, /*$fields2omit, $fields2keep,*/ $only_include_these_fields=null) {
+            /*
             if (in_array($fieldName, $fields2omit)
                 && !in_array($fieldName, $fields2keep)
             ) {
                 return true;
             }
+            */
 
             if (is_array($only_include_these_fields)
                 && !in_array($fieldName, $only_include_these_fields)
@@ -1277,7 +1281,7 @@ form#mainForm label {
 
                 { # create form fields
                     foreach ($fields as $name) {
-                        if (doSkipField($name, $fields2omit, $fields2keep, $only_include_these_fields)) {
+                        if (doSkipField($name, /*$fields2omit, $fields2keep,*/ $only_include_these_fields)) {
                             continue;
                         }
                         echoFormFieldHtml($name, $defaultValues);
