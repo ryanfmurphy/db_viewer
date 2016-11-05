@@ -135,38 +135,6 @@
                             $multipleTablesFoundInDifferentSchemas =
                                 count(array_keys($fieldsRowsBySchema)) > 1;
                         }
-
-                        /*
-                        { # manage fields settings
-                            { # fields2omit
-                                $fields2omit = $fields2omit_global;
-
-                                { # from config
-                                    $tblFields2omit = (isset($fields2omit_by_table[$table])
-                                                            ? $fields2omit_by_table[$table]
-                                                            : array());
-
-                                    $fields2omit = array_merge($fields2omit, $tblFields2omit);
-                                }
-
-                                { # 'omit' get var - allow addition of more omitted fields
-                                    $omit = isset($requestVars['omit'])
-                                                ? $requestVars['omit']
-                                                : null;
-                                    $omitted_fields = explode(',', $omit);
-                                    $fields2omit = array_merge($fields2omit, $omitted_fields);
-                                }
-                            }
-
-                            { # fields2keep - allow addition of more kept fields
-                                $keep = isset($requestVars['keep'])
-                                            ? $requestVars['keep']
-                                            : null;
-                                $kept_fields = explode(',', $keep);
-                                $fields2keep = $kept_fields;
-                            }
-                        }
-                        */
                     }
                     else { # no rows
                         $nonexistentTable = true;
@@ -370,15 +338,7 @@
             echo jsStringify($txt);
         }
 
-        function doSkipField($fieldName, /*$fields2omit, $fields2keep,*/ $only_include_these_fields=null) {
-            /*
-            if (in_array($fieldName, $fields2omit)
-                && !in_array($fieldName, $fields2keep)
-            ) {
-                return true;
-            }
-            */
-
+        function doSkipField($fieldName, $only_include_these_fields=null) {
             if (is_array($only_include_these_fields)
                 && !in_array($fieldName, $only_include_these_fields)
             ) {
@@ -1281,7 +1241,7 @@ form#mainForm label {
 
                 { # create form fields
                     foreach ($fields as $name) {
-                        if (doSkipField($name, /*$fields2omit, $fields2keep,*/ $only_include_these_fields)) {
+                        if (doSkipField($name, $only_include_these_fields)) {
                             continue;
                         }
                         echoFormFieldHtml($name, $defaultValues);
