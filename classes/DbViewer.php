@@ -278,6 +278,17 @@
 <?php
         }
 
+        public static function choose_background_image(
+            $tablename, &$background_images
+        ) {
+            return ($tablename
+                   && isset($background_images[$tablename])
+                        ? $background_images[$tablename]
+                        : (isset($background_images['fallback image'])
+                            ? $background_images['fallback image']
+                            : null)
+                  );
+        }
 
     }
 

@@ -2,15 +2,9 @@
     { # dynamic style / CSS choices
 
         { # choose background image if any
-            if (!isset($backgroundImages)) $backgroundImages = array();
-
-            $backgroundImageUrl = (isset($inferred_table)
-                                   && isset($backgroundImages[$inferred_table])
-                                        ? $backgroundImages[$inferred_table]
-                                        : (isset($backgroundImages['fallback image'])
-                                            ? $backgroundImages['fallback image']
-                                            : null)
-                                  );
+            $backgroundImageUrl = DbViewer::choose_background_image(
+                $inferred_table, $backgroundImages
+            );
 
             if ($backgroundImageUrl) {
 ?>
