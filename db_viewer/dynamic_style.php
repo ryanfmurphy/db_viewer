@@ -12,17 +12,14 @@
                                             : null)
                                   );
 
-            $hasBackgroundImage = (isset($backgroundImageUrl)
-                                && $backgroundImageUrl);
-
-            if ($hasBackgroundImage) {
+            if ($backgroundImageUrl) {
 ?>
     <style>
     body {
         background-color: black;
         background-image: url(<?= $backgroundImageUrl ?>);
         background-position: center;
-        background-repeat: no-repeat;
+        background-repeat: repeat;
         color: white;
     }
     td,th {
@@ -46,7 +43,7 @@
             $isDarkBackground = (isset($background)
                                  && $background == 'dark');
 
-            if ($hasBackgroundImage
+            if ($backgroundImageUrl
                 || $isDarkBackground
             ) {
                 {
