@@ -588,7 +588,10 @@ form#mainForm label {
         console.log('extra_vars',extra_vars);
         addVarsToForm(form, extra_vars);
         hideNamesForBlankVals(inputs);
-        form.action = url
+        form.action = url;
+        console.log('form action url =', url);
+        // #todo #fixme why is logging this showing an <input name="action"> instead of the url?
+        // console.log('form action =', form.action);
         setTimeout(function(){
             unhideNamesForBlankVals(inputs);
             removeVarsFromForm(form, extra_vars);
@@ -657,9 +660,10 @@ form#mainForm label {
             var action = 'view_'+table_name;
             var extra_vars = {'action': action};
             if (keyEvent.altKey) {
-                var form = document.getElementById('mainForm');
-                var form_names = getFormKeys(form);
-                extra_vars.select_fields = form_names.join(', ');
+                extra_vars.db_viewer_minimal_mode = 1;
+                //var form = document.getElementById('mainForm');
+                //var form_names = getFormKeys(form);
+                //extra_vars.select_fields = form_names.join(', ');
             }
             console.log('url',url);
             console.log('extra_vars',extra_vars);

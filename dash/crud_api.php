@@ -46,12 +46,16 @@
                     $select_fields = $vars['select_fields'];
                     unset($vars['select_fields']);
                 }
+                elseif (isset($vars['db_viewer_minimal_mode'])) {
+                    $minimal = $vars['db_viewer_minimal_mode'];
+                    unset($vars['db_viewer_minimal_mode']);
+                }
                 else {
                     $select_fields = null;
                 }
 
                 die(json_encode(
-                    Db::viewTable($table, $vars, $select_fields)
+                    Db::viewTable($table, $vars, $select_fields, $minimal)
                 ));
                 break;
 

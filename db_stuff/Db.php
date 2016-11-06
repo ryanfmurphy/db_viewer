@@ -315,24 +315,28 @@ if (!class_exists('Db')) {
             }
         }
 
-        private static function viewQuery($sql) {
+        private static function viewQuery($sql, $minimal=false) {
             $vars = array_merge($_GET,$_POST);
             $query_string = http_build_query(array(
                 'sql' => $sql,
             ));
             $db_viewer_url = "/db_viewer/db_viewer.php?$query_string";
+            if ($minimal) {
+                $db_viewer_url .= '&minimal';
+            }
             header("302 Temporary");
             header("Location: $db_viewer_url");
         }
 
         public static function viewTable(
-            $table_name, $whereVars=array(), $selectFields=null
+            $table_name, $whereVars=array(),
+            $selectFields=null, $minimal=false
         ) {
 
             $sql = self::buildSelectSql(
                 $table_name, $whereVars, $selectFields);
 
-            return Db::viewQuery($sql);
+            return Db::viewQuery($sql, $minimal);
         }
 
         public static function buildWhereClause($wheres) {
