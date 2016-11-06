@@ -375,14 +375,14 @@ body {
     color: white;
 }
 input, textarea {
-    background: black;
+    background: rgba(0,0,0,.5);
     color: white;
     border: solid 1px white;
 }
 select {
     -webkit-appearance: none;
     -moz-appearance: none;
-    background: black;
+    background: rgba(0,0,0,.5);
     color: white;
     border: solid 1px white;
 }
@@ -417,6 +417,11 @@ form#mainForm label {
     width: 30rem;
     display: inline-block;
     vertical-align: middle;
+    padding: .2em;
+}
+.formInput textarea {
+    padding: .4em;
+    height: 7rem;
 }
 
 #whoami {
