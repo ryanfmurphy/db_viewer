@@ -10,11 +10,11 @@
 ?>
     <style>
     body {
-        background-color: black;
+        /*background-color: black;
+        color: white;*/
         background-image: url(<?= $backgroundImageUrl ?>);
         background-position: center;
         background-repeat: repeat;
-        color: white;
     }
     td,th {
         border: solid 1px white;

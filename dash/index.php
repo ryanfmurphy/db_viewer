@@ -394,6 +394,16 @@ a {
 }
 <?php
         }
+        else {
+?>
+input, textarea {
+    background: rgba(255,255,255,.2);
+}
+select {
+    background: rgba(255,255,255,.2);
+}
+<?php
+        }
 ?>
 
 form#mainForm {
@@ -476,11 +486,9 @@ form#mainForm label {
         if ($background_image_url) {
 ?>
 body {
-    background-color: black;
     background-image: url(<?= $background_image_url ?>);
     background-position: center;
     background-repeat: repeat;
-    color: white;
 }
 <?php
         }
