@@ -464,6 +464,23 @@ form#mainForm label {
     margin-top: .5em;
 }
 
+<?php
+        $background_image_url = DbViewer::choose_background_image(
+            $table, $backgroundImages
+        );
+        if ($background_image_url) {
+?>
+body {
+    background-color: black;
+    background-image: url(<?= $background_image_url ?>);
+    background-position: center;
+    background-repeat: repeat;
+    color: white;
+}
+<?php
+        }
+?>
+
         </style>
 <?php
     }

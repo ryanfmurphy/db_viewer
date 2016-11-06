@@ -28,6 +28,7 @@
     { # classes
         include("$trunk/db_stuff/Db.php");
         include("$trunk/db_stuff/DbUtil.php");
+        include("$trunk/classes/DbViewer.php");
     }
 
     { # vars adjustments after includes
