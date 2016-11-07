@@ -188,3 +188,9 @@ a {
 ?>
 }
 
+<?php
+    if (file_exists('custom_css.php')) {
+        include('custom_css.php');
+    }
+?>
+
