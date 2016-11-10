@@ -387,20 +387,21 @@ body {
 
 <?php 
         if ($background=='dark') {
+            $input_bg = 'rgba(0,0,0,.5)';
 ?>
 body {
     background: black;
     color: white;
 }
 input, textarea {
-    background: rgba(0,0,0,.5);
+    background: <?= $input_bg ?>;
     color: white;
     border: solid 1px white;
 }
 select {
     -webkit-appearance: none;
     -moz-appearance: none;
-    background: rgba(0,0,0,.5);
+    background: <?= $input_bg ?>;
     color: white;
     border: solid 1px white;
 }
@@ -413,12 +414,13 @@ a {
 <?php
         }
         else {
+            $input_bg = 'rgba(255,255,255,.5)';
 ?>
 input, textarea {
-    background: rgba(255,255,255,.2);
+    background: <?= $input_bg ?>;
 }
 select {
-    background: rgba(255,255,255,.2);
+    background: <?= $input_bg ?>;
 }
 <?php
         }

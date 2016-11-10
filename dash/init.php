@@ -86,6 +86,5 @@
                 $fields_to_make_selects = array();
             }
         }
-
     }
 
