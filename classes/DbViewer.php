@@ -97,7 +97,7 @@
         public static function val_html($val, $fieldname, $table=null) {
             global $field_render_filters_by_table, $dash_path;
 
-            do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
+            #do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
 
             # pg array is <ul>
             if (DbUtil::seems_like_pg_array($val)) {
