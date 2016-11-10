@@ -575,8 +575,9 @@ if (!class_exists('DbUtil')) {
                 self::log("
 infer_limit_from_query: query didn't match regex.
     query = '$query'
-    regex = '$regex'
-");
+"
+    #regex = '$regex'
+);
             }
             #die(print_r($result,1));
             return $result;
