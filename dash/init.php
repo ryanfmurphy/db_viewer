@@ -27,6 +27,7 @@
 
     { # classes
         include("$trunk/db_stuff/Db.php");
+        $GLOBALS['db'] = Db::connectToDb(); # for some reason need to re-get the db conn
         include("$trunk/db_stuff/DbUtil.php");
         include("$trunk/classes/DbViewer.php");
     }

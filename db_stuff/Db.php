@@ -51,8 +51,8 @@ if (!class_exists('Db')) {
             $db = Db::conn();
             $result = array(
                 'success' => 0,
-                'error_code' => $db->errorCode(),
-                'error_info' => $db->errorInfo(),
+                'error_code' => mysqli_error($db),
+                #'error_info' => $db->errorInfo(),
             );
             if ($sql) { $result['sql'] = $sql; }
             return $result;
@@ -208,7 +208,7 @@ if (!class_exists('Db')) {
             else {
                 $db = Db::conn();
                 $result = self::sql($sql);
-                return ($result
+                return (is_array($result)
                             ? $result
                             : self::errorResult($sql));
             }
@@ -222,7 +222,7 @@ if (!class_exists('Db')) {
 
                     $sql = self::buildUpdateSql($table_name, $rowVars, $whereClauses);
                     $result = self::sql($sql);
-                    return ($result
+                    return (is_array($result)
                                 ? $result
                                 : self::errorResult($sql));
 
@@ -327,7 +327,7 @@ if (!class_exists('Db')) {
             $query_string = http_build_query(array(
                 'sql' => $sql,
             ));
-            $db_viewer_url = "/db_viewer/db_viewer.php?$query_string";
+            $db_viewer_url = "/admin/db_viewer?$query_string";
             if ($minimal) {
                 $db_viewer_url .= '&minimal';
             }

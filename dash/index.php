@@ -713,6 +713,7 @@ body {
     }
 
     function formSubmitCallback(xhttp, event, action) {
+        console.log('formSubmitCallback');
         if (xhttp.readyState == 4) {
             if (xhttp.status == 200) {
                 result = JSON.parse(xhttp.responseText);
@@ -723,10 +724,10 @@ body {
                 }
                 else if (result) {
                     if ('success' in result && !result.success) {
-                        var error_details = result.error_info[2];
+                        //var error_details = result.error_info[2];
                         alert('Failed... Error '
-                                + result.error_code + ': '
-                                + error_details
+                                + result.error_code //+ ': '
+                                //+ error_details
                         );
                     }
                     else { // success
