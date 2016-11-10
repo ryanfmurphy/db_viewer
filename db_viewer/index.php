@@ -94,7 +94,7 @@
 
       { # vars
         $inferred_table = DbUtil::infer_table_from_query($sql);
-        $just_table = DbUtil::strip_quotes(
+        $tablename_no_quotes = DbUtil::strip_quotes(
             DbUtil::just_tablename($inferred_table)
         );
 
@@ -103,8 +103,8 @@
             #todo allow this for other queries, not just tablename "queries"
             #todo we need to check that we only get fields that exist
             if (isset($requestVars['minimal'])) {
-                $minimal_fields = isset($minimal_fields_by_table[$just_table])
-                                    ? $minimal_fields_by_table[$just_table]
+                $minimal_fields = isset($minimal_fields_by_table[$tablename_no_quotes])
+                                    ? $minimal_fields_by_table[$tablename_no_quotes]
                                     : isset($minimal_fields)
                                         ? $minimal_fields
                                         : array('name,txt');
@@ -165,7 +165,7 @@
               { # add limit/offset to sql query
                 if ($order_by_time) {
                   $time_field = DbUtil::get_time_field(
-                        $just_table, $schemas_in_path);
+                        $tablename_no_quotes, $schemas_in_path);
                   if ($time_field) {
                     $sql .= "\norder by $time_field desc";
                   }
@@ -218,10 +218,10 @@
           { # "create" link
               if (isset($dash_links) && $dash_links) {
 ?>
-    <a href="/dash/index.php?table=<?= $just_table ?>&minimal"
+    <a href="/dash/index.php?table=<?= $tablename_no_quotes ?>&minimal"
        target="_blank"
     >
-      Create a new <code><?= $just_table ?></code>
+      Create a new <code><?= $tablename_no_quotes ?></code>
     </a>
 <?php
               }

@@ -4,7 +4,7 @@
         { # main style include
             { # choose / setup background image if any
                 $background_image_url = DbViewer::choose_background_image(
-                    $inferred_table, $backgroundImages
+                    $tablename_no_quotes, $backgroundImages
                 );
                 include("$trunk/background_image_settings.php");
             }
