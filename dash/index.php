@@ -67,6 +67,24 @@
                         ? $requestVars['table']
                         : null;
 
+            { # choose background
+                $background_image_url = DbViewer::choose_background_image(
+                    $table, $backgroundImages
+                );
+
+                # background_image_settings if applicable
+                if (isset(
+                    $background_image_settings[$background_image_url]
+                )) {
+                    $img_settings = $background_image_settings[
+                                        $background_image_url
+                                    ];
+                    if (isset($img_settings['background'])) {
+                        $background = $img_settings['background'];
+                    }
+                }
+            }
+
             # minimal_fields_by_table
             if ($minimal
                 && (isset($minimal_fields_by_table)
@@ -360,7 +378,7 @@
         <title>Dash</title>
         <style type="text/css">
 <?php
-    { # css style
+    { # CSS style
 ?>
 body {
     font-family: sans-serif;
@@ -480,9 +498,6 @@ form#mainForm label {
 }
 
 <?php
-        $background_image_url = DbViewer::choose_background_image(
-            $table, $backgroundImages
-        );
         if ($background_image_url) {
 ?>
 body {
