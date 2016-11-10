@@ -34,7 +34,6 @@
 
     { # vars
       $cmp = class_exists('Util');
-      $inlineCss = $cmp;
     }
 
     { # init: defines $db, DbViewer,

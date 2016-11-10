@@ -1,18 +1,31 @@
 <?php
     { # dynamic style / CSS choices
 
-        { # choose background image if any
-            $backgroundImageUrl = DbViewer::choose_background_image(
-                $inferred_table, $backgroundImages
-            );
+        { # main style include
+            { # choose / setup background image if any
+                $background_image_url = DbViewer::choose_background_image(
+                    $inferred_table, $backgroundImages
+                );
+                include("$trunk/background_image_settings.php");
+            }
 
-            if ($backgroundImageUrl) {
+            { # launch style from here so we have the accurate $background
+?>
+    <style>
+<?php
+                include("$trunk/db_viewer/style.css.php");
+?>
+    </style>
+<?php
+            }
+
+            if ($background_image_url) {
 ?>
     <style>
     body {
         /*background-color: black;
         color: white;*/
-        background-image: url(<?= $backgroundImageUrl ?>);
+        background-image: url(<?= $background_image_url ?>);
         background-position: center;
         background-repeat: repeat;
     }
@@ -27,6 +40,9 @@
     a {
         color: #88f;
     }
+
+    .link_nocolor {
+    }
     </style>
 <?php
             }
@@ -37,7 +53,7 @@
             $isDarkBackground = (isset($background)
                                  && $background == 'dark');
 
-            if ($backgroundImageUrl
+            if ($background_image_url
                 || $isDarkBackground
             ) {
                 {

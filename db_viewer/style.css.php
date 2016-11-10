@@ -1,11 +1,13 @@
 <?php
-    require_once("init.php");
+    # gets included by db_viewer/dynamic_style.php
 
-    if (!isset($background)) $background = 'light';
+    #require_once("init.php");
 
-    if (!isset($inlineCss) || !$inlineCss) {
-        header('Content-Type: text/css');
-    }
+    #if (!isset($background)) $background = 'light';
+
+    #if (!isset($inlineCss) || !$inlineCss) {
+    #    header('Content-Type: text/css');
+    #}
 ?>
 /*<style>*/
 html {

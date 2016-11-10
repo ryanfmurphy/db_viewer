@@ -9,13 +9,15 @@
                 }
 
                 { # css - either inline via include or linked
-                    $cssPath = "style.css" . ($php_ext ? ".php" : "");
-                    if ($inlineCss && $cmp) {
-                        $db_viewer_path = dirname(__DIR__); #todo this may be already defined, hence redundant
-                        $cssFullPath =  "$db_viewer_path/$cssPath";
+                    # actually, now being included within dynamic_style
+
+                    #$cssPath = "style.css" . ($php_ext ? ".php" : "");
+                    if (/*$inlineCss && */ $cmp) {
+                        #$db_viewer_path = dirname(__DIR__); #todo this may be already defined, hence redundant
+                        #$cssFullPath =  "$db_viewer_path/$cssPath";
 ?>
     <style>
-        <?php include($cssPath); ?>
+        <?php #include($cssPath); ?>
         <?php include("$trunk/popr/popr.css"); ?>
     </style>
 <?php
@@ -24,8 +26,8 @@
                         #todo when running in a subdirectory,
                         # REQUEST_URI must have / at the end
                         # for these relative links to work
+    /*link rel="stylesheet" type="text/css" href="<?= $cssPath ?>">*/
 ?>
-    <link rel="stylesheet" type="text/css" href="<?= $cssPath ?>">
     <link rel="stylesheet" type="text/css" href="popr/popr.css">
 <?php
                     }
