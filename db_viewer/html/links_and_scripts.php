@@ -18,7 +18,7 @@
 ?>
     <style>
         <?php #include($cssPath); ?>
-        <?php include("$trunk/popr/popr.css"); ?>
+        <?php include("$trunk/db_viewer/popr/popr.css"); ?>
     </style>
 <?php
                     }

@@ -156,6 +156,9 @@
 
         function doSelectForInput($name) {
             global $fields_to_make_selects;
+            if (!isset($fields_to_make_selects)) {
+                $fields_to_make_selects = array();
+            }
             return in_array($name,
                 $fields_to_make_selects
             );

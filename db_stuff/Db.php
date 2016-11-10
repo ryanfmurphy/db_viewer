@@ -8,12 +8,15 @@ if (!class_exists('Db')) {
 
         public static function connectToDb() {
             global $db_type, $db_host, $db_name, $db_user, $db_password;
+            return Util::getDbConn();
+            /*
             #todo will this global work in all cases?
             $db = $GLOBALS['db'] = new PDO(
                 "$db_type:host=$db_host;dbname=$db_name",
                 $db_user, $db_password
             );
             return $db;
+            */
         }
 
         # (cached) connection to db
@@ -58,7 +61,7 @@ if (!class_exists('Db')) {
         public static function sqlLiteral($val) {
             if (is_string($val)) {
                 $db = Db::conn();
-                $val = $db->quote($val);
+                $val = Db::quote($val);
                 return $val;
             }
             elseif ($val === NULL) { return "NULL"; }
@@ -111,6 +114,8 @@ if (!class_exists('Db')) {
         }
 
         public static function sql($query) {
+            return Util::sql($query);
+            /*
             global $show_internal_result_details;
 
             $db = Db::conn();
@@ -139,6 +144,7 @@ if (!class_exists('Db')) {
             else {
                 return $result;
             }
+            */
         }
 
         public static function sql_get1($query) {
@@ -154,6 +160,7 @@ if (!class_exists('Db')) {
         public static function quote($val) {
             $db = Db::conn();
             #todo #fixme might not work for nulls?
+            return("'".Util::quote($val)."'");
             return $db->quote($val);
         }
 

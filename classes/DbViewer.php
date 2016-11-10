@@ -47,12 +47,8 @@
         <b>Oops! Could not get a valid result.</b>
     </p>
     <p>
-        PDO::errorCode(): <?= $db->errorCode() ?>
+        mysqli_error = <?= mysqli_error(Util::getDbConn()) ?>
     </p>
-    <div>
-        PDO::errorInfo():
-        <pre><?php print_r($db->errorInfo()) ?></pre>
-    </div>
 </div>
 <?php
         }

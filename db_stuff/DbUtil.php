@@ -517,6 +517,7 @@ if (!class_exists('DbUtil')) {
 
         public static function quote_char() {
             global $db_type;
+            return '`';
             return ($db_type == 'mysql'
                             ? '`'
                             : '"');

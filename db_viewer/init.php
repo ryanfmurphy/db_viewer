@@ -52,6 +52,7 @@
 
     { # Util includes
         require_once("$trunk/db_stuff/Db.php");
+        $GLOBALS['db'] = Db::connectToDb(); # for some reason need to re-get the db conn
         require_once("$trunk/db_stuff/DbUtil.php");
         require_once("$trunk/classes/DbViewer.php");
     }

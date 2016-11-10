@@ -142,9 +142,9 @@ a {
     color: #ccc;
     cursor: pointer;
 }
-.uuid_field {
+/*.uuid_field {
     font-size: 30%;
-}
+}*/
 
 .row_edit_link {
     font-size: 80%;

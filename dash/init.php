@@ -48,11 +48,11 @@
 
         { # paths
             if (!isset($db_viewer_path)) {
-                $db_viewer_path = "/db_viewer/db_viewer.php";
+                $db_viewer_path = "/admin/db_viewer"; #todo put SD config paths in db_config
             }
 
             if (!isset($crud_api_path)) {
-                $crud_api_path = "/dash/crud_api.php";
+                $crud_api_path = "/admin/dash_crud_api";
             }
         }
 
