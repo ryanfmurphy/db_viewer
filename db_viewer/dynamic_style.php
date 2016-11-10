@@ -34,7 +34,18 @@
     }
     table, textarea {
         color: white;
+<?php
+                if ($background == 'dark') {
+?>
+        background: rgba(0,0,0,.5);
+<?php
+                }
+                else {
+?>
         background: rgba(100,100,100,.5);
+<?php
+                }
+?>
         border: solid 1px white;
     }
     a {

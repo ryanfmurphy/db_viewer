@@ -90,7 +90,7 @@ textarea, input[type=text] {
 <?php
     if ($background=='dark') {
 ?>
-    background: black;
+    background: rgba(0,0,0,.5);
     color: white;
 <?php
     }
