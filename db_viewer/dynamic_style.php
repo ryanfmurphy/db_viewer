@@ -29,24 +29,35 @@
         background-position: center;
         background-repeat: repeat;
     }
-    td,th {
-        border: solid 1px white;
-    }
-    table, textarea {
-        color: white;
+    td,th, table, textarea {
 <?php
                 if ($background == 'dark') {
 ?>
+        border: solid 1px white;
+<?php
+                }
+                else {
+?>
+        border: solid 1px black;
+<?php
+                }
+?>
+    }
+    table, textarea {
+<?php
+                if ($background == 'dark') {
+?>
+        color: white;
         background: rgba(0,0,0,.5);
 <?php
                 }
                 else {
 ?>
-        background: rgba(100,100,100,.5);
+        color: black;
+        background: rgba(200,200,200,.5);
 <?php
                 }
 ?>
-        border: solid 1px white;
     }
     a {
         color: #88f;
