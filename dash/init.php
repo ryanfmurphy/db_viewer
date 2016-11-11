@@ -28,9 +28,10 @@
     }
 
     { # classes
-        include("$trunk/db_stuff/Db.php");
-        include("$trunk/db_stuff/DbUtil.php");
-        include("$trunk/classes/DbViewer.php");
+        require_once("$trunk/db_stuff/Db.php");
+        require_once("$trunk/db_stuff/DbUtil.php");
+        require_once("$trunk/classes/DbViewer.php");
+        require_once("$trunk/classes/Curl.php");
     }
 
     { # vars adjustments after includes
