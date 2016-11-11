@@ -1,13 +1,5 @@
 <?php
     # gets included by db_viewer/dynamic_style.php
-
-    #require_once("init.php");
-
-    #if (!isset($background)) $background = 'light';
-
-    #if (!isset($inlineCss) || !$inlineCss) {
-    #    header('Content-Type: text/css');
-    #}
 ?>
 /*<style>*/
 html {
@@ -139,7 +131,6 @@ a {
 }
 
 .id_field {
-    color: #ccc;
     cursor: pointer;
 }
 .uuid_field {
@@ -150,9 +141,11 @@ a {
     font-size: 80%;
 }
 
-.time_field {
-    color: #ccc;
+/*
+.id_field, .time_field {
+    color: blue;
 }
+*/
 
 .link_nocolor {
     text-decoration: none;

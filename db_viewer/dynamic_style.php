@@ -54,7 +54,7 @@
                 else {
 ?>
         color: black;
-        background: rgba(200,200,200,.5);
+        background: rgba(255,255,255,.4);
 <?php
                 }
 ?>
