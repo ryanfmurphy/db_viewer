@@ -107,7 +107,9 @@
                             { # action column(s): edit link & special_ops
                                 if ($has_primary_key_field) {
                                     DbViewer::echo_edit_link(
-                                        $dash_path, $tablename_no_quotes, $primary_key, $edit_links_have_minimal);
+                                        $dash_path, $tablename_no_quotes,
+                                        $primary_key, $links_minimal_by_default
+                                    );
                                 }
 
                                 DbViewer::echo_special_ops(

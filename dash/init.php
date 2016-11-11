@@ -12,6 +12,8 @@
         if (!isset($edit)) {
             $edit = null;
         }
+
+        $links_minimal_by_default = false;
     }
 
     { # custom config

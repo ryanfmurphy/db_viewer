@@ -28,7 +28,7 @@
         $special_ops = array();
         $backgroundImages = array();
         $inferred_table = null;
-        $edit_links_have_minimal = false;
+        $links_minimal_by_default = false;
         # URI paths
         $js_path = '/db_viewer/js';
         $dash_path = '/dash/index.php';

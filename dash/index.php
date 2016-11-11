@@ -692,11 +692,21 @@ body {
             return false;
         }
 
+        var view_link_minimal_by_default = <?= $links_minimal_by_default ?>;
+        function maybe_minimal() {
+            return view_link_minimal_by_default
+                    ? '&minimal'
+                    : '';
+        }
+
         function viewButtonClickHandler(crud_api_path, keyEvent, table_name) {
             var url = crud_api_path;
             var action = 'view_'+table_name;
             var extra_vars = {'action': action};
-            if (keyEvent.altKey) {
+            var do_minimal = view_link_minimal_by_default
+                                ? !keyEvent.altKey
+                                : keyEvent.altKey
+            if (do_minimal) {
                 extra_vars.db_viewer_minimal_mode = 1;
                 //var form = document.getElementById('mainForm');
                 //var form_names = getFormKeys(form);
@@ -885,7 +895,7 @@ body {
             console.log('doing view_all_link');
             view_all_link = document.getElementById('view_all_link');
             if (view_all_link) {
-                view_all_url = scope.db_viewer_path + '?sql=' + table;
+                view_all_url = scope.db_viewer_path + '?sql=' + table + maybe_minimal();
                 view_all_link.setAttribute('href', view_all_url);
             }
 
@@ -1237,8 +1247,11 @@ body {
                 </h1>
 <?php
         if ($table) {
+            $maybe_minimal = $links_minimal_by_default
+                                ? '&minimal'
+                                : '';
 ?>
-                <a id="view_all_link" href="<?= $db_viewer_path ?>?sql=<?= $table ?>"
+                <a id="view_all_link" href="<?= $db_viewer_path ?>?sql=<?= $table . $maybe_minimal?>"
                    target="_blank"
                 >
                     view all
