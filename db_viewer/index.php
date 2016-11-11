@@ -103,11 +103,11 @@
             #todo allow this for other queries, not just tablename "queries"
             #todo we need to check that we only get fields that exist
             if (isset($requestVars['minimal'])) {
-                $minimal_fields = isset($minimal_fields_by_table[$tablename_no_quotes])
+                $minimal_fields = (isset($minimal_fields_by_table[$tablename_no_quotes])
                                     ? $minimal_fields_by_table[$tablename_no_quotes]
-                                    : isset($minimal_fields)
+                                    : (isset($minimal_fields)
                                         ? $minimal_fields
-                                        : array('name,txt');
+                                        : array('name,txt')));
             }
             else {
                 $minimal_fields = null;
