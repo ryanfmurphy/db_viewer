@@ -66,9 +66,16 @@
 
       { # get sql query (if any) from incoming request
         { # get sql and sanitize
-          $sql = (isset($requestVars['sql'])
-                ? $requestVars['sql']
-                : null);
+          if (isset($requestVars['query_id'])) {
+              $queryId = $requestVars['query_id'];
+              $query = Query::get1($queryId);
+              $sql = $query->getSql();
+          }
+          else {
+              $sql = (isset($requestVars['sql'])
+                          ? $requestVars['sql']
+                          : null);
+          }
 
           # we just want normal newlines
           # www forms often post with \r\n
@@ -218,7 +225,7 @@
           { # "create" link
               if (isset($dash_links) && $dash_links) {
 ?>
-    <a href="/dash/index.php?table=<?= $just_table ?>&minimal"
+    <a href="<?= $dash_path ?>?table=<?= $just_table ?>&minimal"
        target="_blank"
     >
       Create a new <code><?= $just_table ?></code>
