@@ -157,6 +157,10 @@ if (!class_exists('Db')) {
             return $db->quote($val);
         }
 
+        public static function esc($val) {
+            return substr(self::quote($val), 1, strlen($val)-2);
+        }
+
 
         #todo #fixme - halfway through moving some of the
         # core Model functionality into Db.
