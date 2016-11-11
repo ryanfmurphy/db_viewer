@@ -203,10 +203,13 @@
             return "$dash_path?edit=1&table=$tablename_no_quotes&primary_key=$primary_key";
         }
 
-        public static function echo_edit_link($dash_path, $tablename_no_quotes, $primary_key) {
+        public static function echo_edit_link($dash_path, $tablename_no_quotes, $primary_key, $minimal = false) {
+            $maybe_minimal = $minimal
+                                ? '&minimal'
+                                : '';
 ?>
         <td class="action_cell">
-            <a  href="<?= DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) ?>"
+            <a  href="<?= DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) . $maybe_minimal ?>"
                 class="row_edit_link"
                 target="_blank"
             >
