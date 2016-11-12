@@ -219,18 +219,88 @@
 <?php
         }
 
+        public static function special_op_url(
+            $special_op, $tablename_no_quotes,
+            $primary_key_field, $primary_key, $crud_api_path,
+            $row, $op_col_idx, $op_idx
+        ) {
+            # the kind of special_op that changes fields
+            if (isset($special_op['changes'])) {
+                # query string
+                $query_vars = array_merge(
+                    array(
+                        'action' => "update_$tablename_no_quotes",
+                        'where_clauses' => array(
+                            $primary_key_field => $primary_key,
+                        ),
+                    ),
+                    $special_op['changes']
+                );
+                $query_str = http_build_query($query_vars);
+
+                $special_op_url = "$crud_api_path?$query_str";
+            }
+            # the kind of special_op that goes to a url
+            # with {{mustache_vars}} subbed in
+            elseif (isset($special_op['url'])) {
+                $special_op_url = preg_replace_callback(
+                    '/{{([a-z_]+)}}/',
+                    function($match) use ($row) {
+                        $fieldname = $match[1];
+                        return $row[$fieldname];
+                    },
+                    $special_op['url']
+                );
+            }
+            # custom fn
+            elseif (isset($special_op['fn'])) {
+                $special_op_url = DbViewer::special_op_fn_url($tablename_no_quotes, $op_col_idx, $op_idx, $primary_key);
+            }
+
+            return $special_op_url;
+        }
+
+        public static function special_op_fn_url($tablename_no_quotes, $col_idx, $op_idx, $primary_key) {
+            global $crud_api_path, $special_ops; #todo avoid global, move to $config array, could live in DbViewer class
+            if (DbViewer::special_op_fn(
+                    $tablename_no_quotes, $col_idx, $op_idx, $primary_key
+                )
+            ) {
+                return "$crud_api_path?action=special_op&col_idx=$col_idx&op_idx=$op_idx&table=$tablename_no_quotes&primary_key=$primary_key";
+            }
+            else {
+                return null;
+            }
+        }
+
+        public static function special_op_fn($tablename_no_quotes, $col_idx, $op_idx) {
+            global $special_ops;
+            if (isset($special_ops[$tablename_no_quotes][$col_idx][$op_idx]['fn'])) {
+                return $special_ops[$tablename_no_quotes][$col_idx][$op_idx]['fn'];
+            }
+            else {
+                return null;
+            }
+        }
+
         public static function echo_special_ops(
             $special_ops_cols, $tablename_no_quotes,
             $primary_key_field, $primary_key, $crud_api_path,
             $row
         ) {
-            foreach ($special_ops_cols as $special_ops_col) {
+            foreach ($special_ops_cols as $op_col_idx => $special_ops_col) {
 ?>
         <td class="action_cell">
             <ul>
 <?php
-                foreach ($special_ops_col as $special_op) {
+                foreach ($special_ops_col as $op_idx => $special_op) {
 
+                    $special_op_url = self::special_op_url(
+                        $special_op, $tablename_no_quotes,
+                        $primary_key_field, $primary_key, $crud_api_path,
+                        $row, $op_col_idx, $op_idx
+                    );
+                    /*
                     # the kind of special_op that changes fields
                     if (isset($special_op['changes'])) {
                         # query string
@@ -259,6 +329,7 @@
                             $special_op['url']
                         );
                     }
+                    */
 ?>
             <li>
                 <nobr>
@@ -291,6 +362,26 @@
                             ? $background_images['fallback image']
                             : null)
                   );
+        }
+
+        public static function select_by_pk_sql($table, $primary_key_field, $primary_key) {
+            $primary_key__esc = Db::sqlLiteral($primary_key); # escape as sql literal
+            return "
+                select * from ".DbUtil::quote_tablename($table)."
+                where $primary_key_field = $primary_key__esc
+            ";
+        }
+
+        public static function select_by_pk($table, $primary_key_field, $primary_key) {
+            $sql = DbViewer::select_by_pk_sql($table, $primary_key_field, $primary_key);
+            $all1rows = Db::sql($sql);
+
+            if (is_array($all1rows) && count($all1rows)) {
+                return $all1rows[0];
+            }
+            else {
+                return null;
+            }
         }
 
     }

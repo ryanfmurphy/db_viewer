@@ -22,24 +22,11 @@
                 if (isset($_GET['primary_key'])) {
 
                     $table = $_GET['table'];
-
-                    if ($id_mode == 'id_only') { #todo factor, we might have a function already
-                        $primary_key_field = 'id';
-                    }
-                    else {
-                        $primary_key_field = $table.'_id';
-                    }
+                    $primary_key_field = DbUtil::getPrimaryKeyField($id_mode, $table);
                     $primary_key = $_GET['primary_key'];
-                    $primary_key__esc = Db::sqlLiteral($primary_key); # escape as sql literal
 
-                    $sql = "
-                        select * from ".DbUtil::quote_tablename($table)."
-                        where $primary_key_field = $primary_key__esc
-                    ";
-                    $all1rows = Db::sql($sql);
-
-                    if (is_array($all1rows) && count($all1rows)) {
-                        $thisRow = $all1rows[0];
+                    $thisRow = DbViewer::select_by_pk($table, $primary_key_field, $primary_key);
+                    if ($thisRow) {
                         $defaultValues = array_merge( $defaultValues,
                                                       $thisRow );
                     }

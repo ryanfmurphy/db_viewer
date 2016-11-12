@@ -31,12 +31,17 @@
             view|create|update|delete
         )
         _(?<table>\w+)
+        |
+        special_op
     $@x", $action, $matches);
 
     if ($matchesActionPattern) {
-        $table = $matches['table'];
-
-        #$ClassName = Model::ClassName($table);
+        if (isset($matches['table'])) {
+            $table = $matches['table'];
+        }
+        elseif (isset($vars['table'])) {
+            $table = $vars['table'];
+        }
 
         switch ($action) {
 
@@ -74,6 +79,26 @@
                 die(json_encode(
                     Db::deleteRows($table, $vars)
                 ));
+
+            case "special_op":
+                $col_idx = isset($vars['col_idx'])
+                                ? $vars['col_idx']
+                                : null;
+                $op_idx = isset($vars['op_idx'])
+                                ? $vars['op_idx']
+                                : null;
+                $primary_key = isset($vars['primary_key'])
+                                ? $vars['primary_key']
+                                : null;
+                #todo avoid global $id_mode, move into config array
+                $primary_key_field = DbUtil::getPrimaryKeyField($id_mode, $table);
+                $fn = DbViewer::special_op_fn(
+                    $table, $col_idx, $op_idx, $primary_key);
+                $row = DbViewer::select_by_pk(
+                    $table, $primary_key_field, $primary_key);
+                die(
+                    $fn($table, $row, $primary_key_field, $primary_key)
+                );
 
             /*
             case "action_get1_$table":
