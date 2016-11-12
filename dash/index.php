@@ -679,9 +679,9 @@ body {
             return false;
         }
 
-        var view_link_minimal_by_default = <?= $links_minimal_by_default ?>;
+        var links_minimal_by_default = <?= $links_minimal_by_default ?>;
         function maybe_minimal() {
-            return view_link_minimal_by_default
+            return links_minimal_by_default
                     ? '&minimal'
                     : '';
         }
@@ -690,7 +690,7 @@ body {
             var url = crud_api_path;
             var action = 'view_'+table_name;
             var extra_vars = {'action': action};
-            var do_minimal = view_link_minimal_by_default
+            var do_minimal = links_minimal_by_default
                                 ? !keyEvent.altKey
                                 : keyEvent.altKey
             if (do_minimal) {
@@ -889,7 +889,10 @@ body {
         }
         // no alt key - redirect page
         else {
-            if (keyEvent.ctrlKey) {
+            var do_minimal = links_minimal_by_default
+                                ? !keyEvent.ctrlKey
+                                : keyEvent.ctrlKey;
+            if (do_minimal) {
                 newLocation += '&minimal';
             }
             document.location = newLocation;
