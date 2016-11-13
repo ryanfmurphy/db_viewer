@@ -203,15 +203,46 @@
             return "$dash_path?edit=1&table=$tablename_no_quotes&primary_key=$primary_key";
         }
 
-        public static function echo_edit_link($dash_path, $tablename_no_quotes, $primary_key, $minimal = false) {
-            $maybe_minimal = $minimal
-                                ? '&minimal'
-                                : '';
+        public static function echo_js_handle_edit_link_onclick_fn() {
+            ob_start();
+?>
+        <script>
+        // #todo move
+        function handle_edit_link_onclick(elem, key_event, url2) {
+            url = elem.href;
+            if (key_event.altKey) {
+                console.log('yes');
+                elem.href = url2;
+                setTimeout(function(){
+                    elem.href = url;
+                }, 150);
+                window.open(elem.href, '_blank');
+            }
+        }
+        </script>
+<?php
+            return ob_get_clean();
+        }
+
+        # needs handle_edit_link_onclick js fn (above)
+        public static function echo_edit_link(
+            $dash_path, $tablename_no_quotes, $primary_key, $minimal = false
+        ) {
+            $base_url = DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key);
+            if ($minimal) {
+                $url = "$base_url&minimal";
+                $url2 = $base_url;
+            }
+            else {
+                $url = $base_url;
+                $url2 = "$base_url&minimal";
+            }
 ?>
         <td class="action_cell">
-            <a  href="<?= DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) . $maybe_minimal ?>"
+            <a  href="<?= $url ?>"
                 class="row_edit_link"
                 target="_blank"
+                onclick="handle_edit_link_onclick(this, event, '<?= $url2 ?>')"
             >
                 edit
             </a>

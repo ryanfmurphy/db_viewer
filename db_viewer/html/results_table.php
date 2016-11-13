@@ -59,6 +59,7 @@
 ?>
 
 <?php include('next_prev_page_links.php'); ?>
+<?= DbViewer::echo_js_handle_edit_link_onclick_fn() ?>
 
 <table id="query_table">
 <?php
