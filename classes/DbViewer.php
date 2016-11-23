@@ -397,10 +397,11 @@
 
         public static function select_by_pk_sql($table, $primary_key_field, $primary_key) {
             $primary_key__esc = Db::sqlLiteral($primary_key); # escape as sql literal
-            return "
+            $sql = "
                 select * from ".DbUtil::quote_tablename($table)."
                 where $primary_key_field = $primary_key__esc
             ";
+            return $sql;
         }
 
         public static function select_by_pk($table, $primary_key_field, $primary_key) {
