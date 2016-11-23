@@ -14,6 +14,7 @@
         }
 
         $links_minimal_by_default = false;
+        $default_values_by_table = array();
     }
 
     { # custom config

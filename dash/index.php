@@ -11,17 +11,30 @@
             $requestVars = array_merge($_GET, $_POST);
         }
 
+        { # table name & default values
+            $table = isset($requestVars['table'])
+                        ? $requestVars['table']
+                        : null;
+
+            # default values specified in config
+            $defaultValues = isset($default_values_by_table[$table])
+                                ? $default_values_by_table[$table]
+                                : array();
+            # pass requestVars in as default values
+            $defaultValues = array_merge(
+                $defaultValues,
+                #todo remove weird field names from other get vars
+                $requestVars
+            );
+        }
+
         { # edit mode?
             $edit = (isset($requestVars['edit'])
                     && $requestVars['edit']);
 
-            # pass requestVars in as default values
-            $defaultValues = $requestVars; #todo remove weird field names from other get vars
-
             if ($edit) {
                 if (isset($_GET['primary_key'])) {
 
-                    $table = $_GET['table'];
                     $primary_key_field = DbUtil::getPrimaryKeyField($id_mode, $table);
                     $primary_key = $_GET['primary_key'];
 
@@ -49,10 +62,6 @@
         { # vars
             $schemas_in_path = DbUtil::schemas_in_path($search_path);
             $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
-
-            $table = isset($requestVars['table'])
-                        ? $requestVars['table']
-                        : null;
 
             { # choose background
                 $background_image_url = DbViewer::choose_background_image(
