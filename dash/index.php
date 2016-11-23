@@ -73,9 +73,8 @@
 
         { # get fields from db
             $nonexistentTable = false;
-            if ($table) {
-                { # get fields of table from db, #todo factor into fn
-                    { ob_start(); # do query
+            if ($table) { # get fields of table from db, #todo factor into fn
+                { ob_start(); # do query
 ?>
                         select
                             table_schema, table_name,
@@ -83,57 +82,56 @@
                         from information_schema.columns
                         where table_name='<?= $table ?>'
 <?php
-                        if ($schemas_val_list) {
+                    if ($schemas_val_list) {
 ?>
                             and table_schema in (<?= $schemas_val_list ?>)
 <?php
-                        }
-                        $get_columns_sql = ob_get_clean();
                     }
-                    $fieldsRows = Db::sql($get_columns_sql);
+                    $get_columns_sql = ob_get_clean();
+                }
+                $fieldsRows = Db::sql($get_columns_sql);
 
-                    if (count($fieldsRows) > 0) {
+                if (count($fieldsRows) > 0) {
 
-                        { # group by schema
-                            $fieldsRowsBySchema = array();
-                            foreach ($fieldsRows as $fieldsRow) {
-                                $schema = $fieldsRow['table_schema'];
-                                $fieldsRowsBySchema[$schema][] = $fieldsRow;
-                            }
+                    { # group by schema
+                        $fieldsRowsBySchema = array();
+                        foreach ($fieldsRows as $fieldsRow) {
+                            $schema = $fieldsRow['table_schema'];
+                            $fieldsRowsBySchema[$schema][] = $fieldsRow;
                         }
+                    }
 
-                        { # choose 1st schema that applies
-                            if ($schemas_in_path) {
-                                $schema = null;
-                                foreach ($schemas_in_path as $schema_in_path) {
-                                    if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                                        $schema = $schema_in_path;
-                                        break;
-                                    }
-                                }
-                                if ($schema === null) {
-                                    die("Whoops!  Couldn't select a DB schema for table $table");
+                    { # choose 1st schema that applies
+                        if ($schemas_in_path) {
+                            $schema = null;
+                            foreach ($schemas_in_path as $schema_in_path) {
+                                if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                    $schema = $schema_in_path;
+                                    break;
                                 }
                             }
-                        }
-
-                        { # get just the column_names
-                            $fields = array_map(
-                                function($x) {
-                                    return $x['column_name'];
-                                },
-                                $fieldsRowsBySchema[$schema]
-                            );
-                        }
-
-                        { # so we can give a warning/notice about it later
-                            $multipleTablesFoundInDifferentSchemas =
-                                count(array_keys($fieldsRowsBySchema)) > 1;
+                            if ($schema === null) {
+                                die("Whoops!  Couldn't select a DB schema for table $table");
+                            }
                         }
                     }
-                    else { # no rows
-                        $nonexistentTable = true;
+
+                    { # get just the column_names
+                        $fields = array_map(
+                            function($x) {
+                                return $x['column_name'];
+                            },
+                            $fieldsRowsBySchema[$schema]
+                        );
                     }
+
+                    { # so we can give a warning/notice about it later
+                        $multipleTablesFoundInDifferentSchemas =
+                            count(array_keys($fieldsRowsBySchema)) > 1;
+                    }
+                }
+                else { # no rows
+                    $nonexistentTable = true;
                 }
             }
         }
