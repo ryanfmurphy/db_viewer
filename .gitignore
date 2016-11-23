@@ -2,3 +2,5 @@
 /db_config.php
 /db_config.php.bak
 custom_css.php
+*.swp
+/plugins/*
