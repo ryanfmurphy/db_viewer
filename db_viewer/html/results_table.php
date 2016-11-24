@@ -63,10 +63,6 @@
 
 <table id="query_table">
 <?php
-                    #$header_every = isset($requestVars['header_every'])
-                    #                  ? $requestVars['header_every']
-                    #                  : 5; #todo make this editable in config
-
                     { # vars
                         $primary_key_field = DbUtil::getPrimaryKeyField(
                             $id_mode, $inferred_table);
