@@ -439,6 +439,7 @@ if (!class_exists('DbUtil')) {
         }
 
         public static function fieldname_given_base_table($fieldname, $base_table) {
+            $base_table = DbUtil::strip_quotes($base_table);
             if ($base_table) {
                 if ($fieldname == 'name') {
                     return $base_table;
