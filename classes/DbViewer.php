@@ -29,6 +29,7 @@
         }
 
 		# peel off schema/database
+        # Q. does this handle quotes in tablename?
 		public static function just_tablename($full_tablename) {
 			$dotPos = strpos($full_tablename, '.');
 			return ($dotPos !== false

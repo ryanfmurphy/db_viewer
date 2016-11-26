@@ -94,6 +94,7 @@ if (!class_exists('DbUtil')) {
 						: $full_tablename);
 		}
 
+        # unquote tablename
         public static function strip_quotes($tablename) {
             global $db_type;
             return str_replace(self::quote_char(), '', $tablename);
@@ -260,7 +261,9 @@ if (!class_exists('DbUtil')) {
         }
 
         # get all tables with that fieldname, optionally filtering by vals
-        public static function tables_with_field($fieldname, $data_type=null, $vals=null) {
+        public static function tables_with_field(
+            $fieldname, $data_type=null, $vals=null
+        ) {
 
 			$args = print_r(get_defined_vars(),1);
 			self::log("top of tables_with_field, get_defined_vars()=$args\n");
