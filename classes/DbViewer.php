@@ -41,7 +41,7 @@
         # Rendering and Type-Recognition Functions
         # ----------------------------------------
 
-        public static function outputDbError($db) { #keep
+        public static function outputDbError($db) {
 ?>
 <div>
     <p>
@@ -170,7 +170,7 @@
             }
         }
 
-        public static function array_as_html_list($array) { #keep
+        public static function array_as_html_list($array) {
             { ob_start();
 ?>
         <ul>
@@ -187,7 +187,7 @@
             }
         }
 
-        public static function isTableNameVal($val, $fieldName) { #keep
+        public static function isTableNameVal($val, $fieldName) {
             return ((preg_match('/Tables_in_/', $fieldName)
                      || $fieldName == "Name")
                             ? true

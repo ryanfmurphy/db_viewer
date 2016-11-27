@@ -408,25 +408,6 @@ if (!class_exists('DbUtil')) {
             return $data;
         }
 
-        /*
-        public static function outputDbError($db) { #kill
-?>
-<div>
-    <p>
-        <b>Oops! Could not get a valid result.</b>
-    </p>
-    <p>
-        PDO::errorCode(): <?= $db->errorCode() ?>
-    </p>
-    <div>
-        PDO::errorInfo():
-        <pre><?php print_r($db->errorInfo()) ?></pre>
-    </div>
-</div>
-<?php
-        }
-        */
-
         # convert postgres array str into php array
         public static function pgArray2array($pgArrayStr, $itemType='text') {
             $arrayType = $itemType.'[]';
