@@ -440,12 +440,23 @@ if (!class_exists('DbUtil')) {
             }
         }
 
-        #todo improve pg_array guess, maybe user column type
+        #todo improve pg_array guess, maybe use column type
         public static function seems_like_pg_array($val) {
             global $db_type;
             if ($db_type == 'pgsql'
                 && is_string($val)
             ) {
+                # first see if it's valid json (not a pg array)
+                    # #todo use column type instead
+                    # this may have a bad #performance impact
+                    # always trying to json_decode every value
+                $json = json_decode($val, true);
+                if (is_array($json)
+                    && count($json) > 0
+                ) {
+                    return false;
+                }
+
                 $len = strlen($val);
                 if ($len >= 2
                     && $val[0] == "{"
