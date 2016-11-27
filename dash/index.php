@@ -76,7 +76,14 @@
                 && (isset($minimal_fields_by_table)
                     && isset($minimal_fields_by_table[$table]))
             ) {
-                $only_include_these_fields = &$minimal_fields_by_table[$table];
+                $only_include_these_fields = $minimal_fields_by_table[$table];
+                if ($minimal_field_inheritance) {
+                    foreach ($minimal_fields as $field) {
+                        if (!in_array($field, $only_include_these_fields)) {
+                            $only_include_these_fields[] = $field;
+                        }
+                    }
+                }
             }
         }
 

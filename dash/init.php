@@ -15,6 +15,7 @@
 
         $links_minimal_by_default = false;
         $default_values_by_table = array();
+        $minimal_field_inheritance = true;
     }
 
     { # custom config
@@ -76,7 +77,7 @@
                             "what",
                         );
                     }
-                    $only_include_these_fields = &$minimal_fields;
+                    $only_include_these_fields = $minimal_fields;
                 }
             }
             else {
