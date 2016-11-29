@@ -18,9 +18,8 @@
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
                 global $minimal_fields;
 
-                $currentRow = DbViewer::prep_row(
-                    current($rows)
-                );
+                $row = current($rows);
+                $currentRow = DbViewer::prep_row($row);
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php

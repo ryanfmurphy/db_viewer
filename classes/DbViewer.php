@@ -418,6 +418,8 @@
         }
 
 
+        # used in db_viewer table view to put
+        # row fields into the right order
         public static function ordered_row(
             $row, $ordered_fields
         ) {
@@ -434,12 +436,14 @@
             return $new_row;
         }
 
+        # used in db_viewer table view to put
+        # row fields into the right order
         public static function prep_row($row) {
             global $use_field_ordering_from_minimal_fields,
                    $would_be_minimal_fields,
                    $minimal;
-            if (!$minimal
-                && $use_field_ordering_from_minimal_fields
+            if (#!$minimal &&
+                $use_field_ordering_from_minimal_fields
             ) {
                 return self::ordered_row(
                     $row, $would_be_minimal_fields
@@ -450,8 +454,10 @@
             }
         }
 
-        # same as ordered_row but just fieldnames in array
-        # instead of key=>val pairs of a row
+        # used in dash object view to put
+        # row fields into the right order
+          # same as ordered_row but just fieldname array
+          # instead of key => val pairs of a row
         public static function ordered_fields($fields, $ordered_fields) {
             $fields_in_order = array();
             foreach ($ordered_fields as $name) {
