@@ -417,10 +417,13 @@
             }
         }
 
-        public static function ordered_row($row, $ordered_keys) {
+
+        public static function ordered_row(
+            $row, $ordered_fields
+        ) {
             $new_row = array();
-            foreach ($ordered_keys as $field_name) {
-                if (isset($row[$field_name])) {
+            foreach ($ordered_fields as $field_name) {
+                if (array_key_exists($field_name, $row)) {
                     $new_row[$field_name] = $row[$field_name];
                     unset($row[$field_name]);
                 }
@@ -449,7 +452,7 @@
 
         # same as ordered_row but just fieldnames in array
         # instead of key=>val pairs of a row
-        public static function ordered_fields($fields, $ordered_fields=null) {
+        public static function ordered_fields($fields, $ordered_fields) {
             $fields_in_order = array();
             foreach ($ordered_fields as $name) {
                 if (in_array($name, $fields)) {
