@@ -16,6 +16,11 @@
         $links_minimal_by_default = false;
         $default_values_by_table = array();
         $minimal_field_inheritance = true;
+        #todo factor some of this with db_viewer/init.php
+        $use_field_ordering_from_minimal_fields = false;
+        $minimal = isset($requestVars['minimal'])
+                        ? true
+                        : false;
     }
 
     { # custom config

@@ -72,6 +72,7 @@
             }
 
             # minimal_fields_by_table
+            /*
             if ($minimal
                 && (isset($minimal_fields_by_table)
                     && isset($minimal_fields_by_table[$table]))
@@ -85,6 +86,14 @@
                     }
                 }
             }
+            */
+            $would_be_minimal_fields =
+                DbViewer::would_be_minimal_fields($table);
+
+            $only_include_these_fields =
+                $minimal
+                    ? $would_be_minimal_fields
+                    : null;
         }
 
         { # get fields from db
@@ -1288,10 +1297,13 @@ body {
 ?>
         <form id="mainForm" target="_blank">
 <?php
+                /*
                 { # get fields in order
-                    if (is_array($only_include_these_fields)) {
+                    if ($use_field_ordering_from_minimal_fields
+                        && is_array($would_be_minimal_fields)
+                    ) {
                         $fields_in_order = array();
-                        foreach ($only_include_these_fields as $name) {
+                        foreach ($would_be_minimal_fields as $name) {
                             if (in_array($name, $fields)) {
                                 $fields_in_order[] = $name;
                             }
@@ -1305,8 +1317,10 @@ body {
                         $fields = $fields_in_order;
                     }
                 }
+                */
 
                 { # create form fields
+                    $fields = DbViewer::prep_fields($fields);
                     foreach ($fields as $name) {
                         if (doSkipField($name, $only_include_these_fields)) {
                             continue;

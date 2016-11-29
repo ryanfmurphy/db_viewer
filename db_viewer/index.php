@@ -102,16 +102,12 @@
             #todo cleanup: $minimal var? ternary op?
             #todo allow this for other queries, not just tablename "queries"
             #todo we need to check that we only get fields that exist
-            if (isset($requestVars['minimal'])) {
-                $minimal_fields = (isset($minimal_fields_by_table[$tablename_no_quotes])
-                                    ? $minimal_fields_by_table[$tablename_no_quotes]
-                                    : (isset($minimal_fields)
-                                        ? $minimal_fields
-                                        : array('name,txt')));
-            }
-            else {
-                $minimal_fields = null;
-            }
+            $would_be_minimal_fields = DbViewer::would_be_minimal_fields(
+                $tablename_no_quotes
+            );
+            $minimal_fields = ($minimal
+                                ? $would_be_minimal_fields
+                                : null);
         }
 
 

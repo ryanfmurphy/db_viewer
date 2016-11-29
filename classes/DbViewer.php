@@ -417,5 +417,92 @@
             }
         }
 
+        public static function ordered_row($row, $ordered_keys) {
+            $new_row = array();
+            foreach ($ordered_keys as $field_name) {
+                if (isset($row[$field_name])) {
+                    $new_row[$field_name] = $row[$field_name];
+                    unset($row[$field_name]);
+                }
+            }
+            foreach ($row as $field_name => $val) {
+                $new_row[$field_name] = $val;
+            }
+            return $new_row;
+        }
+
+        public static function prep_row($row) {
+            global $use_field_ordering_from_minimal_fields,
+                   $would_be_minimal_fields,
+                   $minimal;
+            if (!$minimal
+                && $use_field_ordering_from_minimal_fields
+            ) {
+                return self::ordered_row(
+                    $row, $would_be_minimal_fields
+                );
+            }
+            else {
+                return $row;
+            }
+        }
+
+        # same as ordered_row but just fieldnames in array
+        # instead of key=>val pairs of a row
+        public static function ordered_fields($fields, $ordered_fields=null) {
+            $fields_in_order = array();
+            foreach ($ordered_fields as $name) {
+                if (in_array($name, $fields)) {
+                    $fields_in_order[] = $name;
+                }
+            }
+            foreach ($fields as $name) {
+                if (!in_array($name, $ordered_fields)) {
+                    $fields_in_order[] = $name;
+                }
+            }
+
+            return $fields_in_order;
+        }
+
+        # analogoes to prep_row but for dash's form fields
+        public static function prep_fields($fields) {
+            global $use_field_ordering_from_minimal_fields,
+                   $would_be_minimal_fields;
+
+            if ($use_field_ordering_from_minimal_fields
+                && is_array($would_be_minimal_fields)
+            ) {
+                return self::ordered_fields(
+                        $fields, $would_be_minimal_fields);
+            }
+            else {
+                return $fields;
+            }
+        }
+
+        public static function would_be_minimal_fields($tablename_no_quotes) {
+            global $minimal_fields_by_table,
+                   $minimal_fields,
+                   $minimal_field_inheritance;
+
+            $ret =
+                (isset($minimal_fields_by_table[$tablename_no_quotes])
+                    ? $minimal_fields_by_table[$tablename_no_quotes]
+                    : (isset($minimal_fields)
+                        ? $minimal_fields
+                        : array('name','txt')));
+
+            if ($minimal_field_inheritance) {
+                foreach ($minimal_fields as $field) {
+                    if (!in_array($field, $ret)) {
+                        $ret[] = $field;
+                    }
+                }
+            }
+
+            return $ret;
+        }
+
     }
 

@@ -18,7 +18,9 @@
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
                 global $minimal_fields;
 
-                $currentRow = current($rows);
+                $currentRow = DbViewer::prep_row(
+                    current($rows)
+                );
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php
@@ -117,6 +119,7 @@
                             }
 
                             { # loop thru fields and make <td>s
+                                $row = DbViewer::prep_row($row);
                                 foreach ($row as $field_name => $val) {
                                     if (includeField($field_name, $minimal_fields)) {
 ?>

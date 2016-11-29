@@ -29,6 +29,11 @@
         $backgroundImages = array();
         $inferred_table = null;
         $links_minimal_by_default = false;
+        #todo factor some of this with dash/init.php
+        $use_field_ordering_from_minimal_fields = false;
+        $minimal = isset($requestVars['minimal'])
+                        ? true
+                        : false;
         # URI paths
         $js_path = '/db_viewer/js';
         $dash_path = '/dash/index.php';
