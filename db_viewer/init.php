@@ -43,6 +43,7 @@
     }
 
     { # db_config include
+        require_once("$trunk/classes/Config.php");
         if (file_exists("$trunk/db_config.php")) {
             $config_file_path = "$trunk/db_config.php";
         }
@@ -52,7 +53,9 @@
 
         if ($config_file_path) {
             do_log("including config file: '$config_file_path'\n");
-            include($config_file_path);
+            #include($config_file_path);
+            $config = Config::load_config($config_file_path, $trunk);
+            extract($config);
         }
     }
 
