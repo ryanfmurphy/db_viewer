@@ -33,7 +33,9 @@ class Config {
             'default_values_by_table',
             'fields_to_make_selects',
             'header_every',
+            'multipleTablesFoundInDifferentSchemas',
             'edit',
+            'minimal',
         );
         $config = compact($config_vars);
         return $config;

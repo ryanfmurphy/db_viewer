@@ -21,19 +21,20 @@
     }
 
     { # vars - initial values
-        $header_every = 15;
-        $pluralize_table_names = false;
-        $slow_tables = array();
-        $field_render_filters_by_table = array();
-        $special_ops = array();
-        $backgroundImages = array();
-        $inferred_table = null;
-        $links_minimal_by_default = false;
-        #todo factor some of this with dash/init.php
-        $use_field_ordering_from_minimal_fields = false;
-        $minimal = isset($requestVars['minimal'])
-                        ? true
-                        : false;
+        $default_values = array(
+            'header_every' => 15,
+            'pluralize_table_names' => false,
+            'slow_tables' => array(),
+            'field_render_filters_by_table' => array(),
+            'special_ops' => array(),
+            'backgroundImages' => array(),
+            'inferred_table' => null,
+            'links_minimal_by_default' => false,
+            'use_field_ordering_from_minimal_fields' => false,
+            'minimal' => isset($requestVars['minimal'])
+                            ? true
+                            : false,
+        );
         # URI paths
         $js_path = '/db_viewer/js';
         $dash_path = '/dash/index.php';
@@ -54,7 +55,7 @@
         if ($config_file_path) {
             do_log("including config file: '$config_file_path'\n");
             #include($config_file_path);
-            $config = Config::load_config($config_file_path, $trunk);
+            $config = Config::load_config($config_file_path, $trunk, $default_values);
             extract($config);
         }
     }

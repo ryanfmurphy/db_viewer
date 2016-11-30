@@ -32,7 +32,7 @@
             extract($config);
         }
         #include("$dash_trunk/dash_config.php");
-        $config = Config::load_config("$dash_trunk/dash_config.php", $trunk, $default_values);
+        $config = Config::load_config("$dash_trunk/dash_config.php", $trunk, $config);
         extract($config);
     }
 
