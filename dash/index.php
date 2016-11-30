@@ -702,7 +702,7 @@ body {
             return false;
         }
 
-        var links_minimal_by_default = <?= $links_minimal_by_default ?>;
+        var links_minimal_by_default = <?= (int)$links_minimal_by_default ?>;
         function maybe_minimal() {
             return links_minimal_by_default
                     ? '&minimal'

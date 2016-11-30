@@ -5,33 +5,35 @@
     }
 
     { # default values
-        $multipleTablesFoundInDifferentSchemas = false;
-        $search_path = null;
-        $only_include_these_fields = null;
-
-        if (!isset($edit)) {
-            $edit = null;
-        }
-
-        $links_minimal_by_default = false;
-        $default_values_by_table = array();
-        $minimal_field_inheritance = true;
-        #todo factor some of this with db_viewer/init.php
-        $use_field_ordering_from_minimal_fields = false;
-        $minimal = isset($requestVars['minimal'])
-                        ? true
-                        : false;
+        $default_values = array(
+            'multipleTablesFoundInDifferentSchemas' => false,
+            'search_path' => null,
+            'only_include_these_fields' => null,
+            'edit' => isset($edit) ? $edit : null,
+            'links_minimal_by_default' => false,
+            'default_values_by_table' => array(),
+            'minimal_field_inheritance' => true,
+            'use_field_ordering_from_minimal_fields' => false,
+            'minimal' => isset($requestVars['minimal']) ? true : false,
+        );
     }
 
     { # custom config
+        include("$trunk/classes/Config.php");
         #todo #fixme log which config you run
         if (file_exists("$trunk/db_config.php")) {
-            include("$trunk/db_config.php");
+            #include("$trunk/db_config.php");
+            $config = Config::load_config("$trunk/db_config.php", $trunk, $default_values);
+            extract($config);
         }
         elseif (file_exists("$dash_trunk/db_config.php")) {
-            include("$dash_trunk/db_config.php");
+            #include("$dash_trunk/db_config.php");
+            $config = Config::load_config("$dash_trunk/db_config.php", $trunk, $default_values);
+            extract($config);
         }
-        include("$dash_trunk/dash_config.php");
+        #include("$dash_trunk/dash_config.php");
+        $config = Config::load_config("$dash_trunk/dash_config.php", $trunk, $default_values);
+        extract($config);
     }
 
     { # classes

@@ -3,8 +3,9 @@ class Config {
 
     # config is a regular PHP file
     # include it within the function scope and capture the $config vars
-    public static function load_config($config_filepath, $trunk) {
+    public static function load_config($config_filepath, $trunk, $default_values=array()) {
         $requestVars = array_merge($_GET, $_POST);
+        extract($default_values);
         include($config_filepath);
         $config_vars = array(
             'db_type',
@@ -32,6 +33,7 @@ class Config {
             'default_values_by_table',
             'fields_to_make_selects',
             'header_every',
+            'edit',
         );
         $config = compact($config_vars);
         return $config;
