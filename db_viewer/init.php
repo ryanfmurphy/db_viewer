@@ -48,7 +48,7 @@
 
         $config_file_path = (file_exists("$trunk/db_config.php")
                                 ? "$trunk/db_config.php"
-                                : "$db_viewer_path/db_config.php";
+                                : "$db_viewer_path/db_config.php");
         if ($config_file_path) {
             do_log("including config file: '$config_file_path'\n");
             $config = Config::load_config($config_file_path, $trunk, $default_values);
