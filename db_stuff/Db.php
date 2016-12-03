@@ -6,7 +6,7 @@ if (!class_exists('Db')) {
 
     class Db {
 
-        public static function connectToDb(&$config) {
+        public static function connectToDb(&$config=array()) {
             #global $db_type, $db_host, $db_name, $db_user, $db_password;
             ##todo will this global work in all cases?
             extract($config); # creates variables
