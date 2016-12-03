@@ -187,8 +187,12 @@
 <html>
 <?php
     { # <head> (including js)
+        $page_title = $tablename_no_quotes
+                        ? "-$tablename_no_quotes-"
+                        : "DB Viewer"
 ?>
 <head>
+    <title><?= $page_title ?></title>
 <?php
       include("$db_viewer_path/html/links_and_scripts.php");
       include("$db_viewer_path/js/inline_js.php");
