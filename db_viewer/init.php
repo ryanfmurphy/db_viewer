@@ -34,29 +34,25 @@
             'minimal' => isset($requestVars['minimal'])
                             ? true
                             : false,
+            # URI paths
+            'js_path' => '/db_viewer/js',
+            'dash_path' => '/dash/index.php',
+            # include paths
+            'db_viewer_path' => __DIR__,
+            'trunk' => dirname(__DIR__),
         );
-        # URI paths
-        $js_path = '/db_viewer/js';
-        $dash_path = '/dash/index.php';
-        # include paths
-        $db_viewer_path = __DIR__;
-        $trunk = dirname(__DIR__);
     }
 
     { # db_config include
         require_once("$trunk/classes/Config.php");
-        if (file_exists("$trunk/db_config.php")) {
-            $config_file_path = "$trunk/db_config.php";
-        }
-        else if (file_exists("$db_viewer_path/db_config.php")) {
-            $config_file_path = "$db_viewer_path/db_config.php";
-        }
 
+        $config_file_path = (file_exists("$trunk/db_config.php")
+                                ? "$trunk/db_config.php"
+                                : "$db_viewer_path/db_config.php";
         if ($config_file_path) {
             do_log("including config file: '$config_file_path'\n");
-            #include($config_file_path);
             $config = Config::load_config($config_file_path, $trunk, $default_values);
-            extract($config);
+            extract($config); # creates $variables
         }
     }
 
