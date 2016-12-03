@@ -6,10 +6,11 @@ if (!class_exists('Db')) {
 
     class Db {
 
-        public static function connectToDb() {
-            global $db_type, $db_host, $db_name, $db_user, $db_password;
-            #todo will this global work in all cases?
-            $db = $GLOBALS['db'] = new PDO(
+        public static function connectToDb(&$config) {
+            #global $db_type, $db_host, $db_name, $db_user, $db_password;
+            ##todo will this global work in all cases?
+            extract($config); # creates variables
+            $db = $config['db'] = new PDO(
                 "$db_type:host=$db_host;dbname=$db_name",
                 $db_user, $db_password
             );
@@ -67,8 +68,11 @@ if (!class_exists('Db')) {
             else { return $val; }
         }
 
-        public static function sqlFieldsAndValsFromArray($vars) {
-            global $hash_password_fields; # from config
+        public static function sqlFieldsAndValsFromArray($vars, $config=array()) {
+            $hash_password_fields = (isset($config['hash_password_fields'])
+                                        ? $config['hash_password_fields'])
+                                        : false;
+            #global $hash_password_fields; # from config
 
             { # key list
                 $keys = array_keys($vars);
@@ -110,8 +114,10 @@ if (!class_exists('Db')) {
             return $table.'_'.$field.'_seq';
         }
 
-        public static function sql($query) {
-            global $show_internal_result_details;
+        public static function sql($query, $config=array()) {
+            $show_internal_result_details = isset($config['show_internal_result_details'])
+                                                ? $config['show_internal_result_details']
+                                                : false;
 
             $db = Db::conn();
             $result = $db->query($query);
