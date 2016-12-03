@@ -70,8 +70,8 @@ if (!class_exists('Db')) {
 
         public static function sqlFieldsAndValsFromArray($vars, $config=array()) {
             $hash_password_fields = (isset($config['hash_password_fields'])
-                                        ? $config['hash_password_fields'])
-                                        : false;
+                                        ? $config['hash_password_fields']
+                                        : false);
             #global $hash_password_fields; # from config
 
             { # key list

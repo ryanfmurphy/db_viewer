@@ -44,6 +44,7 @@
     }
 
     { # db_config include
+        $trunk = $default_values['trunk'];
         require_once("$trunk/classes/Config.php");
 
         $config_file_path = (file_exists("$trunk/db_config.php")
