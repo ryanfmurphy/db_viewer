@@ -516,7 +516,9 @@
                         ? $minimal_fields
                         : array('name','txt')));
 
-            if ($minimal_field_inheritance) {
+            if ($minimal_field_inheritance
+                && is_array($minimal_fields)
+            ) {
                 foreach ($minimal_fields as $field) {
                     if (!in_array($field, $ret)) {
                         $ret[] = $field;
