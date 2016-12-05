@@ -312,7 +312,7 @@
         }
 
         public static function special_op_fn($tablename_no_quotes, $col_idx, $op_idx) {
-            global $special_ops;
+            global $special_ops; #todo #fixme use $config
             if (isset($special_ops[$tablename_no_quotes][$col_idx][$op_idx]['fn'])) {
                 return $special_ops[$tablename_no_quotes][$col_idx][$op_idx]['fn'];
             }

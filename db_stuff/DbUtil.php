@@ -10,7 +10,7 @@ if (!class_exists('Util')) {
         }
 
         public static function quote($val) {
-            global $db; #todo will this global work in all cases?
+            global $db; #todo do we even need this fn anymore?
             #todo #fixme might not work for nulls?
             return $db->quote($val);
         }
@@ -64,7 +64,8 @@ if (!class_exists('DbUtil')) {
 
         # prepend table schema etc
         public static function full_tablename($tablename) {
-            global $db_type;
+            #global $db_type;
+            $db_type = Config::$config['db_type'];
 
             if ($db_type == 'pgsql') {
 
@@ -96,7 +97,8 @@ if (!class_exists('DbUtil')) {
 
         # unquote tablename
         public static function strip_quotes($tablename) {
-            global $db_type;
+            #global $db_type;
+            $db_type = Config::$config['db_type'];
             return str_replace(self::quote_char(), '', $tablename);
         }
 
@@ -128,7 +130,8 @@ if (!class_exists('DbUtil')) {
 			# $tables = DbViewer::sqlTables();
 			# if (isset($tables['contractor'])) ...
 		public static function sqlTables() {
-            global $db_type; #todo #fixme - global scope won't work for CMP/SD - use static class variables
+            #global $db_type; #todo #fixme - global scope won't work for CMP/SD - use static class variables
+            $db_type = Config::$config['db_type'];
 
             if ($db_type == 'pgsql') {
                 $rows = Db::sql("
@@ -209,7 +212,9 @@ if (!class_exists('DbUtil')) {
         # used in joins to determine which table to join to from a field_name
         public static function choose_table_and_field($field_name) {
             self::log("\ntop of choose_table_and_field(field_name = '$field_name')\n");
-            global $id_mode, $pluralize_table_names;
+            #global $id_mode, $pluralize_table_names;
+            $id_mode = Config::$config['id_mode'];
+            $pluralize_table_names = Config::$config['pluralize_table_names'];
 
             $suffix = self::has_valid_join_field_suffix($field_name);
             self::log(" has_valid_join_field_suffix(field_name=$field_name)?\n");
@@ -323,7 +328,8 @@ if (!class_exists('DbUtil')) {
             #todo return e.g. $fieldname='inventory' for the 'name' field of inventory
             #todo do we need this $table arg?
         public static function rows_with_field_vals($fieldname, $vals, $table=NULL, $data_type=NULL) {
-            global $slow_tables;
+            #global $slow_tables;
+            $slow_tables = Config::$config['slow_tables'];
             self::log("rows_with_field_vals(fieldname=$fieldname,vals=".json_encode($vals).",table=$table,data_type=$data_type)\n");
 
             $tables = ($table === null
@@ -442,7 +448,8 @@ if (!class_exists('DbUtil')) {
 
         #todo improve pg_array guess, maybe use column type
         public static function seems_like_pg_array($val) {
-            global $db_type;
+            #global $db_type;
+            $db_type = Config::$config['db_type'];
             if ($db_type == 'pgsql'
                 && is_string($val)
             ) {
@@ -486,7 +493,8 @@ if (!class_exists('DbUtil')) {
 
         # postgres-specific setup
         public static function setDbSearchPath($search_path) {
-            global $db_type;
+            #global $db_type;
+            $db_type = Config::$config['db_type'];
             if ($db_type == 'pgsql') {
                 if ($search_path) {
                     Db::sql("set search_path to $search_path");
@@ -512,7 +520,8 @@ if (!class_exists('DbUtil')) {
         #----------------------------------------------
 
         public static function quote_char() {
-            global $db_type;
+            #global $db_type;
+            $db_type = Config::$config['db_type'];
             return ($db_type == 'mysql'
                             ? '`'
                             : '"');
@@ -611,7 +620,8 @@ infer_limit_from_query: query didn't match regex.
         public static function link_to_query_w_limit(
             $query, $limit=null, $offset=null
         ) {
-            global $db_type;
+            #global $db_type;
+            $db_type = Config::$config['db_type'];
             $maybeLimit = ($limit !== null
                                 ? " limit $limit"
                                 : "");
@@ -722,7 +732,8 @@ infer_limit_from_query: query didn't match regex.
         }
 
         public static function quote_tablename($table) {
-            global $db_type;
+            #global $db_type;
+            $db_type = Config::$config['db_type'];
 
             $quote_char = self::quote_char();
             #todo don't try to quote if there are already quotes
