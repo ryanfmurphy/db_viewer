@@ -44,6 +44,8 @@ class Config {
             'db_viewer_path',
             'crud_api_path',
             'trunk',
+            'pluralize_table_names',
+            'special_ops',
         );
         $config = compact($config_vars);
         self::$config =& $config;
