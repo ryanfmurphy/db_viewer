@@ -16,7 +16,7 @@
             # the <th>'s are repeated every so many rows
             # so it's easier to see what column you're on
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
-                global $minimal_fields;
+                global $minimal_fields; #todo #fixme
 
                 $row = current($rows);
                 $currentRow = DbViewer::prep_row($row);
@@ -75,9 +75,6 @@
                         $special_ops_cols = isset($special_ops[$tablename_no_quotes])
                                                 ? $special_ops[$tablename_no_quotes]
                                                 : array();
-
-                        #todo factor this with the other def in dash
-                        $crud_api_path = "/dash/crud_api.php";
                     }
 
                     #todo will/does dash accept "schema.table" format?

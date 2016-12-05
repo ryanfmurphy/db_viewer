@@ -1,6 +1,8 @@
 <?php
 class Config {
 
+    public static $config = null;
+
     # config is a regular PHP file
     # include it within the function scope and capture the $config vars
     public static function load_config($config_filepath, $trunk, $default_values=array()) {
@@ -36,8 +38,14 @@ class Config {
             'multipleTablesFoundInDifferentSchemas',
             'edit',
             'minimal',
+            'js_path',
+            'dash_path',
+            'db_viewer_path',
+            'crud_api_path',
+            'trunk',
         );
         $config = compact($config_vars);
+        self::$config =& $config;
         return $config;
     }
 

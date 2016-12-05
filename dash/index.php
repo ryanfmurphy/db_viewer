@@ -87,8 +87,9 @@
                 }
             }
             */
-            $would_be_minimal_fields =
-                DbViewer::would_be_minimal_fields($table);
+            $would_be_minimal_fields
+                = Config::$config['would_be_minimal_fields']
+                    = DbViewer::would_be_minimal_fields($table);
 
             $only_include_these_fields =
                 $minimal

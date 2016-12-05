@@ -6,7 +6,8 @@
 
         # prepend table schema etc
         public static function full_tablename($tablename) {
-            global $db_type;
+            #global $db_type;
+            $db_type = Config::$config['db_type'];
 
             if ($db_type == 'pgsql') {
 
@@ -96,7 +97,9 @@
         # format $val as HTML to put in <td>
         #   ($table should have no quotes)
         public static function val_html($val, $fieldname, $table=null) {
-            global $field_render_filters_by_table, $dash_path;
+            #global $field_render_filters_by_table, $dash_path;
+            $field_render_filters_by_table = Config::$config['field_render_filters_by_table'];
+            $dash_path = Config::$config['dash_path'];
 
             #do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
 
@@ -293,7 +296,10 @@
         }
 
         public static function special_op_fn_url($tablename_no_quotes, $col_idx, $op_idx, $primary_key) {
-            global $crud_api_path, $special_ops; #todo avoid global, move to $config array, could live in DbViewer class
+            #global $crud_api_path, $special_ops; #todo avoid global, move to $config array, could live in DbViewer class
+            $crud_api_path = Config::$config['crud_api_path'];
+            $special_ops = Config::$config['special_ops'];
+            
             if (DbViewer::special_op_fn(
                     $tablename_no_quotes, $col_idx, $op_idx, $primary_key
                 )
@@ -439,9 +445,12 @@
         # used in db_viewer table view to put
         # row fields into the right order
         public static function prep_row($row) {
-            global $use_field_ordering_from_minimal_fields,
-                   $would_be_minimal_fields,
-                   $minimal;
+            #global $use_field_ordering_from_minimal_fields,
+            #       $would_be_minimal_fields,
+            #       $minimal;
+            $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
+            $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];
+            $minimal = Config::$config['minimal'];
             if (#!$minimal &&
                 $use_field_ordering_from_minimal_fields
             ) {
@@ -476,8 +485,10 @@
 
         # analogoes to prep_row but for dash's form fields
         public static function prep_fields($fields) {
-            global $use_field_ordering_from_minimal_fields,
-                   $would_be_minimal_fields;
+            #global $use_field_ordering_from_minimal_fields,
+            #       $would_be_minimal_fields;
+            $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
+            $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];
 
             if ($use_field_ordering_from_minimal_fields
                 && is_array($would_be_minimal_fields)
@@ -491,9 +502,12 @@
         }
 
         public static function would_be_minimal_fields($tablename_no_quotes) {
-            global $minimal_fields_by_table,
-                   $minimal_fields,
-                   $minimal_field_inheritance;
+            #global $minimal_fields_by_table,
+            #       $minimal_fields,
+            #       $minimal_field_inheritance;
+            $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
+            $minimal_fields = Config::$config['minimal_fields'];
+            $minimal_field_inheritance = Config::$config['minimal_field_inheritance'];
 
             $ret =
                 (isset($minimal_fields_by_table[$tablename_no_quotes])

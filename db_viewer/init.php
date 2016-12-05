@@ -37,6 +37,7 @@
             # URI paths
             'js_path' => '/db_viewer/js',
             'dash_path' => '/dash/index.php',
+            'crud_api_path' => "/dash/crud_api.php",
             # include paths
             'db_viewer_path' => __DIR__,
             'trunk' => dirname(__DIR__),

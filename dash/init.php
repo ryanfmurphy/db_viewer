@@ -15,6 +15,8 @@
             'minimal_field_inheritance' => true,
             'use_field_ordering_from_minimal_fields' => false,
             'minimal' => isset($requestVars['minimal']) ? true : false,
+            'db_viewer_path' => "/db_viewer/db_viewer.php",
+            'crud_api_path' => "/dash/crud_api.php",
         );
     }
 
@@ -56,16 +58,6 @@
 
             $schemas_in_path = DbUtil::schemas_in_path($search_path);
             DbUtil::setDbSearchPath($search_path);
-        }
-
-        { # paths
-            if (!isset($db_viewer_path)) {
-                $db_viewer_path = "/db_viewer/db_viewer.php";
-            }
-
-            if (!isset($crud_api_path)) {
-                $crud_api_path = "/dash/crud_api.php";
-            }
         }
 
         { # minimal
