@@ -224,13 +224,16 @@ if (!class_exists('Db')) {
             }
         }
 
-        public static function updateRows($table_name, $rowVars, $allowEmptyWheres = false) {
+        public static function updateRows(
+            $table_name, $rowVars, $allowEmptyWheres = false
+        ) {
             if (isset($rowVars['where_clauses'])) {
                 $whereClauses = $rowVars['where_clauses'];
                 unset($rowVars['where_clauses']);
                 if (count($whereClauses) > 0 || $allowEmptyWheres) {
 
-                    $sql = self::buildUpdateSql($table_name, $rowVars, $whereClauses);
+                    $sql = self::buildUpdateSql(
+                        $table_name, $rowVars, $whereClauses);
                     $result = self::sql($sql);
                     return ($result
                                 ? $result
