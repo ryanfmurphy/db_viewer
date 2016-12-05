@@ -63,8 +63,7 @@ if (!class_exists('Db')) {
 
         public static function sqlLiteral($val) {
             if (is_string($val)) {
-                $db = Db::conn();
-                $val = $db->quote($val);
+                $val = Db::quote($val);
                 return $val;
             }
             elseif ($val === NULL) { return "NULL"; }
