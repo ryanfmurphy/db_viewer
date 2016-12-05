@@ -31,6 +31,7 @@
             'backgroundImages' => array(),
             'inferred_table' => null,
             'links_minimal_by_default' => false,
+            'minimal_field_inheritance' => true,
             'use_field_ordering_from_minimal_fields' => false,
             'minimal' => isset($requestVars['minimal'])
                             ? true
