@@ -22,6 +22,7 @@
 
     { # vars - initial values
         $default_values = array(
+            'id_fields_are_uuids' => null, # neither true nor false if unspecified
             'header_every' => 15,
             'pluralize_table_names' => false,
             'slow_tables' => array(),

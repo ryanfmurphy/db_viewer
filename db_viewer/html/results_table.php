@@ -127,7 +127,7 @@
                                             $idness = DbUtil::is_id_field($field_name);
                                             if ($idness) {
 ?>
-            class="id_field <?= ($idness == 'id'
+            class="id_field <?= ($idness == 'id' && $id_fields_are_uuids
                                     ? 'uuid_field'
                                     : null) ?>"
             onclick="selectText(this)"

@@ -18,6 +18,7 @@ class Config {
             'db_password',
             'db_name',
             'id_mode',
+            'id_fields_are_uuids',
             'search_path',
             'backgroundImages',
             'background_image_settings',
