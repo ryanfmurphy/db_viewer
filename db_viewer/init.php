@@ -21,6 +21,7 @@
     }
 
     { # vars - initial values
+        $trunk = dirname(__DIR__);
         $default_values = array(
             'id_fields_are_uuids' => null, # neither true nor false if unspecified
             'header_every' => 15,
@@ -50,12 +51,14 @@
             'crud_api_path' => "/dash/crud_api.php",
             # include paths
             'db_viewer_path' => __DIR__,
-            'trunk' => dirname(__DIR__),
+            'trunk' => $trunk,
+
+            'poprJsPath' => ($cmp ? '/js/shared/' : ''),
+            'popr_css_path' => "$trunk/popr",
         );
     }
 
     { # db_config include
-        $trunk = $default_values['trunk'];
         require_once("$trunk/classes/Config.php");
 
         $config_file_path = (file_exists("$trunk/db_config.php")

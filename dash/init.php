@@ -38,6 +38,9 @@
 
             #todo #fixme this is in both but may mean different things!
             'db_viewer_path' => "/db_viewer/db_viewer.php",
+
+            #'poprJsPath' => ($cmp ? '/js/shared/' : ''),
+            #'popr_css_path' => "$trunk/popr",
         );
     }
 

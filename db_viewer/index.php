@@ -60,8 +60,6 @@
         if (!isset($php_ext)) {
           $php_ext = ($cmp ? false : true); #todo move out
         }
-
-        $poprJsPath = ($cmp ? '/js/shared/' : '');
       }
 
       { # get sql query (if any) from incoming request

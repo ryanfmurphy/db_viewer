@@ -27,7 +27,7 @@ class Config {
             'special_ops',
             'slow_tables',
             'dash_links',
-            '$table_plural',
+            'table_plural',
             'minimal_fields',
             'minimal_fields_by_table',
             'minimal_field_inheritance',
@@ -46,6 +46,8 @@ class Config {
             'trunk',
             'pluralize_table_names',
             'special_ops',
+            'poprJsPath',
+            'popr_css_path',
         );
         $config = compact($config_vars);
         self::$config =& $config;
