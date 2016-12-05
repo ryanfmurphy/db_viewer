@@ -98,8 +98,12 @@
         }
 
         { # get fields from db
+
             $nonexistentTable = false;
-            if ($table) { # get fields of table from db, #todo factor into fn
+            if ($table) { # get fields of table from db
+
+                #todo #fixme a lot of this is duplicate of DbUtil::get_table_fields
+
                 { ob_start(); # do query
 ?>
                         select
