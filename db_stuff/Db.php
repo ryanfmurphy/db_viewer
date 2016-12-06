@@ -316,7 +316,7 @@ if (!class_exists('Db')) {
             return $sql;
         }
 
-        private static function getIdFieldName($table_name=null, $id_type) {
+        public static function getIdFieldName($table_name=null, $id_type) {
             switch ($id_type) {
                 case 'id_only':
                     return 'id';
@@ -325,18 +325,22 @@ if (!class_exists('Db')) {
             }
         }
 
-        private static function viewQuery($sql, $minimal=false) {
+        public static function viewQueryUrl($sql, $minimal=false) {
             $vars = array_merge($_GET,$_POST);
             $query_string = http_build_query(array(
                 'sql' => $sql,
             ));
-            $db_viewer_path = Config::$config['db_viewer_path'];
-            $db_viewer_url = "$db_viewer_path?$query_string";
+            $db_viewer_uri = Config::$config['db_viewer_uri'];
+            $view_query_url = "$db_viewer_uri?$query_string";
             if ($minimal) {
-                $db_viewer_url .= '&minimal';
+                $view_query_url .= '&minimal';
             }
+            return $view_query_url;
+        }
+
+        public static function viewQuery($sql, $minimal=false) {
             header("302 Temporary");
-            header("Location: $db_viewer_url");
+            header("Location: ".self::viewQueryUrl($sql, $minimal));
         }
 
         public static function viewTable(
