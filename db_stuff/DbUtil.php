@@ -633,12 +633,12 @@ infer_limit_from_query: query didn't match regex.
         }
 
         # get id field
-        public static function getPrimaryKeyField($id_mode, $table) {
+        public static function getPrimaryKeyField($id_mode, $tablename_no_quotes) {
             if ($id_mode == 'id_only') {
                 $primary_key_field = 'id';
             }
             else {
-                $primary_key_field = $table.'_id';
+                $primary_key_field = $tablename_no_quotes.'_id';
             }
             return $primary_key_field;
         }

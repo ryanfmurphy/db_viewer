@@ -67,7 +67,8 @@
 <?php
                     { # vars
                         $primary_key_field = DbUtil::getPrimaryKeyField(
-                            $id_mode, $inferred_table);
+                            $id_mode, $tablename_no_quotes
+                        );
 
                         $current_row = current($rows);
                         $has_primary_key_field = (isset($current_row[$primary_key_field])
