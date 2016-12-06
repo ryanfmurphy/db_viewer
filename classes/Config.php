@@ -48,10 +48,55 @@ class Config {
             'special_ops',
             'poprJsPath',
             'popr_css_path',
+            'custom_select_magic_value',
+            'fields_to_make_selects',
         );
         $config = compact($config_vars);
         self::$config =& $config;
         return $config;
+    }
+
+    public static function default_values($trunk) {
+        return array(
+            # should these really be configs?
+            'inferred_table' => null,
+            'only_include_these_fields' => null,
+            'edit' => null,
+            'custom_select_magic_value' => sha1('custom'),
+
+            # table view
+            'header_every' => 15,
+            'id_fields_are_uuids' => null, # neither true nor false if unspecified
+            'slow_tables' => array(),
+            'field_render_filters_by_table' => array(),
+            'special_ops' => array(),
+
+            # obj view
+            'multipleTablesFoundInDifferentSchemas' => false,
+            'search_path' => null,
+            'default_values_by_table' => array(),
+            'fields_to_make_selects' => array(),
+
+            # both
+            'pluralize_table_names' => false,
+            'backgroundImages' => array(),
+            'background_image_settings' => array(),
+            'links_minimal_by_default' => false,
+            'minimal_field_inheritance' => true,
+            'use_field_ordering_from_minimal_fields' => false,
+            'minimal' => isset($requestVars['minimal']) ? true : false,
+            'minimal_fields' => null,
+
+            # URI paths
+            'js_path' => '/db_viewer/js',
+            'dash_path' => '/dash/index.php',
+            'crud_api_path' => "/dash/crud_api.php",
+            'poprJsPath' => '',
+
+            # filesystem paths
+            'db_viewer_path' => __DIR__,
+            'trunk' => $trunk,
+        );
     }
 
 }

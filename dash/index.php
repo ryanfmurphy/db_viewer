@@ -52,9 +52,6 @@
                 }
             }
         }
-
-        # misc: for <select> custom value, need unique placeholder
-        $custom_select_magic_value = sha1('custom');
     }
 
     { # prep logic - get fields from db
