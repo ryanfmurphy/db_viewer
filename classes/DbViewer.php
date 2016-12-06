@@ -6,7 +6,6 @@
 
         # prepend table schema etc
         public static function full_tablename($tablename) {
-            #global $db_type;
             $db_type = Config::$config['db_type'];
 
             if ($db_type == 'pgsql') {
@@ -97,7 +96,6 @@
         # format $val as HTML to put in <td>
         #   ($table should have no quotes)
         public static function val_html($val, $fieldname, $table=null) {
-            #global $field_render_filters_by_table, $dash_path;
             $field_render_filters_by_table = Config::$config['field_render_filters_by_table'];
             $dash_path = Config::$config['dash_path'];
 
@@ -296,7 +294,6 @@
         }
 
         public static function special_op_fn_url($tablename_no_quotes, $col_idx, $op_idx, $primary_key) {
-            #global $crud_api_path, $special_ops;
             $crud_api_path = Config::$config['crud_api_path'];
             $special_ops = Config::$config['special_ops'];
             
@@ -304,6 +301,7 @@
                     $tablename_no_quotes, $col_idx, $op_idx, $primary_key
                 )
             ) {
+                #todo #fixme use http_build_query()
                 return "$crud_api_path?action=special_op&col_idx=$col_idx&op_idx=$op_idx&table=$tablename_no_quotes&primary_key=$primary_key";
             }
             else {
@@ -312,7 +310,6 @@
         }
 
         public static function special_op_fn($tablename_no_quotes, $col_idx, $op_idx) {
-            #global $special_ops;
             $special_ops = Config::$config['special_ops'];
             if (isset($special_ops[$tablename_no_quotes][$col_idx][$op_idx]['fn'])) {
                 return $special_ops[$tablename_no_quotes][$col_idx][$op_idx]['fn'];
@@ -339,36 +336,6 @@
                         $primary_key_field, $primary_key, $crud_api_path,
                         $row, $op_col_idx, $op_idx
                     );
-                    /*
-                    # the kind of special_op that changes fields
-                    if (isset($special_op['changes'])) {
-                        # query string
-                        $query_vars = array_merge(
-                            array(
-                                'action' => "update_$tablename_no_quotes",
-                                'where_clauses' => array(
-                                    $primary_key_field => $primary_key,
-                                ),
-                            ),
-                            $special_op['changes']
-                        );
-                        $query_str = http_build_query($query_vars);
-
-                        $special_op_url = "$crud_api_path?$query_str";
-                    }
-                    # the kind of special_op that goes to a url
-                    # with {{mustache_vars}} subbed in
-                    elseif (isset($special_op['url'])) {
-                        $special_op_url = preg_replace_callback(
-                            '/{{([a-z_]+)}}/',
-                            function($match) use ($row) {
-                                $fieldname = $match[1];
-                                return $row[$fieldname];
-                            },
-                            $special_op['url']
-                        );
-                    }
-                    */
 ?>
             <li>
                 <nobr>
@@ -446,9 +413,6 @@
         # used in db_viewer table view to put
         # row fields into the right order
         public static function prep_row($row) {
-            #global $use_field_ordering_from_minimal_fields,
-            #       $would_be_minimal_fields,
-            #       $minimal;
             $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
             $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];
             $minimal = Config::$config['minimal'];
@@ -486,8 +450,6 @@
 
         # analogoes to prep_row but for dash's form fields
         public static function prep_fields($fields) {
-            #global $use_field_ordering_from_minimal_fields,
-            #       $would_be_minimal_fields;
             $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
             $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];
 
@@ -503,9 +465,6 @@
         }
 
         public static function would_be_minimal_fields($tablename_no_quotes) {
-            #global $minimal_fields_by_table,
-            #       $minimal_fields,
-            #       $minimal_field_inheritance;
             $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
             $minimal_fields = Config::$config['minimal_fields'];
             $minimal_field_inheritance = Config::$config['minimal_field_inheritance'];

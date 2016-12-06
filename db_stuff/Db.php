@@ -9,8 +9,6 @@ if (!class_exists('Db')) {
         public static $db = null;
 
         public static function connectToDb() {
-            #global $db_type, $db_host, $db_name, $db_user, $db_password;
-            ##todo will this global work in all cases?
             if (!is_array(Config::$config)) {
                 die("Must pass set Db::\$config to the \$config array first\n");
             }
@@ -77,7 +75,6 @@ if (!class_exists('Db')) {
             $hash_password_fields = (isset($config['hash_password_fields'])
                                         ? $config['hash_password_fields']
                                         : false);
-            #global $hash_password_fields; # from config
 
             { # key list
                 $keys = array_keys($vars);
@@ -173,11 +170,6 @@ if (!class_exists('Db')) {
             return substr(self::quote($val), 1, strlen($val)-2);
         }
 
-
-        #todo #fixme - halfway through moving some of the
-        # core Model functionality into Db.
-        # goal is to remove all the weird $ClassName crap from Model
-        # and allow the MetaController to function without Model Objects
 
         public static function insertRow($tableName, $rowVars) {
             #todo work around limitation of needing at least 1 kv pair
@@ -326,7 +318,6 @@ if (!class_exists('Db')) {
 
         private static function getIdFieldName($table_name=null, $id_type) {
             switch ($id_type) {
-                #return 'iid';
                 case 'id_only':
                     return 'id';
                 case 'table_id':
