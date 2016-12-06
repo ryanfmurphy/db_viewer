@@ -22,6 +22,7 @@
 
     { # vars - initial values
         $trunk = dirname(__DIR__);
+        $db_viewer_path = "$trunk/db_viewer"; #todo #fixme rename to $db_viewer_trunk
         $default_values = array(
             'id_fields_are_uuids' => null, # neither true nor false if unspecified
             'header_every' => 15,
@@ -54,7 +55,7 @@
             'trunk' => $trunk,
 
             'poprJsPath' => ($cmp ? '/js/shared/' : ''),
-            'popr_css_path' => "$trunk/popr",
+            'popr_css_path' => "$db_viewer_path/popr",
         );
     }
 
