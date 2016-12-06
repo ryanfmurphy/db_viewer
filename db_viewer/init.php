@@ -17,14 +17,15 @@
 
 		do_log(date('c') . " - db_viewer received a request\n");
         ini_set('memory_limit', '4000M');
+
         $requestVars = array_merge($_GET, $_POST);
+        $trunk = dirname(__DIR__);
     }
 
     { # db_config include
         require_once("$trunk/classes/Config.php");
 
         { # vars - initial values
-            $trunk = dirname(__DIR__);
             $db_viewer_path = "$trunk/db_viewer"; #todo #fixme rename to $db_viewer_trunk
             /*
             $default_values = array(

@@ -57,6 +57,7 @@ class Config {
     }
 
     public static function default_values($trunk) {
+        $requestVars = array_merge($_GET, $_POST);
         return array(
             # should these really be configs?
             'inferred_table' => null,
