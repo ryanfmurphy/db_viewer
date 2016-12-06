@@ -4,9 +4,11 @@
             $tablename_no_quotes = DbUtil::strip_quotes($inferred_table);
         }
 
-        function includeField($field_name, $minimal_fields) {
+        function includeField($field_name) {
+            $minimal = Config::$config['minimal'];
+            $minimal_fields = Config::$config['minimal_fields'];
             return (
-                !$minimal_fields
+                !$minimal
                 || in_array($field_name, $minimal_fields)
             );
         }
@@ -16,9 +18,6 @@
             # the <th>'s are repeated every so many rows
             # so it's easier to see what column you're on
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
-                #global $minimal_fields;
-                $minimal_fields = Config::$config['minimal_fields'];
-
                 $row = current($rows);
                 $currentRow = DbViewer::prep_row($row);
 ?>
@@ -39,7 +38,7 @@
 
                 { # regular data columns
                     foreach ($currentRow as $field_name => $val) {
-                        if (includeField($field_name, $minimal_fields)) {
+                        if (includeField($field_name)) {
 ?>
         <th class="popr" data-id="1">
             <?= $field_name ?>
@@ -119,7 +118,7 @@
                             { # loop thru fields and make <td>s
                                 $row = DbViewer::prep_row($row);
                                 foreach ($row as $field_name => $val) {
-                                    if (includeField($field_name, $minimal_fields)) {
+                                    if (includeField($field_name)) {
 ?>
         <td
 <?php
