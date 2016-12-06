@@ -5,11 +5,6 @@
 { # vars / includes / setup
     $dash_trunk = __DIR__;
     $trunk = dirname($dash_trunk);
-    /*
-    include("$dash_trunk/db_config.php");
-    include("$trunk/db_stuff/Db.php");
-    include("$trunk/db_stuff/DbUtil.php");
-    */
     include("$dash_trunk/init.php");
 
     #todo #fixme is this redundant?
@@ -99,20 +94,6 @@
                 die(
                     $fn($table, $row, $primary_key_field, $primary_key)
                 );
-
-            /*
-            case "action_get1_$table":
-                die(json_encode(
-                    Model::get1($vars, $ClassName)
-                ));
-                break;
-
-            case "action_get_$table":
-                die(json_encode(
-                    Model::get($vars, $ClassName)
-                ));
-                break;
-            */
 
             default:
                 die("action not in swtich choices");
