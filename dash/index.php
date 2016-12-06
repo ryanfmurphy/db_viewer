@@ -170,7 +170,8 @@
     { # PHP functions: echoFormFieldHtml*, jsStringify, echoSelectTableInputHtml*, doSkipField
 
         function doSelectForInput($name) {
-            global $fields_to_make_selects;
+            #global $fields_to_make_selects;
+            $fields_to_make_selects = Config::$config['fields_to_make_selects'];
             return in_array($name,
                 $fields_to_make_selects
             );
@@ -178,7 +179,8 @@
 
         function echoFormFieldHtml($name, $defaultValues=array()) {
             { # vars
-                global $custom_select_magic_value;
+                #global $custom_select_magic_value;
+                $custom_select_magic_value = Config::$config['custom_select_magic_value'];
                 $inputTag = (( $name == "txt" #todo make an option for <textarea> fields
                                || $name == "src"
                                || $name == "lyrics"
