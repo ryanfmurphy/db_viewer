@@ -24,8 +24,7 @@
         $config = Config::load_config("$dash_trunk/dash_config.php", $trunk, $config);
         extract($config);
 
-        #todo #fixme this should be a different variable, maybe db_viewer_uri
-        $default_values['db_viewer_path'] = "/db_viewer/db_viewer.php";
+        $db_viewer_uri = "/db_viewer/index.php";
     }
 
     { # classes

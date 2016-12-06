@@ -42,6 +42,7 @@ class Config {
             'js_path',
             'dash_path',
             'db_viewer_path',
+            'db_viewer_uri',
             'crud_api_path',
             'trunk',
             'pluralize_table_names',
@@ -93,6 +94,7 @@ class Config {
             'dash_path' => '/dash/index.php',
             'crud_api_path' => "/dash/crud_api.php",
             'poprJsPath' => '',
+            'db_viewer_uri' => "/db_viewer/index.php",
 
             # filesystem paths
             'db_viewer_path' => __DIR__,
