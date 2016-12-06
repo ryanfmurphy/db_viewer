@@ -217,7 +217,7 @@ if (!class_exists('Db')) {
             else {
                 $db = Db::conn();
                 $result = self::sql($sql);
-                return ($result
+                return ($result || is_array($result)
                             ? $result
                             : self::errorResult($sql));
             }
@@ -234,7 +234,7 @@ if (!class_exists('Db')) {
                     $sql = self::buildUpdateSql(
                         $table_name, $rowVars, $whereClauses);
                     $result = self::sql($sql);
-                    return ($result
+                    return ($result || is_array($result)
                                 ? $result
                                 : self::errorResult($sql));
 
