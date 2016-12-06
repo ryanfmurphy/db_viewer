@@ -339,7 +339,8 @@ if (!class_exists('Db')) {
             $query_string = http_build_query(array(
                 'sql' => $sql,
             ));
-            $db_viewer_url = "/db_viewer/db_viewer.php?$query_string";
+            $db_viewer_path = Config::$config['db_viewer_path'];
+            $db_viewer_url = "$db_viewer_path?$query_string";
             if ($minimal) {
                 $db_viewer_url .= '&minimal';
             }
