@@ -218,7 +218,7 @@
           { # "create" link
               if (isset($dash_links) && $dash_links) {
 ?>
-    <a href="/dash/index.php?table=<?= $tablename_no_quotes ?>&minimal"
+    <a href="<?= $dash_path ?>?table=<?= $tablename_no_quotes ?>&minimal"
        target="_blank"
     >
       Create a new <code><?= $tablename_no_quotes ?></code>
