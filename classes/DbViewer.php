@@ -296,7 +296,7 @@
         }
 
         public static function special_op_fn_url($tablename_no_quotes, $col_idx, $op_idx, $primary_key) {
-            #global $crud_api_path, $special_ops; #todo avoid global, move to $config array, could live in DbViewer class
+            #global $crud_api_path, $special_ops;
             $crud_api_path = Config::$config['crud_api_path'];
             $special_ops = Config::$config['special_ops'];
             
@@ -312,7 +312,8 @@
         }
 
         public static function special_op_fn($tablename_no_quotes, $col_idx, $op_idx) {
-            global $special_ops; #todo #fixme use $config
+            #global $special_ops;
+            $special_ops = Config::$config['special_ops'];
             if (isset($special_ops[$tablename_no_quotes][$col_idx][$op_idx]['fn'])) {
                 return $special_ops[$tablename_no_quotes][$col_idx][$op_idx]['fn'];
             }
