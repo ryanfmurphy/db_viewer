@@ -4,14 +4,10 @@
         $trunk = dirname($dash_trunk);
     }
 
-    { # custom config
+    { # config vars
         include("$trunk/classes/Config.php");
 
-        { # default values
-            $default_values = Config::default_values($trunk);
-            #todo #fixme this should be a different variable, maybe db_viewer_uri
-            $default_values['db_viewer_path'] = "/db_viewer/db_viewer.php";
-        }
+        $default_values = Config::default_values($trunk);
 
         #todo #fixme log which config you run
         if (file_exists("$trunk/db_config.php")) {
@@ -27,6 +23,9 @@
         #include("$dash_trunk/dash_config.php");
         $config = Config::load_config("$dash_trunk/dash_config.php", $trunk, $config);
         extract($config);
+
+        #todo #fixme this should be a different variable, maybe db_viewer_uri
+        $default_values['db_viewer_path'] = "/db_viewer/db_viewer.php";
     }
 
     { # classes
