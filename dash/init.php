@@ -8,48 +8,6 @@
         include("$trunk/classes/Config.php");
 
         { # default values
-            /*
-            $default_values = array(
-                'id_fields_are_uuids' => null, # neither true nor false if unspecified
-                'header_every' => 15, # for tbl view
-                'pluralize_table_names' => false, # for tbl view
-                'slow_tables' => array(), # for tbl view
-                'field_render_filters_by_table' => array(), # for tbl view
-                'special_ops' => array(), # for tbl view
-                'backgroundImages' => array(), # for tbl view
-                'background_image_settings' => array(),
-                'inferred_table' => null, # for tbl view
-                'multipleTablesFoundInDifferentSchemas' => false,
-                'search_path' => null,
-                'only_include_these_fields' => null,
-                'edit' => isset($edit) ? $edit : null,
-
-                'links_minimal_by_default' => false,
-                'minimal_field_inheritance' => true,
-                'use_field_ordering_from_minimal_fields' => false,
-                'minimal' => isset($requestVars['minimal']) ? true : false,
-                'minimal_fields' => null,
-
-                'default_values_by_table' => array(),
-
-                # URI paths
-                'js_path' => '/db_viewer/js',
-                'dash_path' => '/dash/index.php',
-                'crud_api_path' => "/dash/crud_api.php",
-                # include paths
-                #'db_viewer_path' => __DIR__, #!!!
-                'trunk' => dirname(__DIR__),
-
-                #todo #fixme this is in both but may mean different things!
-                'db_viewer_path' => "/db_viewer/db_viewer.php",
-
-                #'poprJsPath' => ($cmp ? '/js/shared/' : ''),
-                #'popr_css_path' => "$trunk/popr",
-                'fields_to_make_selects' => array(),
-                'custom_select_magic_value' => sha1('custom');
-            );
-            */
-
             $default_values = Config::default_values($trunk);
             #todo #fixme this should be a different variable, maybe db_viewer_uri
             $default_values['db_viewer_path'] = "/db_viewer/db_viewer.php";

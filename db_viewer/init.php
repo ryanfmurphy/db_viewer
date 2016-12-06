@@ -22,51 +22,10 @@
         $trunk = dirname(__DIR__);
     }
 
-    { # db_config include
+    { # config vars
         require_once("$trunk/classes/Config.php");
 
-        { # vars - initial values
-            /*
-            $default_values = array(
-                'id_fields_are_uuids' => null, # neither true nor false if unspecified
-                'header_every' => 15,
-                'pluralize_table_names' => false,
-                'slow_tables' => array(),
-                'field_render_filters_by_table' => array(),
-                'special_ops' => array(),
-                'backgroundImages' => array(),
-                'background_image_settings' => array(),
-                'inferred_table' => null,
-                'multipleTablesFoundInDifferentSchemas' => false, # for dash
-                'search_path' => null, # for dash
-                'only_include_these_fields' => null, # for dash
-                'edit' => null, # for dash
-
-                'links_minimal_by_default' => false,
-                'minimal_field_inheritance' => true,
-                'use_field_ordering_from_minimal_fields' => false,
-                'minimal' => isset($requestVars['minimal']) ? true : false,
-                'minimal_fields' => null,
-
-                'default_values_by_table' => array(),
-
-                # URI paths
-                'js_path' => '/db_viewer/js',
-                'dash_path' => '/dash/index.php',
-                'crud_api_path' => "/dash/crud_api.php",
-                # include paths
-                'db_viewer_path' => __DIR__,
-                'trunk' => $trunk,
-
-                'poprJsPath' => ($cmp ? '/js/shared/' : ''),
-                'popr_css_path' => "$db_viewer_path/popr",
-
-                'fields_to_make_selects' => array(),
-                'custom_select_magic_value' => sha1('custom');
-            );
-            */
-            $default_values = Config::default_values($trunk);
-        }
+        $default_values = Config::default_values($trunk);
 
         $config_file_path = (file_exists("$trunk/db_config.php")
                                 ? "$trunk/db_config.php"
