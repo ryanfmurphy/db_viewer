@@ -83,6 +83,7 @@ class Config {
             'pluralize_table_names' => false,
             'backgroundImages' => array(),
             'background_image_settings' => array(),
+            'background' => 'light',
             'links_minimal_by_default' => false,
             'minimal_field_inheritance' => true,
             'use_field_ordering_from_minimal_fields' => false,
