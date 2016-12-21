@@ -424,7 +424,7 @@
                         dataType: 'json',
                         success: function(data) {
                             var exclude_fields = {};
-                            exclude_fields[field_name] = 1;
+                            //exclude_fields[field_name] = 1;
                             addDataToTable(all_cells, data, exclude_fields);
                         },
                         error: function(r) {
