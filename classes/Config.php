@@ -35,6 +35,7 @@ class Config {
             'links_minimal_by_default',
             'default_values_by_table',
             'fields_to_make_selects',
+            'fields_to_make_textarea',
             'header_every',
             'multipleTablesFoundInDifferentSchemas',
             'edit',
@@ -50,7 +51,6 @@ class Config {
             'poprJsPath',
             'popr_css_path',
             'custom_select_magic_value',
-            'fields_to_make_selects',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -78,6 +78,7 @@ class Config {
             'search_path' => null,
             'default_values_by_table' => array(),
             'fields_to_make_selects' => array(),
+            'fields_to_make_textarea' => array(),
 
             # both
             'pluralize_table_names' => false,

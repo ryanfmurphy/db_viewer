@@ -163,10 +163,11 @@
             { # vars
                 #global $custom_select_magic_value;
                 $custom_select_magic_value = Config::$config['custom_select_magic_value'];
-                $inputTag = (( $name == "txt" #todo make an option for <textarea> fields
+                $inputTag = (/*( $name == "txt" #todo make an option for <textarea> fields
                                || $name == "src"
                                || $name == "lyrics"
-                             )
+                             )*/
+                             in_array($name, Config::$config['fields_to_make_textarea'])
                                     ? "textarea"
                                     : "input");
             }
