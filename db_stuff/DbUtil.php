@@ -382,7 +382,7 @@ if (!class_exists('DbUtil')) {
         public static function val_list_str($vals) {
             $val_reps = array_map(
                 function($val) {
-					return Db::sqlLiteral($val);
+					return Db::sql_literal($val);
 					#return "'$val'";
                 },
                 $vals

@@ -59,7 +59,7 @@ if (!class_exists('Db')) {
             return $result;
         }
 
-        public static function sqlLiteral($val) {
+        public static function sql_literal($val) {
             if (is_string($val)) {
                 $val = Db::quote($val);
                 return $val;
@@ -106,7 +106,7 @@ if (!class_exists('Db')) {
                     else {
                         $safeVal = $val;
                     }
-                    $safeVal = Db::sqlLiteral($safeVal);
+                    $safeVal = Db::sql_literal($safeVal);
                     $varValLiterals[] = $safeVal;
                 }
                 $varValList = implode(', ', $varValLiterals);
@@ -293,7 +293,7 @@ if (!class_exists('Db')) {
                 $comma = false;
                 foreach ($setKeyVals as $key => $val) {
                     if ($comma) $sql .= ",";
-                    $val = Db::sqlLiteral($val);
+                    $val = Db::sql_literal($val);
                     $sql .= "\n$key = $val";
                     $comma = true;
                 }
@@ -364,7 +364,7 @@ if (!class_exists('Db')) {
             # add where clauses
             $where_or_and = 'where';
             foreach ($wheres as $key => $val) {
-                $val = Db::sqlLiteral($val);
+                $val = Db::sql_literal($val);
                 $sql .= "\n$where_or_and $key = $val";
                 $where_or_and = '    and';
             }
