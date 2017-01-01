@@ -246,7 +246,7 @@ if (!class_exists('Db')) {
             }
         }
 
-        public static function deleteRows($table_name, $rowVars, $allowEmptyWheres = false) {
+        public static function delete_rows($table_name, $rowVars, $allowEmptyWheres = false) {
             if (isset($rowVars['where_clauses'])) {
                 $whereClauses = $rowVars['where_clauses'];
                 unset($rowVars['where_clauses']);
@@ -260,11 +260,11 @@ if (!class_exists('Db')) {
                     #            : self::error_result($sql));
                 }
                 else {
-                    die("deleteRows needs at least one where_clause, or allowEmptyWheres = true");
+                    die("delete_rows needs at least one where_clause, or allowEmptyWheres = true");
                 }
             }
             else {
-                die("can't do deleteRows without where_clauses");
+                die("can't do delete_rows without where_clauses");
             }
         }
 

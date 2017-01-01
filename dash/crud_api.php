@@ -72,7 +72,7 @@
 
             case "delete_$table":
                 die(json_encode(
-                    Db::deleteRows($table, $vars)
+                    Db::delete_rows($table, $vars)
                 ));
 
             case "special_op":
