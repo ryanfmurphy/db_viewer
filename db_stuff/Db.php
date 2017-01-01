@@ -175,13 +175,13 @@ if (!class_exists('Db')) {
         }
 
 
-        public static function insertRow($tableName, $rowVars) {
+        public static function insert_row($tableName, $rowVars) {
             #todo work around limitation of needing at least 1 kv pair
             # e.g. postgres will do:
             #   insert into my_table default values
             if (!count($rowVars)) {
                 trigger_error(
-                    "Db::insertRow needs at least one key-value pair",
+                    "Db::insert_row needs at least one key-value pair",
                     E_USER_ERROR
                 );
             }
@@ -219,7 +219,7 @@ if (!class_exists('Db')) {
             }
         }
 
-        public static function updateRows(
+        public static function update_rows(
             $table_name, $rowVars, $allowEmptyWheres = false
         ) {
             if (isset($rowVars['where_clauses'])) {
@@ -236,11 +236,11 @@ if (!class_exists('Db')) {
 
                 }
                 else {
-                    die("updateRows needs at least one where_clause, or allowEmptyWheres = true");
+                    die("update_rows needs at least one where_clause, or allowEmptyWheres = true");
                 }
             }
             else {
-                die("can't do updateRows without where_clauses");
+                die("can't do update_rows without where_clauses");
             }
         }
 

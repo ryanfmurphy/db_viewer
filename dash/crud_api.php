@@ -61,13 +61,13 @@
 
             case "create_$table":
                 die(json_encode(
-                    Db::insertRow($table, $vars)
+                    Db::insert_row($table, $vars)
                 ));
                 break;
 
             case "update_$table":
                 die(json_encode(
-                    Db::updateRows($table, $vars)
+                    Db::update_rows($table, $vars)
                 ));
 
             case "delete_$table":
