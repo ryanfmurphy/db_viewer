@@ -70,7 +70,7 @@ if (!class_exists('Db')) {
             else { return $val; }
         }
 
-        public static function sqlFieldsAndValsFromArray($vars) {
+        public static function sql_fields_and_vals_from_array($vars) {
             $config = Config::$config;
             $hash_password_fields = (isset($config['hash_password_fields'])
                                         ? $config['hash_password_fields']
@@ -91,7 +91,7 @@ if (!class_exists('Db')) {
                     $val = $vars[$key];
                     if (is_array($val) || is_object($val)) {
                         trigger_error(
-    "complex object / array passed to sqlFieldsAndValsFromArray:
+    "complex object / array passed to sql_fields_and_vals_from_array:
         key = $key,
         val = ".print_r($val,1)
                         );
@@ -115,10 +115,12 @@ if (!class_exists('Db')) {
             return array($varNameList, $varValList);
         }
 
-        public static function sequenceName($table, $field) {
+        /*
+        public static function sequence_name($table, $field) {
             #todo this is just postgres, return null for mysql?
             return $table.'_'.$field.'_seq';
         }
+        */
 
         public static function sql($query) {
             $config = Config::$config;
@@ -199,7 +201,7 @@ if (!class_exists('Db')) {
             }
 
             list($varNameList, $varValList)
-                = Db::sqlFieldsAndValsFromArray($rowVars);
+                = Db::sql_fields_and_vals_from_array($rowVars);
 
             $tableNameQuoted = DbUtil::quote_tablename($tableName);
             $sql = "
