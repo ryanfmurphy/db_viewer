@@ -8,7 +8,7 @@ if (!class_exists('Db')) {
 
         public static $db = null;
 
-        public static function connectToDb() {
+        public static function connect_to_db() {
             if (!is_array(Config::$config)) {
                 die("Must pass set Db::\$config to the \$config array first\n");
             }
@@ -24,7 +24,7 @@ if (!class_exists('Db')) {
         public static function conn() {
             $db = ( isset(self::$db)
                        ? self::$db
-                       : Db::connectToDb() );
+                       : Db::connect_to_db() );
             if (!$db) {
                 trigger_error(
                     'problem connecting to database',
@@ -48,7 +48,7 @@ if (!class_exists('Db')) {
             , E_USER_ERROR);
         }
 
-        public static function errorResult($sql=null) {
+        public static function error_result($sql=null) {
             $db = Db::conn();
             $result = array(
                 'success' => 0,
@@ -215,7 +215,7 @@ if (!class_exists('Db')) {
                 $result = self::sql($sql);
                 return ($result || is_array($result)
                             ? $result
-                            : self::errorResult($sql));
+                            : self::error_result($sql));
             }
         }
 
@@ -232,7 +232,7 @@ if (!class_exists('Db')) {
                     $result = self::sql($sql);
                     return ($result || is_array($result)
                                 ? $result
-                                : self::errorResult($sql));
+                                : self::error_result($sql));
 
                 }
                 else {
@@ -255,7 +255,7 @@ if (!class_exists('Db')) {
                     #todo use return instead?
                     #return ($result
                     #            ? $result
-                    #            : self::errorResult($sql));
+                    #            : self::error_result($sql));
                 }
                 else {
                     die("deleteRows needs at least one where_clause, or allowEmptyWheres = true");
