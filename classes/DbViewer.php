@@ -41,7 +41,7 @@
         # Rendering and Type-Recognition Functions
         # ----------------------------------------
 
-        public static function outputDbError($db) {
+        public static function output_db_error($db) {
 ?>
 <div>
     <p>

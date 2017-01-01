@@ -51,8 +51,8 @@
                 die(json_encode($data));
             }
             else {
-                do_log("          nope. outputDbError and echo query\n");
-                DbViewer::outputDbError($db);
+                do_log("          nope. output_db_error and echo query\n");
+                DbViewer::output_db_error($db);
                 echo "\n\nquery = $query\n";
                 die();
             }

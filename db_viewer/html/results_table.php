@@ -168,6 +168,6 @@
                 }
             }
             else {
-                DbViewer::outputDbError($db);
+                DbViewer::output_db_error($db);
             }
         }
