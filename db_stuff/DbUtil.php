@@ -614,10 +614,10 @@ infer_limit_from_query: query didn't match regex.
         ) {
             $db_type = Config::$config['db_type'];
             $maybeLimit = ($limit !== null
-                                ? " limit $limit"
+                                ? "\n limit $limit" #todo #fixme why is this newline not working?
                                 : "");
             $maybeOffset = ($offset !== null
-                                ? " offset $offset"
+                                ? "\n offset $offset"
                                 : "");
             return "?sql=" . urlencode($query) . $maybeLimit . $maybeOffset
                    . "&db_type=$db_type";
