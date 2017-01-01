@@ -229,7 +229,7 @@ if (!class_exists('Db')) {
                 unset($rowVars['where_clauses']);
                 if (count($whereClauses) > 0 || $allowEmptyWheres) {
 
-                    $sql = self::buildUpdateSql(
+                    $sql = self::build_update_sql(
                         $table_name, $rowVars, $whereClauses);
                     $result = self::sql($sql);
                     return ($result || is_array($result)
@@ -268,7 +268,7 @@ if (!class_exists('Db')) {
             }
         }
 
-        public static function buildSelectSql($table_name, $wheres, $select_fields=null) {
+        public static function build_select_sql($table_name, $wheres, $select_fields=null) {
 
             if ($select_fields === null) {
                 $select_fields = '*';
@@ -286,7 +286,7 @@ if (!class_exists('Db')) {
         }
 
         # save changes of existing obj/row to db
-        public static function buildUpdateSql($table_name, $setKeyVals, $whereClauses) {
+        public static function build_update_sql($table_name, $setKeyVals, $whereClauses) {
 
             { # build sql
                 $table_name_quoted = DbUtil::quote_tablename($table_name);
@@ -354,7 +354,7 @@ if (!class_exists('Db')) {
             $selectFields=null, $minimal=false
         ) {
 
-            $sql = self::buildSelectSql(
+            $sql = self::build_select_sql(
                 $table_name, $whereVars, $selectFields);
 
             return Db::viewQuery($sql, $minimal);
@@ -375,7 +375,7 @@ if (!class_exists('Db')) {
         }
 
         public static function get($table_name, $wheres) {
-            $sql = self::buildSelectSql($table_name, $wheres);
+            $sql = self::build_select_sql($table_name, $wheres);
             return self::queryFetch($sql);
         }
 
