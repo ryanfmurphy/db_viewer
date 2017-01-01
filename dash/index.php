@@ -423,7 +423,7 @@
                                 ? '&minimal'
                                 : '';
 ?>
-                <a id="view_all_link" href="<?= Db::viewQueryUrl($table, $maybe_minimal) ?>"
+                <a id="view_all_link" href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
                    target="_blank"
                 >
                     view all

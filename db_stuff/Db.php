@@ -252,7 +252,7 @@ if (!class_exists('Db')) {
                 unset($rowVars['where_clauses']);
                 if (count($whereClauses) > 0 || $allowEmptyWheres) {
 
-                    $sql = self::buildDeleteSql($table_name, $whereClauses);
+                    $sql = self::build_delete_sql($table_name, $whereClauses);
                     return self::sql($sql);
                     #todo use return instead?
                     #return ($result
@@ -300,7 +300,7 @@ if (!class_exists('Db')) {
                     $comma = true;
                 }
                 $id_name_scheme = 'table_id'; #todo
-                $idField = self::getIdFieldName($table_name, $id_name_scheme);
+                $idField = self::get_id_field_name($table_name, $id_name_scheme);
 
                 $sql .= self::buildWhereClause($whereClauses);
                 $sql .= ';';
@@ -309,7 +309,7 @@ if (!class_exists('Db')) {
             return $sql;
         }
 
-        public static function buildDeleteSql($table_name, $whereClauses) {
+        public static function build_delete_sql($table_name, $whereClauses) {
 
             { # build sql
                 $table_name_quoted = DbUtil::quote_tablename($table_name);
@@ -322,7 +322,7 @@ if (!class_exists('Db')) {
             return $sql;
         }
 
-        public static function getIdFieldName($table_name=null, $id_type) {
+        public static function get_id_field_name($table_name=null, $id_type) {
             switch ($id_type) {
                 case 'id_only':
                     return 'id';
@@ -331,7 +331,7 @@ if (!class_exists('Db')) {
             }
         }
 
-        public static function viewQueryUrl($sql, $minimal=false) {
+        public static function view_query_url($sql, $minimal=false) {
             $vars = array_merge($_GET,$_POST);
             $query_string = http_build_query(array(
                 'sql' => $sql,
@@ -344,9 +344,9 @@ if (!class_exists('Db')) {
             return $view_query_url;
         }
 
-        public static function viewQuery($sql, $minimal=false) {
+        public static function view_query($sql, $minimal=false) {
             header("302 Temporary");
-            header("Location: ".self::viewQueryUrl($sql, $minimal));
+            header("Location: ".self::view_query_url($sql, $minimal));
         }
 
         public static function viewTable(
@@ -357,7 +357,7 @@ if (!class_exists('Db')) {
             $sql = self::build_select_sql(
                 $table_name, $whereVars, $selectFields);
 
-            return Db::viewQuery($sql, $minimal);
+            return Db::view_query($sql, $minimal);
         }
 
         public static function buildWhereClause($wheres) {
