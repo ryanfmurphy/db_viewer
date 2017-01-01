@@ -119,7 +119,7 @@
                 }
             }
             # links from table_list
-            elseif (self::isTableNameVal($val, $fieldname)) {
+            elseif (self::is_table_name_val($val, $fieldname)) {
                 { # vars
                     $tablename = $val;
                     $cmp = class_exists('Campaign');
@@ -188,7 +188,7 @@
             }
         }
 
-        public static function isTableNameVal($val, $fieldName) {
+        public static function is_table_name_val($val, $fieldName) {
             return ((preg_match('/Tables_in_/', $fieldName)
                      || $fieldName == "Name")
                             ? true
