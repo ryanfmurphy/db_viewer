@@ -78,7 +78,11 @@ if (!class_exists('Db')) {
 
             { # key list
                 $keys = array_keys($vars);
-                $varNameList = implode(', ', $keys);
+                $quotedKeys = array();
+                foreach ($keys as $key) {
+                    $quotedKeys[] = DbUtil::quote_tablename($key); #todo give fn a better name
+                }
+                $varNameList = implode(', ', $quotedKeys);
             }
 
             { # val list
