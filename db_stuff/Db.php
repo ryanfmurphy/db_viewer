@@ -280,7 +280,7 @@ if (!class_exists('Db')) {
 
             $table_name_quoted = DbUtil::quote_tablename($table_name);
             $sql = "select $select_fields from $table_name_quoted ";
-            $sql .= self::buildWhereClause($wheres);
+            $sql .= self::build_where_clause($wheres);
             $sql .= ";";
             return $sql;
         }
@@ -302,7 +302,7 @@ if (!class_exists('Db')) {
                 $id_name_scheme = 'table_id'; #todo
                 $idField = self::get_id_field_name($table_name, $id_name_scheme);
 
-                $sql .= self::buildWhereClause($whereClauses);
+                $sql .= self::build_where_clause($whereClauses);
                 $sql .= ';';
             }
 
@@ -315,7 +315,7 @@ if (!class_exists('Db')) {
                 $table_name_quoted = DbUtil::quote_tablename($table_name);
                 $sql = "delete from $table_name_quoted ";
 
-                $sql .= self::buildWhereClause($whereClauses);
+                $sql .= self::build_where_clause($whereClauses);
                 $sql .= ';';
             }
 
@@ -360,7 +360,7 @@ if (!class_exists('Db')) {
             return Db::view_query($sql, $minimal);
         }
 
-        public static function buildWhereClause($wheres) {
+        public static function build_where_clause($wheres) {
             $sql = '';
 
             # add where clauses
@@ -376,10 +376,10 @@ if (!class_exists('Db')) {
 
         public static function get($table_name, $wheres) {
             $sql = self::build_select_sql($table_name, $wheres);
-            return self::queryFetch($sql);
+            return self::query_fetch($sql);
         }
 
-        private static function queryFetch($sql, $only1=false) {
+        private static function query_fetch($sql, $only1=false) {
             $rows = self::sql($sql);
             if ($only1) {
                 return (count($rows)
