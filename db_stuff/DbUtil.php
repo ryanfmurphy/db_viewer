@@ -1,19 +1,22 @@
 <?php
-if (!class_exists('Util')) {
+#todo move this function elsewhere and rename it
+if (!class_exists('Utility')) {
 
-    class Util {
+    class Utility {
 
-        public static function endsWith($needle,$haystack) {
+        public static function ends_with($needle,$haystack) {
             $len = strlen($needle);
             $LEN = strlen($haystack);
             return substr($haystack, $LEN - $len) == $needle;
         }
 
+        /*
         public static function quote($val) {
             global $db; #todo do we even need this fn anymore?
             #todo #fixme might not work for nulls?
             return $db->quote($val);
         }
+        */
     }
 
 }
@@ -176,7 +179,7 @@ if (!class_exists('DbUtil')) {
                 self::log("      loop looking for table ending in '$tablename_root'\n        ",3);
                 foreach (array_keys($possible_tables) as $this_table_name) {
                     self::log(" $this_table_name",5);
-                    if (Util::endsWith($this_table_name, $tablename_root)) {
+                    if (Utility::ends_with($this_table_name, $tablename_root)) {
                         #todo use longest match as suffix / and_or require "_" before suffix
                         #     because for example, lead_id has ad_id at the end!
                         #     so instead of returning, only replace if it's longer
@@ -350,7 +353,7 @@ if (!class_exists('DbUtil')) {
                     #die();
 
 					$rows = Db::sql($sql);
-					#$delta0 = Util::timeSince($T0);
+					#$delta0 = Utility::time_since($T0);
 					#echo "delta0 = $delta0\n";
 
 					$includeTable = (is_array($rows)
