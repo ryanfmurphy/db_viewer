@@ -7,18 +7,27 @@
     { # config vars
         include("$trunk/classes/Config.php");
 
-        $default_values = Config::default_values($trunk);
+        $default_values = Config::default_values(
+            $trunk, "/dash/index.php"
+        );
+
 
         #todo #fixme log which config you run
         if (file_exists("$trunk/db_config.php")) {
             #include("$trunk/db_config.php");
-            $config = Config::load_config("$trunk/db_config.php", $trunk, $default_values);
+            $config = Config::load_config(
+                "$trunk/db_config.php", $trunk, $default_values);
             extract($config);
         }
         elseif (file_exists("$dash_trunk/db_config.php")) {
             #include("$dash_trunk/db_config.php");
-            $config = Config::load_config("$dash_trunk/db_config.php", $trunk, $default_values);
+            $config = Config::load_config(
+                "$dash_trunk/db_config.php", $trunk, $default_values);
             extract($config);
+        }
+        else {
+            header("HTTP/1.1 302 Redirect");
+            header("Location: setup.php");
         }
         #include("$dash_trunk/dash_config.php");
         $config = Config::load_config("$dash_trunk/dash_config.php", $trunk, $config);
@@ -35,7 +44,6 @@
     }
 
     { # vars adjustments after includes
-
         { # search_path
             if (!isset($search_path)) {
                 $search_path =

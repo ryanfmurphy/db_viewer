@@ -39,11 +39,6 @@
         { # init: defines $db, DbViewer,
             # and Util (if not already present)
 
-            #note: other larger programs that have their own db setup
-                # can integrate with DbViwer by providing their own
-                # Util class with a sql() function that takes a $query
-                # and returns an array of rows, each row an array
-
             $db_viewer_path = __DIR__;
             require_once("$db_viewer_path/init.php");
         }

@@ -46,6 +46,7 @@ class Config {
             'db_viewer_uri',
             'crud_api_path',
             'trunk',
+            'uri_trunk',
             'pluralize_table_names',
             'special_ops',
             'poprJsPath',
@@ -57,8 +58,9 @@ class Config {
         return $config;
     }
 
-    public static function default_values($trunk) {
+    public static function default_values($trunk, $view_uri) {
         $requestVars = array_merge($_GET, $_POST);
+        $uri_trunk = self::guess_uri_trunk($view_uri);
         return array(
             # should these really be configs?
             'inferred_table' => null,
@@ -92,16 +94,29 @@ class Config {
             'minimal_fields' => null,
 
             # URI paths
-            'js_path' => '/db_viewer/js',
-            'dash_path' => '/dash/index.php',
-            'crud_api_path' => "/dash/crud_api.php",
+            'uri_trunk' => $uri_trunk,
+            'js_path' => "$uri_trunk/db_viewer/js",
+            'dash_path' => "$uri_trunk/dash/index.php",
+            'crud_api_path' => "$uri_trunk/dash/crud_api.php",
+            'db_viewer_uri' => "$uri_trunk/db_viewer/index.php",
             'poprJsPath' => '',
-            'db_viewer_uri' => "/db_viewer/index.php",
 
             # filesystem paths
             'db_viewer_path' => __DIR__,
             'trunk' => $trunk,
         );
+    }
+
+    # try to figure out where db_viewer is installed URI-wise
+    # so that we can make our asset links robust and flexible
+    public static function guess_uri_trunk($current_view_uri) {
+        $uri = $_SERVER['REQUEST_URI'];
+        if (preg_match("#(.*)$current_view_uri$#", $uri, $matches)) {
+            return $matches[1];
+        }
+        else {
+            return null;
+        }
     }
 
 }

@@ -25,14 +25,17 @@
     { # config vars
         require_once("$trunk/classes/Config.php");
 
-        $default_values = Config::default_values($trunk);
+        $default_values = Config::default_values(
+            $trunk, "/db_viewer/index.php"
+        );
 
         $config_file_path = (file_exists("$trunk/db_config.php")
                                 ? "$trunk/db_config.php"
                                 : "$db_viewer_path/db_config.php");
         if ($config_file_path) {
             do_log("including config file: '$config_file_path'\n");
-            $config = Config::load_config($config_file_path, $trunk, $default_values);
+            $config = Config::load_config(
+                $config_file_path, $trunk, $default_values);
             extract($config); # creates $variables
             $db_viewer_path = "$trunk/db_viewer"; #todo #fixme rename to $db_viewer_trunk
         }
