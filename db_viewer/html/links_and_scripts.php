@@ -8,16 +8,12 @@
 <?php
                 }
 
-                { # css - either inline via include or linked
-                    # actually, now being included within dynamic_style
+                { # popr css - either inline via include or linked
+                  # main css style.css.php now being included from index
 
-                    #$cssPath = "style.css" . ($php_ext ? ".php" : "");
-                    if (/*$inlineCss && */ $cmp) {
-                        #$db_viewer_path = dirname(__DIR__); #todo this may be already defined, hence redundant
-                        #$cssFullPath =  "$db_viewer_path/$cssPath";
+                    if ($cmp) {
 ?>
     <style>
-        <?php #include($cssPath); ?>
         <?php include("$db_viewer_path/popr/popr.css"); ?>
     </style>
 <?php

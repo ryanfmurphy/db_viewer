@@ -196,7 +196,7 @@
 <?php
             include("$db_viewer_path/html/links_and_scripts.php");
             include("$db_viewer_path/js/db_viewer_util.js.php");
-            include("$db_viewer_path/dynamic_style.php");
+            include("$db_viewer_path/style.css.php");
 ?>
 </head>
 <?php
