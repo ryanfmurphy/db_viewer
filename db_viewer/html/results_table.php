@@ -168,6 +168,7 @@
                 }
             }
             else {
+                $db = Db::conn();
                 DbViewer::output_db_error($db);
             }
         }
