@@ -195,7 +195,7 @@
         <title><?= $page_title ?></title>
 <?php
             include("$db_viewer_path/html/links_and_scripts.php");
-            include("$db_viewer_path/js/inline_js.php");
+            include("$db_viewer_path/js/db_viewer_util.js.php");
             include("$db_viewer_path/dynamic_style.php");
 ?>
 </head>
@@ -240,7 +240,7 @@
                     $rows = Db::sql($sql);
 
                     include("$db_viewer_path/html/results_table.php"); # html
-                    include("$db_viewer_path/js/inline_js_2.php"); # js
+                    include("$db_viewer_path/js/table_view.js.php"); # js
                 }
 
                 { # js to show even if there's no query in play
