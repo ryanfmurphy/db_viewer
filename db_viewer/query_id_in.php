@@ -46,8 +46,8 @@
 
             do_log("        got array of rows?\n");
             if (is_array($rows)) {
-                do_log("          got array of rows. doing keyRowsByField\n");
-                $data = DbUtil::keyRowsByField($rows, $joinField);
+                do_log("          got array of rows. doing key_rows_by_field\n");
+                $data = DbUtil::key_rows_by_field($rows, $joinField);
                 die(json_encode($data));
             }
             else {

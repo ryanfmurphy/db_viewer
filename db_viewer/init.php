@@ -60,7 +60,7 @@
                       $search_path
                   );
 
-            DbUtil::setDbSearchPath($search_path);
+            DbUtil::set_db_search_path($search_path);
         }
 
         if (isset($requestVars['header_every'])) {

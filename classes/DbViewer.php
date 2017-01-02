@@ -103,7 +103,7 @@
 
             # pg array is <ul>
             if (DbUtil::seems_like_pg_array($val)) {
-                $vals = DbUtil::pgArray2array($val);
+                $vals = DbUtil::pg_array2array($val);
                 return self::array_as_html_list($vals);
             }
             # urls are links

@@ -125,9 +125,9 @@ if (!class_exists('DbUtil')) {
 
 		# result is keyed by table_name, all vals are 1
 		# for fast lookup, can use e.g.:
-			# $tables = DbViewer::sqlTables();
+			# $tables = DbViewer::sql_tables();
 			# if (isset($tables['contractor'])) ...
-		public static function sqlTables() {
+		public static function sql_tables() {
             $db_type = Config::$config['db_type'];
 
             if ($db_type == 'pgsql') {
@@ -154,7 +154,7 @@ if (!class_exists('DbUtil')) {
         # look through all tables to find if $tablename_root has some table name at the end of it
         # allows prefixes in join field, e.g. "parent_topic" can link to topic table
         # return an array of [$tablename_root, $field_name], modified if a match was found
-        static function findTablePrefix(
+        public static function find_table_prefix(
             $tablename_root, $field_name=null, $suffix=null, $possible_tables=null
         ) {
             self::log("    looking for prefix in field\n",3);
@@ -168,7 +168,7 @@ if (!class_exists('DbUtil')) {
             #     otherwise try this loop
 
             if ($possible_tables === null) {
-                $possible_tables = self::sqlTables();
+                $possible_tables = self::sql_tables();
             }
 
             if (!isset($possible_tables[$tablename_root])) {
@@ -230,9 +230,9 @@ if (!class_exists('DbUtil')) {
             }
 
             { # find table prefix if any
-                self::log("    about to findTablePrefix\n");
+                self::log("    about to find_table_prefix\n");
                 list($tablename_root, $field_name) =
-                    self::findTablePrefix($tablename_root, $field_name, $suffix);
+                    self::find_table_prefix($tablename_root, $field_name, $suffix);
             }
 
             { # doctor tablename
@@ -247,7 +247,7 @@ if (!class_exists('DbUtil')) {
                 if ($suffix) {
                     self::log("  id_only mode?\n");
                     if ($id_mode == 'id_only') {
-                        self::log("    yes.  trimming before suffix (#todo do this earlier in findTablePrefix fn)\n");
+                        self::log("    yes.  trimming before suffix (#todo do this earlier in find_table_prefix fn)\n");
                         $field_name = ltrim($suffix,'_'); #todo this seems dangerous! will this really work in all cases?
                         self::log("    now trimmed field_name = '$field_name'\n");
                     }
@@ -358,7 +358,7 @@ if (!class_exists('DbUtil')) {
 				}
 
                 if ($includeTable) {
-                    $data = self::keyRowsByFieldMulti($rows, $fieldname);
+                    $data = self::key_rows_by_field_multi($rows, $fieldname);
                     $table_rows[$table] = $data;
                 }
             }
@@ -390,7 +390,7 @@ if (!class_exists('DbUtil')) {
             return implode(',', $val_reps);
         }
 
-        public static function keyRowsByField($rows, $keyField) {
+        public static function key_rows_by_field($rows, $keyField) {
 			$data = array();
 			foreach ($rows as $row) {
 				$idVal = $row[$keyField];
@@ -400,7 +400,7 @@ if (!class_exists('DbUtil')) {
         }
 
         # same thing but allow multiple rows per key
-        public static function keyRowsByFieldMulti($rows, $keyField) {
+        public static function key_rows_by_field_multi($rows, $keyField) {
 			$data = array();
 			foreach ($rows as $row) {
 				$idVal = $row[$keyField];
@@ -410,7 +410,7 @@ if (!class_exists('DbUtil')) {
         }
 
         # convert postgres array str into php array
-        public static function pgArray2array($pgArrayStr, $itemType='text') {
+        public static function pg_array2array($pgArrayStr, $itemType='text') {
             $arrayType = $itemType.'[]';
             $pgArrayStrQuoted = Db::quote($pgArrayStr);
             $query = "select array_to_json($pgArrayStrQuoted::$arrayType)";
@@ -486,7 +486,7 @@ if (!class_exists('DbUtil')) {
         }
 
         # postgres-specific setup
-        public static function setDbSearchPath($search_path) {
+        public static function set_db_search_path($search_path) {
             $db_type = Config::$config['db_type'];
             if ($db_type == 'pgsql') {
                 if ($search_path) {
@@ -624,7 +624,7 @@ infer_limit_from_query: query didn't match regex.
         }
 
         # get id field
-        public static function getPrimaryKeyField($id_mode, $tablename_no_quotes) {
+        public static function get_primary_key_field($id_mode, $tablename_no_quotes) {
             if ($id_mode == 'id_only') {
                 $primary_key_field = 'id';
             }

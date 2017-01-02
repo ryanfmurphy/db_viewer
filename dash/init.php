@@ -46,7 +46,7 @@
             }
 
             $schemas_in_path = DbUtil::schemas_in_path($search_path);
-            DbUtil::setDbSearchPath($search_path);
+            DbUtil::set_db_search_path($search_path);
         }
 
         { # minimal

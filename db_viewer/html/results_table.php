@@ -65,7 +65,7 @@
 <table id="query_table">
 <?php
                     { # vars
-                        $primary_key_field = DbUtil::getPrimaryKeyField(
+                        $primary_key_field = DbUtil::get_primary_key_field(
                             $id_mode, $tablename_no_quotes
                         );
 
