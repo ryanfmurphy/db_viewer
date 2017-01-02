@@ -111,7 +111,7 @@ class Config {
     # so that we can make our asset links robust and flexible
     public static function guess_uri_trunk($current_view_uri) {
         $uri = $_SERVER['REQUEST_URI'];
-        if (preg_match("#(.*)$current_view_uri$#", $uri, $matches)) {
+        if (preg_match("#(.*)$current_view_uri(\?.*)?$#", $uri, $matches)) {
             return $matches[1];
         }
         else {
