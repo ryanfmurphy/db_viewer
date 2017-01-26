@@ -52,6 +52,7 @@ class Config {
             'poprJsPath',
             'popr_css_path',
             'custom_select_magic_value',
+            'magic_null_value',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -67,6 +68,7 @@ class Config {
             'only_include_these_fields' => null,
             'edit' => null,
             'custom_select_magic_value' => sha1('custom'),
+            'magic_null_value' => sha1('_null_'),
 
             # table view
             'header_every' => 15,

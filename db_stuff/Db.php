@@ -60,7 +60,14 @@ if (!class_exists('Db')) {
         }
 
         public static function sql_literal($val) {
-            if (is_string($val)) {
+            $magic_null_value = Config::$config['magic_null_value'];
+
+            if ($magic_null_value
+                && $val === $magic_null_value
+            ) {
+                return 'null';
+            }
+            elseif (is_string($val)) {
                 $val = Db::quote($val);
                 return $val;
             }
@@ -222,7 +229,8 @@ if (!class_exists('Db')) {
         }
 
         public static function update_rows(
-            $table_name, $rowVars, $allowEmptyWheres = false
+            $table_name, $rowVars,
+            $allowEmptyWheres = false
         ) {
             if (isset($rowVars['where_clauses'])) {
                 $whereClauses = $rowVars['where_clauses'];
@@ -230,7 +238,9 @@ if (!class_exists('Db')) {
                 if (count($whereClauses) > 0 || $allowEmptyWheres) {
 
                     $sql = self::build_update_sql(
-                        $table_name, $rowVars, $whereClauses);
+                        $table_name, $rowVars,
+                        $whereClauses
+                    );
                     $result = self::sql($sql);
                     return ($result || is_array($result)
                                 ? $result
@@ -286,7 +296,9 @@ if (!class_exists('Db')) {
         }
 
         # save changes of existing obj/row to db
-        public static function build_update_sql($table_name, $setKeyVals, $whereClauses) {
+        public static function build_update_sql(
+            $table_name, $setKeyVals, $whereClauses
+        ) {
 
             { # build sql
                 $table_name_quoted = DbUtil::quote_tablename($table_name);
@@ -360,6 +372,7 @@ if (!class_exists('Db')) {
             return Db::view_query($sql, $minimal);
         }
 
+        #todo maybe allow magic null value?
         public static function build_where_clause($wheres) {
             $sql = '';
 

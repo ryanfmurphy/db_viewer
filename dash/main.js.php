@@ -5,7 +5,8 @@
     // global-ish state
     scope = {
         table_name: '<?= $table ?>',
-        db_viewer_path: '<?= $db_viewer_path ?>'
+        db_viewer_path: '<?= $db_viewer_path ?>',
+        vals_to_always_include: {}
     };
 
     // get array of form inputs / textareas / etc
@@ -42,11 +43,19 @@
 
     // Serialize an array of form elements
     // into a query string - inspired by jQuery
-    function serializeForm(formInputs, includeEmptyVals) {
+    function serializeForm(
+        formInputs, includeEmptyVals,
+        valsToAlwaysInclude // keys = input names
+    ) {
+
+        // arg default values
         if (includeEmptyVals === undefined) {
             includeEmptyVals = false;
         }
         console.log('includeEmptyVals',includeEmptyVals);
+        if (valsToAlwaysInclude === undefined) {
+            valsToAlwaysInclude = {};
+        }
 
         { // vars
             var prefix,
@@ -58,10 +67,17 @@
                     // Q. is this better/worse than pairs.push()?
                     if (includeEmptyVals
                         || value != ""
+                        || key in valsToAlwaysInclude
                     ) {
+                        if (value == "") {
+                            value = null;
+                        }
                         pairs[ pairs.length ] =
                             encodeURIComponent( key ) + "=" +
-                            encodeURIComponent( value == null ? "" : value );
+                            encodeURIComponent( value === null
+                                                    ? "<?= $magic_null_value ?>"
+                                                    : value
+                                              );
                     }
 
                 };
@@ -153,14 +169,19 @@
         }
     }
 
-    function getFormKeys(form) {
+    function getFormKeys(form, only_non_empty) {
+        if (only_non_empty === undefined) {
+            only_non_empty = false;
+        }
         // #todo get them in order regardless of <tagname>
         var form_inputs = getFormInputs(form);
-        var fields = form_inputs.map(
-            function(elem){
-                return elem.getAttribute('name')
-            }
-        );
+        var fields = form_inputs
+                        .filter(function(elem){
+                            return (elem.value != "");
+                        })
+                        .map(function(elem){
+                            return elem.getAttribute('name');
+                        });
         return fields;
     }
 
@@ -200,9 +221,6 @@
                                 : keyEvent.altKey
             if (do_minimal) {
                 extra_vars.db_viewer_minimal_mode = 1;
-                //var form = document.getElementById('mainForm');
-                //var form_names = getFormKeys(form);
-                //extra_vars.select_fields = form_names.join(', ');
             }
             console.log('url',url);
             console.log('extra_vars',extra_vars);
@@ -276,10 +294,14 @@
                 var data = getFormInputs(form);
                 var postData;
 
+                var valsToAlwaysInclude = scope;
                 postData  = (action == 'delete'
                                 ? "" // don't include key-val pairs for delete
                                      // (except where_clause for primary key)
-                                : serializeForm(data));
+                                : serializeForm(
+                                    data, false, scope.vals_to_always_include
+                                  )
+                            );
 
                 {   // further additions to data
                     // #todo be more civilized: join up an array
@@ -452,7 +474,6 @@
         // focus and select all text
         selectTableInput.focus();
         selectTableInput.select();
-        //selectTableInput.setSelectionRange(0, this.value.length);
     }
 
 
@@ -557,11 +578,27 @@
         // if <select> is on Custom, don't send that hash value,
         // and show the custom value <input>
         var form = document.getElementById('mainForm');
-        var selects = form.getElementsByTagName('select');
-        for (var i=0; i < selects.length; i++) {
-            var elem = selects[i];
-            handleCustomValueInputForSelect(elem);
+        if (form) {
+            var selects = form.getElementsByTagName('select');
+            for (var i=0; i < selects.length; i++) {
+                var elem = selects[i];
+                handleCustomValueInputForSelect(elem);
+            }
+
+            // get all names from form, to pay attention to those fields
+            // even if we set them to blank (which becomes NULL on the backend)
+            var form = document.getElementById('mainForm');
+            var form_names = getFormKeys(form);
+            for (var i = 0; i < form_names.length; i++) {
+                var key = form_names[i];
+                scope.vals_to_always_include[key] = true;
+            }
+            console.log('vals_to_always_include = ', scope.vals_to_always_include);
         }
+        else {
+            console.log('no form, not doing form-related init');
+        }
+
     }
 
 

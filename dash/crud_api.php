@@ -85,7 +85,10 @@
                 $primary_key = isset($vars['primary_key'])
                                 ? $vars['primary_key']
                                 : null;
-                #todo avoid global $id_mode, move into config array
+
+                # avoid globals, use config array
+                $id_mode == Config::$config['id_mode'];
+
                 $primary_key_field = DbUtil::get_primary_key_field(
                                         $id_mode, $table);
                 $fn = DbViewer::special_op_fn(
