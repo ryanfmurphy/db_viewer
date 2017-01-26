@@ -175,32 +175,43 @@
         }
         // #todo get them in order regardless of <tagname>
         var form_inputs = getFormInputs(form);
-        var fields = form_inputs
-                        .filter(function(elem){
-                            return (elem.value != "");
-                        })
-                        .map(function(elem){
-                            return elem.getAttribute('name');
-                        });
+        var fields = form_inputs;
+        if (only_non_empty) {
+            fields = fields.filter(function(elem){
+                        return (elem.value != "");
+                     });
+        }
+        fields = fields.map(function(elem){
+                    return elem.getAttribute('name');
+                 });
         return fields;
     }
 
     { // submit button handlers
 
-        function createButtonClickHandler(crud_api_path, table_name, event) {
-            var url = crud_api_path+'?action=create_'+table_name;
+        function createButtonClickHandler(
+            crud_api_path, table_name, event
+        ) {
+            var url = crud_api_path
+                    + '?action=create_'+table_name;
             submitForm(url, event, 'create');
             return false;
         }
 
-        function updateButtonClickHandler(crud_api_path, table_name, event) {
-            var url = crud_api_path+'?action=update_'+table_name;
+        function updateButtonClickHandler(
+            crud_api_path, table_name, event
+        ) {
+            var url = crud_api_path
+                    + '?action=update_'+table_name;
             submitForm(url, event, 'update');
             return false;
         }
 
-        function deleteButtonClickHandler(crud_api_path, table_name, event) {
-            var url = crud_api_path+'?action=delete_'+table_name;
+        function deleteButtonClickHandler(
+            crud_api_path, table_name, event
+        ) {
+            var url = crud_api_path
+                    + '?action=delete_'+table_name;
             submitForm(url, event, 'delete');
             return false;
         }
@@ -212,7 +223,9 @@
                     : '';
         }
 
-        function viewButtonClickHandler(crud_api_path, keyEvent, table_name) {
+        function viewButtonClickHandler(
+            crud_api_path, keyEvent, table_name
+        ) {
             var url = crud_api_path;
             var action = 'view_'+table_name;
             var extra_vars = {'action': action};
@@ -239,7 +252,9 @@
                     console.log(result.sql);
                 }
                 else if (result) {
-                    if ('success' in result && !result.success) {
+                    if ('success' in result
+                        && !result.success
+                    ) {
                         var error_details = result.error_info[2];
                         alert('Failed... Error '
                                 + result.error_code + ': '
@@ -299,7 +314,8 @@
                                 ? "" // don't include key-val pairs for delete
                                      // (except where_clause for primary key)
                                 : serializeForm(
-                                    data, false, scope.vals_to_always_include
+                                    data, false,
+                                    scope.vals_to_always_include
                                   )
                             );
 
@@ -588,7 +604,7 @@
             // get all names from form, to pay attention to those fields
             // even if we set them to blank (which becomes NULL on the backend)
             var form = document.getElementById('mainForm');
-            var form_names = getFormKeys(form);
+            var form_names = getFormKeys(form, true);
             for (var i = 0; i < form_names.length; i++) {
                 var key = form_names[i];
                 scope.vals_to_always_include[key] = true;
