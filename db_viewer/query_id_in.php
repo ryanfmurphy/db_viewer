@@ -30,7 +30,7 @@
         #if (preg_match('/^[0-9,]+$/', $ids))
         do_log("      is ids an array?\n");
         if (is_array($ids)) {
-            do_log("        yes: ".print_r($ids,1)."\n");
+            do_log("        yes. "/*.print_r($ids,1)*/."\n");
             $ids_str = DbUtil::val_list_str($ids);
             do_log("        ids_str = $ids_str\n");
 
@@ -48,6 +48,7 @@
             if (is_array($rows)) {
                 do_log("          got array of rows. doing key_rows_by_field\n");
                 $data = DbUtil::key_rows_by_field($rows, $joinField);
+                do_log("              result of key_rows_by_field: ".print_r($data,1)."\n");
                 die(json_encode($data));
             }
             else {
