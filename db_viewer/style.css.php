@@ -193,6 +193,39 @@
 ?>
     }
 
+    #help_legend {
+        font-size: 60%;
+        padding: 1em;
+    }
+    #help_legend.help_open {
+        background-color: #444;
+        color: #ddd;
+    }
+    #help_legend h3, #help_legend h4, #help_legend h5 {
+        font-weight: normal;
+    }
+    #help_legend.help_open h3,
+    #help_legend.help_open h4,
+    #help_legend.help_open h5 {
+        color: white;
+    }
+    #help_legend h3 {
+        font-size: 100%;
+    }
+    #help_legend h4 {
+        font-size: 150%;
+    }
+    #help_legend h5 {
+        font-size: 130%;
+        margin-bottom: 0;
+    }
+    #help_legend_header {
+        cursor: pointer;
+    }
+    #help_legend_header:hover {
+        text-decoration: underline;
+    }
+
 <?php
                 if (file_exists('custom_css.php')) {
                     include('custom_css.php');

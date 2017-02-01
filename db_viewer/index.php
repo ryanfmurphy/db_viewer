@@ -201,6 +201,7 @@
 ?>
 <body>
 <?php
+            include("$db_viewer_path/html/help.php");
             include("$db_viewer_path/html/query_form.php"); # form
 
             { # report inferred table, create link
