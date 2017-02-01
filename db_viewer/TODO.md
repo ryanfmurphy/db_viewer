@@ -46,6 +46,9 @@ To-Do List
 
 * start creating / running tests
 
+* in the DB Viewer Table View, when you type a table name that doesn't exist,
+  don't just show the message, also re-render DB Viewer so they can try again
+
 * (done) change module/repo name to `db_viewer` - underscore not hyphen
 
 * (done) Ctrl-Enter should submit the textarea

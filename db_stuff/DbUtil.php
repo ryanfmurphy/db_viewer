@@ -638,6 +638,7 @@ infer_limit_from_query: query didn't match regex.
         }
 
         # get fields of table from db
+        # returns false if table $table doesn't exist
         public static function get_table_fields($table, $schemas_in_path=null) {
 
             { # do query
@@ -662,7 +663,8 @@ infer_limit_from_query: query didn't match regex.
                 #die($get_columns_sql);
                 $fieldsRows = Db::sql($get_columns_sql);
                 if (count($fieldsRows) == 0) {
-                    die("Table $table doesn't exist");
+                    #die("Table $table doesn't exist");
+                    return false;
                 }
             }
 
@@ -710,19 +712,25 @@ infer_limit_from_query: query didn't match regex.
             return $fields;
         }
 
+        # if returns false, maybe table doesn't exist
         public static function get_time_field($table, $schemas_in_path=null) {
             $fields = self::get_table_fields($table, $schemas_in_path);
-            $possible_time_fields = array(
-                'time',
-                'time_added',
-                'creation_timestamp',
-            );
-            foreach ($possible_time_fields as $this_field) {
-                if (in_array($this_field, $fields)) {
-                    return $this_field;
-                }
+            if ($fields === false) {
+                return false;
             }
-            return null;
+            else {
+                $possible_time_fields = array(
+                    'time',
+                    'time_added',
+                    'creation_timestamp',
+                );
+                foreach ($possible_time_fields as $this_field) {
+                    if (in_array($this_field, $fields)) {
+                        return $this_field;
+                    }
+                }
+                return null;
+            }
         }
 
         public static function quote_tablename($table) {
