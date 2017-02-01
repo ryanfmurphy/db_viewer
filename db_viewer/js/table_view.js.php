@@ -513,7 +513,7 @@
         var request_data = {
             fieldname: fieldname,
             data_type: data_type,
-            vals: vals,
+            //vals: vals,
             base_table: base_table,
             db_type: <?= json_encode($db_type) ?>
         };
