@@ -1,28 +1,23 @@
 <?php
+    $cur_view = 'table_view';
+
     require(dirname(__DIR__)."/includes/basic_init.php");
-
-
 
     { # config vars
         require_once("$trunk/classes/Config.php");
 
         $default_values = Config::default_values(
-            "/table_view/index.php"
+            "/$cur_view/index.php"
         );
 
-        #todo disable the inner config files
-        $config_file_path = (file_exists("$trunk/db_config.php")
-                                ? "$trunk/db_config.php"
-                                : "$table_view_path/db_config.php");
-        if ($config_file_path) {
-            do_log("including config file: '$config_file_path'\n");
-            $config = Config::load_config(
-                $config_file_path, $default_values);
-            extract($config); # creates $variables
-
-            #todo #fixme - this seems like it might occlude what's in Config for $table_view_path
-            #              is that what we want?  should we check the Config and only use this as a fallback?
-            $table_view_path = "$trunk/table_view";
+        if (file_exists("$trunk/db_config.php")) {
+            $config = Config::load_config("$trunk/db_config.php",
+                                          $default_values);
+            extract($config);
+        }
+        else {
+            header("HTTP/1.1 302 Redirect");
+            header("Location: setup.php");
         }
     }
 

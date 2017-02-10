@@ -1,24 +1,19 @@
 <?php
+    $obj_editor_trunk = __DIR__; #todo get rid of this when we can
+    $cur_view = 'obj_editor';
+
     require(dirname(__DIR__)."/includes/basic_init.php");
 
-    $obj_editor_trunk = __DIR__; #todo get rid of this when we can
-
     { # config vars
-        include("$trunk/classes/Config.php");
+        require_once("$trunk/classes/Config.php");
 
         $default_values = Config::default_values(
-            "/obj_editor/index.php"
+            "/$cur_view/index.php"
         );
 
-        #todo only allow the root db_config
         if (file_exists("$trunk/db_config.php")) {
-            $config = Config::load_config(
-                "$trunk/db_config.php", $default_values);
-            extract($config);
-        }
-        elseif (file_exists("$trunk/obj_editor/db_config.php")) {
-            $config = Config::load_config(
-                "$trunk/obj_editor/db_config.php", $default_values);
+            $config = Config::load_config("$trunk/db_config.php",
+                                          $default_values);
             extract($config);
         }
         else {
