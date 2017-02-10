@@ -1,10 +1,9 @@
 <?php
-    # needs $trunk defined
+    # include_classes.php
+    # needs $trunk defined before including
 
-    { # classes
-        require_once("$trunk/db_stuff/Db.php");
-        require_once("$trunk/db_stuff/DbUtil.php");
-        require_once("$trunk/classes/TableView.php");
-        require_once("$trunk/classes/Curl.php");
-    }
+    require_once("$trunk/classes/Db.php");
+    require_once("$trunk/classes/DbUtil.php");
+    require_once("$trunk/classes/TableView.php");
+    require_once("$trunk/classes/Curl.php");
 ?>
