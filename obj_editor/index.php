@@ -6,8 +6,8 @@
     { # init: trunk, includes & requestVars, edit mode
 
         { # trunk, includes & requestVars
-            $dash_trunk = __DIR__;
-            include("$dash_trunk/init.php");
+            $obj_editor_trunk = __DIR__;
+            include("$obj_editor_trunk/init.php");
             $requestVars = array_merge($_GET, $_POST);
         }
 
@@ -369,11 +369,11 @@
         <title><?= $page_title ?></title>
 
         <style type="text/css">
-            <?php include("$dash_trunk/style.css.php") ?>
+            <?php include("$obj_editor_trunk/style.css.php") ?>
         </style>
 
         <script>
-            <?php include("$dash_trunk/main.js.php") ?>
+            <?php include("$obj_editor_trunk/main.js.php") ?>
         </script>
     </head>
     <body>

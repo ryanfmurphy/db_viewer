@@ -39,8 +39,8 @@
         { # init: defines $db, DbViewer,
             # and Util (if not already present)
 
-            $db_viewer_path = __DIR__;
-            require_once("$db_viewer_path/init.php");
+            $table_view_path = __DIR__;
+            require_once("$table_view_path/init.php");
         }
 
         { # vars
@@ -189,9 +189,9 @@
 <head>
         <title><?= $page_title ?></title>
 <?php
-            include("$db_viewer_path/html/links_and_scripts.php");
-            include("$db_viewer_path/js/db_viewer_util.js.php");
-            include("$db_viewer_path/style.css.php");
+            include("$table_view_path/html/links_and_scripts.php");
+            include("$table_view_path/js/table_view_util.js.php");
+            include("$table_view_path/style.css.php");
 ?>
 </head>
 <?php
@@ -201,8 +201,8 @@
 ?>
 <body>
 <?php
-            include("$db_viewer_path/html/help.php");
-            include("$db_viewer_path/html/query_form.php"); # form
+            include("$table_view_path/html/help.php");
+            include("$table_view_path/html/query_form.php"); # form
 
             { # report inferred table, create link
                 if ($inferred_table) {
@@ -214,7 +214,7 @@
                     { # "create" link
                             if (isset($dash_links) && $dash_links) {
 ?>
-        <a href="<?= $dash_path ?>?table=<?= $tablename_no_quotes ?>&minimal"
+        <a href="<?= $obj_editor_path ?>?table=<?= $tablename_no_quotes ?>&minimal"
              target="_blank"
         >
             Create a new <code><?= $tablename_no_quotes ?></code>
@@ -235,8 +235,8 @@
                 if ($sql) {
                     $rows = Db::sql($sql);
 
-                    include("$db_viewer_path/html/results_table.php"); # html
-                    include("$db_viewer_path/js/table_view.js.php"); # js
+                    include("$table_view_path/html/results_table.php"); # html
+                    include("$table_view_path/js/table_view.js.php"); # js
                 }
 
                 { # js to show even if there's no query in play

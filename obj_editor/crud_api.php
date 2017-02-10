@@ -3,9 +3,9 @@
 # crud_api.php - process simple CRUD actions
 
 { # vars / includes / setup
-    $dash_trunk = __DIR__;
-    $trunk = dirname($dash_trunk);
-    include("$dash_trunk/init.php");
+    $obj_editor_trunk = __DIR__;
+    $trunk = dirname($obj_editor_trunk);
+    include("$obj_editor_trunk/init.php");
 
     #todo #fixme is this redundant?
     $vars = array_merge($_GET,$_POST);
@@ -46,9 +46,9 @@
                     $select_fields = $vars['select_fields'];
                     unset($vars['select_fields']);
                 }
-                elseif (isset($vars['db_viewer_minimal_mode'])) {
-                    $minimal = $vars['db_viewer_minimal_mode'];
-                    unset($vars['db_viewer_minimal_mode']);
+                elseif (isset($vars['table_view_minimal_mode'])) {
+                    $minimal = $vars['table_view_minimal_mode'];
+                    unset($vars['table_view_minimal_mode']);
                 }
                 else {
                     $select_fields = null;

@@ -351,8 +351,8 @@ if (!class_exists('Db')) {
             $query_string = http_build_query(array(
                 'sql' => $sql,
             ));
-            $db_viewer_uri = Config::$config['db_viewer_uri'];
-            $view_query_url = "$db_viewer_uri?$query_string";
+            $table_view_uri = Config::$config['table_view_uri'];
+            $view_query_url = "$table_view_uri?$query_string";
             if ($minimal) {
                 $view_query_url .= '&minimal';
             }

@@ -1,7 +1,7 @@
 <?php
     { # init
-        $dash_trunk = __DIR__;
-        $trunk = dirname($dash_trunk);
+        $obj_editor_trunk = __DIR__;
+        $trunk = dirname($obj_editor_trunk);
     }
 
     { # config vars
@@ -11,29 +11,26 @@
             $trunk, "/dash/index.php"
         );
 
-
-        #todo #fixme log which config you run
+        #todo only allow the root db_config
         if (file_exists("$trunk/db_config.php")) {
-            #include("$trunk/db_config.php");
             $config = Config::load_config(
                 "$trunk/db_config.php", $trunk, $default_values);
             extract($config);
         }
-        elseif (file_exists("$dash_trunk/db_config.php")) {
-            #include("$dash_trunk/db_config.php");
+        elseif (file_exists("$obj_editor_trunk/db_config.php")) {
             $config = Config::load_config(
-                "$dash_trunk/db_config.php", $trunk, $default_values);
+                "$obj_editor_trunk/db_config.php", $trunk, $default_values);
             extract($config);
         }
         else {
             header("HTTP/1.1 302 Redirect");
             header("Location: setup.php");
         }
-        #include("$dash_trunk/dash_config.php");
-        $config = Config::load_config("$dash_trunk/dash_config.php", $trunk, $config);
-        extract($config);
+        #$config = Config::load_config("$obj_editor_trunk/dash_config.php", $trunk, $config);
+        #extract($config);
 
-        $db_viewer_uri = "/db_viewer/index.php";
+        #todo #fixme is this always right?  does this occlude the Config value?
+        $table_view_uri = "/table_view/index.php";
     }
 
     { # classes

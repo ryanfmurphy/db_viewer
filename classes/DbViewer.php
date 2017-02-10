@@ -97,7 +97,7 @@
         #   ($table should have no quotes)
         public static function val_html($val, $fieldname, $table=null) {
             $field_render_filters_by_table = Config::$config['field_render_filters_by_table'];
-            $dash_path = Config::$config['dash_path'];
+            $obj_editor_path = Config::$config['obj_editor_path'];
 
             #do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
 
@@ -125,8 +125,8 @@
                     $cmp = class_exists('Campaign');
                     $hasPhpExt = !$cmp;
                     $local_uri = ($hasPhpExt
-                                    ? 'db_viewer.php'
-                                    : 'db_viewer');
+                                    ? 'index.php'
+                                    : 'db_viewer'); #todo #fixme simplify
                 }
 
                 { ob_start(); # provide a link
@@ -146,7 +146,7 @@
                     && isset($field_render_filters_by_table[$table][$fieldname])
             ) {
                 $fn = $field_render_filters_by_table[$table][$fieldname];
-                return $fn($val, $dash_path, $fieldname);
+                return $fn($val, $obj_editor_path, $fieldname);
             }
             # default quoting / handling of val
             else {
@@ -201,8 +201,11 @@
             return "$uri_no_query";
         }
 
-        public static function dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) {
-            return "$dash_path?edit=1&table=$tablename_no_quotes&primary_key=$primary_key";
+        public static function dash_edit_url($obj_editor_path, $tablename_no_quotes, $primary_key) {
+            return $obj_editor_path
+                        ."?edit=1"
+                        ."&table=$tablename_no_quotes"
+                        ."&primary_key=$primary_key";
         }
 
         public static function echo_js_handle_edit_link_onclick_fn() {
@@ -228,9 +231,9 @@
 
         # needs handle_edit_link_onclick js fn (above)
         public static function echo_edit_link(
-            $dash_path, $tablename_no_quotes, $primary_key, $minimal = false
+            $obj_editor_path, $tablename_no_quotes, $primary_key, $minimal = false
         ) {
-            $base_url = DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key);
+            $base_url = DbViewer::dash_edit_url($obj_editor_path, $tablename_no_quotes, $primary_key);
             if ($minimal) {
                 $url = "$base_url&minimal";
                 $url2 = $base_url;
@@ -392,8 +395,7 @@
         }
 
 
-        # used in db_viewer table view to put
-        # row fields into the right order
+        # used in table_view to put row fields into the right order
         public static function ordered_row(
             $row, $ordered_fields
         ) {
@@ -410,8 +412,7 @@
             return $new_row;
         }
 
-        # used in db_viewer table view to put
-        # row fields into the right order
+        # used in table_view to put row fields into the right order
         public static function prep_row($row) {
             $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
             $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];

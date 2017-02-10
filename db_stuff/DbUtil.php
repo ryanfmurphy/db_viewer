@@ -376,7 +376,7 @@ if (!class_exists('DbUtil')) {
         public static function log($msg, $level=0) {
             if ($level < 5) {
                 # use error_log for now because this class is now used by
-                # both dash and db_viewer - and dash doesn't have do_log() defined
+                # both obj_editor and table_view - and obj_editor doesn't have do_log() defined
                 error_log($msg, 3, __DIR__.'/error_log');
                 #do_log($msg);
             }

@@ -105,7 +105,7 @@
                                 # edit link (needs pk)
                                 if ($has_primary_key_field) {
                                     DbViewer::echo_edit_link(
-                                        $dash_path, $tablename_no_quotes,
+                                        $obj_editor_path, $tablename_no_quotes,
                                         $primary_key, $links_minimal_by_default
                                     );
                                 }

@@ -5,7 +5,7 @@
     // global-ish state
     scope = {
         table_name: '<?= $table ?>',
-        db_viewer_path: '<?= $db_viewer_path ?>',
+        table_view_path: '<?= $table_view_path ?>',
         vals_to_always_include: {}
     };
 
@@ -233,7 +233,7 @@
                                 ? !keyEvent.altKey
                                 : keyEvent.altKey
             if (do_minimal) {
-                extra_vars.db_viewer_minimal_mode = 1;
+                extra_vars.table_view_minimal_mode = 1;
             }
             console.log('url',url);
             console.log('extra_vars',extra_vars);
@@ -425,7 +425,7 @@
             console.log('doing view_all_link');
             view_all_link = document.getElementById('view_all_link');
             if (view_all_link) {
-                view_all_url = scope.db_viewer_path + '?sql=' + table + maybe_minimal();
+                view_all_url = scope.table_view_path + '?sql=' + table + maybe_minimal();
                 view_all_link.setAttribute('href', view_all_url);
             }
 

@@ -6,7 +6,7 @@
 
     { # init
         require_once('init.php');
-        do_log("\n" . date('c') . " - db_viewer.tables_with_field received a request\n");
+        do_log("\n" . date('c') . " - tables_with_field received a request\n");
         $vars = array_merge($_GET, $_POST);
         do_log(print_r($vars,1));
     }

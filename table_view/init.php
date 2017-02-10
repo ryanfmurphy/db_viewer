@@ -15,7 +15,7 @@
         # btw - why are we not allowed to use the system's timezone setting??
         date_default_timezone_set("America/Chicago");
 
-		do_log(date('c') . " - db_viewer received a request\n");
+		do_log(date('c') . " - table_view received a request\n");
         ini_set('memory_limit', '4000M');
 
         $requestVars = array_merge($_GET, $_POST);
@@ -26,18 +26,22 @@
         require_once("$trunk/classes/Config.php");
 
         $default_values = Config::default_values(
-            $trunk, "/db_viewer/index.php"
+            $trunk, "/table_view/index.php"
         );
 
+        #todo disable the inner config files
         $config_file_path = (file_exists("$trunk/db_config.php")
                                 ? "$trunk/db_config.php"
-                                : "$db_viewer_path/db_config.php");
+                                : "$table_view_path/db_config.php");
         if ($config_file_path) {
             do_log("including config file: '$config_file_path'\n");
             $config = Config::load_config(
                 $config_file_path, $trunk, $default_values);
             extract($config); # creates $variables
-            $db_viewer_path = "$trunk/db_viewer"; #todo #fixme rename to $db_viewer_trunk
+
+            #todo #fixme - this seems like it might occlude what's in Config for $table_view_path
+            #              is that what we want?  should we check the Config and only use this as a fallback?
+            $table_view_path = "$trunk/table_view";
         }
     }
 

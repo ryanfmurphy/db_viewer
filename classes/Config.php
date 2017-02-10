@@ -5,6 +5,7 @@ class Config {
 
     # config is a regular PHP file
     # include it within the function scope and capture the $config vars
+    # NOTE: file at $config_filepath must exist or there's an include warning
     public static function load_config($config_filepath, $trunk, $default_values=array()) {
         $requestVars = array_merge($_GET, $_POST);
         extract($default_values);
@@ -41,9 +42,9 @@ class Config {
             'edit',
             'minimal',
             'js_path',
-            'dash_path',
-            'db_viewer_path',
-            'db_viewer_uri',
+            'obj_editor_path',
+            'table_view_path',
+            'table_view_uri',
             'crud_api_path',
             'trunk',
             'uri_trunk',
@@ -97,14 +98,14 @@ class Config {
 
             # URI paths
             'uri_trunk' => $uri_trunk,
-            'js_path' => "$uri_trunk/db_viewer/js",
-            'dash_path' => "$uri_trunk/dash/index.php",
-            'crud_api_path' => "$uri_trunk/dash/crud_api.php",
-            'db_viewer_uri' => "$uri_trunk/db_viewer/index.php",
+            'js_path' => "$uri_trunk/table_view/js",
+            'obj_editor_path' => "$uri_trunk/obj_editor/index.php",
+            'crud_api_path' => "$uri_trunk/obj_editor/crud_api.php",
+            'table_view_uri' => "$uri_trunk/table_view/index.php",
             'poprJsPath' => '',
 
             # filesystem paths
-            'db_viewer_path' => __DIR__,
+            'table_view_path' => __DIR__,
             'trunk' => $trunk,
         );
     }

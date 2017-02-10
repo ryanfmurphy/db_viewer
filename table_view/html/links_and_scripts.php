@@ -14,7 +14,7 @@
                     if ($cmp) {
 ?>
     <style>
-        <?php include("$db_viewer_path/popr/popr.css"); ?>
+        <?php include("$table_view_path/popr/popr.css"); ?>
     </style>
 <?php
                     }

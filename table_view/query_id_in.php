@@ -1,14 +1,14 @@
 <?php
     # query-ids-in.php
     # ----------------
-    # support endpoint for the expansion "join-splice" feature in db_viewer
+    # support endpoint for the expansion "join-splice" feature in DB Viewer table_view
 
     #todo change interface to take join_field and figure out table
 
     {
-        $db_viewer_path = __DIR__;
-        require_once("$db_viewer_path/init.php");
-        do_log(date('c') . " - db_viewer.query_ids_in received a request\n");
+        $table_view_path = __DIR__;
+        require_once("$table_view_path/init.php");
+        do_log(date('c') . " - query_ids_in received a request\n");
         $ids = $_POST['ids'];
     }
 
