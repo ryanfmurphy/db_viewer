@@ -1,8 +1,7 @@
 <?php
-    { # init
-        $obj_editor_trunk = __DIR__;
-        $trunk = dirname($obj_editor_trunk);
-    }
+    require(dirname(__DIR__)."/includes/basic_init.php");
+
+    $obj_editor_trunk = __DIR__; #todo get rid of this when we can
 
     { # config vars
         include("$trunk/classes/Config.php");
@@ -17,9 +16,9 @@
                 "$trunk/db_config.php", $default_values);
             extract($config);
         }
-        elseif (file_exists("$obj_editor_trunk/db_config.php")) {
+        elseif (file_exists("$trunk/obj_editor/db_config.php")) {
             $config = Config::load_config(
-                "$obj_editor_trunk/db_config.php", $default_values);
+                "$trunk/obj_editor/db_config.php", $default_values);
             extract($config);
         }
         else {
@@ -31,12 +30,7 @@
         $table_view_uri = "/table_view/index.php";
     }
 
-    { # classes
-        require_once("$trunk/db_stuff/Db.php");
-        require_once("$trunk/db_stuff/DbUtil.php");
-        require_once("$trunk/classes/TableView.php");
-        require_once("$trunk/classes/Curl.php");
-    }
+    include("$trunk/includes/include_classes.php");
 
     { # vars adjustments after includes
         { # search_path
@@ -58,7 +52,7 @@
 
                 # allow key without var in query str:
                 # /index.php?minimal
-                $minimal = ($minimal || $minimal==='');
+                $minimal = ($minimal || $minimal === '');
 
                 if ($minimal) {
                     if (!isset($minimal_fields)) {

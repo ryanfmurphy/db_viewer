@@ -64,11 +64,13 @@ class Config {
         $trunk = self::get_trunk();
         $requestVars = array_merge($_GET, $_POST);
         $uri_trunk = self::guess_uri_trunk($view_uri);
-        return array(
+        $default_values = array(
             # should these really be configs?
             'inferred_table' => null,
             'only_include_these_fields' => null,
             'edit' => null,
+
+            # magic values - usually don't need to be changed
             'custom_select_magic_value' => sha1('custom'),
             'magic_null_value' => sha1('_null_'),
 
@@ -94,7 +96,8 @@ class Config {
             'links_minimal_by_default' => false,
             'minimal_field_inheritance' => true,
             'use_field_ordering_from_minimal_fields' => false,
-            'minimal' => isset($requestVars['minimal']) ? true : false,
+            'minimal' => isset($requestVars['minimal'])
+                            ? true : false,
             'minimal_fields' => null,
 
             # URI paths
@@ -109,6 +112,7 @@ class Config {
             'table_view_path' => __DIR__,
             'trunk' => $trunk,
         );
+        return $default_values;
     }
 
     public static function get_trunk() {

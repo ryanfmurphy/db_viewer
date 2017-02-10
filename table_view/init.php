@@ -1,26 +1,7 @@
 <?php
-    { # some misc functions
-        function do_log($msg) {
-            $logPath = __DIR__.'/error_log';
-            error_log("$msg", 3, $logPath);
-        }
-        function log_and_say($msg) {
-            echo $msg;
-            do_log($msg);
-        }
-    }
+    require(dirname(__DIR__)."/includes/basic_init.php");
 
-    { # basic init
-        #todo generalize timezone
-        # btw - why are we not allowed to use the system's timezone setting??
-        date_default_timezone_set("America/Chicago");
 
-		do_log(date('c') . " - table_view received a request\n");
-        ini_set('memory_limit', '4000M');
-
-        $requestVars = array_merge($_GET, $_POST);
-        $trunk = dirname(__DIR__);
-    }
 
     { # config vars
         require_once("$trunk/classes/Config.php");
@@ -45,12 +26,7 @@
         }
     }
 
-    { # Util includes
-        require_once("$trunk/db_stuff/Db.php");
-        require_once("$trunk/db_stuff/DbUtil.php");
-        require_once("$trunk/classes/TableView.php");
-        require_once("$trunk/classes/Curl.php");
-    }
+    include("$trunk/includes/include_classes.php");
 
 	{ # vars adjustments after includes
         { # search_path
@@ -62,11 +38,7 @@
                     );
             }
 
-            $schemas_in_path
-                = DbUtil::schemas_in_path(
-                      $search_path
-                  );
-
+            $schemas_in_path = DbUtil::schemas_in_path($search_path);
             DbUtil::set_db_search_path($search_path);
         }
 
