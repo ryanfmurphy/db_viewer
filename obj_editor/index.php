@@ -383,8 +383,8 @@
         #todo #fixme fix this href: should not be hardcoded
 ?>
         <p id="whoami">
-            <a href="/obj_editor/index.php">
-                Dash
+            <a href="<?= $obj_editor_path ?>">
+                choose table
             </a>
         </p>
         <div id="table_header">
