@@ -1,13 +1,15 @@
 <?php
-    $cur_view = 'table_view';
+    # init.php
+    # needs $cur_view to be defined prior to including
 
     require(dirname(__DIR__)."/includes/basic_init.php");
 
     { # config vars
         require_once("$trunk/classes/Config.php");
 
+        if (!isset($cur_subview)) $cur_subview = 'index';
         $default_values = Config::default_values(
-            "/$cur_view/index.php"
+            "/$cur_view/$cur_subview.php"
         );
 
         if (file_exists("$trunk/db_config.php")) {
@@ -23,7 +25,7 @@
 
     include("$trunk/includes/include_classes.php");
 
-	{ # vars adjustments after includes
+    { # vars adjustments after includes
         { # search_path
             if (!isset($search_path)) {
                 $search_path =
@@ -40,5 +42,31 @@
         if (isset($requestVars['header_every'])) {
             $header_every = $requestVars['header_every'];
         }
-	}
+
+        {   # minimal
+            #todo #fixme - collapse this with
+            # the Config::default_values code for minimal
+            if (isset($_GET['minimal'])) {
+                $minimal = $_GET['minimal'];
+
+                # allow key without var in query str:
+                # /index.php?minimal
+                $minimal = ($minimal || $minimal === '');
+
+                if ($minimal) {
+                    if (!isset($minimal_fields)) {
+                        $minimal_fields = array(
+                            "name",
+                            "txt",
+                            "what",
+                        );
+                    }
+                    $only_include_these_fields = $minimal_fields;
+                }
+            }
+            else {
+                $minimal = null;
+            }
+        }
+    }
 

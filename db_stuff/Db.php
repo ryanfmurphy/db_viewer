@@ -368,7 +368,6 @@ if (!class_exists('Db')) {
             $table_name, $whereVars=array(),
             $selectFields=null, $minimal=false
         ) {
-
             $sql = self::build_select_sql(
                 $table_name, $whereVars, $selectFields);
 

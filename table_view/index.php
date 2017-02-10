@@ -39,7 +39,8 @@
         { # init: defines $db, TableView,
             # and Util (if not already present)
             $trunk = dirname(__DIR__);
-            require_once("$trunk/table_view/init.php");
+            $cur_view = 'table_view';
+            require("$trunk/includes/init.php");
         }
 
         { # vars
@@ -100,8 +101,8 @@
                                                 $tablename_no_quotes
                                         );
                         $minimal_fields = ($minimal
-                                                                ? $would_be_minimal_fields
-                                                                : null);
+                                                ? $would_be_minimal_fields
+                                                : null);
                 }
 
 

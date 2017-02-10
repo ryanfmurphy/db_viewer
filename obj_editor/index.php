@@ -7,7 +7,8 @@
 
         { # trunk, includes & requestVars
             $trunk = dirname(__DIR__);
-            include("$trunk/obj_editor/init.php");
+            $cur_view = 'obj_editor';
+            require("$trunk/includes/init.php");
             $requestVars = array_merge($_GET, $_POST);
         }
 

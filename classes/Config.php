@@ -95,6 +95,8 @@ class Config {
             'links_minimal_by_default' => false,
             'minimal_field_inheritance' => true,
             'use_field_ordering_from_minimal_fields' => false,
+            #todo #fixme - collapse this with
+            # the init.php for minimal
             'minimal' => isset($requestVars['minimal'])
                             ? true : false,
             'minimal_fields' => null,

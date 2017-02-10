@@ -4,7 +4,9 @@
 
 { # vars / includes / setup
     $trunk = dirname(__DIR__);
-    include("$trunk/obj_editor/init.php");
+    $cur_view = 'obj_editor';
+    $cur_subview = 'crud_api.php';
+    include("$trunk/includes/init.php");
 
     #todo #fixme is this redundant?
     $vars = array_merge($_GET,$_POST);

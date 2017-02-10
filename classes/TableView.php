@@ -422,9 +422,7 @@
             $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
             $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];
             $minimal = Config::$config['minimal'];
-            if (#!$minimal &&
-                $use_field_ordering_from_minimal_fields
-            ) {
+            if ($use_field_ordering_from_minimal_fields) {
                 return self::ordered_row(
                     $row, $would_be_minimal_fields
                 );
