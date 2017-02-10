@@ -41,7 +41,6 @@ class Config {
             'multipleTablesFoundInDifferentSchemas',
             'edit',
             'minimal',
-            'js_path',
             'obj_editor_uri',
             'table_view_uri',
             'crud_api_uri',
@@ -49,7 +48,8 @@ class Config {
             'uri_trunk',
             'pluralize_table_names',
             'special_ops',
-            'poprJsPath',
+            'js_path',
+            'popr_js_path',
             'popr_css_path',
             'custom_select_magic_value',
             'magic_null_value',
@@ -103,11 +103,11 @@ class Config {
 
             # URI paths
             'uri_trunk' => $uri_trunk,
-            'js_path' => "$uri_trunk/table_view/js",
             'obj_editor_uri' => "$uri_trunk/obj_editor/index.php",
             'crud_api_uri' => "$uri_trunk/obj_editor/crud_api.php",
             'table_view_uri' => "$uri_trunk/table_view/index.php",
-            'poprJsPath' => '',
+            'js_path' => "$uri_trunk/table_view/js",
+            'popr_js_path' => '',
 
             # filesystem paths
             'trunk' => $trunk,

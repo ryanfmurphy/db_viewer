@@ -2,9 +2,10 @@
             { # links/scripts
 
                 { # javascript
+                    #todo #fixme why does $popr_js_path not have a / after it? relative link?
 ?>
     <script src="<?= $jquery_url ?>"></script>
-    <script src="<?= $poprJsPath ?>popr/popr.js"></script>
+    <script src="<?= $popr_js_path ?>popr/popr.js"></script>
 <?php
                 }
 
@@ -19,10 +20,6 @@
 <?php
                     }
                     else {
-                        #todo when running in a subdirectory,
-                        # REQUEST_URI must have / at the end
-                        # for these relative links to work
-    /*link rel="stylesheet" type="text/css" href="<?= $cssPath ?>">*/
 ?>
     <link rel="stylesheet" type="text/css" href="popr/popr.css">
 <?php
