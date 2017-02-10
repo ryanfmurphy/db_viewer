@@ -190,27 +190,27 @@
     { // submit button handlers
 
         function createButtonClickHandler(
-            crud_api_path, table_name, event
+            crud_api_uri, table_name, event
         ) {
-            var url = crud_api_path
+            var url = crud_api_uri
                     + '?action=create_'+table_name;
             submitForm(url, event, 'create');
             return false;
         }
 
         function updateButtonClickHandler(
-            crud_api_path, table_name, event
+            crud_api_uri, table_name, event
         ) {
-            var url = crud_api_path
+            var url = crud_api_uri
                     + '?action=update_'+table_name;
             submitForm(url, event, 'update');
             return false;
         }
 
         function deleteButtonClickHandler(
-            crud_api_path, table_name, event
+            crud_api_uri, table_name, event
         ) {
-            var url = crud_api_path
+            var url = crud_api_uri
                     + '?action=delete_'+table_name;
             submitForm(url, event, 'delete');
             return false;
@@ -224,9 +224,9 @@
         }
 
         function viewButtonClickHandler(
-            crud_api_path, keyEvent, table_name
+            crud_api_uri, keyEvent, table_name
         ) {
-            var url = crud_api_path;
+            var url = crud_api_uri;
             var action = 'view_'+table_name;
             var extra_vars = {'action': action};
             var do_minimal = links_minimal_by_default
@@ -446,7 +446,7 @@
         var update_button = document.getElementById('update_button');
         if (update_button) {
             update_button.outerHTML = '\
-                <input onclick="return createButtonClickHandler(\'<?= $crud_api_path ?>\', scope.table_name, event)"\
+                <input onclick="return createButtonClickHandler(\'<?= $crud_api_uri ?>\', scope.table_name, event)"\
                     value="Create" type="submit" id="create_button"\
                 />\
             ';
@@ -457,7 +457,7 @@
         var update_button = document.getElementById('create_button');
         if (update_button) {
             update_button.outerHTML = '\
-                <input onclick="return updateButtonClickHandler(\'<?= $crud_api_path ?>\', scope.table_name, event)"\
+                <input onclick="return updateButtonClickHandler(\'<?= $crud_api_uri ?>\', scope.table_name, event)"\
                     value="Update" type="submit" id="update_button"\
                 />\
             ';

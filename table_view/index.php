@@ -212,7 +212,7 @@
 <?php
                     { # "create" link
 ?>
-        <a href="<?= $obj_editor_path ?>?table=<?= $tablename_no_quotes ?>&minimal"
+        <a href="<?= $obj_editor_uri ?>?table=<?= $tablename_no_quotes ?>&minimal"
              target="_blank"
         >
             Create a new <code><?= $tablename_no_quotes ?></code>

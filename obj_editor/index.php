@@ -383,7 +383,7 @@
         #todo #fixme fix this href: should not be hardcoded
 ?>
         <p id="whoami">
-            <a href="<?= $obj_editor_path ?>">
+            <a href="<?= $obj_editor_uri ?>">
                 choose table
             </a>
         </p>
@@ -483,26 +483,26 @@
 <?php
                     if ($edit) {
 ?>
-                <input onclick="return updateButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)" <?php # update ?>
+                <input onclick="return updateButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # update ?>
                     value="Update" type="submit" id="update_button"
                 />
 <?php
                     }
                     else {
 ?>
-                <input onclick="return createButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)" <?php # create ?>
+                <input onclick="return createButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
                     value="Create" type="submit" id="create_button"
                 />
 <?php
                     }
 ?>
-                <input onclick="viewButtonClickHandler('<?= $crud_api_path ?>', event, scope.table_name)" <?php # view ?>
+                <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, scope.table_name)" <?php # view ?>
                     value="View" type="submit" id="view_button"
                 />
 <?php
                     if ($edit) {
 ?>
-                <input onclick="return deleteButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)"
+                <input onclick="return deleteButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)"
                     value="Delete" type="submit" id="delete_button"
                 />
 <?php

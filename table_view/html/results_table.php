@@ -105,7 +105,7 @@
                                 # edit link (needs pk)
                                 if ($has_primary_key_field) {
                                     TableView::echo_edit_link(
-                                        $obj_editor_path, $tablename_no_quotes,
+                                        $obj_editor_uri, $tablename_no_quotes,
                                         $primary_key, $links_minimal_by_default
                                     );
                                 }
@@ -113,7 +113,7 @@
                                 # special ops (optional)
                                 TableView::echo_special_ops(
                                     $special_ops_cols, $tablename_no_quotes,
-                                    $primary_key_field, $primary_key, $crud_api_path,
+                                    $primary_key_field, $primary_key, $crud_api_uri,
                                     $row
                                 );
                             }

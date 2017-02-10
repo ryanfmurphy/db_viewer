@@ -42,9 +42,9 @@ class Config {
             'edit',
             'minimal',
             'js_path',
-            'obj_editor_path',
+            'obj_editor_uri',
             'table_view_uri',
-            'crud_api_path',
+            'crud_api_uri',
             'trunk',
             'uri_trunk',
             'pluralize_table_names',
@@ -102,8 +102,8 @@ class Config {
             # URI paths
             'uri_trunk' => $uri_trunk,
             'js_path' => "$uri_trunk/table_view/js",
-            'obj_editor_path' => "$uri_trunk/obj_editor/index.php",
-            'crud_api_path' => "$uri_trunk/obj_editor/crud_api.php",
+            'obj_editor_uri' => "$uri_trunk/obj_editor/index.php",
+            'crud_api_uri' => "$uri_trunk/obj_editor/crud_api.php",
             'table_view_uri' => "$uri_trunk/table_view/index.php",
             'poprJsPath' => '',
 

@@ -97,7 +97,7 @@
         #   ($table should have no quotes)
         public static function val_html($val, $fieldname, $table=null) {
             $field_render_filters_by_table = Config::$config['field_render_filters_by_table'];
-            $obj_editor_path = Config::$config['obj_editor_path'];
+            $obj_editor_uri = Config::$config['obj_editor_uri'];
 
             #do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
 
@@ -146,7 +146,7 @@
                     && isset($field_render_filters_by_table[$table][$fieldname])
             ) {
                 $fn = $field_render_filters_by_table[$table][$fieldname];
-                return $fn($val, $obj_editor_path, $fieldname);
+                return $fn($val, $obj_editor_uri, $fieldname);
             }
             # default quoting / handling of val
             else {
@@ -201,8 +201,8 @@
             return "$uri_no_query";
         }
 
-        public static function obj_editor_url($obj_editor_path, $tablename_no_quotes, $primary_key) {
-            return $obj_editor_path
+        public static function obj_editor_url($obj_editor_uri, $tablename_no_quotes, $primary_key) {
+            return $obj_editor_uri
                         ."?edit=1"
                         ."&table=$tablename_no_quotes"
                         ."&primary_key=$primary_key";
@@ -231,9 +231,9 @@
 
         # needs handle_edit_link_onclick js fn (above)
         public static function echo_edit_link(
-            $obj_editor_path, $tablename_no_quotes, $primary_key, $minimal = false
+            $obj_editor_uri, $tablename_no_quotes, $primary_key, $minimal = false
         ) {
-            $base_url = TableView::obj_editor_url($obj_editor_path, $tablename_no_quotes, $primary_key);
+            $base_url = TableView::obj_editor_url($obj_editor_uri, $tablename_no_quotes, $primary_key);
             if ($minimal) {
                 $url = "$base_url&minimal";
                 $url2 = $base_url;
@@ -257,7 +257,7 @@
 
         public static function special_op_url(
             $special_op, $tablename_no_quotes,
-            $primary_key_field, $primary_key, $crud_api_path,
+            $primary_key_field, $primary_key, $crud_api_uri,
             $row, $op_col_idx, $op_idx
         ) {
             # the kind of special_op that changes fields
@@ -274,7 +274,7 @@
                 );
                 $query_str = http_build_query($query_vars);
 
-                $special_op_url = "$crud_api_path?$query_str";
+                $special_op_url = "$crud_api_uri?$query_str";
             }
             # the kind of special_op that goes to a url
             # with {{mustache_vars}} subbed in
@@ -297,7 +297,7 @@
         }
 
         public static function special_op_fn_url($tablename_no_quotes, $col_idx, $op_idx, $primary_key) {
-            $crud_api_path = Config::$config['crud_api_path'];
+            $crud_api_uri = Config::$config['crud_api_uri'];
             $special_ops = Config::$config['special_ops'];
             
             if (TableView::special_op_fn(
@@ -305,7 +305,12 @@
                 )
             ) {
                 #todo #fixme use http_build_query()
-                return "$crud_api_path?action=special_op&col_idx=$col_idx&op_idx=$op_idx&table=$tablename_no_quotes&primary_key=$primary_key";
+                return $crud_api_uri
+                            ."?action=special_op"
+                            ."&col_idx=$col_idx"
+                            ."&op_idx=$op_idx"
+                            ."&table=$tablename_no_quotes"
+                            ."&primary_key=$primary_key";
             }
             else {
                 return null;
@@ -324,7 +329,7 @@
 
         public static function echo_special_ops(
             $special_ops_cols, $tablename_no_quotes,
-            $primary_key_field, $primary_key, $crud_api_path,
+            $primary_key_field, $primary_key, $crud_api_uri,
             $row
         ) {
             foreach ($special_ops_cols as $op_col_idx => $special_ops_col) {
@@ -336,7 +341,7 @@
 
                     $special_op_url = self::special_op_url(
                         $special_op, $tablename_no_quotes,
-                        $primary_key_field, $primary_key, $crud_api_path,
+                        $primary_key_field, $primary_key, $crud_api_uri,
                         $row, $op_col_idx, $op_idx
                     );
 ?>
