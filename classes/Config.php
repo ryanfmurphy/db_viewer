@@ -43,7 +43,6 @@ class Config {
             'minimal',
             'js_path',
             'obj_editor_path',
-            'table_view_path',
             'table_view_uri',
             'crud_api_path',
             'trunk',
@@ -109,7 +108,6 @@ class Config {
             'poprJsPath' => '',
 
             # filesystem paths
-            'table_view_path' => __DIR__,
             'trunk' => $trunk,
         );
         return $default_values;

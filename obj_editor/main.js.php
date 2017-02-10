@@ -5,7 +5,7 @@
     // global-ish state
     scope = {
         table_name: '<?= $table ?>',
-        table_view_path: '<?= $table_view_path ?>',
+        table_view_uri: '<?= $table_view_uri ?>',
         vals_to_always_include: {}
     };
 
@@ -425,7 +425,7 @@
             console.log('doing view_all_link');
             view_all_link = document.getElementById('view_all_link');
             if (view_all_link) {
-                view_all_url = scope.table_view_path + '?sql=' + table + maybe_minimal();
+                view_all_url = scope.table_view_uri + '?sql=' + table + maybe_minimal();
                 view_all_link.setAttribute('href', view_all_url);
             }
 

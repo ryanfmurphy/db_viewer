@@ -38,9 +38,8 @@
 
         { # init: defines $db, TableView,
             # and Util (if not already present)
-
-            $table_view_path = __DIR__;
-            require_once("$table_view_path/init.php");
+            $trunk = dirname(__DIR__);
+            require_once("$trunk/table_view/init.php");
         }
 
         { # vars
@@ -189,9 +188,9 @@
 <head>
         <title><?= $page_title ?></title>
 <?php
-            include("$table_view_path/html/links_and_scripts.php");
-            include("$table_view_path/js/table_view_util.js.php");
-            include("$table_view_path/style.css.php");
+            include("$trunk/table_view/html/links_and_scripts.php");
+            include("$trunk/table_view/js/table_view_util.js.php");
+            include("$trunk/table_view/style.css.php");
 ?>
 </head>
 <?php
@@ -201,8 +200,8 @@
 ?>
 <body>
 <?php
-            include("$table_view_path/html/help.php");
-            include("$table_view_path/html/query_form.php"); # form
+            include("$trunk/table_view/html/help.php");
+            include("$trunk/table_view/html/query_form.php"); # form
 
             { # report inferred table, create link
                 if ($inferred_table) {
@@ -233,8 +232,8 @@
                 if ($sql) {
                     $rows = Db::sql($sql);
 
-                    include("$table_view_path/html/results_table.php"); # html
-                    include("$table_view_path/js/table_view.js.php"); # js
+                    include("$trunk/table_view/html/results_table.php"); # html
+                    include("$trunk/table_view/js/table_view.js.php"); # js
                 }
 
                 { # js to show even if there's no query in play
