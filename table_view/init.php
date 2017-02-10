@@ -26,7 +26,7 @@
         require_once("$trunk/classes/Config.php");
 
         $default_values = Config::default_values(
-            $trunk, "/table_view/index.php"
+            "/table_view/index.php"
         );
 
         #todo disable the inner config files
@@ -36,7 +36,7 @@
         if ($config_file_path) {
             do_log("including config file: '$config_file_path'\n");
             $config = Config::load_config(
-                $config_file_path, $trunk, $default_values);
+                $config_file_path, $default_values);
             extract($config); # creates $variables
 
             #todo #fixme - this seems like it might occlude what's in Config for $table_view_path

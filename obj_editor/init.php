@@ -8,18 +8,18 @@
         include("$trunk/classes/Config.php");
 
         $default_values = Config::default_values(
-            $trunk, "/obj_editor/index.php"
+            "/obj_editor/index.php"
         );
 
         #todo only allow the root db_config
         if (file_exists("$trunk/db_config.php")) {
             $config = Config::load_config(
-                "$trunk/db_config.php", $trunk, $default_values);
+                "$trunk/db_config.php", $default_values);
             extract($config);
         }
         elseif (file_exists("$obj_editor_trunk/db_config.php")) {
             $config = Config::load_config(
-                "$obj_editor_trunk/db_config.php", $trunk, $default_values);
+                "$obj_editor_trunk/db_config.php", $default_values);
             extract($config);
         }
         else {

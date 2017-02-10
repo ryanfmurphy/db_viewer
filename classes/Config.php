@@ -6,7 +6,8 @@ class Config {
     # config is a regular PHP file
     # include it within the function scope and capture the $config vars
     # NOTE: file at $config_filepath must exist or there's an include warning
-    public static function load_config($config_filepath, $trunk, $default_values=array()) {
+    public static function load_config($config_filepath, $default_values=array()) {
+        $trunk = self::get_trunk();
         $requestVars = array_merge($_GET, $_POST);
         extract($default_values);
         include($config_filepath);
@@ -59,7 +60,8 @@ class Config {
         return $config;
     }
 
-    public static function default_values($trunk, $view_uri) {
+    public static function default_values($view_uri) {
+        $trunk = self::get_trunk();
         $requestVars = array_merge($_GET, $_POST);
         $uri_trunk = self::guess_uri_trunk($view_uri);
         return array(
@@ -107,6 +109,10 @@ class Config {
             'table_view_path' => __DIR__,
             'trunk' => $trunk,
         );
+    }
+
+    public static function get_trunk() {
+        return dirname(__DIR__);
     }
 
     # try to figure out where db_viewer is installed URI-wise
