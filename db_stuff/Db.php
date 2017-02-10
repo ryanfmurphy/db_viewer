@@ -76,7 +76,10 @@ if (!class_exists('Db')) {
             elseif ($val === false) { return 0; }
             else { return $val; }
         }
-
+ 
+        # for e.g. an insert query, take an assoc array of key => val pairs
+        # and turn it into the field list and the value list
+        # e.g. for  insert into table1 (foo,bar,baz) values ('val1',2,3.0);
         public static function sql_fields_and_vals_from_array($vars) {
             $config = Config::$config;
             $hash_password_fields = (isset($config['hash_password_fields'])

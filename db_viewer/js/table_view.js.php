@@ -376,6 +376,7 @@
         });
     }
 
+    // if you click on a header / field_name, join the new data to the table
     function openJoin(elem) {
 
         // don't do openJoin if this is a popup menu click

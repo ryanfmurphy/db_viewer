@@ -101,6 +101,8 @@
     <tr data-row="<?= $rowN ?>">
 <?php
                             { # action column(s): edit link & special_ops
+
+                                # edit link (needs pk)
                                 if ($has_primary_key_field) {
                                     DbViewer::echo_edit_link(
                                         $dash_path, $tablename_no_quotes,
@@ -108,6 +110,7 @@
                                     );
                                 }
 
+                                # special ops (optional)
                                 DbViewer::echo_special_ops(
                                     $special_ops_cols, $tablename_no_quotes,
                                     $primary_key_field, $primary_key, $crud_api_path,
@@ -115,8 +118,9 @@
                                 );
                             }
 
+                            $row = DbViewer::prep_row($row);
+
                             { # loop thru fields and make <td>s
-                                $row = DbViewer::prep_row($row);
                                 foreach ($row as $field_name => $val) {
                                     if (includeField($field_name)) {
 ?>
