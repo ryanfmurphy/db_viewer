@@ -53,7 +53,7 @@
             }
             else {
                 do_log("          nope. output_db_error and echo query\n");
-                DbViewer::output_db_error($db);
+                TableView::output_db_error($db);
                 echo "\n\nquery = $query\n";
                 die();
             }

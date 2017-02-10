@@ -1,5 +1,5 @@
 <?php
-    class DbViewer {
+    class TableView {
 
         # table name manipulation functions
         #----------------------------------
@@ -155,7 +155,7 @@
 
                 { # get bigger column width for longform text fields
                     #todo factor this logic in the 2 places we have it
-                    # (here and in dash)
+                    # (here and in obj_editor)
                     if ($fieldname == 'txt' || $fieldname == 'src') {
                         ob_start();
 ?>
@@ -201,7 +201,7 @@
             return "$uri_no_query";
         }
 
-        public static function dash_edit_url($obj_editor_path, $tablename_no_quotes, $primary_key) {
+        public static function obj_editor_url($obj_editor_path, $tablename_no_quotes, $primary_key) {
             return $obj_editor_path
                         ."?edit=1"
                         ."&table=$tablename_no_quotes"
@@ -233,7 +233,7 @@
         public static function echo_edit_link(
             $obj_editor_path, $tablename_no_quotes, $primary_key, $minimal = false
         ) {
-            $base_url = DbViewer::dash_edit_url($obj_editor_path, $tablename_no_quotes, $primary_key);
+            $base_url = TableView::obj_editor_url($obj_editor_path, $tablename_no_quotes, $primary_key);
             if ($minimal) {
                 $url = "$base_url&minimal";
                 $url2 = $base_url;
@@ -290,7 +290,7 @@
             }
             # custom fn
             elseif (isset($special_op['fn'])) {
-                $special_op_url = DbViewer::special_op_fn_url($tablename_no_quotes, $op_col_idx, $op_idx, $primary_key);
+                $special_op_url = TableView::special_op_fn_url($tablename_no_quotes, $op_col_idx, $op_idx, $primary_key);
             }
 
             return $special_op_url;
@@ -300,7 +300,7 @@
             $crud_api_path = Config::$config['crud_api_path'];
             $special_ops = Config::$config['special_ops'];
             
-            if (DbViewer::special_op_fn(
+            if (TableView::special_op_fn(
                     $tablename_no_quotes, $col_idx, $op_idx, $primary_key
                 )
             ) {
@@ -383,7 +383,7 @@
         }
 
         public static function select_by_pk($table, $primary_key_field, $primary_key) {
-            $sql = DbViewer::select_by_pk_sql($table, $primary_key_field, $primary_key);
+            $sql = TableView::select_by_pk_sql($table, $primary_key_field, $primary_key);
             $all1rows = Db::sql($sql);
 
             if (is_array($all1rows) && count($all1rows)) {
@@ -429,7 +429,7 @@
             }
         }
 
-        # used in dash object view to put
+        # used in obj_editor view to put
         # row fields into the right order
           # same as ordered_row but just fieldname array
           # instead of key => val pairs of a row
@@ -449,7 +449,7 @@
             return $fields_in_order;
         }
 
-        # analogoes to prep_row but for dash's form fields
+        # analogous to prep_row but for obj_editor's form fields
         public static function prep_fields($fields) {
             $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
             $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];

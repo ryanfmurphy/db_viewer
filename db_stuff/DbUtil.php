@@ -128,7 +128,7 @@ if (!class_exists('DbUtil')) {
 
 		# result is keyed by table_name, all vals are 1
 		# for fast lookup, can use e.g.:
-			# $tables = DbViewer::sql_tables();
+			# $tables = TableView::sql_tables();
 			# if (isset($tables['contractor'])) ...
 		public static function sql_tables() {
             $db_type = Config::$config['db_type'];
@@ -583,7 +583,7 @@ infer_limit_from_query: query didn't match regex.
             return $result;
         }
 
-        #todo move these to DbViewer class
+        #todo move these to TableView class
         # while factoring some key sql-building part to leave here in DbUtil
         public static function link_to_prev_page($limit_info) {
             $limit = $limit_info['limit'];

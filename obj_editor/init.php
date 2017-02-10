@@ -8,7 +8,7 @@
         include("$trunk/classes/Config.php");
 
         $default_values = Config::default_values(
-            $trunk, "/dash/index.php"
+            $trunk, "/obj_editor/index.php"
         );
 
         #todo only allow the root db_config
@@ -26,8 +26,6 @@
             header("HTTP/1.1 302 Redirect");
             header("Location: setup.php");
         }
-        #$config = Config::load_config("$obj_editor_trunk/dash_config.php", $trunk, $config);
-        #extract($config);
 
         #todo #fixme is this always right?  does this occlude the Config value?
         $table_view_uri = "/table_view/index.php";
@@ -36,7 +34,7 @@
     { # classes
         require_once("$trunk/db_stuff/Db.php");
         require_once("$trunk/db_stuff/DbUtil.php");
-        require_once("$trunk/classes/DbViewer.php");
+        require_once("$trunk/classes/TableView.php");
         require_once("$trunk/classes/Curl.php");
     }
 

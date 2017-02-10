@@ -1,5 +1,5 @@
 <?php
-#todo will dash accept "schema.table" format for table?
+#todo will obj_editor accept "schema.table" format for table?
 
 { # pre-HTML logic, PHP functions, etc
 
@@ -38,7 +38,7 @@
                     $primary_key_field = DbUtil::get_primary_key_field($id_mode, $table);
                     $primary_key = $_GET['primary_key'];
 
-                    $thisRow = DbViewer::select_by_pk($table, $primary_key_field, $primary_key);
+                    $thisRow = TableView::select_by_pk($table, $primary_key_field, $primary_key);
                     if ($thisRow) {
                         $defaultValues = array_merge( $defaultValues,
                                                       $thisRow );
@@ -61,7 +61,7 @@
             $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
             { # choose background
-                $background_image_url = DbViewer::choose_background_image(
+                $background_image_url = TableView::choose_background_image(
                     $table, $backgroundImages
                 );
 
@@ -71,7 +71,7 @@
             # minimal_fields_by_table
             $would_be_minimal_fields
                 = Config::$config['would_be_minimal_fields']
-                    = DbViewer::would_be_minimal_fields($table);
+                    = TableView::would_be_minimal_fields($table);
 
             $only_include_these_fields =
                 $minimal
@@ -379,9 +379,11 @@
     <body>
 <?php
     { # HTML for header stuff: table header/input etc
+
+        #todo #fixme fix this href: should not be hardcoded
 ?>
         <p id="whoami">
-            <a href="/dash/index.php">
+            <a href="/obj_editor/index.php">
                 Dash
             </a>
         </p>
@@ -453,7 +455,7 @@
         <form id="mainForm" target="_blank">
 <?php
                 { # create form fields
-                    $fields = DbViewer::prep_fields($fields);
+                    $fields = TableView::prep_fields($fields);
                     foreach ($fields as $name) {
                         if (doSkipField($name, $only_include_these_fields)) {
                             continue;

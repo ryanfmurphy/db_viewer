@@ -36,7 +36,7 @@
             $cmp = class_exists('Util');
         }
 
-        { # init: defines $db, DbViewer,
+        { # init: defines $db, TableView,
             # and Util (if not already present)
 
             $table_view_path = __DIR__;
@@ -97,7 +97,7 @@
                         #todo we need to check that we only get fields that exist
                         $would_be_minimal_fields
                                 = Config::$config['would_be_minimal_fields']
-                                        = DbViewer::would_be_minimal_fields(
+                                        = TableView::would_be_minimal_fields(
                                                 $tablename_no_quotes
                                         );
                         $minimal_fields = ($minimal

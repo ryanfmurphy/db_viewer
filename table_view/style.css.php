@@ -5,7 +5,7 @@
 
             { # choose / setup background image if any
                 $background_image_url =
-                    DbViewer::choose_background_image(
+                    TableView::choose_background_image(
                         $tablename_no_quotes, $backgroundImages
                     );
                 include("$trunk/background_image_settings.php");

@@ -1,6 +1,6 @@
 <?php
         { # vars
-            # strip quotes because e.g. dash doesn't want quotes
+            # strip quotes because e.g. obj_editor doesn't want quotes
             $tablename_no_quotes = DbUtil::strip_quotes($inferred_table);
         }
 
@@ -19,7 +19,7 @@
             # so it's easier to see what column you're on
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
                 $row = current($rows);
-                $currentRow = DbViewer::prep_row($row);
+                $currentRow = TableView::prep_row($row);
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php
@@ -60,7 +60,7 @@
 ?>
 
 <?php include('next_prev_page_links.php'); ?>
-<?= DbViewer::echo_js_handle_edit_link_onclick_fn() ?>
+<?= TableView::echo_js_handle_edit_link_onclick_fn() ?>
 
 <table id="query_table">
 <?php
@@ -78,7 +78,7 @@
                                                 : array();
                     }
 
-                    #todo will/does dash accept "schema.table" format?
+                    #todo will/does obj_editor accept "schema.table" format?
 
                     $rowN = 0;
                     foreach ($rows as $row) {
@@ -104,21 +104,21 @@
 
                                 # edit link (needs pk)
                                 if ($has_primary_key_field) {
-                                    DbViewer::echo_edit_link(
+                                    TableView::echo_edit_link(
                                         $obj_editor_path, $tablename_no_quotes,
                                         $primary_key, $links_minimal_by_default
                                     );
                                 }
 
                                 # special ops (optional)
-                                DbViewer::echo_special_ops(
+                                TableView::echo_special_ops(
                                     $special_ops_cols, $tablename_no_quotes,
                                     $primary_key_field, $primary_key, $crud_api_path,
                                     $row
                                 );
                             }
 
-                            $row = DbViewer::prep_row($row);
+                            $row = TableView::prep_row($row);
 
                             { # loop thru fields and make <td>s
                                 foreach ($row as $field_name => $val) {
@@ -146,7 +146,7 @@
                                         }
 ?>
         ><?=
-            DbViewer::val_html($val, $field_name, $tablename_no_quotes)
+            TableView::val_html($val, $field_name, $tablename_no_quotes)
         ?></td>
 <?php
                                     }
@@ -173,6 +173,6 @@
             }
             else {
                 $db = Db::conn();
-                DbViewer::output_db_error($db);
+                TableView::output_db_error($db);
             }
         }

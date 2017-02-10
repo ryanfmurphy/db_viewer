@@ -91,9 +91,9 @@
 
                 $primary_key_field = DbUtil::get_primary_key_field(
                                         $id_mode, $table);
-                $fn = DbViewer::special_op_fn(
+                $fn = TableView::special_op_fn(
                         $table, $col_idx, $op_idx, $primary_key);
-                $row = DbViewer::select_by_pk(
+                $row = TableView::select_by_pk(
                         $table, $primary_key_field, $primary_key);
                 die(
                     $fn($table, $row, $primary_key_field, $primary_key)
