@@ -3,9 +3,8 @@
 # crud_api.php - process simple CRUD actions
 
 { # vars / includes / setup
-    $obj_editor_trunk = __DIR__;
-    $trunk = dirname($obj_editor_trunk);
-    include("$obj_editor_trunk/init.php");
+    $trunk = dirname(__DIR__);
+    include("$trunk/obj_editor/init.php");
 
     #todo #fixme is this redundant?
     $vars = array_merge($_GET,$_POST);

@@ -1,5 +1,4 @@
 <?php
-    $obj_editor_trunk = __DIR__; #todo get rid of this when we can
     $cur_view = 'obj_editor';
 
     require(dirname(__DIR__)."/includes/basic_init.php");
