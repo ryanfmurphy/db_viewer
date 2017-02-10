@@ -66,7 +66,7 @@
                     $table, $backgroundImages
                 );
 
-                include("$trunk/background_image_settings.php");
+                include("$trunk/includes/background_image_settings.php");
             }
 
             # minimal_fields_by_table

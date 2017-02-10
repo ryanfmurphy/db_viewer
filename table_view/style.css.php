@@ -8,7 +8,7 @@
                     TableView::choose_background_image(
                         $tablename_no_quotes, $backgroundImages
                     );
-                include("$trunk/background_image_settings.php");
+                include("$trunk/includes/background_image_settings.php");
             }
 
             { # main CSS rules
