@@ -27,7 +27,6 @@ class Config {
             'field_render_filters_by_table',
             'special_ops',
             'slow_tables',
-            'dash_links',
             'table_plural',
             'minimal_fields',
             'minimal_fields_by_table',

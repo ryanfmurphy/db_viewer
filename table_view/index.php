@@ -212,7 +212,6 @@
 
 <?php
                     { # "create" link
-                            if (isset($dash_links) && $dash_links) {
 ?>
         <a href="<?= $obj_editor_path ?>?table=<?= $tablename_no_quotes ?>&minimal"
              target="_blank"
@@ -220,7 +219,6 @@
             Create a new <code><?= $tablename_no_quotes ?></code>
         </a>
 <?php
-                            }
                     }
 ?>
     </p>
