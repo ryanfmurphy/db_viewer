@@ -5,7 +5,7 @@
 { # vars / includes / setup
     $trunk = dirname(__DIR__);
     $cur_view = 'obj_editor';
-    $cur_subview = 'crud_api.php';
+    $cur_subview = 'crud_api';
     include("$trunk/includes/init.php");
 
     #todo #fixme is this redundant?

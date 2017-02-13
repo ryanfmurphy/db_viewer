@@ -60,9 +60,12 @@ class Config {
     }
 
     public static function default_values($view_uri) {
+        do_log("view_uri = $view_uri\n");
         $trunk = self::get_trunk();
+        do_log("trunk = $trunk\n");
         $requestVars = array_merge($_GET, $_POST);
         $uri_trunk = self::guess_uri_trunk($view_uri);
+        do_log("uri_trunk = $uri_trunk\n");
         $default_values = array(
             # should these really be configs?
             'inferred_table' => null,
@@ -123,7 +126,9 @@ class Config {
     # so that we can make our asset links robust and flexible
     public static function guess_uri_trunk($current_view_uri) {
         $uri = $_SERVER['REQUEST_URI'];
-        if (preg_match("#(.*)$current_view_uri(\?.*)?$#", $uri, $matches)) {
+        $regex = "#(.*)$current_view_uri(\?.*)?$#";
+        do_log("regex = '$regex'\n");
+        if (preg_match($regex, $uri, $matches)) {
             return $matches[1];
         }
         else {
