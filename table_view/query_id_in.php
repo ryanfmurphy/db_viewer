@@ -7,7 +7,7 @@
 
     {
         $trunk = dirname(__DIR__);
-        require_once("$trunk/table_view/init.php");
+        require_once("$trunk/includes/init.php");
         do_log(date('c') . " - query_ids_in received a request\n");
         $ids = $_POST['ids'];
     }
