@@ -98,6 +98,8 @@
         public static function val_html($val, $fieldname, $table=null) {
             $field_render_filters_by_table = Config::$config['field_render_filters_by_table'];
             $obj_editor_uri = Config::$config['obj_editor_uri'];
+            $show_images = Config::$config['show_images'];
+            $image_max_width = Config::$config['image_max_width'];
 
             #do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
 
@@ -105,6 +107,23 @@
             if (DbUtil::seems_like_pg_array($val)) {
                 $vals = DbUtil::pg_array2array($val);
                 return self::array_as_html_list($vals);
+            }
+            # show images
+            elseif ($show_images
+                    && $fieldname == 'image_url'
+            ) {
+                $image_url = $val;
+
+                { ob_start();
+?>
+        <img    src="<?= $image_url ?>"
+                <?= ($image_max_width
+                            ? 'style="max-width: '.$image_max_width.'"'
+                            : '') ?>
+        />
+<?php
+                    return ob_get_clean();
+                }
             }
             # urls are links
             elseif (self::is_url($val)) {

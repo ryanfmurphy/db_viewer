@@ -53,6 +53,9 @@ class Config {
             'popr_css_path',
             'custom_select_magic_value',
             'magic_null_value',
+
+            'show_images',
+            'image_max_width',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -114,6 +117,9 @@ class Config {
 
             # filesystem paths
             'trunk' => $trunk,
+
+            'show_images' => false,
+            'image_max_width' => null,
         );
         return $default_values;
     }
