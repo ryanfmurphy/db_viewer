@@ -61,12 +61,14 @@
         #todo maybe move to different class?
         public static function is_url($val) {
             if (is_string($val)) {
+                return preg_match('@^\w+://@', $val);
+                /*
                 $url_parts = parse_url($val);
-                $schema = (isset($url_parts['scheme'])
+                $protocol = (isset($url_parts['scheme'])
                                 ? $url_parts['scheme']
                                 : null);
 
-                if ($schema) {
+                if ($protocol) {
                     # prevent false positives where after the colon we have stuff other than a link
                     # e.g. just some notes to self, but with a colon after the header
 
@@ -87,6 +89,7 @@
                 else {
                     return false;
                 }
+                */
             }
             else {
                 return false;
