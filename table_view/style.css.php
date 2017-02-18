@@ -159,18 +159,7 @@
 
     .link_nocolor {
         text-decoration: none;
-<?php
-                if ($background=='dark') {
-?>
-        color: white;
-<?php
-                }
-                else {
-?>
-        color: black;
-<?php
-                }
-?>
+        color: inherit;
     }
     .link_nocolor:hover {
         text-decoration: underline;
