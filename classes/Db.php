@@ -134,9 +134,9 @@ if (!class_exists('Db')) {
 
         public static function sql($query) {
             $config = Config::$config;
-            $show_internal_result_details = isset($config['show_internal_result_details'])
+            /*$show_internal_result_details = isset($config['show_internal_result_details'])
                                                 ? $config['show_internal_result_details']
-                                                : false;
+                                                : false;*/
 
             $db = Db::conn();
             $result = $db->query($query);
@@ -144,6 +144,8 @@ if (!class_exists('Db')) {
 
                 $rows = $result->fetchAll(PDO::FETCH_ASSOC);
 
+                return $rows;
+                /*
                 if (isset($show_internal_result_details)
                     && $show_internal_result_details
                 ) {
@@ -159,6 +161,7 @@ if (!class_exists('Db')) {
                 }
 
                 return $response;
+                */
 
             }
             else {
