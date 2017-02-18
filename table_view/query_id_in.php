@@ -43,7 +43,7 @@
             ";
             #die($query);
             do_log("        query = $query\n");
-            $rows = Db::sql($query, 'array');
+            $rows = Db::sql($query);
 
             do_log("        got array of rows?\n");
             if (is_array($rows)) {
@@ -54,7 +54,7 @@
             }
             else {
                 do_log("          nope. output_db_error and echo query\n");
-                TableView::output_db_error($db);
+                TableView::output_db_error(Db::conn());
                 echo "\n\nquery = $query\n";
                 die();
             }
