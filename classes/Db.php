@@ -132,7 +132,7 @@ if (!class_exists('Db')) {
         }
         */
 
-        public static function sql($query) {
+        public static function sql($query, $fetch_style = PDO::FETCH_ASSOC, $classname = null) {
             $config = Config::$config;
             /*$show_internal_result_details = isset($config['show_internal_result_details'])
                                                 ? $config['show_internal_result_details']
@@ -142,7 +142,12 @@ if (!class_exists('Db')) {
             $result = $db->query($query);
             if (is_a($result, 'PDOStatement')) {
 
-                $rows = $result->fetchAll(PDO::FETCH_ASSOC);
+                if ($fetch_style == PDO::FETCH_CLASS) {
+                    $rows = $result->fetchAll($fetch_style, $classname);
+                }
+                else {
+                    $rows = $result->fetchAll($fetch_style);
+                }
 
                 return $rows;
                 /*
