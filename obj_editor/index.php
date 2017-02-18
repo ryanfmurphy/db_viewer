@@ -344,6 +344,11 @@
         }
 
         function doSkipField($fieldName, $only_include_these_fields=null) {
+            $fields2exclude = Config::$config['obj_editor_exclude_fields'];
+            if (in_array($fieldName, $fields2exclude)) {
+                return true;
+            }
+
             if (is_array($only_include_these_fields)
                 && !in_array($fieldName, $only_include_these_fields)
             ) {

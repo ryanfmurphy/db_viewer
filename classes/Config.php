@@ -56,6 +56,8 @@ class Config {
 
             'show_images',
             'image_max_width',
+
+            'obj_editor_exclude_fields',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -120,6 +122,8 @@ class Config {
 
             'show_images' => false,
             'image_max_width' => null,
+
+            'obj_editor_exclude_fields' => array(),
         );
         return $default_values;
     }
