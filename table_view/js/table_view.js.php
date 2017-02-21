@@ -1,40 +1,4 @@
 <?php
-    {
-    /*
-    WHAT TO CALL THIS FILE?
-
-    getColVals(cells)
-    firstObjKey(obj)
-    getObjKeys(obj)
-    getObjKeysRev(obj)
-    showVal(val)
-    isValidJoinField(field_name)
-    getJoinColor(joinNum)
-
-    addDataToTable(cells, data, exclude_fields)
-    getDataKeyedByCellContents(elem, data, field_name)
-    addColsToRow(elem, data, field_names_reversed, level, exclude_fields
-    isHeaderRow(row)
-    cellHTML(val, level, joinColor, tag)
-    blankTableRow(field_names, innerLevel, joinColor)
-    addBacklinkedDataToTable(cells, data, exclude_fields)
-    isTruthy(x)
-    trimIfString(x)
-    getColsOpenFlat(elem)
-    getColsOpen(elem)
-    closeJoin(elem)
-    openJoin(elem)
-    openBacklinkedJoin(elem)
-    ajaxRowsWithFieldVals(fieldname, vals, table, data_type, base_table, callback)
-    tablesWithField(fieldname, data_type, vals, base_table, callback)
-    updatePopupContent(content)
-    colNo(elem)
-    allColCells(elem)
-    colValCells(elem)
-    colVals(elem)
-    popupJoinTableOptions
-    */
-    }
                     { # js
 ?>
 <script>
@@ -75,9 +39,9 @@
     }
 
     function getJoinColor(joinNum) {
-        console.log('getJoinColor', joinNum);
+        //console.log('getJoinColor', joinNum);
         var val = ((joinNum-1) % 3) + 1;
-        console.log('  val', val);
+        //console.log('  val', val);
         return val;
     }
 
@@ -139,8 +103,11 @@
             var display_val = (TD_or_TH == 'TH'
                                     ? field_name
                                     : showVal(val));
+            var extra = (TD_or_TH == 'TH'
+                            ? 'field_name="' + field_name + '"'
+                            : '');
             var content = '\
-                        <'+TD_or_TH+'\
+                        <'+TD_or_TH+' '+extra+'\
                             class="level' + level + ' join_color_' + joinColor + '"\
                             level="' + level + '"\
                         > \
@@ -605,9 +572,20 @@
             }
             else { // not already opened - do open
                 openJoin(elem);
+                var field_name = getHeaderFieldName(elem);
+                recordMacroEvent(e, field_name);
             }
         }
     };
+
+    var getHeaderFieldName = function(elem) {
+        return elem.getAttribute('field_name');
+    };
+
+    var findHeaderWithFieldName = function(field_name) {
+        elem = $('th[field_name='+field_name+']').get(0);
+        return elem;
+    }
 
     // fold / unfold via click
     var tdClickHandler = function(e){
@@ -642,6 +620,20 @@
     $('table').on('click', 'td', tdClickHandler);
     $('table').on('click', 'th', thClickHandler);
 
+// ?macroland? 
+    var macroEvents = [];
+    function recordMacroEvent(event, field_name) {
+        macroEvents.push({
+            event: event,
+            field_name: field_name
+        });
+    }
+
+    function playbackMacroEvent(macro_event) {
+        var field_name = macro_event.field_name;
+        var elem = findHeaderWithFieldName(field_name);
+        elem.click();
+    }
 
 </script>
 

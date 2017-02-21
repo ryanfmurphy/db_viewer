@@ -40,7 +40,7 @@
                     foreach ($currentRow as $field_name => $val) {
                         if (includeField($field_name)) {
 ?>
-        <th class="popr" data-id="1">
+        <th field_name="<?= $field_name ?>" class="popr" data-id="1">
             <?= $field_name ?>
         </th>
 <?php
