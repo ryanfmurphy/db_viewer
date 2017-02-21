@@ -2,6 +2,17 @@
 
 class DocTemplate {
 
+    public static function getByName($name) {
+        $name = Db::quote($name);
+        #todo better error checking for if no rows, maybe use Db::get1?
+        $sql = "
+            select *
+            from doc_template
+            where name = $name
+        ";
+        return Db::sql($sql, PDO::FETCH_CLASS, 'DocTemplate')[0];
+    }
+
     public function getContentModule_Collection($section=null) {
         $docTemplateId = Db::sql_literal($this->id);
         if ($section) {
@@ -35,27 +46,22 @@ class DocTemplate {
                         $contentModuleClass );
     }
 
-    #todo don't assume type email
-    public function renderTextBlocks(
+    public function renderContentModules(
         $vars, $editable=false, $section=null
     ) {
-        $textBlocks = $this->getContentModule_Collection($section);
+        $contentModules = $this->getContentModule_Collection($section);
         $firstTime = true;
         { ob_start();
-            foreach ($textBlocks as $textBlock) {
+            foreach ($contentModules as $contentModule) {
                 # more prominent 1st header
                 $headerTag = ($firstTime
                                     ? '<h1>'
                                     : '<h2>');
 ?>
-        <tr>
-            <td <?= $textBlock->td_attrs ?>>
-                <?= $textBlock->render(
+                <?= $contentModule->render(
                         $vars, $headerTag, $editable
                     )
                 ?>
-            </td>
-        </tr>
 <?php
                 $firstTime = false;
             }
@@ -69,16 +75,16 @@ class DocTemplate {
     <script>
 
     $('.editable').click(function(event){
-        var text_block_id = this.getAttribute('text_block_id');
-        //var text_block_field = this.getAttribute('text_block_field');
-        //var text_block_value = this.val();
+        var content_module_id = this.getAttribute('content_module_id');
+        //var content_module_field = this.getAttribute('content_module_field');
+        //var content_module_value = this.val();
 
-        //if (text_block_field == 'txt') {
+        //if (content_module_field == 'txt') {
         //    concat_paragraphs();
         //}
 
         event.stopPropagation();
-        window.open("/db_viewer/obj_editor/index.php?edit=1&table=content_module&primary_key=" + text_block_id);
+        window.open("/db_viewer/obj_editor/index.php?edit=1&table=content_module&primary_key=" + content_module_id);
     });
 
     function concat_paragraphs() {
