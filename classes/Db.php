@@ -190,6 +190,7 @@ if (!class_exists('Db')) {
             return $db->quote($val);
         }
 
+        #todo #fixme this is a silly way to do this
         public static function esc($val) {
             return substr(self::quote($val), 1, strlen($val)-2);
         }

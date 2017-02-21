@@ -65,6 +65,55 @@ class ContentModule {
         );
     }
 
+    # can be overloaded by subclasses
+    # on a template-by-template basis
+    public function renderTextBlock($vars, $headerTag='<h1>', $editable=false) {
+        $title = self::subMustacheVars(
+                    $vars, $this->name
+                 );
+        $subtitle = self::subMustacheVars(
+                        $vars, $this->subtitle
+                    );
+
+        $textBlockId = $this->id;
+
+        $editableAttrs = function($extraClasses=null) use ($editable, $textBlockId) {
+            return $editable
+                        ? " class=\"editable $extraClasses\"
+                            content_module_id=\"$textBlockId\"
+                        "
+                        : null;
+        };
+
+        # (does subMustacheVars)
+        $paragraphs = $this->getParagraphs($vars);
+
+        { ob_start();
+?>
+    <div <?= $editableAttrs() ?>>
+<?php
+            if ($title) {
+?>
+        <h2>
+            <?= $title ?>
+        </h2>
+<?php
+            }
+
+            foreach ($paragraphs as $paragraph) {
+?>
+        <p>
+            <?= $paragraph ?>
+        </p>
+<?php
+            }
+?>
+    </div>
+<?php
+            return ob_get_clean();
+        }
+    }
+
 }
 
 ?>
