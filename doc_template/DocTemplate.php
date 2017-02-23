@@ -1,20 +1,37 @@
 <?php
 
-class DocTemplate {
+# DocTemplate is below, a child class of ContentContainer
+
+require_once('ContentModule.php');
+
+class ContentContainer {
+
+    public function getId() {
+        $id_mode = Config::$config['id_mode'];
+        $field_name = DbUtil::get_primary_key_field($id_mode, 'content_container');
+        return $this->$field_name;
+    }
 
     public static function getByName($name) {
         $name = Db::quote($name);
-        #todo better error checking for if no rows, maybe use Db::get1?
         $sql = "
             select *
-            from doc_template
+            from content_container
             where name = $name
         ";
-        return Db::sql($sql, PDO::FETCH_CLASS, 'DocTemplate')[0];
+        $rows = Db::sql($sql, PDO::FETCH_CLASS, 'DocTemplate');
+        #todo maybe factor into Db::get1?
+        if (count($rows) > 0) {
+            return $rows[0];
+        }
+        else {
+            do_log('ContentContainer::getByName()');
+            return false;
+        }
     }
 
     public function getContentModule_Collection($section=null) {
-        $docTemplateId = Db::sql_literal($this->id);
+        $docTemplateId = Db::sql_literal($this->getId());
         if ($section) {
             $section = Db::sql_literal($section);
         }
@@ -120,6 +137,9 @@ class DocTemplate {
 <?php
     }
 
+}
+
+class DocTemplate extends ContentContainer {
 }
 
 ?>

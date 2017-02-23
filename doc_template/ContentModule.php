@@ -2,6 +2,12 @@
 
 class ContentModule {
 
+    public function getId() {
+        $id_mode = Config::$config['id_mode'];
+        $field_name = DbUtil::get_primary_key_field($id_mode, 'content_module');
+        return $this->$field_name;
+    }
+
     #todo #fixme - ensure that txt is always saved with no more than 2 \n's at once
     #              1 \n   => <br>
     #              2 \n's => <p>...</p>
@@ -9,7 +15,7 @@ class ContentModule {
     public function getParagraphs($vars=null) {
         $txt = (is_array($vars)
                     ? self::subMustacheVars($vars, $this->txt)
-                    : $this->getTxt());
+                    : $this->txt);
         return explode("\n\n", $txt);
     }
 
@@ -32,13 +38,13 @@ class ContentModule {
 
     # for type = include_element
     public function renderIncludeElement($vars, $unused=null, $editable=false) {
-        $element2include = $this->getTxt();
+        $element2include = $this->txt;
         $content = DocTplElements::$element2include($vars);
         if ($editable) {
             ob_start();
 ?>
         <div class="include_element editable"
-             text_block_id="<?= $this->getTextBlockId() ?>"
+             content_module_id="<?= $this->getId() ?>"
         >
             <?= $content ?>
         </div>
@@ -75,7 +81,7 @@ class ContentModule {
                         $vars, $this->subtitle
                     );
 
-        $textBlockId = $this->id;
+        $textBlockId = $this->getId();
 
         $editableAttrs = function($extraClasses=null) use ($editable, $textBlockId) {
             return $editable
