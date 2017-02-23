@@ -81,7 +81,17 @@
 
                         # and order by time field if there is one
                         $requestVars['order_by_time'] = true;
-                    } 
+                    }
+                }
+
+                { # allow destructive queries?
+                    $allow_destructive_queries = Config::$config['allow_destructive_queries'];
+                    $query_is_destructive = $destructive_kw = DbUtil::query_is_destructive($sql);
+                    if (!$allow_destructive_queries
+                        && $query_is_destructive
+                    ) {
+                        die("Cannot perform a destructive query: keywork '$destructive_kw' found");
+                    }
                 }
             }
 
