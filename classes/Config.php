@@ -60,6 +60,7 @@ class Config {
             'obj_editor_exclude_fields',
 
             'allow_destructive_queries',
+            'disable_delete_button',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -128,6 +129,7 @@ class Config {
             'obj_editor_exclude_fields' => array(),
 
             'allow_destructive_queries' => false,
+            'disable_delete_button' => false,
         );
         return $default_values;
     }

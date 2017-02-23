@@ -506,7 +506,8 @@
                     value="View" type="submit" id="view_button"
                 />
 <?php
-                    if ($edit) {
+                    $disable_delete_button = Config::$config['disable_delete_button'];
+                    if ($edit && !$disable_delete_button) {
 ?>
                 <input onclick="return deleteButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)"
                     value="Delete" type="submit" id="delete_button"
