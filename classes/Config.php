@@ -58,6 +58,8 @@ class Config {
             'image_max_width',
 
             'obj_editor_exclude_fields',
+
+            'allow_destructive_queries',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -124,6 +126,8 @@ class Config {
             'image_max_width' => null,
 
             'obj_editor_exclude_fields' => array(),
+
+            'allow_destructive_queries' => false,
         );
         return $default_values;
     }

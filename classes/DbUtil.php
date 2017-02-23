@@ -747,6 +747,20 @@ infer_limit_from_query: query didn't match regex.
             return $result;
         }
 
+        public static function query_is_destructive($query) {
+            if (preg_match(
+                    "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER)\\b/i",
+                    $query, $match
+                )
+            ) {
+                $destrictive_kw = $match[1];
+                return $destrictive_kw;
+            }
+            else {
+                return false;
+            }
+        }
+
     }
 
 }
