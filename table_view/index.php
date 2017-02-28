@@ -216,6 +216,9 @@
 
             { # report inferred table, create link
                 if ($inferred_table) {
+                    $maybe_minimal = $links_minimal_by_default
+                                        ? '&minimal'
+                                        : '';
 ?>
     <p> Query seems to be with respect to the
         <code><?= $inferred_table ?></code> table.
@@ -223,7 +226,7 @@
 <?php
                     { # "create" link
 ?>
-        <a href="<?= $obj_editor_uri ?>?table=<?= $tablename_no_quotes ?>&minimal"
+        <a href="<?= $obj_editor_uri ?>?table=<?= $tablename_no_quotes . $maybe_minimal ?>"
              target="_blank"
         >
             Create a new <code><?= $tablename_no_quotes ?></code>
