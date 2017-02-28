@@ -749,7 +749,7 @@ infer_limit_from_query: query didn't match regex.
 
         public static function query_is_destructive($query) {
             if (preg_match(
-                    "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER)\\b/i",
+                    "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER|TRUNCATE)\\b/i",
                     $query, $match
                 )
             ) {
