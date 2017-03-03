@@ -61,6 +61,8 @@ class Config {
 
             'allow_destructive_queries',
             'disable_delete_button',
+
+            'is_archived_field',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -130,6 +132,8 @@ class Config {
 
             'allow_destructive_queries' => false,
             'disable_delete_button' => false,
+
+            'is_archived_field' => null,
         );
         return $default_values;
     }
