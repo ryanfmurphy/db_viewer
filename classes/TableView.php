@@ -531,5 +531,11 @@
             return $ret;
         }
 
+        public static function quot_str_for_js($string) {
+            $string = str_replace("'", "\\'", $string);
+            $string = str_replace("\n", "\\\n", $string);
+            return "'$string'";
+        }
+
     }
 
