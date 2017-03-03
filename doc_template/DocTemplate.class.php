@@ -2,22 +2,57 @@
 
 # DocTemplate is below, a child class of ContentContainer
 
-require_once('ContentModule.php');
+$trunk = dirname(__DIR__);
+$cur_view = 'doc_template';
+require_once("$trunk/includes/init.php");
+require_once('ContentModule.class.php');
 
 class ContentContainer {
 
-    public function getId() {
+    public static function getIdField() {
         $id_mode = Config::$config['id_mode'];
-        $field_name = DbUtil::get_primary_key_field($id_mode, 'content_container');
+        return DbUtil::get_primary_key_field($id_mode, 'content_container');
+    }
+
+    public function getId() {
+        $field_name = self::getIdField();
         return $this->$field_name;
+    }
+
+    public static function get1($id) {
+        #$id = (int)$id; # sanitize
+        $id = Db::quote($id);
+        $id_field = self::getIdField();
+        $is_archived_field = Config::$config['is_archived_field'];
+        $sql = "
+            select *
+            from content_container
+            where $id_field = $id
+            ".($is_archived_field
+                    ? "and $is_archived_field = 0"
+                    : '')."
+        ";
+        $rows = Db::sql($sql, PDO::FETCH_CLASS, 'DocTemplate');
+        #todo maybe factor into Db::get1?
+        if (count($rows) > 0) {
+            return $rows[0];
+        }
+        else {
+            do_log('ContentContainer::getByName()');
+            return false;
+        }
     }
 
     public static function getByName($name) {
         $name = Db::quote($name);
+        $is_archived_field = Config::$config['is_archived_field'];
         $sql = "
             select *
             from content_container
             where name = $name
+            ".($is_archived_field
+                    ? "and $is_archived_field = 0"
+                    : '')."
         ";
         $rows = Db::sql($sql, PDO::FETCH_CLASS, 'DocTemplate');
         #todo maybe factor into Db::get1?
@@ -35,13 +70,17 @@ class ContentContainer {
         if ($section) {
             $section = Db::sql_literal($section);
         }
+        $is_archived_field = Config::$config['is_archived_field'];
         $sql = "
             select * from content_module
             where doc_template_id = $docTemplateId
               -- and is_retired = 0
-              " . ($section
-                    ? "and section = $section"
-                    : "") . "
+                ".($section
+                        ? "and section = $section"
+                        : "") . "
+                ".($is_archived_field
+                        ? "and $is_archived_field = 0"
+                        : '')."
             order by sort_order
         ";
 
@@ -87,8 +126,12 @@ class ContentContainer {
     }
 
     public static function editableJs() {
+        $obj_editor_uri = Config::$config['obj_editor_uri'];
         ob_start();
 ?>
+
+    <?= TableView::obj_editor_url__js($obj_editor_uri) ?>
+
     <script>
 
     $('.editable').click(function(event){
@@ -101,7 +144,10 @@ class ContentContainer {
         //}
 
         event.stopPropagation();
-        window.open("/db_viewer/obj_editor/index.php?edit=1&table=content_module&primary_key=" + content_module_id);
+        
+        //edit_url = "/db_viewer/obj_editor/index.php?edit=1&table=content_module&primary_key=" + content_module_id;
+        edit_url = obj_editor_url('content_module', content_module_id);
+        window.open(edit_url);
     });
 
     function concat_paragraphs() {
