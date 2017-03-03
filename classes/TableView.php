@@ -230,7 +230,22 @@
                         ."&primary_key=$primary_key";
         }
 
-        // allow alt-click to change the ?minimal value
+        # returns js code that defines a fn
+        public static function obj_editor_url__js($obj_editor_uri) {
+            ob_start();
+?>
+            <script>
+                function obj_editor_url(tablename_no_quotes, primary_key) {
+                    return '<?= str_replace("'", "\\'", $obj_editor_uri) ?>'
+                                +"?edit=1"
+                                +"&table=" + tablename_no_quotes
+                                +"&primary_key=" + primary_key;
+                }
+            </script>
+<?php
+            return ob_get_clean();
+        }
+
         public static function echo_js_handle_edit_link_onclick_fn() {
             ob_start();
 ?>
