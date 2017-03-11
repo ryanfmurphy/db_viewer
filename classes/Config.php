@@ -63,6 +63,8 @@ class Config {
             'disable_delete_button',
 
             'is_archived_field',
+
+            'bold_border_between_weeks',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -134,6 +136,8 @@ class Config {
             'disable_delete_button' => false,
 
             'is_archived_field' => null,
+
+            'bold_border_between_weeks' => false,
         );
         return $default_values;
     }

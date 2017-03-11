@@ -96,9 +96,25 @@
                             }
                         }
 
+                        { # create bold border between weeks (using "weekday" field)
+
+                            # assuming: weekday field that uses "Mon" "Tue" etc. formatting
+                            # and ordering desc by time so that the border between Sat and Sun
+                            # would be above Sat
+                            $bold_border_above = ($bold_border_between_weeks
+                                                    ? (isset($row['weekday'])
+                                                            ? $row['weekday'] == 'Sat'
+                                                            : false)
+                                                    : false);
+                        }
+
                         { # create table row
 ?>
-    <tr data-row="<?= $rowN ?>">
+    <tr data-row="<?= $rowN ?>"
+        <?= $bold_border_above
+                ? ' class="bold_border_above" '
+                : '' ?>
+    >
 <?php
                             { # action column(s): edit link & special_ops
 

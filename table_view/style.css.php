@@ -215,6 +215,10 @@
         text-decoration: underline;
     }
 
+    .bold_border_above {
+        border-top: solid 5px blue;
+    }
+
 <?php
                 if (file_exists('custom_css.php')) {
                     include('custom_css.php');
