@@ -70,8 +70,11 @@
                         );
 
                         $current_row = current($rows);
-                        $has_primary_key_field = (isset($current_row[$primary_key_field])
-                                                     ? true : false);
+                        $has_primary_key_field =
+                                (array_key_exists($primary_key_field, $current_row)
+                                                        ? true
+                                                        : false
+                                );
 
                         $special_ops_cols = isset($special_ops[$tablename_no_quotes])
                                                 ? $special_ops[$tablename_no_quotes]
@@ -91,7 +94,9 @@
                         { # sometimes add a header row
                             if ($rowN % $header_every == 0) {
                                 $num_action_columns = count($special_ops_cols);
-                                headerRow($rows, $rowN, $primary_key !== null, $num_action_columns);
+                                #$has_edit_column = ($primary_key !== null);
+                                $has_edit_column = ($has_primary_key_field);
+                                headerRow($rows, $rowN, $has_edit_column, $num_action_columns);
                                 $rowN++;
                             }
                         }
