@@ -69,6 +69,12 @@
                 }
 
                 { # just tablename? turn to select statement
+
+                    # we'll also decide whether to order by time
+                    $order_by_time = (isset($requestVars['order_by_time'])
+                                        ? $requestVars['order_by_time']
+                                        : false);
+
                     $sqlHasNoSpaces = (strpos(trim($sql), ' ') === false);
                     if (strlen($sql) > 0
                             && $sqlHasNoSpaces
@@ -80,7 +86,8 @@
                                         ." limit 100";
 
                         # and order by time field if there is one
-                        $requestVars['order_by_time'] = true;
+                        #$requestVars['order_by_time'] = true;
+                        $order_by_time = true;
                     }
                 }
 
@@ -119,16 +126,35 @@
                 { # limit/offset/order_by_time stuff: #todo factor into fn
 
                     # limit, offset, query_wo_limit
+                    # #todo #fixme this doesn't take into account "order_by time_added"
                     $limit_info = DbUtil::infer_limit_info_from_query($sql);
 
-                    $order_by_time = (isset($requestVars['order_by_time'])
-                                        && $requestVars['order_by_time']);
+                    { # prep for order_by_time
+                        #(already set)
+                        #$order_by_time = (isset($requestVars['order_by_time'])
+                        #                    && $requestVars['order_by_time']);
 
-                    { # passed in limit takes precedence
+                        $order_by_to_add_to_sql = null;
+                        if ($order_by_time) {
+                            $time_field = DbUtil::get_time_field(
+                                        $tablename_no_quotes, $schemas_in_path);
+                            if ($time_field) {
+                                $order_by_to_add_to_sql = "\norder by $time_field desc";
+
+                                #todo - would this always be true? can I remove this "if"?
+                                if (isset($limit_info['query_wo_limit'])) {
+                                    $limit_info['query_wo_limit'] .= $order_by_to_add_to_sql;
+                                }
+                            }
+                        }
+                    }
+
+                    { # rebuild sql based on limit / offset / order_by
+                        # passed in limit takes precedence
                         # over one already baked into the sql query
                         if (isset($requestVars['limit'])
                             || isset($requestVars['offset'])
-                            || $order_by_time
+                            || $order_by_to_add_to_sql
                         ) {
 
                             { # populate limit/offset from sql query
@@ -147,7 +173,6 @@
                             }
 
                             { # strip off limit/offset off sql query if any
-                                #todo ensure that order gets stripped off too if there's an order var?
                                 if (isset($limit_info['query_wo_limit'])) {
                                     $sql = $limit_info['query_wo_limit'];
                                 }
@@ -163,14 +188,7 @@
                                 }
                             }
 
-                            { # add limit/offset to sql query
-                                if ($order_by_time) {
-                                    $time_field = DbUtil::get_time_field(
-                                                $tablename_no_quotes, $schemas_in_path);
-                                    if ($time_field) {
-                                        $sql .= "\norder by $time_field desc";
-                                    }
-                                }
+                            { # add to query
                                 if ($limit_info['limit'] !== null) {
                                     $sql .= "\nlimit $limit_info[limit]";
                                 }
