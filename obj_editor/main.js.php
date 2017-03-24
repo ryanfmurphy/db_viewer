@@ -683,10 +683,6 @@
         if (elem.value == scope.custom_select_magic_value) {
             console.log('  matches magic value, creating input');
             var new_input = document.createElement('input');
-            // maybe we really just want this one time instead of onchange?
-            //new_input.addEventListener('change', function(){
-            //    useCustomValue(new_input);
-            //});
             new_input.setAttribute('class', "custom_value_input");
 
             // put custom_value if any into input (e.g. default values)

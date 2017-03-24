@@ -247,8 +247,6 @@
                         </option>
                         <?= $non_custom_options ?>
                     </select>
-                    <!--<br>
-                    <input name="<?= $name ?>" >-->
                 </div>
 <?php
                 }
