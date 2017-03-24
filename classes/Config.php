@@ -65,6 +65,20 @@ class Config {
             'is_archived_field',
 
             'bold_border_between_weeks',
+
+
+            # some special settings for if you're on a mobile device
+            # that is accessing e.g. a locally hosted DB Viewer yet
+            # is not always connected to it - you can leave a form open
+            # and type your notes and save them whenever you are connected
+            # again and ready to save
+            'mobile_travel_mode',
+
+            # obj_editor, when clicking on table and typing a new table name
+            # should it reload or just keep the existing form?
+            # alt toggles "no reload", but you can reverse it so it's the default
+            # which is useful if you need the behavior on Mobile for instance
+            'need_alt_for_no_reload',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -138,6 +152,20 @@ class Config {
             'is_archived_field' => null,
 
             'bold_border_between_weeks' => false,
+
+            # some special settings for if you're on a mobile device
+            # that is accessing e.g. a locally hosted DB Viewer yet
+            # is not always connected to it - you can leave a form open
+            # and type your notes and save them whenever you are connected
+            # again and ready to save
+            'mobile_travel_mode' => false,
+
+            # obj_editor, when clicking on table and typing a new table name
+            # should it reload or just keep the existing form?
+            # alt toggles "no reload", but you can reverse it so it's the default
+            # which is useful if you need the behavior on Mobile for instance
+            # NOTE: gets set to false for mobile_travel_mode=true
+            'need_alt_for_no_reload' => true,
         );
         return $default_values;
     }

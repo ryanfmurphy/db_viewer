@@ -403,9 +403,15 @@
         var table = selectTableInput.value;
         var newLocation = '?table='+table;
 
-        // alt key - don't refresh page,
+        // depending on alt key, don't refresh page,
         // just change the table we're pointing at
-        if (keyEvent.altKey) {
+        var need_alt_for_no_reload = <?= ($need_alt_for_no_reload
+                                            ? 'true'
+                                            : 'false') ?>;
+        var change_table_no_reload = (need_alt_for_no_reload
+                                        ? keyEvent.altKey
+                                        : !keyEvent.altKey);
+        if (change_table_no_reload) {
 
             // change which table to submit to
             scope.table_name = table;

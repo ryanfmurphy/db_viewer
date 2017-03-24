@@ -39,8 +39,21 @@
             DbUtil::set_db_search_path($search_path);
         }
 
+        # number of rows between repeating the header row
         if (isset($requestVars['header_every'])) {
             $header_every = $requestVars['header_every'];
+        }
+
+        if (isset($requestVars['mobile_travel_mode'])) {
+            $mobile_travel_mode = $requestVars['mobile_travel_mode'];
+            # so you can change tables without reload
+            if ($mobile_travel_mode) {
+                $need_alt_for_no_reload = false;
+            }
+        }
+
+        if (isset($requestVars['need_alt_for_no_reload'])) {
+            $need_alt_for_no_reload = $requestVars['need_alt_for_no_reload'];
         }
 
         {   # minimal
