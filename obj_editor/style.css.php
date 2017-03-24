@@ -26,9 +26,16 @@ select {
 option {
     border: none;
 }
-a {
+
+a, .link {
     color: yellow;
+    text-decoration: none;
+    cursor: pointer;
 }
+a:hover, .link:hover {
+    text-decoration: underline;
+}
+
 <?php
         }
         else {
