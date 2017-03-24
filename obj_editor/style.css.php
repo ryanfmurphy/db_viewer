@@ -47,6 +47,16 @@ input, textarea {
 select {
     background: <?= $input_bg ?>;
 }
+
+a, .link {
+    color: #0000EE;
+    text-decoration: none;
+    cursor: pointer;
+}
+a:hover, .link:hover {
+    text-decoration: underline;
+}
+
 <?php
         }
 ?>

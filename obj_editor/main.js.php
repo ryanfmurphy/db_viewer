@@ -749,4 +749,31 @@
             next.remove();
         }
     }
+
+    // blank out all form fields
+    function clearAllFields() {
+        var form = document.getElementById('mainForm');
+        var inputs = getFormInputs(form);
+        for (var i in inputs) {
+            var input = inputs[i];
+            if (input.tagName == 'INPUT'
+                || input.tagName == 'TEXTAREA'
+            ) {
+                input.value = '';
+            }
+            else if (input.tagName == 'SELECT') {
+                var option1 = input.getElementsByTagName('option')[0];
+                if (!option1.selected) {
+                    // this assumes we don't have to
+                    // deselect the previously chosen 1
+                    option1.selected = 'selected';
+
+                    // we just chose 'custom'
+                    // so open the custom input
+                    handleCustomValueInputForSelect(input);
+                }
+            }
+        }
+    }
+
 }

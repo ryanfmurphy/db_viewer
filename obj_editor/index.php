@@ -425,10 +425,19 @@
                                 ? '&minimal'
                                 : '';
 ?>
-                <a id="view_all_link" href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
-                   target="_blank"
+                <a  id="view_all_link"
+                    href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
+                    target="_blank"
                 >
                     view all
+                </a>
+
+                <span   id="clear_fields_link"
+                        class="link"
+                        onclick="clearAllFields()"
+                        target="_blank"
+                >
+                    clear all fields
                 </a>
 <?php
         }
