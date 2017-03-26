@@ -36,11 +36,11 @@
             $cmp = class_exists('Util');
         }
 
-        { # init: defines $db, DbViewer,
+        { # init: defines $db, TableView,
             # and Util (if not already present)
-
-            $db_viewer_path = __DIR__;
-            require_once("$db_viewer_path/init.php");
+            $trunk = dirname(__DIR__);
+            $cur_view = 'table_view';
+            require("$trunk/includes/init.php");
         }
 
         { # vars
@@ -69,6 +69,12 @@
                 }
 
                 { # just tablename? turn to select statement
+
+                    # we'll also decide whether to order by time
+                    $order_by_time = (isset($requestVars['order_by_time'])
+                                        ? $requestVars['order_by_time']
+                                        : false);
+
                     $sqlHasNoSpaces = (strpos(trim($sql), ' ') === false);
                     if (strlen($sql) > 0
                             && $sqlHasNoSpaces
@@ -80,8 +86,19 @@
                                         ." limit 100";
 
                         # and order by time field if there is one
-                        $requestVars['order_by_time'] = true;
-                    } 
+                        #$requestVars['order_by_time'] = true;
+                        $order_by_time = true;
+                    }
+                }
+
+                { # allow destructive queries?
+                    $allow_destructive_queries = Config::$config['allow_destructive_queries'];
+                    $query_is_destructive = $destructive_kw = DbUtil::query_is_destructive($sql);
+                    if (!$allow_destructive_queries
+                        && $query_is_destructive
+                    ) {
+                        die("Cannot perform a destructive query: keywork '$destructive_kw' found");
+                    }
                 }
             }
 
@@ -97,28 +114,47 @@
                         #todo we need to check that we only get fields that exist
                         $would_be_minimal_fields
                                 = Config::$config['would_be_minimal_fields']
-                                        = DbViewer::would_be_minimal_fields(
+                                        = TableView::would_be_minimal_fields(
                                                 $tablename_no_quotes
                                         );
                         $minimal_fields = ($minimal
-                                                                ? $would_be_minimal_fields
-                                                                : null);
+                                                ? $would_be_minimal_fields
+                                                : null);
                 }
 
 
                 { # limit/offset/order_by_time stuff: #todo factor into fn
 
                     # limit, offset, query_wo_limit
+                    # #todo #fixme this doesn't take into account "order_by time_added"
                     $limit_info = DbUtil::infer_limit_info_from_query($sql);
 
-                    $order_by_time = (isset($requestVars['order_by_time'])
-                                        && $requestVars['order_by_time']);
+                    { # prep for order_by_time
+                        #(already set)
+                        #$order_by_time = (isset($requestVars['order_by_time'])
+                        #                    && $requestVars['order_by_time']);
 
-                    { # passed in limit takes precedence
+                        $order_by_to_add_to_sql = null;
+                        if ($order_by_time) {
+                            $time_field = DbUtil::get_time_field(
+                                        $tablename_no_quotes, $schemas_in_path);
+                            if ($time_field) {
+                                $order_by_to_add_to_sql = "\norder by $time_field desc";
+
+                                #todo - would this always be true? can I remove this "if"?
+                                if (isset($limit_info['query_wo_limit'])) {
+                                    $limit_info['query_wo_limit'] .= $order_by_to_add_to_sql;
+                                }
+                            }
+                        }
+                    }
+
+                    { # rebuild sql based on limit / offset / order_by
+                        # passed in limit takes precedence
                         # over one already baked into the sql query
                         if (isset($requestVars['limit'])
                             || isset($requestVars['offset'])
-                            || $order_by_time
+                            || $order_by_to_add_to_sql
                         ) {
 
                             { # populate limit/offset from sql query
@@ -137,7 +173,6 @@
                             }
 
                             { # strip off limit/offset off sql query if any
-                                #todo ensure that order gets stripped off too if there's an order var?
                                 if (isset($limit_info['query_wo_limit'])) {
                                     $sql = $limit_info['query_wo_limit'];
                                 }
@@ -153,14 +188,7 @@
                                 }
                             }
 
-                            { # add limit/offset to sql query
-                                if ($order_by_time) {
-                                    $time_field = DbUtil::get_time_field(
-                                                $tablename_no_quotes, $schemas_in_path);
-                                    if ($time_field) {
-                                        $sql .= "\norder by $time_field desc";
-                                    }
-                                }
+                            { # add to query
                                 if ($limit_info['limit'] !== null) {
                                     $sql .= "\nlimit $limit_info[limit]";
                                 }
@@ -189,9 +217,9 @@
 <head>
         <title><?= $page_title ?></title>
 <?php
-            include("$db_viewer_path/html/links_and_scripts.php");
-            include("$db_viewer_path/js/db_viewer_util.js.php");
-            include("$db_viewer_path/style.css.php");
+            include("$trunk/table_view/html/links_and_scripts.php");
+            include("$trunk/table_view/js/table_view_util.js.php");
+            include("$trunk/table_view/style.css.php");
 ?>
 </head>
 <?php
@@ -201,26 +229,27 @@
 ?>
 <body>
 <?php
-            include("$db_viewer_path/html/help.php");
-            include("$db_viewer_path/html/query_form.php"); # form
+            include("$trunk/table_view/html/help.php");
+            include("$trunk/table_view/html/query_form.php"); # form
 
             { # report inferred table, create link
                 if ($inferred_table) {
+                    $maybe_minimal = $links_minimal_by_default
+                                        ? '&minimal'
+                                        : '';
 ?>
     <p> Query seems to be with respect to the
         <code><?= $inferred_table ?></code> table.
 
 <?php
                     { # "create" link
-                            if (isset($dash_links) && $dash_links) {
 ?>
-        <a href="<?= $dash_path ?>?table=<?= $tablename_no_quotes ?>&minimal"
+        <a href="<?= $obj_editor_uri ?>?table=<?= $tablename_no_quotes . $maybe_minimal ?>"
              target="_blank"
         >
             Create a new <code><?= $tablename_no_quotes ?></code>
         </a>
 <?php
-                            }
                     }
 ?>
     </p>
@@ -235,8 +264,8 @@
                 if ($sql) {
                     $rows = Db::sql($sql);
 
-                    include("$db_viewer_path/html/results_table.php"); # html
-                    include("$db_viewer_path/js/table_view.js.php"); # js
+                    include("$trunk/table_view/html/results_table.php"); # html
+                    include("$trunk/table_view/js/table_view.js.php"); # js
                 }
 
                 { # js to show even if there's no query in play

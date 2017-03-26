@@ -1,13 +1,14 @@
 <?php
-#todo will dash accept "schema.table" format for table?
+#todo will obj_editor accept "schema.table" format for table?
 
 { # pre-HTML logic, PHP functions, etc
 
     { # init: trunk, includes & requestVars, edit mode
 
         { # trunk, includes & requestVars
-            $dash_trunk = __DIR__;
-            include("$dash_trunk/init.php");
+            $trunk = dirname(__DIR__);
+            $cur_view = 'obj_editor';
+            require("$trunk/includes/init.php");
             $requestVars = array_merge($_GET, $_POST);
         }
 
@@ -38,7 +39,7 @@
                     $primary_key_field = DbUtil::get_primary_key_field($id_mode, $table);
                     $primary_key = $_GET['primary_key'];
 
-                    $thisRow = DbViewer::select_by_pk($table, $primary_key_field, $primary_key);
+                    $thisRow = TableView::select_by_pk($table, $primary_key_field, $primary_key);
                     if ($thisRow) {
                         $defaultValues = array_merge( $defaultValues,
                                                       $thisRow );
@@ -61,17 +62,17 @@
             $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
             { # choose background
-                $background_image_url = DbViewer::choose_background_image(
+                $background_image_url = TableView::choose_background_image(
                     $table, $backgroundImages
                 );
 
-                include("$trunk/background_image_settings.php");
+                include("$trunk/includes/background_image_settings.php");
             }
 
             # minimal_fields_by_table
             $would_be_minimal_fields
                 = Config::$config['would_be_minimal_fields']
-                    = DbViewer::would_be_minimal_fields($table);
+                    = TableView::would_be_minimal_fields($table);
 
             $only_include_these_fields =
                 $minimal
@@ -246,8 +247,6 @@
                         </option>
                         <?= $non_custom_options ?>
                     </select>
-                    <!--<br>
-                    <input name="<?= $name ?>" >-->
                 </div>
 <?php
                 }
@@ -343,6 +342,11 @@
         }
 
         function doSkipField($fieldName, $only_include_these_fields=null) {
+            $fields2exclude = Config::$config['obj_editor_exclude_fields'];
+            if (in_array($fieldName, $fields2exclude)) {
+                return true;
+            }
+
             if (is_array($only_include_these_fields)
                 && !in_array($fieldName, $only_include_these_fields)
             ) {
@@ -369,20 +373,22 @@
         <title><?= $page_title ?></title>
 
         <style type="text/css">
-            <?php include("$dash_trunk/style.css.php") ?>
+            <?php include("$trunk/obj_editor/style.css.php") ?>
         </style>
 
         <script>
-            <?php include("$dash_trunk/main.js.php") ?>
+            <?php include("$trunk/obj_editor/main.js.php") ?>
         </script>
     </head>
     <body>
 <?php
     { # HTML for header stuff: table header/input etc
+
+        #todo #fixme fix this href: should not be hardcoded
 ?>
         <p id="whoami">
-            <a href="/dash/index.php">
-                Dash
+            <a href="<?= $obj_editor_uri ?>">
+                choose table
             </a>
         </p>
         <div id="table_header">
@@ -419,10 +425,19 @@
                                 ? '&minimal'
                                 : '';
 ?>
-                <a id="view_all_link" href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
-                   target="_blank"
+                <a  id="view_all_link"
+                    href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
+                    target="_blank"
                 >
                     view all
+                </a>
+
+                <span   id="clear_fields_link"
+                        class="link"
+                        onclick="clearAllFields()"
+                        target="_blank"
+                >
+                    clear all fields
                 </a>
 <?php
         }
@@ -453,7 +468,7 @@
         <form id="mainForm" target="_blank">
 <?php
                 { # create form fields
-                    $fields = DbViewer::prep_fields($fields);
+                    $fields = TableView::prep_fields($fields);
                     foreach ($fields as $name) {
                         if (doSkipField($name, $only_include_these_fields)) {
                             continue;
@@ -481,26 +496,37 @@
 <?php
                     if ($edit) {
 ?>
-                <input onclick="return updateButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)" <?php # update ?>
+                <input onclick="return updateButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # update ?>
                     value="Update" type="submit" id="update_button"
                 />
 <?php
                     }
                     else {
 ?>
-                <input onclick="return createButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)" <?php # create ?>
+                <input onclick="return createButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
                     value="Create" type="submit" id="create_button"
                 />
 <?php
+                        if ($mobile_travel_mode) {
+?>
+                <input onclick="return saveLocallyButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
+                    value="Save Locally" type="submit" id="save_locally_button"
+                />
+                <input onclick="return saveStoredRowsClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
+                    value="Save Stored Rows to DB" type="submit" id="save_locally_button"
+                />
+<?php
+                        }
                     }
 ?>
-                <input onclick="viewButtonClickHandler('<?= $crud_api_path ?>', event, scope.table_name)" <?php # view ?>
+                <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, scope.table_name)" <?php # view ?>
                     value="View" type="submit" id="view_button"
                 />
 <?php
-                    if ($edit) {
+                    $disable_delete_button = Config::$config['disable_delete_button'];
+                    if ($edit && !$disable_delete_button) {
 ?>
-                <input onclick="return deleteButtonClickHandler('<?= $crud_api_path ?>', scope.table_name, event)"
+                <input onclick="return deleteButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)"
                     value="Delete" type="submit" id="delete_button"
                 />
 <?php

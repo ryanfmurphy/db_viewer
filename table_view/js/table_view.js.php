@@ -1,40 +1,4 @@
 <?php
-    {
-    /*
-    WHAT TO CALL THIS FILE?
-
-    getColVals(cells)
-    firstObjKey(obj)
-    getObjKeys(obj)
-    getObjKeysRev(obj)
-    showVal(val)
-    isValidJoinField(field_name)
-    getJoinColor(joinNum)
-
-    addDataToTable(cells, data, exclude_fields)
-    getDataKeyedByCellContents(elem, data, field_name)
-    addColsToRow(elem, data, field_names_reversed, level, exclude_fields
-    isHeaderRow(row)
-    cellHTML(val, level, joinColor, tag)
-    blankTableRow(field_names, innerLevel, joinColor)
-    addBacklinkedDataToTable(cells, data, exclude_fields)
-    isTruthy(x)
-    trimIfString(x)
-    getColsOpenFlat(elem)
-    getColsOpen(elem)
-    closeJoin(elem)
-    openJoin(elem)
-    openBacklinkedJoin(elem)
-    ajaxRowsWithFieldVals(fieldname, vals, table, data_type, base_table, callback)
-    tablesWithField(fieldname, data_type, vals, base_table, callback)
-    updatePopupContent(content)
-    colNo(elem)
-    allColCells(elem)
-    colValCells(elem)
-    colVals(elem)
-    popupJoinTableOptions
-    */
-    }
                     { # js
 ?>
 <script>
@@ -75,9 +39,9 @@
     }
 
     function getJoinColor(joinNum) {
-        console.log('getJoinColor', joinNum);
+        //console.log('getJoinColor', joinNum);
         var val = ((joinNum-1) % 3) + 1;
-        console.log('  val', val);
+        //console.log('  val', val);
         return val;
     }
 
@@ -139,8 +103,11 @@
             var display_val = (TD_or_TH == 'TH'
                                     ? field_name
                                     : showVal(val));
+            var extra = (TD_or_TH == 'TH'
+                            ? 'field_name="' + field_name + '"'
+                            : '');
             var content = '\
-                        <'+TD_or_TH+'\
+                        <'+TD_or_TH+' '+extra+'\
                             class="level' + level + ' join_color_' + joinColor + '"\
                             level="' + level + '"\
                         > \
@@ -321,7 +288,8 @@
 
     // elem is the pivot <th> element you click on to
     // close all the rows that have been opened from the join
-    function closeJoin(elem) {
+    // future_macro_events is optional, used by playbackMacroEvents (see thClickHandler)
+    function closeJoin(elem, future_macro_events) {
 
         var all_cells = allColCells(elem);
         var cols_open = getColsOpen(elem);
@@ -374,10 +342,16 @@
                    ;
             $(elem).removeAttr('cols_open');
         });
+
+        // recursive call to process remaining events
+        if (future_macro_events) {
+            playbackMacroEvents(future_macro_events);
+        }
     }
 
     // if you click on a header / field_name, join the new data to the table
-    function openJoin(elem) {
+    // future_macro_events is optional, used by playbackMacroEvents (see thClickHandler)
+    function openJoin(elem, future_macro_events) {
 
         // don't do openJoin if this is a popup menu click
         if ($(elem).is('.popr-item')) {
@@ -427,9 +401,22 @@
                             var exclude_fields = {};
                             //exclude_fields[field_name] = 1;
                             addDataToTable(all_cells, data, exclude_fields);
+
+                            // recursive call to process remaining events
+                            if (future_macro_events) {
+                                console.log('continuing playback with future_events', future_macro_events);
+                                playbackMacroEvents(future_macro_events);
+                            }
                         },
                         error: function(r) {
-                            alert("Failure");
+                            if (future_macro_events === undefined) {
+                                alert("Failure");
+                            }
+                            // recursive call to process remaining events
+                            else {
+                                console.log('continuing playback with future_events', future_macro_events);
+                                playbackMacroEvents(future_macro_events);
+                            }
                         }
                     });
                 }
@@ -591,23 +578,47 @@
 
     // HANDLERS
 
+    // thClickHandler
+    // --------------
     // click on header field name (e.g. site_id) - joins to that table, e.g. site
     // displays join inline and allows you to toggle it back
-    var thClickHandler = function(e){
+
+    // future_macro_events is optional, used by the playbackMacroEvents to 
+    // let the AJAX callback know what future events to continue playing
+    // after it completes
+    var thClickHandler = function(e, future_macro_events) {
         var elem = e.target;
         if (e.altKey) {
             // backlinked join handled by popr popup menu
         }
         else {
+            var field_name = getHeaderFieldName(elem);
+            var event_type;
+
             if (getColsOpen(elem) > 0) {
                 // already opened - close
-                closeJoin(elem);
+                closeJoin(elem, future_macro_events);
+                event_type = 'closeJoin';
             }
             else { // not already opened - do open
-                openJoin(elem);
+                openJoin(elem, future_macro_events);
+                event_type = 'openJoin';
+            }
+
+            if (future_macro_events === undefined) {
+                recordMacroEvent(e, field_name, event_type);
             }
         }
     };
+
+    var getHeaderFieldName = function(elem) {
+        return elem.getAttribute('field_name');
+    };
+
+    var findHeaderWithFieldName = function(field_name) {
+        elem = $('th[field_name='+field_name+']').get(0);
+        return elem;
+    }
 
     // fold / unfold via click
     var tdClickHandler = function(e){
@@ -642,6 +653,60 @@
     $('table').on('click', 'td', tdClickHandler);
     $('table').on('click', 'th', thClickHandler);
 
+    var macroEvents = [];
+    function recordMacroEvent(event, field_name, event_type) {
+        macroEvents.push({
+            event: event,
+            event_type: event_type,
+            field_name: field_name
+        });
+    }
+
+    function playbackMacroEvents(macro_events) {
+        if (macro_events.length > 0) {
+
+            // separate first event and the remaining events
+            macro_event = macro_events[0];
+            // remaining events will be recursively processed
+            // at the end of any (possibly asynchronous) processing
+            future_events = macro_events.slice(1);
+
+            // load_query event
+            if ('load_query' in macro_event) {
+                // #todo #fixme figure out how to best launch query
+                console.log('load_query = ', macro_event.load_query);
+                // recursive call to remaining events
+                playbackMacroEvents(future_events);
+            }
+            // click field_name event
+            else if ('field_name' in macro_event) {
+                var field_name = macro_event.field_name;
+                var elem = findHeaderWithFieldName(field_name);
+                return thClickHandler(
+                    { // our "event"
+                        target: elem,
+                        altKey: false
+                    },
+                    // pass future_events for recursive call
+                    future_events
+                );
+            }
+        }
+        else { // no events
+            console.log('no more macro_events, stopping playback');
+            return;
+        }
+    }
+
+    function playbackMacroEvent(macro_event) {
+        return playbackMacroEvents([macro_event]);
+    }
+
+    var sql = <?= TableView::quot_str_for_js($sql) ?>;
+
+    macroEvents.push({
+        load_query: sql
+    });
 
 </script>
 

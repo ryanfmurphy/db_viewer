@@ -5,8 +5,10 @@
     # specifically for many-to-many / back-linked relationships
 
     { # init
-        require_once('init.php');
-        do_log(date('c') . " - db_viewer.rows_with_field_vals received a request\n");
+        $trunk = dirname(__DIR__);
+        $cur_view = 'table_view';
+        require_once("$trunk/includes/init.php");
+        do_log(date('c') . " - rows_with_field_vals received a request\n");
         $vars = array_merge($_GET, $_POST);
     }
 

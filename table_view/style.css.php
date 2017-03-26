@@ -5,10 +5,10 @@
 
             { # choose / setup background image if any
                 $background_image_url =
-                    DbViewer::choose_background_image(
+                    TableView::choose_background_image(
                         $tablename_no_quotes, $backgroundImages
                     );
-                include("$trunk/background_image_settings.php");
+                include("$trunk/includes/background_image_settings.php");
             }
 
             { # main CSS rules
@@ -159,18 +159,7 @@
 
     .link_nocolor {
         text-decoration: none;
-<?php
-                if ($background=='dark') {
-?>
-        color: white;
-<?php
-                }
-                else {
-?>
-        color: black;
-<?php
-                }
-?>
+        color: inherit;
     }
     .link_nocolor:hover {
         text-decoration: underline;
@@ -224,6 +213,10 @@
     }
     #help_legend_header:hover {
         text-decoration: underline;
+    }
+
+    .bold_border_above {
+        border-top: solid 5px blue;
     }
 
 <?php

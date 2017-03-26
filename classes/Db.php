@@ -132,18 +132,25 @@ if (!class_exists('Db')) {
         }
         */
 
-        public static function sql($query) {
+        public static function sql($query, $fetch_style = PDO::FETCH_ASSOC, $classname = null) {
             $config = Config::$config;
-            $show_internal_result_details = isset($config['show_internal_result_details'])
+            /*$show_internal_result_details = isset($config['show_internal_result_details'])
                                                 ? $config['show_internal_result_details']
-                                                : false;
+                                                : false;*/
 
             $db = Db::conn();
             $result = $db->query($query);
             if (is_a($result, 'PDOStatement')) {
 
-                $rows = $result->fetchAll(PDO::FETCH_ASSOC);
+                if ($fetch_style == PDO::FETCH_CLASS) {
+                    $rows = $result->fetchAll($fetch_style, $classname);
+                }
+                else {
+                    $rows = $result->fetchAll($fetch_style);
+                }
 
+                return $rows;
+                /*
                 if (isset($show_internal_result_details)
                     && $show_internal_result_details
                 ) {
@@ -159,6 +166,7 @@ if (!class_exists('Db')) {
                 }
 
                 return $response;
+                */
 
             }
             else {
@@ -182,6 +190,7 @@ if (!class_exists('Db')) {
             return $db->quote($val);
         }
 
+        #todo #fixme this is a silly way to do this
         public static function esc($val) {
             return substr(self::quote($val), 1, strlen($val)-2);
         }
@@ -351,8 +360,8 @@ if (!class_exists('Db')) {
             $query_string = http_build_query(array(
                 'sql' => $sql,
             ));
-            $db_viewer_uri = Config::$config['db_viewer_uri'];
-            $view_query_url = "$db_viewer_uri?$query_string";
+            $table_view_uri = Config::$config['table_view_uri'];
+            $view_query_url = "$table_view_uri?$query_string";
             if ($minimal) {
                 $view_query_url .= '&minimal';
             }
@@ -368,7 +377,6 @@ if (!class_exists('Db')) {
             $table_name, $whereVars=array(),
             $selectFields=null, $minimal=false
         ) {
-
             $sql = self::build_select_sql(
                 $table_name, $whereVars, $selectFields);
 

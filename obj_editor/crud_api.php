@@ -3,9 +3,10 @@
 # crud_api.php - process simple CRUD actions
 
 { # vars / includes / setup
-    $dash_trunk = __DIR__;
-    $trunk = dirname($dash_trunk);
-    include("$dash_trunk/init.php");
+    $trunk = dirname(__DIR__);
+    $cur_view = 'obj_editor';
+    $cur_subview = 'crud_api';
+    include("$trunk/includes/init.php");
 
     #todo #fixme is this redundant?
     $vars = array_merge($_GET,$_POST);
@@ -46,9 +47,9 @@
                     $select_fields = $vars['select_fields'];
                     unset($vars['select_fields']);
                 }
-                elseif (isset($vars['db_viewer_minimal_mode'])) {
-                    $minimal = $vars['db_viewer_minimal_mode'];
-                    unset($vars['db_viewer_minimal_mode']);
+                elseif (isset($vars['table_view_minimal_mode'])) {
+                    $minimal = $vars['table_view_minimal_mode'];
+                    unset($vars['table_view_minimal_mode']);
                 }
                 else {
                     $select_fields = null;
@@ -91,9 +92,9 @@
 
                 $primary_key_field = DbUtil::get_primary_key_field(
                                         $id_mode, $table);
-                $fn = DbViewer::special_op_fn(
+                $fn = TableView::special_op_fn(
                         $table, $col_idx, $op_idx, $primary_key);
-                $row = DbViewer::select_by_pk(
+                $row = TableView::select_by_pk(
                         $table, $primary_key_field, $primary_key);
                 die(
                     $fn($table, $row, $primary_key_field, $primary_key)

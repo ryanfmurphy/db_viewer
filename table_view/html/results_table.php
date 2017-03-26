@@ -1,6 +1,6 @@
 <?php
         { # vars
-            # strip quotes because e.g. dash doesn't want quotes
+            # strip quotes because e.g. obj_editor doesn't want quotes
             $tablename_no_quotes = DbUtil::strip_quotes($inferred_table);
         }
 
@@ -19,7 +19,7 @@
             # so it's easier to see what column you're on
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
                 $row = current($rows);
-                $currentRow = DbViewer::prep_row($row);
+                $currentRow = TableView::prep_row($row);
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php
@@ -40,7 +40,7 @@
                     foreach ($currentRow as $field_name => $val) {
                         if (includeField($field_name)) {
 ?>
-        <th class="popr" data-id="1">
+        <th field_name="<?= $field_name ?>" class="popr" data-id="1">
             <?= $field_name ?>
         </th>
 <?php
@@ -60,7 +60,7 @@
 ?>
 
 <?php include('next_prev_page_links.php'); ?>
-<?= DbViewer::echo_js_handle_edit_link_onclick_fn() ?>
+<?= TableView::echo_js_handle_edit_link_onclick_fn() ?>
 
 <table id="query_table">
 <?php
@@ -70,15 +70,18 @@
                         );
 
                         $current_row = current($rows);
-                        $has_primary_key_field = (isset($current_row[$primary_key_field])
-                                                     ? true : false);
+                        $has_primary_key_field =
+                                (array_key_exists($primary_key_field, $current_row)
+                                                        ? true
+                                                        : false
+                                );
 
                         $special_ops_cols = isset($special_ops[$tablename_no_quotes])
                                                 ? $special_ops[$tablename_no_quotes]
                                                 : array();
                     }
 
-                    #todo will/does dash accept "schema.table" format?
+                    #todo will/does obj_editor accept "schema.table" format?
 
                     $rowN = 0;
                     foreach ($rows as $row) {
@@ -91,34 +94,52 @@
                         { # sometimes add a header row
                             if ($rowN % $header_every == 0) {
                                 $num_action_columns = count($special_ops_cols);
-                                headerRow($rows, $rowN, $primary_key !== null, $num_action_columns);
+                                #$has_edit_column = ($primary_key !== null);
+                                $has_edit_column = ($has_primary_key_field);
+                                headerRow($rows, $rowN, $has_edit_column, $num_action_columns);
                                 $rowN++;
                             }
                         }
 
+                        { # create bold border between weeks (using "weekday" field)
+
+                            # assuming: weekday field that uses "Mon" "Tue" etc. formatting
+                            # and ordering desc by time so that the border between Sat and Sun
+                            # would be above Sat
+                            $bold_border_above = ($bold_border_between_weeks
+                                                    ? (isset($row['weekday'])
+                                                            ? $row['weekday'] == 'Sat'
+                                                            : false)
+                                                    : false);
+                        }
+
                         { # create table row
 ?>
-    <tr data-row="<?= $rowN ?>">
+    <tr data-row="<?= $rowN ?>"
+        <?= $bold_border_above
+                ? ' class="bold_border_above" '
+                : '' ?>
+    >
 <?php
                             { # action column(s): edit link & special_ops
 
                                 # edit link (needs pk)
                                 if ($has_primary_key_field) {
-                                    DbViewer::echo_edit_link(
-                                        $dash_path, $tablename_no_quotes,
+                                    TableView::echo_edit_link(
+                                        $obj_editor_uri, $tablename_no_quotes,
                                         $primary_key, $links_minimal_by_default
                                     );
                                 }
 
                                 # special ops (optional)
-                                DbViewer::echo_special_ops(
+                                TableView::echo_special_ops(
                                     $special_ops_cols, $tablename_no_quotes,
-                                    $primary_key_field, $primary_key, $crud_api_path,
+                                    $primary_key_field, $primary_key, $crud_api_uri,
                                     $row
                                 );
                             }
 
-                            $row = DbViewer::prep_row($row);
+                            $row = TableView::prep_row($row);
 
                             { # loop thru fields and make <td>s
                                 foreach ($row as $field_name => $val) {
@@ -146,7 +167,7 @@
                                         }
 ?>
         ><?=
-            DbViewer::val_html($val, $field_name, $tablename_no_quotes)
+            TableView::val_html($val, $field_name, $tablename_no_quotes)
         ?></td>
 <?php
                                     }
@@ -173,6 +194,6 @@
             }
             else {
                 $db = Db::conn();
-                DbViewer::output_db_error($db);
+                TableView::output_db_error($db);
             }
         }

@@ -128,7 +128,7 @@ if (!class_exists('DbUtil')) {
 
 		# result is keyed by table_name, all vals are 1
 		# for fast lookup, can use e.g.:
-			# $tables = DbViewer::sql_tables();
+			# $tables = TableView::sql_tables();
 			# if (isset($tables['contractor'])) ...
 		public static function sql_tables() {
             $db_type = Config::$config['db_type'];
@@ -376,7 +376,7 @@ if (!class_exists('DbUtil')) {
         public static function log($msg, $level=0) {
             if ($level < 5) {
                 # use error_log for now because this class is now used by
-                # both dash and db_viewer - and dash doesn't have do_log() defined
+                # both obj_editor and table_view - and obj_editor doesn't have do_log() defined
                 error_log($msg, 3, __DIR__.'/error_log');
                 #do_log($msg);
             }
@@ -583,7 +583,7 @@ infer_limit_from_query: query didn't match regex.
             return $result;
         }
 
-        #todo move these to DbViewer class
+        #todo move these to TableView class
         # while factoring some key sql-building part to leave here in DbUtil
         public static function link_to_prev_page($limit_info) {
             $limit = $limit_info['limit'];
@@ -617,12 +617,12 @@ infer_limit_from_query: query didn't match regex.
         ) {
             $db_type = Config::$config['db_type'];
             $maybeLimit = ($limit !== null
-                                ? "\n limit $limit" #todo #fixme why is this newline not working?
+                                ? "\nlimit $limit" #todo #fixme why is this newline not working?
                                 : "");
             $maybeOffset = ($offset !== null
-                                ? "\n offset $offset"
+                                ? "\noffset $offset"
                                 : "");
-            return "?sql=" . urlencode($query) . $maybeLimit . $maybeOffset
+            return "?sql=" . urlencode($query . $maybeLimit . $maybeOffset)
                    . "&db_type=$db_type";
         }
 
@@ -745,6 +745,20 @@ infer_limit_from_query: query didn't match regex.
                         $table)
                     . $quote_char;
             return $result;
+        }
+
+        public static function query_is_destructive($query) {
+            if (preg_match(
+                    "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER|TRUNCATE)\\b/i",
+                    $query, $match
+                )
+            ) {
+                $destrictive_kw = $match[1];
+                return $destrictive_kw;
+            }
+            else {
+                return false;
+            }
         }
 
     }

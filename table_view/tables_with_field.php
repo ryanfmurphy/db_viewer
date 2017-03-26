@@ -5,8 +5,10 @@
     # get list of tables that have a certain field
 
     { # init
-        require_once('init.php');
-        do_log("\n" . date('c') . " - db_viewer.tables_with_field received a request\n");
+        $trunk = dirname(__DIR__);
+        $cur_view = 'table_view';
+        require_once("$trunk/includes/init.php");
+        do_log("\n" . date('c') . " - tables_with_field received a request\n");
         $vars = array_merge($_GET, $_POST);
         do_log(print_r($vars,1));
     }

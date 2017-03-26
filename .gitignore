@@ -5,3 +5,6 @@
 custom_css.php
 *.swp
 /plugins/*
+/doc_template/views/*
+/rec
+/asciinema

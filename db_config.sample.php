@@ -38,7 +38,7 @@ $backgroundImages = array(
 */
 
 # special_ops: you can define custom links that do things
-# to a row of a table within db_viewer
+# to a row of a table within table_view
 # (keyed by table)
 /*
     $special_ops = [

@@ -1,5 +1,5 @@
 <?php
-    class DbViewer {
+    class TableView {
 
         # table name manipulation functions
         #----------------------------------
@@ -61,12 +61,14 @@
         #todo maybe move to different class?
         public static function is_url($val) {
             if (is_string($val)) {
+                return preg_match('@^\w+://@', $val);
+                /*
                 $url_parts = parse_url($val);
-                $schema = (isset($url_parts['scheme'])
+                $protocol = (isset($url_parts['scheme'])
                                 ? $url_parts['scheme']
                                 : null);
 
-                if ($schema) {
+                if ($protocol) {
                     # prevent false positives where after the colon we have stuff other than a link
                     # e.g. just some notes to self, but with a colon after the header
 
@@ -87,6 +89,7 @@
                 else {
                     return false;
                 }
+                */
             }
             else {
                 return false;
@@ -97,7 +100,9 @@
         #   ($table should have no quotes)
         public static function val_html($val, $fieldname, $table=null) {
             $field_render_filters_by_table = Config::$config['field_render_filters_by_table'];
-            $dash_path = Config::$config['dash_path'];
+            $obj_editor_uri = Config::$config['obj_editor_uri'];
+            $show_images = Config::$config['show_images'];
+            $image_max_width = Config::$config['image_max_width'];
 
             #do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
 
@@ -105,6 +110,23 @@
             if (DbUtil::seems_like_pg_array($val)) {
                 $vals = DbUtil::pg_array2array($val);
                 return self::array_as_html_list($vals);
+            }
+            # show images
+            elseif ($show_images
+                    && $fieldname == 'image_url'
+            ) {
+                $image_url = $val;
+
+                { ob_start();
+?>
+        <img    src="<?= $image_url ?>"
+                <?= ($image_max_width
+                            ? 'style="max-width: '.$image_max_width.'"'
+                            : '') ?>
+        />
+<?php
+                    return ob_get_clean();
+                }
             }
             # urls are links
             elseif (self::is_url($val)) {
@@ -125,8 +147,8 @@
                     $cmp = class_exists('Campaign');
                     $hasPhpExt = !$cmp;
                     $local_uri = ($hasPhpExt
-                                    ? 'db_viewer.php'
-                                    : 'db_viewer');
+                                    ? 'index.php'
+                                    : 'db_viewer'); #todo #fixme simplify
                 }
 
                 { ob_start(); # provide a link
@@ -146,7 +168,7 @@
                     && isset($field_render_filters_by_table[$table][$fieldname])
             ) {
                 $fn = $field_render_filters_by_table[$table][$fieldname];
-                return $fn($val, $dash_path, $fieldname);
+                return $fn($val, $obj_editor_uri, $fieldname);
             }
             # default quoting / handling of val
             else {
@@ -155,7 +177,7 @@
 
                 { # get bigger column width for longform text fields
                     #todo factor this logic in the 2 places we have it
-                    # (here and in dash)
+                    # (here and in obj_editor)
                     if ($fieldname == 'txt' || $fieldname == 'src') {
                         ob_start();
 ?>
@@ -201,8 +223,27 @@
             return "$uri_no_query";
         }
 
-        public static function dash_edit_url($dash_path, $tablename_no_quotes, $primary_key) {
-            return "$dash_path?edit=1&table=$tablename_no_quotes&primary_key=$primary_key";
+        public static function obj_editor_url($obj_editor_uri, $tablename_no_quotes, $primary_key) {
+            return $obj_editor_uri
+                        ."?edit=1"
+                        ."&table=$tablename_no_quotes"
+                        ."&primary_key=$primary_key";
+        }
+
+        # returns js code that defines a fn
+        public static function obj_editor_url__js($obj_editor_uri) {
+            ob_start();
+?>
+            <script>
+                function obj_editor_url(tablename_no_quotes, primary_key) {
+                    return '<?= str_replace("'", "\\'", $obj_editor_uri) ?>'
+                                +"?edit=1"
+                                +"&table=" + tablename_no_quotes
+                                +"&primary_key=" + primary_key;
+                }
+            </script>
+<?php
+            return ob_get_clean();
         }
 
         public static function echo_js_handle_edit_link_onclick_fn() {
@@ -228,9 +269,9 @@
 
         # needs handle_edit_link_onclick js fn (above)
         public static function echo_edit_link(
-            $dash_path, $tablename_no_quotes, $primary_key, $minimal = false
+            $obj_editor_uri, $tablename_no_quotes, $primary_key, $minimal = false
         ) {
-            $base_url = DbViewer::dash_edit_url($dash_path, $tablename_no_quotes, $primary_key);
+            $base_url = TableView::obj_editor_url($obj_editor_uri, $tablename_no_quotes, $primary_key);
             if ($minimal) {
                 $url = "$base_url&minimal";
                 $url2 = $base_url;
@@ -254,7 +295,7 @@
 
         public static function special_op_url(
             $special_op, $tablename_no_quotes,
-            $primary_key_field, $primary_key, $crud_api_path,
+            $primary_key_field, $primary_key, $crud_api_uri,
             $row, $op_col_idx, $op_idx
         ) {
             # the kind of special_op that changes fields
@@ -271,7 +312,7 @@
                 );
                 $query_str = http_build_query($query_vars);
 
-                $special_op_url = "$crud_api_path?$query_str";
+                $special_op_url = "$crud_api_uri?$query_str";
             }
             # the kind of special_op that goes to a url
             # with {{mustache_vars}} subbed in
@@ -287,22 +328,27 @@
             }
             # custom fn
             elseif (isset($special_op['fn'])) {
-                $special_op_url = DbViewer::special_op_fn_url($tablename_no_quotes, $op_col_idx, $op_idx, $primary_key);
+                $special_op_url = TableView::special_op_fn_url($tablename_no_quotes, $op_col_idx, $op_idx, $primary_key);
             }
 
             return $special_op_url;
         }
 
         public static function special_op_fn_url($tablename_no_quotes, $col_idx, $op_idx, $primary_key) {
-            $crud_api_path = Config::$config['crud_api_path'];
+            $crud_api_uri = Config::$config['crud_api_uri'];
             $special_ops = Config::$config['special_ops'];
             
-            if (DbViewer::special_op_fn(
+            if (TableView::special_op_fn(
                     $tablename_no_quotes, $col_idx, $op_idx, $primary_key
                 )
             ) {
                 #todo #fixme use http_build_query()
-                return "$crud_api_path?action=special_op&col_idx=$col_idx&op_idx=$op_idx&table=$tablename_no_quotes&primary_key=$primary_key";
+                return $crud_api_uri
+                            ."?action=special_op"
+                            ."&col_idx=$col_idx"
+                            ."&op_idx=$op_idx"
+                            ."&table=$tablename_no_quotes"
+                            ."&primary_key=$primary_key";
             }
             else {
                 return null;
@@ -321,7 +367,7 @@
 
         public static function echo_special_ops(
             $special_ops_cols, $tablename_no_quotes,
-            $primary_key_field, $primary_key, $crud_api_path,
+            $primary_key_field, $primary_key, $crud_api_uri,
             $row
         ) {
             foreach ($special_ops_cols as $op_col_idx => $special_ops_col) {
@@ -333,7 +379,7 @@
 
                     $special_op_url = self::special_op_url(
                         $special_op, $tablename_no_quotes,
-                        $primary_key_field, $primary_key, $crud_api_path,
+                        $primary_key_field, $primary_key, $crud_api_uri,
                         $row, $op_col_idx, $op_idx
                     );
 ?>
@@ -380,7 +426,7 @@
         }
 
         public static function select_by_pk($table, $primary_key_field, $primary_key) {
-            $sql = DbViewer::select_by_pk_sql($table, $primary_key_field, $primary_key);
+            $sql = TableView::select_by_pk_sql($table, $primary_key_field, $primary_key);
             $all1rows = Db::sql($sql);
 
             if (is_array($all1rows) && count($all1rows)) {
@@ -392,8 +438,7 @@
         }
 
 
-        # used in db_viewer table view to put
-        # row fields into the right order
+        # used in table_view to put row fields into the right order
         public static function ordered_row(
             $row, $ordered_fields
         ) {
@@ -410,15 +455,12 @@
             return $new_row;
         }
 
-        # used in db_viewer table view to put
-        # row fields into the right order
+        # used in table_view to put row fields into the right order
         public static function prep_row($row) {
             $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
             $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];
             $minimal = Config::$config['minimal'];
-            if (#!$minimal &&
-                $use_field_ordering_from_minimal_fields
-            ) {
+            if ($use_field_ordering_from_minimal_fields) {
                 return self::ordered_row(
                     $row, $would_be_minimal_fields
                 );
@@ -428,7 +470,7 @@
             }
         }
 
-        # used in dash object view to put
+        # used in obj_editor view to put
         # row fields into the right order
           # same as ordered_row but just fieldname array
           # instead of key => val pairs of a row
@@ -448,7 +490,7 @@
             return $fields_in_order;
         }
 
-        # analogoes to prep_row but for dash's form fields
+        # analogous to prep_row but for obj_editor's form fields
         public static function prep_fields($fields) {
             $use_field_ordering_from_minimal_fields = Config::$config['use_field_ordering_from_minimal_fields'];
             $would_be_minimal_fields = Config::$config['would_be_minimal_fields'];
@@ -487,6 +529,12 @@
             }
 
             return $ret;
+        }
+
+        public static function quot_str_for_js($string) {
+            $string = str_replace("'", "\\'", $string);
+            $string = str_replace("\n", "\\\n", $string);
+            return "'$string'";
         }
 
     }
