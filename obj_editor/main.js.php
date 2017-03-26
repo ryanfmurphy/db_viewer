@@ -41,13 +41,91 @@
         return formInputs;
     }
 
+    // #todo break this up into one part that makes a js object
+    //       and another part that serializes it into a query string
+
+    function form2obj(
+        formInputs, includeEmptyVals,
+        valsToAlwaysInclude // keys = input names
+    ) {
+        // arg default values
+        if (includeEmptyVals === undefined) {
+            includeEmptyVals = false;
+        }
+        console.log('includeEmptyVals',includeEmptyVals);
+        if (valsToAlwaysInclude === undefined) {
+            valsToAlwaysInclude = {};
+        }
+
+        var data = {};
+
+        // add a key-value pair to the array
+        var addDatum = function(key, value) {
+            if (includeEmptyVals
+                || value != ""
+                || key in valsToAlwaysInclude
+            ) {
+                if (value == "") {
+                    value = null;
+                }
+                data[key] = value;
+            }
+        };
+
+        // Serialize the form elements
+        for (var i = 0; i < formInputs.length; i++) {
+            var input = formInputs[i];
+            addDatum(input.name, input.value);
+        }
+
+        return data;
+    }
+
+
+    function obj2queryString(data) {
+        { // vars
+            var pairs = [];
+
+            // add a key-value pair to the array
+            var addPair = function(key, value) {
+
+                // Q. is this better/worse than pairs.push()?
+                pairs[ pairs.length ] =
+                    encodeURIComponent( key ) + "=" +
+                    encodeURIComponent( value === null
+                                            ? "<?= $magic_null_value ?>"
+                                            : value
+                                      );
+
+            };
+        }
+
+        { // Serialize the form elements
+            for (k in data) {
+                if (data.hasOwnProperty(k)) {
+                    addPair(k, data[k]);
+                }
+            }
+        }
+
+        { // Return the resulting serialization
+            return pairs.join( "&" );
+        }
+    }
+
+
     // Serialize an array of form elements
     // into a query string - inspired by jQuery
     function serializeForm(
         formInputs, includeEmptyVals,
         valsToAlwaysInclude // keys = input names
     ) {
+        var data = form2obj(formInputs,
+                            includeEmptyVals,
+                            valsToAlwaysInclude);
+        return obj2queryString(data);
 
+        /*
         // arg default values
         if (includeEmptyVals === undefined) {
             includeEmptyVals = false;
@@ -93,6 +171,7 @@
         { // Return the resulting serialization
             return pairs.join( "&" );
         }
+        */
     }
 
     // prevent the blank vals from getting submitted in the form
@@ -240,6 +319,12 @@
             return setFormAction(url, extra_vars);
         }
 
+        function saveLocallyButtonClickHandler(
+            crud_api_uri, table_name, event
+        ) {
+            return false;
+        }
+
     }
 
     function formSubmitCallback(xhttp, event, action) {
@@ -329,7 +414,8 @@
 
 <?php
             if ($edit) {
-                $primary_key__esc = str_replace('"', '\"', $primary_key); # escape for js
+                # escape for js
+                $primary_key__esc = str_replace('"', '\"', $primary_key);
 ?>
                     // update needs a where clause
                     if (   action == 'update'
