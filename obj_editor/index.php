@@ -507,6 +507,16 @@
                     value="Create" type="submit" id="create_button"
                 />
 <?php
+                        if ($mobile_travel_mode) {
+?>
+                <input onclick="return saveLocallyButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
+                    value="Save Locally" type="submit" id="save_locally_button"
+                />
+                <input onclick="return saveStoredRowsClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
+                    value="Save Stored Rows to DB" type="submit" id="save_locally_button"
+                />
+<?php
+                        }
                     }
 ?>
                 <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, scope.table_name)" <?php # view ?>

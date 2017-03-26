@@ -6,7 +6,8 @@
     scope = {
         table_name: '<?= $table ?>',
         table_view_uri: '<?= $table_view_uri ?>',
-        vals_to_always_include: {}
+        vals_to_always_include: {},
+        stored_rows: []
     };
 
     // get array of form inputs / textareas / etc
@@ -61,9 +62,13 @@
 
         // add a key-value pair to the array
         var addDatum = function(key, value) {
-            if (includeEmptyVals
-                || value != ""
-                || key in valsToAlwaysInclude
+            //console.log('addDatum(key=',key,'value=',value,')');
+            if (key != "" // <select> has a blank name when not in use
+                          // we don't want the '"": custom_null_value' pair
+                && (includeEmptyVals
+                    || value != ""
+                    || key in valsToAlwaysInclude
+                   )
             ) {
                 if (value == "") {
                     value = null;
@@ -75,6 +80,7 @@
         // Serialize the form elements
         for (var i = 0; i < formInputs.length; i++) {
             var input = formInputs[i];
+            //console.log('input = ',input);
             addDatum(input.name, input.value);
         }
 
@@ -322,6 +328,38 @@
         function saveLocallyButtonClickHandler(
             crud_api_uri, table_name, event
         ) {
+            var form = document.getElementById('mainForm');
+            var row_data = form2obj(getFormInputs(form),
+                                    false,
+                                    scope.vals_to_always_include);
+            var new_row = {
+                data: row_data,
+                table_name: table_name
+            };
+            scope.stored_rows.push(new_row);
+            localStorage.setItem('stored_rows',
+                                 JSON.stringify(scope.stored_rows));
+            alert('Row stored locally');
+            clearAllFields();
+            return false;
+        }
+
+        function saveStoredRowsClickHandler(
+            crud_api_uri, event
+        ) {
+            var stored_rows = JSON.parse(localStorage.getItem('stored_rows'));
+            for (var i=0; i<stored_rows.length; i++) {
+                stored_row = stored_rows[i];
+                var table_name = stored_row.table_name;
+                var data = stored_row.data;
+                var url = crud_api_uri
+                        + '?action=create_'+table_name;
+
+                console.log('submitting stored row:', data);
+                submitForm(url, null, 'create', data);
+            }
+            // #todo blank out stored rows one we know they got saved
+            // #todo make interface nicer - don't alert over and over
             return false;
         }
 
@@ -331,7 +369,7 @@
         if (xhttp.readyState == 4) {
             if (xhttp.status == 200) {
                 result = JSON.parse(xhttp.responseText);
-                if (event.altKey) {
+                if (event && event.altKey) {
                     alert('SQL Query Logged to Console');
                     result = JSON.parse(xhttp.responseText);
                     console.log(result.sql);
@@ -374,8 +412,22 @@
         }
     }
 
-    function submitForm(url, event, action) {
-        var form = document.getElementById('mainForm');
+    // #todo #test pathway that uses a js obj and submits it
+    function submitForm(url, event, action,
+                        obj // optional
+    ) {
+        var queryString;
+        if (obj) { // data provided directly by obj
+            queryString  = obj2queryString(obj);
+        }
+        else { // get the data from the form
+            var form = document.getElementById('mainForm');
+            var inputs = getFormInputs(form);
+            queryString = serializeForm(
+                            inputs, false,
+                            scope.vals_to_always_include
+                          );
+        }
 
         { // do ajax
             var xhttp = new XMLHttpRequest();
@@ -391,24 +443,20 @@
                     "application/x-www-form-urlencoded"
                 );
 
-                var data = getFormInputs(form);
                 var postData;
 
                 var valsToAlwaysInclude = scope;
                 postData  = (action == 'delete'
                                 ? "" // don't include key-val pairs for delete
                                      // (except where_clause for primary key)
-                                : serializeForm(
-                                    data, false,
-                                    scope.vals_to_always_include
-                                  )
+                                : queryString
                             );
 
                 {   // further additions to data
                     // #todo be more civilized: join up an array
 
                     // just show the query on altKey
-                    if (event.altKey) {
+                    if (event && event.altKey) {
                         postData += "&show_sql_query=1";
                     }
 
