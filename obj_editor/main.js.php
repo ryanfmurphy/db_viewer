@@ -7,6 +7,12 @@
         table_name: '<?= $table ?>',
         table_view_uri: '<?= $table_view_uri ?>',
         vals_to_always_include: {},
+
+        // #todo #fixme gracefully handle stored_rows leftover from prev sessions
+        //              right now we ignore them at page load,
+        //              then clobber them when we first Save Locally.
+        //              Instead, maybe detect if there's something there
+        //              and ask the user whether to store it?
         stored_rows: []
     };
 
