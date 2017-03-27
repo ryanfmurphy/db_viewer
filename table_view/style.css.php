@@ -216,7 +216,7 @@
     }
 
     .bold_border_above {
-        border-top: solid 5px blue;
+        border-top: solid 4px #833;
     }
 
 <?php

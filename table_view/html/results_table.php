@@ -112,6 +112,7 @@
                             if ($bold_border_between_weeks
                                 && isset($row['weekday'])
                                 && $row['weekday'] == 'Sat'
+                                && !isset($row['time_added'])
                             ) {
                                 $bold_border_above = true;
                             }
@@ -134,9 +135,9 @@
                         { # create table row
 ?>
     <tr data-row="<?= $rowN ?>"
-        <?= $bold_border_above
+        <?= ($bold_border_above
                 ? ' class="bold_border_above" '
-                : '' ?>
+                : '') ?>
 <?php
                 if ($row_colors
                     && isset($row['color'])
