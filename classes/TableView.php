@@ -537,5 +537,11 @@
             return "'$string'";
         }
 
+        public static function query_is_order_by_field($query, $field) {
+            return (preg_match("/\\border by $field\\b/", $query)
+                        ? true
+                        : false);
+        }
+
     }
 

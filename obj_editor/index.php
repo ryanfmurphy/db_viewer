@@ -326,9 +326,10 @@
 
         function echoSelectTableInputHtml() {
 ?>
-                <input id="selectTable"
-                       placeholder="select table"
-                       onkeypress="selectTableOnEnter(event)"
+                <input  id="selectTable"
+                        placeholder="select table"
+                        onkeypress="selectTableOnEnter(event)"
+                        autocapitalize="none"
                 />
 <?php
         }

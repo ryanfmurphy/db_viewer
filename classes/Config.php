@@ -65,6 +65,7 @@ class Config {
             'is_archived_field',
 
             'bold_border_between_weeks',
+            'bold_border_between_days',
 
 
             # some special settings for if you're on a mobile device
@@ -152,6 +153,7 @@ class Config {
             'is_archived_field' => null,
 
             'bold_border_between_weeks' => false,
+            'bold_border_between_days' => false,
 
             # some special settings for if you're on a mobile device
             # that is accessing e.g. a locally hosted DB Viewer yet

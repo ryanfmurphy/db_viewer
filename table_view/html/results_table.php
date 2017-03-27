@@ -84,6 +84,7 @@
                     #todo will/does obj_editor accept "schema.table" format?
 
                     $rowN = 0;
+                    $last_row_time_added = null; # for bold_border_between_days
                     foreach ($rows as $row) {
                         { # vars per row
                             $primary_key = (isset($row[$primary_key_field])
@@ -106,11 +107,28 @@
                             # assuming: weekday field that uses "Mon" "Tue" etc. formatting
                             # and ordering desc by time so that the border between Sat and Sun
                             # would be above Sat
-                            $bold_border_above = ($bold_border_between_weeks
-                                                    ? (isset($row['weekday'])
-                                                            ? $row['weekday'] == 'Sat'
-                                                            : false)
-                                                    : false);
+                            $bold_border_above = false;
+
+                            if ($bold_border_between_weeks
+                                && isset($row['weekday'])
+                                && $row['weekday'] == 'Sat'
+                            ) {
+                                $bold_border_above = true;
+                            }
+
+                            #todo #fixme require order by time_added or this doesn't make sense
+                            if ($bold_border_between_days
+                                && isset($row['time_added'])
+                            ) {
+                                if ($last_row_time_added
+                                    && date('Y-m-d', strtotime($last_row_time_added))
+                                        != date('Y-m-d', strtotime($row['time_added']))
+                                    && TableView::query_is_order_by_field($sql, 'time_added')
+                                ) {
+                                    $bold_border_above = true;
+                                }
+                                $last_row_time_added = $row['time_added']; # for next time
+                            }
                         }
 
                         { # create table row
