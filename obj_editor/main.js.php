@@ -340,7 +340,8 @@
                                     scope.vals_to_always_include);
             var new_row = {
                 data: row_data,
-                table_name: table_name
+                table_name: table_name,
+                time: currentTimestamp()
             };
             scope.stored_rows.push(new_row);
             localStorage.setItem('stored_rows',
@@ -353,11 +354,21 @@
         function saveStoredRowsClickHandler(
             crud_api_uri, event
         ) {
-            var stored_rows = JSON.parse(localStorage.getItem('stored_rows'));
+            var stored_rows = JSON.parse(
+                localStorage.getItem('stored_rows')
+            );
             for (var i=0; i<stored_rows.length; i++) {
                 stored_row = stored_rows[i];
                 var table_name = stored_row.table_name;
                 var data = stored_row.data;
+
+                // record time more accurately since these
+                // won't go in the DB until later
+                // #todo think about edge cases:
+                //      what if there was no time_added field?
+                //      what if time_added was specified manually?
+                data.time_added = stored_row.time;
+
                 var url = crud_api_uri
                         + '?action=create_'+table_name;
 
