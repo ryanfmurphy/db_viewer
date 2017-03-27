@@ -145,3 +145,58 @@ body {
 <?php
         }
 ?>
+
+
+@media (max-width: 420px) {
+
+    body {
+        margin: 1em;
+        font-size: 16px;
+    }
+
+    .formInput {
+        margin: .5em 0;
+    }
+
+    .formInput input,
+    .formInput textarea
+    {
+        width: 96%;
+        font-size: 20px;
+    }
+
+    /* #todo selects */
+
+    input[type=submit] {
+        font-size: 20px;
+        display: block;
+        margin: 1.25em auto;
+    }
+
+    form#mainForm label {
+        font-size: 20px;
+        display: block;
+    }
+
+    #addNewField {
+        font-size: 32px;
+        display: block;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #choose_table_link, #view_all_link, #clear_fields_link {
+        display: none;
+        /*display: block;
+        margin: .5em 0;*/
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+    h1 code { /* table name */
+        font-size: 40px;
+    }
+}
+

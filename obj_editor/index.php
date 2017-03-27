@@ -379,6 +379,11 @@
         <script>
             <?php include("$trunk/obj_editor/main.js.php") ?>
         </script>
+
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+              name="viewport"
+        />
     </head>
     <body>
 <?php
@@ -387,7 +392,7 @@
         #todo #fixme fix this href: should not be hardcoded
 ?>
         <p id="whoami">
-            <a href="<?= $obj_editor_uri ?>">
+            <a id="choose_table_link" href="<?= $obj_editor_uri ?>">
                 choose table
             </a>
         </p>
@@ -405,8 +410,10 @@
                 <h1>
 <?php
         if ($table && !$nonexistentTable) {
+            #todo #fixme make this not get small when editing it in mobile_travel_mode
+            #todo #fixme make this not lose its id when editing in mobile_travel_mode
 ?>
-                <code onclick="becomeSelectTableInput(this)">
+                <code id="table_name" onclick="becomeSelectTableInput(this)">
                     <?= $table ?>
                 </code>
 <?php
@@ -426,6 +433,7 @@
                                 : '';
 ?>
                 <a  id="view_all_link"
+                    class="link"
                     href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
                     target="_blank"
                 >
