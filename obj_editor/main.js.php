@@ -636,6 +636,7 @@
         // focus and select all text
         selectTableInput.focus();
         selectTableInput.select();
+        selectTableInput.setSelectionRange(0,9999); // needed for mobile
     }
 
 
