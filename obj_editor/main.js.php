@@ -802,24 +802,6 @@
         }
     }
 
-    function removeFieldOnCtrlDelete(keyEvent, focusedElem) {
-        //console.log('keyEvent', keyEvent);
-        var DELETE_BS_KEY = 8;
-        if (keyEvent.which == DELETE_BS_KEY
-            && keyEvent.ctrlKey
-        ) {
-            var formRow = getFormRow(focusedElem);
-            var prevFormRow = getPrevFormRow(formRow);
-            removeFormField(formRow);
-            if (prevFormRow) {
-                var input = getInputIn(prevFormRow);
-                if (input) {
-                    input.focus();
-                }
-            }
-        }
-    }
-
     scope.custom_select_magic_value = "<?= $custom_select_magic_value ?>";
     // elem is <select> element
     function handleCustomValueInputForSelect(elem) {

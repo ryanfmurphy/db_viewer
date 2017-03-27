@@ -180,7 +180,6 @@
                 { ob_start(); # what attrs go inside the <input>
 ?>
                     name="<?= $name ?>"
-                    onkeypress="removeFieldOnCtrlDelete(event,this)"
 <?php
                     $inputAttrs = ob_get_clean();
                 }
