@@ -80,6 +80,8 @@ class Config {
             # alt toggles "no reload", but you can reverse it so it's the default
             # which is useful if you need the behavior on Mobile for instance
             'need_alt_for_no_reload',
+
+            'row_colors',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -168,6 +170,8 @@ class Config {
             # which is useful if you need the behavior on Mobile for instance
             # NOTE: gets set to false for mobile_travel_mode=true
             'need_alt_for_no_reload' => true,
+
+            'row_colors' => false,
         );
         return $default_values;
     }

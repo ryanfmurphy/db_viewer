@@ -137,6 +137,16 @@
         <?= $bold_border_above
                 ? ' class="bold_border_above" '
                 : '' ?>
+<?php
+                if ($row_colors
+                    && isset($row['color'])
+                    && $row['color']
+                ) {
+?>
+        style="background: <?= $row['color'] ?>"
+<?php
+                }
+?>
     >
 <?php
                             { # action column(s): edit link & special_ops
