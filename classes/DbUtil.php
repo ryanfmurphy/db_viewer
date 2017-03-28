@@ -643,7 +643,13 @@ infer_limit_from_query: query didn't match regex.
             $db_type = Config::$config['db_type'];
             #todo #fixme factor this with dup code in obj_editor/index.php
             if ($db_type == 'sqlite') {
-                return array('name','txt','id','time');
+                $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
+                if (isset($minimal_fields_by_table[$table])) {
+                    return $minimal_fields_by_table[$table];
+                }
+                else {
+                    return array('name','txt','id','time');
+                }
             }
             else {
                 { # do query

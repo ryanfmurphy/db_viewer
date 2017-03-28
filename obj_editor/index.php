@@ -107,9 +107,13 @@
                 if (count($fieldsRows) > 0) {
 
                     if ($db_type == 'sqlite') {
-                        $schema = null;
-                        $fields = array('name','txt','id','time');
-                        $fieldsRowsBySchema = null;
+                        $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
+                        if (isset($minimal_fields_by_table[$table])) {
+                            $fields = $minimal_fields_by_table[$table];
+                        }
+                        else {
+                            $fields = array('name','txt','id','time');
+                        }
                     }
                     else {
                         { # group by schema
