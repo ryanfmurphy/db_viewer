@@ -82,6 +82,10 @@ class Config {
             'need_alt_for_no_reload',
 
             'row_colors',
+
+            'table_spaces_to_underscores',
+
+            'automatic_curly_braces_for_arrays', #todo #fixme implement
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -172,6 +176,10 @@ class Config {
             'need_alt_for_no_reload' => true,
 
             'row_colors' => false,
+
+            'table_spaces_to_underscores' => true, #todo maybe not be default?
+
+            'automatic_curly_braces_for_arrays' => false,
         );
         return $default_values;
     }

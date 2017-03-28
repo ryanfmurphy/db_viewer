@@ -547,11 +547,18 @@
         }
     }
 
+<?php
+    $table_spaces_to_underscores = Config::$config['table_spaces_to_underscores'];
+?>
 
     function selectTable(keyEvent) {
 
         var selectTableInput = document.getElementById('selectTable');
         var table = selectTableInput.value;
+        var table_spaces_to_underscores = <?= $table_spaces_to_underscores ? true : false ?>;
+        if (table_spaces_to_underscores) {
+            table = table.replace(/ /g,'_');
+        }
         var newLocation = '?table='+table;
 
         // depending on alt key, don't refresh page,
