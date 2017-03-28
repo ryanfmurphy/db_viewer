@@ -108,6 +108,7 @@
 
                     { # group by schema
                         $fieldsRowsBySchema = array();
+                        #todo #fixme Warning: Invalid argument supplied for foreach()
                         foreach ($fieldsRows as $fieldsRow) {
                             $schema = $fieldsRow['table_schema'];
                             $fieldsRowsBySchema[$schema][] = $fieldsRow;
