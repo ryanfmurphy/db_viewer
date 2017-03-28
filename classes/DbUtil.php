@@ -640,76 +640,82 @@ infer_limit_from_query: query didn't match regex.
         # get fields of table from db
         # returns false if table $table doesn't exist
         public static function get_table_fields($table, $schemas_in_path=null) {
+            $db_type = Config::$config['db_type'];
+            #todo #fixme factor this with dup code in obj_editor/index.php
+            if ($db_type == 'sqlite') {
+                return array('name','txt','id','time');
+            }
+            else {
+                { # do query
 
-            { # do query
+                    $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
-                $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
-
-                { ob_start();
-?>
-                    select
-                        table_schema, table_name,
-                        column_name
-                    from information_schema.columns
-                    where table_name='<?= $table ?>'
-<?php
-                    if ($schemas_val_list) {
-?>
-                        and table_schema in (<?= $schemas_val_list ?>)
-<?php
+                    { ob_start();
+    ?>
+                        select
+                            table_schema, table_name,
+                            column_name
+                        from information_schema.columns
+                        where table_name='<?= $table ?>'
+    <?php
+                        if ($schemas_val_list) {
+    ?>
+                            and table_schema in (<?= $schemas_val_list ?>)
+    <?php
+                        }
+                        $get_columns_sql = ob_get_clean();
                     }
-                    $get_columns_sql = ob_get_clean();
+                    #die($get_columns_sql);
+                    $fieldsRows = Db::sql($get_columns_sql);
+                    if (count($fieldsRows) == 0) {
+                        #die("Table $table doesn't exist");
+                        return false;
+                    }
                 }
-                #die($get_columns_sql);
-                $fieldsRows = Db::sql($get_columns_sql);
-                if (count($fieldsRows) == 0) {
-                    #die("Table $table doesn't exist");
-                    return false;
+
+                { # group by schema
+                    $fieldsRowsBySchema = array();
+                    foreach ($fieldsRows as $fieldsRow) {
+                        $schema = $fieldsRow['table_schema'];
+                        $fieldsRowsBySchema[$schema][] = $fieldsRow;
+                    }
                 }
-            }
 
-            { # group by schema
-                $fieldsRowsBySchema = array();
-                foreach ($fieldsRows as $fieldsRow) {
-                    $schema = $fieldsRow['table_schema'];
-                    $fieldsRowsBySchema[$schema][] = $fieldsRow;
-                }
-            }
+                { # choose 1st schema that applies
+                    if ($schemas_in_path) {
+                        $schema = null;
 
-            { # choose 1st schema that applies
-                if ($schemas_in_path) {
-                    $schema = null;
+                        foreach ($schemas_in_path as $schema_in_path) {
+                            if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                $schema = $schema_in_path;
+                                break;
+                            }
+                        }
 
-                    foreach ($schemas_in_path as $schema_in_path) {
-                        if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                            $schema = $schema_in_path;
-                            break;
+                        if ($schema === null) {
+                            die("Whoops!  Couldn't select a DB schema for table $table");
                         }
                     }
-
-                    if ($schema === null) {
-                        die("Whoops!  Couldn't select a DB schema for table $table");
-                    }
                 }
-            }
 
-            { # get just the column_names
-                $fields = array_map(
-                    function($x) {
-                        return $x['column_name'];
-                    },
-                    $fieldsRowsBySchema[$schema]
-                );
-            }
+                { # get just the column_names
+                    $fields = array_map(
+                        function($x) {
+                            return $x['column_name'];
+                        },
+                        $fieldsRowsBySchema[$schema]
+                    );
+                }
 
-            /* #todo pass this out
-            { # so we can give a warning/notice about it later
-                $multipleTablesFoundInDifferentSchemas =
-                    count(array_keys($fieldsRowsBySchema)) > 1;
-            }
-            */
+                /* #todo pass this out
+                { # so we can give a warning/notice about it later
+                    $multipleTablesFoundInDifferentSchemas =
+                        count(array_keys($fieldsRowsBySchema)) > 1;
+                }
+                */
 
-            return $fields;
+                return $fields;
+            }
         }
 
         # if returns false, maybe table doesn't exist
