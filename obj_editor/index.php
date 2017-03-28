@@ -106,42 +106,50 @@
 
                 if (count($fieldsRows) > 0) {
 
-                    { # group by schema
-                        $fieldsRowsBySchema = array();
-                        #todo #fixme Warning: Invalid argument supplied for foreach()
-                        foreach ($fieldsRows as $fieldsRow) {
-                            $schema = $fieldsRow['table_schema'];
-                            $fieldsRowsBySchema[$schema][] = $fieldsRow;
-                        }
+                    if ($db_type == 'sqlite') {
+                        $schema = null;
+                        $fields = array('name','txt','id','time');
+                        $fieldsRowsBySchema = null;
                     }
+                    else {
+                        { # group by schema
+                            $fieldsRowsBySchema = array();
+                            #todo #fixme Warning: Invalid argument supplied for foreach()
+                            foreach ($fieldsRows as $fieldsRow) {
+                                $schema = $fieldsRow['table_schema'];
+                                $fieldsRowsBySchema[$schema][] = $fieldsRow;
+                            }
+                        }
 
-                    { # choose 1st schema that applies
-                        if ($schemas_in_path) {
-                            $schema = null;
-                            foreach ($schemas_in_path as $schema_in_path) {
-                                if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                                    $schema = $schema_in_path;
-                                    break;
+                        { # choose 1st schema that applies
+                            if ($schemas_in_path) {
+                                $schema = null;
+                                foreach ($schemas_in_path as $schema_in_path) {
+                                    if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                        $schema = $schema_in_path;
+                                        break;
+                                    }
+                                }
+                                if ($schema === null) {
+                                    die("Whoops!  Couldn't select a DB schema for table $table");
                                 }
                             }
-                            if ($schema === null) {
-                                die("Whoops!  Couldn't select a DB schema for table $table");
-                            }
                         }
-                    }
 
-                    { # get just the column_names
-                        $fields = array_map(
-                            function($x) {
-                                return $x['column_name'];
-                            },
-                            $fieldsRowsBySchema[$schema]
-                        );
+                        { # get just the column_names
+                            $fields = array_map(
+                                function($x) {
+                                    return $x['column_name'];
+                                },
+                                $fieldsRowsBySchema[$schema]
+                            );
+                        }
                     }
 
                     { # so we can give a warning/notice about it later
                         $multipleTablesFoundInDifferentSchemas =
-                            count(array_keys($fieldsRowsBySchema)) > 1;
+                            $fieldsRowsBySchema
+                            && count(array_keys($fieldsRowsBySchema)) > 1;
                     }
                 }
                 else { # no rows
