@@ -387,7 +387,7 @@
             // rows stored from a previous loading of the page?
             // give an option about whether to append or overwrite
             if (scope.has_previously_stored_rows) {
-                var overwrite = confirm('Previous rows found.  OK to overwrite, Cancel to keep');
+                var overwrite = false; //confirm('Previous rows found.  OK to overwrite, Cancel to keep');
                 if (!overwrite) {
                     // load prev rows before appending to them
                     scope.store_rows = JSON.parse(
