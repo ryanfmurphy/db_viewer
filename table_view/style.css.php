@@ -182,36 +182,38 @@
 ?>
     }
 
-    #help_legend {
+    #top_menu {
         font-size: 60%;
         padding: 1em;
     }
-    #help_legend.help_open {
+    #top_menu.top_menu_open {
         background-color: #444;
         color: #ddd;
     }
-    #help_legend h3, #help_legend h4, #help_legend h5 {
+    #top_menu h3, #top_menu h4, #top_menu h5 {
         font-weight: normal;
     }
-    #help_legend.help_open h3,
-    #help_legend.help_open h4,
-    #help_legend.help_open h5 {
+    #top_menu.top_menu_open h3,
+    #top_menu.top_menu_open h4,
+    #top_menu.top_menu_open h5 {
         color: white;
     }
-    #help_legend h3 {
+    #top_menu h3 {
         font-size: 100%;
     }
-    #help_legend h4 {
+    #top_menu h4 {
         font-size: 150%;
     }
-    #help_legend h5 {
+    #top_menu h5 {
         font-size: 130%;
         margin-bottom: 0;
     }
-    #help_legend_header {
+    .top_menu_item {
         cursor: pointer;
+        display: inline-block;
+        margin-right: 1em;
     }
-    #help_legend_header:hover {
+    .top_menu_item:hover {
         text-decoration: underline;
     }
 

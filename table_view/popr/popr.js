@@ -91,7 +91,8 @@ function showPopup(thisThing, event, popr_show, set, popr_cont) {
                         // this fn calls showPopup in its ajax callback
                         popupJoinTableOptions( // added by rfm
                             fieldname,
-                            this, event, popr_show, set, popr_cont
+                            this, event,
+                            popr_show, set, popr_cont
                         );
 
                     }
