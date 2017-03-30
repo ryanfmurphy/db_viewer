@@ -6,7 +6,8 @@
     scope = {
         table_name: '<?= $table ?>',
         table_view_uri: '<?= $table_view_uri ?>',
-        vals_to_always_include: {}
+        vals_to_always_include: {},
+        stored_rows: []
     };
 
     // get array of form inputs / textareas / etc
@@ -41,13 +42,96 @@
         return formInputs;
     }
 
+    // #todo break this up into one part that makes a js object
+    //       and another part that serializes it into a query string
+
+    function form2obj(
+        formInputs, includeEmptyVals,
+        valsToAlwaysInclude // keys = input names
+    ) {
+        // arg default values
+        if (includeEmptyVals === undefined) {
+            includeEmptyVals = false;
+        }
+        console.log('includeEmptyVals',includeEmptyVals);
+        if (valsToAlwaysInclude === undefined) {
+            valsToAlwaysInclude = {};
+        }
+
+        var data = {};
+
+        // add a key-value pair to the array
+        var addDatum = function(key, value) {
+            //console.log('addDatum(key=',key,'value=',value,')');
+            if (key != "" // <select> has a blank name when not in use
+                          // we don't want the '"": custom_null_value' pair
+                && (includeEmptyVals
+                    || value != ""
+                    || key in valsToAlwaysInclude
+                   )
+            ) {
+                if (value == "") {
+                    value = null;
+                }
+                data[key] = value;
+            }
+        };
+
+        // Serialize the form elements
+        for (var i = 0; i < formInputs.length; i++) {
+            var input = formInputs[i];
+            //console.log('input = ',input);
+            addDatum(input.name, input.value);
+        }
+
+        return data;
+    }
+
+
+    function obj2queryString(data) {
+        { // vars
+            var pairs = [];
+
+            // add a key-value pair to the array
+            var addPair = function(key, value) {
+
+                // Q. is this better/worse than pairs.push()?
+                pairs[ pairs.length ] =
+                    encodeURIComponent( key ) + "=" +
+                    encodeURIComponent( value === null
+                                            ? "<?= $magic_null_value ?>"
+                                            : value
+                                      );
+
+            };
+        }
+
+        { // Serialize the form elements
+            for (k in data) {
+                if (data.hasOwnProperty(k)) {
+                    addPair(k, data[k]);
+                }
+            }
+        }
+
+        { // Return the resulting serialization
+            return pairs.join( "&" );
+        }
+    }
+
+
     // Serialize an array of form elements
     // into a query string - inspired by jQuery
     function serializeForm(
         formInputs, includeEmptyVals,
         valsToAlwaysInclude // keys = input names
     ) {
+        var data = form2obj(formInputs,
+                            includeEmptyVals,
+                            valsToAlwaysInclude);
+        return obj2queryString(data);
 
+        /*
         // arg default values
         if (includeEmptyVals === undefined) {
             includeEmptyVals = false;
@@ -93,6 +177,7 @@
         { // Return the resulting serialization
             return pairs.join( "&" );
         }
+        */
     }
 
     // prevent the blank vals from getting submitted in the form
@@ -240,13 +325,51 @@
             return setFormAction(url, extra_vars);
         }
 
+        function saveLocallyButtonClickHandler(
+            crud_api_uri, table_name, event
+        ) {
+            var form = document.getElementById('mainForm');
+            var row_data = form2obj(getFormInputs(form),
+                                    false,
+                                    scope.vals_to_always_include);
+            var new_row = {
+                data: row_data,
+                table_name: table_name
+            };
+            scope.stored_rows.push(new_row);
+            localStorage.setItem('stored_rows',
+                                 JSON.stringify(scope.stored_rows));
+            alert('Row stored locally');
+            clearAllFields();
+            return false;
+        }
+
+        function saveStoredRowsClickHandler(
+            crud_api_uri, event
+        ) {
+            var stored_rows = JSON.parse(localStorage.getItem('stored_rows'));
+            for (var i=0; i<stored_rows.length; i++) {
+                stored_row = stored_rows[i];
+                var table_name = stored_row.table_name;
+                var data = stored_row.data;
+                var url = crud_api_uri
+                        + '?action=create_'+table_name;
+
+                console.log('submitting stored row:', data);
+                submitForm(url, null, 'create', data);
+            }
+            // #todo blank out stored rows one we know they got saved
+            // #todo make interface nicer - don't alert over and over
+            return false;
+        }
+
     }
 
     function formSubmitCallback(xhttp, event, action) {
         if (xhttp.readyState == 4) {
             if (xhttp.status == 200) {
                 result = JSON.parse(xhttp.responseText);
-                if (event.altKey) {
+                if (event && event.altKey) {
                     alert('SQL Query Logged to Console');
                     result = JSON.parse(xhttp.responseText);
                     console.log(result.sql);
@@ -289,8 +412,22 @@
         }
     }
 
-    function submitForm(url, event, action) {
-        var form = document.getElementById('mainForm');
+    // #todo #test pathway that uses a js obj and submits it
+    function submitForm(url, event, action,
+                        obj // optional
+    ) {
+        var queryString;
+        if (obj) { // data provided directly by obj
+            queryString  = obj2queryString(obj);
+        }
+        else { // get the data from the form
+            var form = document.getElementById('mainForm');
+            var inputs = getFormInputs(form);
+            queryString = serializeForm(
+                            inputs, false,
+                            scope.vals_to_always_include
+                          );
+        }
 
         { // do ajax
             var xhttp = new XMLHttpRequest();
@@ -306,30 +443,27 @@
                     "application/x-www-form-urlencoded"
                 );
 
-                var data = getFormInputs(form);
                 var postData;
 
                 var valsToAlwaysInclude = scope;
                 postData  = (action == 'delete'
                                 ? "" // don't include key-val pairs for delete
                                      // (except where_clause for primary key)
-                                : serializeForm(
-                                    data, false,
-                                    scope.vals_to_always_include
-                                  )
+                                : queryString
                             );
 
                 {   // further additions to data
                     // #todo be more civilized: join up an array
 
                     // just show the query on altKey
-                    if (event.altKey) {
+                    if (event && event.altKey) {
                         postData += "&show_sql_query=1";
                     }
 
 <?php
             if ($edit) {
-                $primary_key__esc = str_replace('"', '\"', $primary_key); # escape for js
+                # escape for js
+                $primary_key__esc = str_replace('"', '\"', $primary_key);
 ?>
                     // update needs a where clause
                     if (   action == 'update'
@@ -403,9 +537,15 @@
         var table = selectTableInput.value;
         var newLocation = '?table='+table;
 
-        // alt key - don't refresh page,
+        // depending on alt key, don't refresh page,
         // just change the table we're pointing at
-        if (keyEvent.altKey) {
+        var need_alt_for_no_reload = <?= ($need_alt_for_no_reload
+                                            ? 'true'
+                                            : 'false') ?>;
+        var change_table_no_reload = (need_alt_for_no_reload
+                                        ? keyEvent.altKey
+                                        : !keyEvent.altKey);
+        if (change_table_no_reload) {
 
             // change which table to submit to
             scope.table_name = table;
@@ -683,10 +823,6 @@
         if (elem.value == scope.custom_select_magic_value) {
             console.log('  matches magic value, creating input');
             var new_input = document.createElement('input');
-            // maybe we really just want this one time instead of onchange?
-            //new_input.addEventListener('change', function(){
-            //    useCustomValue(new_input);
-            //});
             new_input.setAttribute('class', "custom_value_input");
 
             // put custom_value if any into input (e.g. default values)
@@ -753,4 +889,31 @@
             next.remove();
         }
     }
+
+    // blank out all form fields
+    function clearAllFields() {
+        var form = document.getElementById('mainForm');
+        var inputs = getFormInputs(form);
+        for (var i in inputs) {
+            var input = inputs[i];
+            if (input.tagName == 'INPUT'
+                || input.tagName == 'TEXTAREA'
+            ) {
+                input.value = '';
+            }
+            else if (input.tagName == 'SELECT') {
+                var option1 = input.getElementsByTagName('option')[0];
+                if (!option1.selected) {
+                    // this assumes we don't have to
+                    // deselect the previously chosen 1
+                    option1.selected = 'selected';
+
+                    // we just chose 'custom'
+                    // so open the custom input
+                    handleCustomValueInputForSelect(input);
+                }
+            }
+        }
+    }
+
 }

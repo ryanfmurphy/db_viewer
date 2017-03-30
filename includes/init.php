@@ -39,8 +39,34 @@
             DbUtil::set_db_search_path($search_path);
         }
 
+        # number of rows between repeating the header row
         if (isset($requestVars['header_every'])) {
             $header_every = $requestVars['header_every'];
+        }
+
+        # mobile_travel_mode
+        # some special settings for if you're on a mobile device
+        # that is accessing e.g. a locally hosted DB Viewer yet
+        # is not always connected to it - you can leave a form open
+        # and type your notes and save them whenever you are connected
+        # again and ready to save
+        if (isset($requestVars['mobile_travel_mode'])) {
+            $mobile_travel_mode = $requestVars['mobile_travel_mode'];
+            # so you can change tables without reload
+            if ($mobile_travel_mode) {
+                $need_alt_for_no_reload = false;
+                $minimal = true;
+                Config::$config['minimal_fields'] =
+                    array(
+                        "name",
+                        "txt",
+                    );
+                $minimal_fields = Config::$config['minimal_fields'];
+            }
+        }
+
+        if (isset($requestVars['need_alt_for_no_reload'])) {
+            $need_alt_for_no_reload = $requestVars['need_alt_for_no_reload'];
         }
 
         {   # minimal
@@ -58,13 +84,12 @@
                         $minimal_fields = array(
                             "name",
                             "txt",
-                            "what",
                         );
                     }
                     $only_include_these_fields = $minimal_fields;
                 }
             }
-            else {
+            elseif (!isset($minimal)) {
                 $minimal = null;
             }
         }

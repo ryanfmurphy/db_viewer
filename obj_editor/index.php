@@ -247,8 +247,6 @@
                         </option>
                         <?= $non_custom_options ?>
                     </select>
-                    <!--<br>
-                    <input name="<?= $name ?>" >-->
                 </div>
 <?php
                 }
@@ -427,10 +425,19 @@
                                 ? '&minimal'
                                 : '';
 ?>
-                <a id="view_all_link" href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
-                   target="_blank"
+                <a  id="view_all_link"
+                    href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
+                    target="_blank"
                 >
                     view all
+                </a>
+
+                <span   id="clear_fields_link"
+                        class="link"
+                        onclick="clearAllFields()"
+                        target="_blank"
+                >
+                    clear all fields
                 </a>
 <?php
         }
@@ -500,6 +507,16 @@
                     value="Create" type="submit" id="create_button"
                 />
 <?php
+                        if ($mobile_travel_mode) {
+?>
+                <input onclick="return saveLocallyButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
+                    value="Save Locally" type="submit" id="save_locally_button"
+                />
+                <input onclick="return saveStoredRowsClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
+                    value="Save Stored Rows to DB" type="submit" id="save_locally_button"
+                />
+<?php
+                        }
                     }
 ?>
                 <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, scope.table_name)" <?php # view ?>

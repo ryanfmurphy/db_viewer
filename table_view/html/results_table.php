@@ -70,8 +70,11 @@
                         );
 
                         $current_row = current($rows);
-                        $has_primary_key_field = (isset($current_row[$primary_key_field])
-                                                     ? true : false);
+                        $has_primary_key_field =
+                                (array_key_exists($primary_key_field, $current_row)
+                                                        ? true
+                                                        : false
+                                );
 
                         $special_ops_cols = isset($special_ops[$tablename_no_quotes])
                                                 ? $special_ops[$tablename_no_quotes]
@@ -91,14 +94,32 @@
                         { # sometimes add a header row
                             if ($rowN % $header_every == 0) {
                                 $num_action_columns = count($special_ops_cols);
-                                headerRow($rows, $rowN, $primary_key !== null, $num_action_columns);
+                                #$has_edit_column = ($primary_key !== null);
+                                $has_edit_column = ($has_primary_key_field);
+                                headerRow($rows, $rowN, $has_edit_column, $num_action_columns);
                                 $rowN++;
                             }
                         }
 
+                        { # create bold border between weeks (using "weekday" field)
+
+                            # assuming: weekday field that uses "Mon" "Tue" etc. formatting
+                            # and ordering desc by time so that the border between Sat and Sun
+                            # would be above Sat
+                            $bold_border_above = ($bold_border_between_weeks
+                                                    ? (isset($row['weekday'])
+                                                            ? $row['weekday'] == 'Sat'
+                                                            : false)
+                                                    : false);
+                        }
+
                         { # create table row
 ?>
-    <tr data-row="<?= $rowN ?>">
+    <tr data-row="<?= $rowN ?>"
+        <?= $bold_border_above
+                ? ' class="bold_border_above" '
+                : '' ?>
+    >
 <?php
                             { # action column(s): edit link & special_ops
 
