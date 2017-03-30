@@ -246,6 +246,7 @@
             return ob_get_clean();
         }
 
+        // allow alt-click to change the ?minimal value
         public static function echo_js_handle_edit_link_onclick_fn() {
             ob_start();
 ?>

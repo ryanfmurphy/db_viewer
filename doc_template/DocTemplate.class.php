@@ -7,6 +7,7 @@ $cur_view = 'doc_template';
 require_once("$trunk/includes/init.php");
 require_once('ContentModule.class.php');
 
+# a ContentContainer contains ContentModules
 class ContentContainer {
 
     public static function getIdField() {
@@ -20,7 +21,6 @@ class ContentContainer {
     }
 
     public static function get1($id) {
-        #$id = (int)$id; # sanitize
         $id = Db::quote($id);
         $id_field = self::getIdField();
         $is_archived_field = Config::$config['is_archived_field'];
@@ -32,13 +32,13 @@ class ContentContainer {
                     ? "and $is_archived_field = 0"
                     : '')."
         ";
-        $rows = Db::sql($sql, PDO::FETCH_CLASS, 'DocTemplate');
+        $rows = Db::sql($sql, PDO::FETCH_CLASS, get_called_class());
         #todo maybe factor into Db::get1?
         if (count($rows) > 0) {
             return $rows[0];
         }
         else {
-            do_log('ContentContainer::getByName()');
+            do_log('ContentContainer::get1() could not get obj');
             return false;
         }
     }
@@ -54,7 +54,7 @@ class ContentContainer {
                     ? "and $is_archived_field = 0"
                     : '')."
         ";
-        $rows = Db::sql($sql, PDO::FETCH_CLASS, 'DocTemplate');
+        $rows = Db::sql($sql, PDO::FETCH_CLASS, get_called_class());
         #todo maybe factor into Db::get1?
         if (count($rows) > 0) {
             return $rows[0];
@@ -63,6 +63,12 @@ class ContentContainer {
             do_log('ContentContainer::getByName()');
             return false;
         }
+    }
+
+    public static function contentModuleClass() {
+        # can be overloaded to get your custom DocTemplate subclass
+        # to use a custom ContentModule class
+        return 'ContentModule';
     }
 
     public function getContentModule_Collection($section=null) {
@@ -90,11 +96,13 @@ class ContentContainer {
             include_once($includeFileName);
             $contentModuleClass = $this->name . '_ContentModule';
             if (!class_exists($contentModuleClass)) {
-                $contentModuleClass = 'ContentModule';
+                $contentModuleClass = call_user_func(array(
+                                        get_called_class(), 'contentModuleClass'));
             }
         }
         else {
-            $contentModuleClass = 'ContentModule';
+            $contentModuleClass = call_user_func(array(
+                                        get_called_class(), 'contentModuleClass'));
         }
 
         return Db::sql( $sql,
@@ -136,23 +144,12 @@ class ContentContainer {
 
     $('.editable').click(function(event){
         var content_module_id = this.getAttribute('content_module_id');
-        //var content_module_field = this.getAttribute('content_module_field');
-        //var content_module_value = this.val();
-
-        //if (content_module_field == 'txt') {
-        //    concat_paragraphs();
-        //}
 
         event.stopPropagation();
         
-        //edit_url = "/db_viewer/obj_editor/index.php?edit=1&table=content_module&primary_key=" + content_module_id;
         edit_url = obj_editor_url('content_module', content_module_id);
         window.open(edit_url);
     });
-
-    function concat_paragraphs() {
-
-    };
 
     </script>
 <?php
@@ -169,8 +166,9 @@ class ContentContainer {
             background-color: yellow;
         }
         .include_element.editable:hover {
-            border: solid 1px blue;
-            background-color: yellow;
+            /*border: solid 1px blue;
+            background-color: initial;*/
+            background-color: rgba(256,256,0,.2);
         }
         .editable > textarea {
             position: absolute;
@@ -185,6 +183,8 @@ class ContentContainer {
 
 }
 
+# a DocTemplate is a kind of ContentContainer that is
+# used to template out documents, e.g. websites
 class DocTemplate extends ContentContainer {
 }
 
