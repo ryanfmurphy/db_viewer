@@ -246,6 +246,7 @@
             return ob_get_clean();
         }
 
+        // allow alt-click to change the ?minimal value
         public static function echo_js_handle_edit_link_onclick_fn() {
             ob_start();
 ?>
@@ -533,7 +534,7 @@
 
         public static function quot_str_for_js($string) {
             $string = str_replace("'", "\\'", $string);
-            $string = str_replace("\n", "\\\n", $string);
+            $string = str_replace("\n", '\n', $string);
             return "'$string'";
         }
 
@@ -541,6 +542,32 @@
             return (preg_match("/\\border by $field\\b/", $query)
                         ? true
                         : false);
+        }
+
+        public static function load_macro($macro_name) {
+            #todo #fixme make macro path a config
+            $path = TRUNK . "server/db/db_viewer/table_view/macros/$macro_name.json";
+            return json_decode(
+                file_get_contents($path)
+            );
+        }
+
+        public static function get_sql_from_macro_name($macro_name) {
+            $macro = TableView::load_macro($macro_name);
+            $sql_event = $macro[0];
+            $sql = $sql_event->load_query;
+            return $sql;
+        }
+
+        public static function get_macro_names() {
+            #todo #fixme make macro path a config
+            $path = TRUNK . "server/db/db_viewer/table_view/macros";
+            $filenames = glob("$path/*.json");
+            $macro_names = array();
+            foreach ($filenames as $filename) {
+                $macro_names[] = basename($filename, '.json');
+            }
+            return $macro_names;
         }
 
     }

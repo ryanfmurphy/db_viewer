@@ -92,7 +92,7 @@
         // might not look quite as cool but much simpler to code
         // also allows for tabular copy-and-paste into unix-style programs
     function splitRow($row, num_rows, mark_odd_row) {
-        console.log('splitRow, num_rows =', num_rows);
+        //console.log('splitRow, num_rows =', num_rows);
 
         var $rows = [$row];
 
@@ -106,11 +106,11 @@
         if (num_rows > 1) {
 
             var $prev_row = $row;
-            console.log('adding new rows');
+            //console.log('adding new rows');
 
             // add rows
             for (var rowN = 1; rowN < num_rows; rowN++) {
-                console.log('adding new extra row');
+                //console.log('adding new extra row');
 
                 var $new_row = $row.clone();
                 $new_row.addClass('extra-row');
@@ -124,7 +124,7 @@
             }
         }
         else {
-            console.log('no extra rows to add!');
+            //console.log('no extra rows to add!');
         }
 
         return $rows;

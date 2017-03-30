@@ -59,9 +59,17 @@
 
             { # get sql query (if any) from incoming request
                 { # get sql and sanitize
+
+                    # sql can be taken implicitly from a launched macro
+                    $macroName = (isset($requestVars['play_macro'])
+                                    ? $requestVars['play_macro']
+                                    : null);
+
                     $sql = (isset($requestVars['sql'])
                                 ? $requestVars['sql']
-                                : null);
+                                : ($macroName
+                                        ? TableView::get_sql_from_macro_name($macroName)
+                                        : null));
 
                     # we just want normal newlines
                     # www forms often post with \r\n
@@ -229,7 +237,7 @@
 ?>
 <body>
 <?php
-            include("$trunk/table_view/html/help.php");
+            include("$trunk/table_view/html/top_menu.php");
             include("$trunk/table_view/html/query_form.php"); # form
 
             { # report inferred table, create link
@@ -263,10 +271,10 @@
                 #todo infinite scroll using OFFSET and LIMIT
                 if ($sql) {
                     $rows = Db::sql($sql);
-
                     include("$trunk/table_view/html/results_table.php"); # html
-                    include("$trunk/table_view/js/table_view.js.php"); # js
                 }
+
+                include("$trunk/table_view/js/table_view.js.php"); # js
 
                 { # js to show even if there's no query in play
 ?>
@@ -291,6 +299,8 @@
     </div>
 
     <script>
+        // #todo #fixme maybe move to js file?
+
         $(document).ready(function() {
             $('.popr').popr();
 
@@ -298,6 +308,7 @@
             $(document).on('click', '.popr-item', function(e){
                 var elem = lastClickedElem;
                 var popupItemElem = e.target;
+                // #todo #fixme pass this more explicitly instead of using global var
                 backlinkJoinTable = popupItemElem.innerHTML.trim();
                 openBacklinkedJoin(elem);
             });
@@ -314,6 +325,9 @@
                     ) {
                         $('#query_form').submit();
                     }
+                }
+                else if (focusedElem === document.getElementById('save_macro_input')) {
+                    // don't interrupt typing in input for Show/Hide mode
                 }
                 else { // show-hide mode
                     var H_code = 104;

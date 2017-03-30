@@ -191,17 +191,17 @@
             // change color only when primary key changes
             // so the join is still easy to visualize
             var this_val = elem.innerText;
-            console.log('a new cell', elem, 'idx', idx);
-            console.log('current id val', current_id_val, 'new val', this_val);
+            //console.log('a new cell', elem, 'idx', idx);
+            //console.log('current id val', current_id_val, 'new val', this_val);
             if (!current_id_val
                 || this_val !== current_id_val
             ) {
-                console.log('changing colors');
+                //console.log('changing colors');
                 mark_odd_row = 1 - mark_odd_row;
                 current_id_val = this_val;
             }
             else {
-                console.log('not changing colors');
+                //console.log('not changing colors');
             }
 
             // update elem's css classes / color / etc
@@ -211,15 +211,11 @@
 
             var row = $(elem).closest('tr');
             if (isHeaderRow(row)) {
-                console.log('header_row', header_cells);
-                //console.log('elem', elem);
+                //console.log('header_row', header_cells);
                 var these_header_cells = header_cells.clone();
                 $(elem).after(these_header_cells);
             }
             else { // data row - may have data to splice in
-                //console.log('elem',elem);
-                //console.log('subrows',subrows);
-
                 var col_no = colNo(elem);
                 var subrows = getDataKeyedByCellContents(elem, data); //, field_name);
 
@@ -238,7 +234,7 @@
                     );
                 }
                 else { // null join field - insert blank row
-                    console.log('subrows not array, adding blanks',subrows);
+                    //console.log('subrows not array, adding blanks',subrows);
                     var table_subrow = blankTableRow(field_names, innerLevel, joinColor);
                     table_subrows = [table_subrow];
                 }
@@ -284,6 +280,16 @@
             }
         }
         return cols_open;
+    }
+
+
+    // used by AJAX callbacks during macro playback
+    // to recursively playback remaining events
+    function continuePlayingAnyFutureEvents(future_macro_events) {
+        if (future_macro_events) {
+            console.log('found future_macro_events, continuing playing');
+            playbackMacroEvents(future_macro_events);
+        }
     }
 
     // elem is the pivot <th> element you click on to
@@ -343,10 +349,7 @@
             $(elem).removeAttr('cols_open');
         });
 
-        // recursive call to process remaining events
-        if (future_macro_events) {
-            playbackMacroEvents(future_macro_events);
-        }
+        continuePlayingAnyFutureEvents(future_macro_events);
     }
 
     // if you click on a header / field_name, join the new data to the table
@@ -401,22 +404,13 @@
                             var exclude_fields = {};
                             //exclude_fields[field_name] = 1;
                             addDataToTable(all_cells, data, exclude_fields);
-
-                            // recursive call to process remaining events
-                            if (future_macro_events) {
-                                console.log('continuing playback with future_events', future_macro_events);
-                                playbackMacroEvents(future_macro_events);
-                            }
+                            continuePlayingAnyFutureEvents(future_macro_events);
                         },
                         error: function(r) {
                             if (future_macro_events === undefined) {
                                 alert("Failure");
                             }
-                            // recursive call to process remaining events
-                            else {
-                                console.log('continuing playback with future_events', future_macro_events);
-                                playbackMacroEvents(future_macro_events);
-                            }
+                            continuePlayingAnyFutureEvents(future_macro_events);
                         }
                     });
                 }
@@ -429,7 +423,17 @@
 
     // reverse of openJoin - search the db for other tables
     // that have an id field pointing to this one
-    function openBacklinkedJoin(elem) {
+    function openBacklinkedJoin(
+        elem,
+        backlink_join_table, // optional, otherwise uses global var baclinkJoinTable
+        future_macro_events // optional, for playback
+    ) {
+
+        if (backlink_join_table === undefined) {
+            // choice from popup menu
+            // #todo #fixme global var is not ideal
+            backlink_join_table = backlinkJoinTable;
+        }
 
         var field_name = elem.innerHTML.trim();
 
@@ -440,7 +444,7 @@
             var all_cells = allColCells(elem);
             var val_cells = all_cells.filter('td');
             var vals = getColVals(val_cells);
-            var table = backlinkJoinTable;
+            var table = backlink_join_table; // choice from popup menu
             var data_type = null; // #todo generalize if necessary
 
             // clear odd-row coloring so we can reapply it cleanly
@@ -457,8 +461,18 @@
                 function(data) {
                     console.log('data', data);
                     addBacklinkedDataToTable(all_cells, data[table]);
+                    continuePlayingAnyFutureEvents(future_macro_events);
                 }
             );
+
+            if (future_macro_events === undefined) {
+                recordMacroEvent(
+                    null, field_name, 'openBacklinkedJoin',
+                    { // extra_vars
+                        backlink_join_table: backlink_join_table
+                    }
+                );
+            }
         }
         else {
             alert("Cannot expand this field \""+field_name+"\" - it doesn't end in \"_id\"");
@@ -550,14 +564,17 @@
 
         var data_type = null; // #todo use if necessary
         var elem = event.target;
-        //console.log(elem);
+        console.log(elem);
         var vals = colVals(elem);
 
         var callback = function(data) {
             var popupContent = '';
             for (i in data) {
                 tablename = data[i];
-                popupContent += '<div class="popr-item">' + tablename + '</div>';
+                popupContent +=
+                    '<div class="popr-item">'
+                        + tablename +
+                    '</div>';
             }
             updatePopupContent(popupContent);
 
@@ -568,7 +585,12 @@
         }
 
         var base_table = <?= json_encode($inferred_table) ?>;
-        tablesWithField(fieldname, data_type, vals, base_table, callback);
+        // lookup the tables that will become
+        // options in the popup
+        tablesWithField(
+            fieldname, data_type, vals,
+            base_table, callback
+        );
     }
 
 
@@ -587,25 +609,40 @@
     // let the AJAX callback know what future events to continue playing
     // after it completes
     var thClickHandler = function(e, future_macro_events) {
+        console.log('thClickHandler: e', e, 'future_macro_events', future_macro_events);
         var elem = e.target;
+
+        // backlinked join handled by popr popup menu
         if (e.altKey) {
-            // backlinked join handled by popr popup menu
+            console.log('altKey, don\'t do anything');
         }
+
+        // avoid thClickHandler on .popr-item, it was already handled elsewhere
+        else if (elem.classList.contains('popr-item')) {
+            console.log('avoid thClickHandler on .popr-item, it was already handled elsewhere');
+            return;
+        }
+
+        // regular join - open or close
         else {
+            console.log('no altKey, time to do stuff!');
             var field_name = getHeaderFieldName(elem);
             var event_type;
 
             if (getColsOpen(elem) > 0) {
+                console.log('already found open columns, do closeJoin');
                 // already opened - close
                 closeJoin(elem, future_macro_events);
                 event_type = 'closeJoin';
             }
             else { // not already opened - do open
+                console.log('found no open columns, do openJoin');
                 openJoin(elem, future_macro_events);
                 event_type = 'openJoin';
             }
 
             if (future_macro_events === undefined) {
+                console.log('about to recordMacroEvent');
                 recordMacroEvent(e, field_name, event_type);
             }
         }
@@ -654,46 +691,81 @@
     $('table').on('click', 'th', thClickHandler);
 
     var macroEvents = [];
-    function recordMacroEvent(event, field_name, event_type) {
-        macroEvents.push({
-            event: event,
+    function recordMacroEvent(
+        event, field_name, event_type,
+        extra_vars
+    ) {
+        console.log('recordMacroEvent', 'event', event, 'field_name', field_name, 'event_type', event_type);
+        var eventData = {
             event_type: event_type,
             field_name: field_name
-        });
+        };
+
+        // add in extra_vars if any
+        if (extra_vars) {
+            for (var k in extra_vars) {
+                if (extra_vars.hasOwnProperty(k)) {
+                    eventData[k] = extra_vars[k];
+                }
+            }
+        }
+
+        macroEvents.push(eventData);
     }
 
-    function playbackMacroEvents(macro_events) {
-        if (macro_events.length > 0) {
+    // note: does not redirect to the SQL query in and of itself
+    // but just plays back the subsequent events.
+    // When actually launching a macro, the page is reloaded
+    // with GET var 'play_macro=<name>'
+    function playbackMacroEvents(macroEvents) {
+        if (macroEvents.length > 0) {
 
             // separate first event and the remaining events
-            macro_event = macro_events[0];
+            macroEvent = macroEvents[0];
             // remaining events will be recursively processed
             // at the end of any (possibly asynchronous) processing
-            future_events = macro_events.slice(1);
+            futureEvents = macroEvents.slice(1);
 
             // load_query event
-            if ('load_query' in macro_event) {
-                // #todo #fixme figure out how to best launch query
-                console.log('load_query = ', macro_event.load_query);
+            if ('load_query' in macroEvent) {
+                console.log('load_query = ', macroEvent.load_query);
                 // recursive call to remaining events
-                playbackMacroEvents(future_events);
+                playbackMacroEvents(futureEvents);
             }
             // click field_name event
-            else if ('field_name' in macro_event) {
-                var field_name = macro_event.field_name;
+            else if ('field_name' in macroEvent) {
+                console.log('has field name');
+                var field_name = macroEvent.field_name;
                 var elem = findHeaderWithFieldName(field_name);
-                return thClickHandler(
-                    { // our "event"
-                        target: elem,
-                        altKey: false
-                    },
-                    // pass future_events for recursive call
-                    future_events
-                );
+                var event_type = macroEvent['event_type'];
+                switch (event_type) {
+                    case 'openJoin':
+                        console.log('dispatching openJoin event');
+                        return thClickHandler(
+                            { // our "event"
+                                target: elem,
+                                altKey: false
+                            },
+                            // pass futureEvents for recursive call
+                            futureEvents
+                        );
+
+                    case 'openBacklinkedJoin':
+                        console.log('dispatching openBacklinkedJoin event');
+                        return openBacklinkedJoin(
+                            elem,
+                            macroEvent['backlink_join_table'],
+                            futureEvents // pass futureEvents for recursive call
+                        );
+
+                    default:
+                        console.log('WARNING - tried to playback unknown event_type', event_type,
+                                    'macroEvent =', macroEvent);
+                }
             }
         }
         else { // no events
-            console.log('no more macro_events, stopping playback');
+            console.log('no more macroEvents, stopping playback');
             return;
         }
     }
@@ -707,6 +779,77 @@
     macroEvents.push({
         load_query: sql
     });
+
+    function saveMacro(macroEvents, macroName) {
+        $.ajax({
+            url: '/admin/db_viewer_macro', // #todo #fixme add Config for custom URL
+            //url: '/table_view/save_db_viewer_macro.php',
+            type: 'POST',
+            data: {
+                name: macroName,
+                events: macroEvents
+            },
+            dataType: 'json',
+            success: function(r) {
+                alert('macro successfully saved');
+            },
+            error: function(r) {
+                alert('oh no saving didn\'t work!');
+            }
+        });
+    }
+
+    function loadMacro(macroName, callback) {
+        $.ajax({
+            url: '/admin/db_viewer_macro',
+            data: {
+                name: macroName
+            },
+            dataType: 'json',
+            type: 'GET',
+            success: function(r) {
+                macroEvents = r; // set global var
+                if (callback) {
+                    callback(macroEvents);
+                }
+            },
+            error: function(r) {
+                alert('oh no couldn\'t get saved macros');
+            }
+        });
+    }
+
+    function playMacro(macroName) {
+        loadMacro(
+            macroName,
+            // callback: after finishing load, playback the macro:
+            function(macroEvents){
+                playbackMacroEvents(macroEvents);
+            }
+        );
+    }
+
+    function loadMacroFromSelect(clickedElem, event) {
+        var macroName = $(clickedElem).val();
+        document.location = '?play_macro=' + macroName;
+    }
+
+    function saveCurrentMacroOnEnter(clickedElem, event) {
+        var ENTER = 13, UNIX_ENTER = 10;
+        if (event.which == ENTER
+            || event.which == UNIX_ENTER
+        ) {
+            var macroName = $(clickedElem).val();
+            saveMacro(macroEvents, macroName);
+        }
+    }
+<?php
+    if ($macroName) {
+?>
+    playMacro(<?= TableView::quot_str_for_js($macroName) ?>);
+<?php
+    }
+?>
 
 </script>
 

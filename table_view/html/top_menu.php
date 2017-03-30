@@ -1,9 +1,15 @@
-<div id="help_legend">
-    <h3 id="help_legend_header"
-         onclick="$('#help_legend_details').toggle(); $('#help_legend').toggleClass('help_open')"
+<div id="top_menu">
+    <h3  class="top_menu_item"
+         onclick="$('#help_legend_details').toggle(); $('#top_menu').toggleClass('top_menu_open')"
     >
-        Help / Legend of Commands
+        Help
     </h3>
+    <h3  class="top_menu_item"
+         onclick="$('#macro_details').toggle(); $('#top_menu').toggleClass('top_menu_open')"
+    >
+        Macros
+    </h3>
+
     <div id="help_legend_details" style="display:none">
         <h4>Joining More Data to your Table</h4>
         <ul>
@@ -27,5 +33,26 @@
                 <p>The columns that have hidden data under them will be shaded.  Clicking them again will <b>Show</b> the hidden columns.</p>
             </li>
         </ul>
+    </div>
+
+    <div id="macro_details" style="display:none">
+        <h4>Load Stored Macro</h4>
+        <select onchange="loadMacroFromSelect(this, event)">
+            <option>- choose macro -</option>
+<?php
+    $macro_names = TableView::get_macro_names();
+    foreach ($macro_names as $macro_name) {
+?>
+            <option><?= $macro_name ?></option>
+<?php
+    }
+?>
+        </select>
+
+        <h4>Save Current State as Macro</h4>
+        <input onkeypress="saveCurrentMacroOnEnter(this, event)"
+               placeholder="Name"
+               id="save_macro_input"
+        >
     </div>
 </div>
