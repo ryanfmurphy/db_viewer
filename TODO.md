@@ -1,6 +1,10 @@
 To-Do List
 ==========
 
+* Allow many-to-1 joining based on array fields
+    * both authentic Postgres array joining
+      and pseudo array using CSV text data
+
 * Weird colors need to be fixed:
     * try with bg=dark with no background image, then do a backjoin.
     * try with the plants in the bg, and then do a backjoin.
