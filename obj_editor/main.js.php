@@ -2,6 +2,17 @@
 
 { // main javascript
 
+    function hasPreviouslyStoredRows() {
+        var stored_rows = localStorage.getItem('stored_rows');
+        if (stored_rows) {
+            stored_rows = JSON.parse(stored_rows);
+            return (stored_rows.length > 0);
+        }
+        else {
+            return false;
+        }
+    }
+
     // global-ish state
     scope = {
         table_name: '<?= $table ?>',
@@ -13,7 +24,7 @@
         //              then clobber them when we first Save Locally.
         //              Instead, maybe detect if there's something there
         //              and ask the user whether to store it?
-        stored_rows: []
+        has_previously_stored_rows: hasPreviouslyStoredRows()
     };
 
     // get array of form inputs / textareas / etc
@@ -278,6 +289,35 @@
         return fields;
     }
 
+    { // local row storage
+
+        function getLocalStorageArray(key) {
+            var json = localStorage.getItem(key);
+            return json
+                        ? JSON.parse(json)
+                        : [];
+        }
+        function saveLocalStorageJson(key, val) {
+            return localStorage.setItem(
+                key,
+                JSON.stringify(val)
+            );
+        }
+        function getStoredRows() {
+            return getLocalStorageArray('stored_rows');
+        }
+        function saveStoredRows(rows) {
+            return saveLocalStorageJson('stored_rows', rows);
+        }
+        function getOldStoredRows() {
+            return getLocalStorageArray('old_stored_rows');
+        }
+        function saveOldStoredRows(rows) {
+            return saveLocalStorageJson('old_stored_rows', rows);
+        }
+
+    }
+
     { // submit button handlers
 
         function createButtonClickHandler(
@@ -343,9 +383,26 @@
                 table_name: table_name,
                 time: currentTimestamp()
             };
-            scope.stored_rows.push(new_row);
-            localStorage.setItem('stored_rows',
-                                 JSON.stringify(scope.stored_rows));
+
+            // rows stored from a previous loading of the page?
+            // give an option about whether to append or overwrite
+            if (scope.has_previously_stored_rows) {
+                var overwrite = confirm('Previous rows found.  OK to overwrite, Cancel to keep');
+                if (!overwrite) {
+                    // load prev rows before appending to them
+                    scope.store_rows = JSON.parse(
+                        localStorage.getItem('stored_rows')
+                    );
+                }
+                // otherwise we're overwriting because we started with []
+            }
+            scope.has_previously_stored_rows = false; // only give that alert once
+
+            var stored_rows = getStoredRows();
+            stored_rows.push(new_row);
+            saveStoredRows(stored_rows);
+            //localStorage.setItem('stored_rows',
+            //                     JSON.stringify(stored_rows));
             alert('Row stored locally');
             clearAllFields();
             return false;
@@ -354,9 +411,10 @@
         function saveStoredRowsClickHandler(
             crud_api_uri, event
         ) {
-            var stored_rows = JSON.parse(
-                localStorage.getItem('stored_rows')
-            );
+            var stored_rows = getStoredRows();
+            // rebuild array of rows that didn't get saved
+            var remaining_stored_rows = [];
+
             for (var i=0; i<stored_rows.length; i++) {
                 stored_row = stored_rows[i];
                 var table_name = stored_row.table_name;
@@ -373,10 +431,28 @@
                         + '?action=create_'+table_name;
 
                 console.log('submitting stored row:', data);
+                // #todo allow submitForm to know which row it was and mark whether it got saved or not
                 submitForm(url, null, 'create', data);
+                // for now we'll just assume it was good and move it to old_stored_rows
+                var old_stored_rows = getOldStoredRows();
+                old_stored_rows.push(stored_row);
+                saveOldStoredRows(old_stored_rows);
+                console.log('marking row ',i,' for deletion');
+                if (false) { // #todo decide whether to retain row - only if it didn't save
+                    remaining_stored_rows.push(stored_row);
+                }
             }
+            
+            // save remaining stored rows
+            console.log('saving stored_rows with deletions', remaining_stored_rows);
+            saveStoredRows(remaining_stored_rows);
+
             // #todo blank out stored rows one we know they got saved
             // #todo make interface nicer - don't alert over and over
+
+            // once we've saved, don't warn about previously unsaved rows
+            scope.has_previously_stored_rows = false;
+
             return false;
         }
 
