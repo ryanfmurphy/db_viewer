@@ -39,6 +39,30 @@
             $table = $vars['table'];
         }
 
+        $automatic_curly_braces_for_arrays =
+            Config::$config['automatic_curly_braces_for_arrays'];
+        $fields_w_array_type =
+            Config::$config['fields_w_array_type'];
+
+        # automatically add curly braces for arrays
+        # (if enabled)
+        if ($automatic_curly_braces_for_arrays) {
+            foreach ($vars as $field_name => $field_val) {
+                if (is_array($fields_w_array_type)
+                    && in_array($field_name, $fields_w_array_type)
+                ) {
+                    # check if {} is already present and if so don't add them
+                    $field_val = trim($field_val);
+                    if ($field_val[0] != '{'
+                        || $field_val[strlen($field_val)-1] != '}'
+                    ) {
+                        #todo #fixme use a more robust process that handles quotes
+                        $vars[$field_name] = '{'.$field_val.'}';
+                    }
+                }
+            }
+        }
+
         switch ($action) {
 
             case "view_$table":

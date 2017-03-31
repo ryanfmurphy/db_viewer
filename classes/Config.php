@@ -85,7 +85,8 @@ class Config {
 
             'table_spaces_to_underscores',
 
-            'automatic_curly_braces_for_arrays', #todo #fixme implement
+            'automatic_curly_braces_for_arrays',
+            'fields_w_array_type',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -180,6 +181,7 @@ class Config {
             'table_spaces_to_underscores' => true, #todo maybe not be default?
 
             'automatic_curly_braces_for_arrays' => false,
+            'fields_w_array_type' => null,
         );
         return $default_values;
     }
