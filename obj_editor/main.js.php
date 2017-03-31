@@ -415,44 +415,83 @@
             // rebuild array of rows that didn't get saved
             var remaining_stored_rows = [];
 
-            for (var i=0; i<stored_rows.length; i++) {
-                stored_row = stored_rows[i];
-                var table_name = stored_row.table_name;
-                var data = stored_row.data;
+            if (stored_rows.length) {
+                for (var i=0; i<stored_rows.length; i++) {
+                    stored_row = stored_rows[i];
+                    var table_name = stored_row.table_name;
+                    var data = stored_row.data;
 
-                // record time more accurately since these
-                // won't go in the DB until later
-                // #todo think about edge cases:
-                //      what if there was no time_added field?
-                //      what if time_added was specified manually?
-                data.time_added = stored_row.time;
+                    // record time more accurately since these
+                    // won't go in the DB until later
+                    // #todo think about edge cases:
+                    //      what if there was no time_added field?
+                    //      what if time_added was specified manually?
+                    data.time_added = stored_row.time;
 
-                var url = crud_api_uri
-                        + '?action=create_'+table_name;
+                    var url = crud_api_uri
+                            + '?action=create_'+table_name;
 
-                console.log('submitting stored row:', data);
-                // #todo allow submitForm to know which row it was and mark whether it got saved or not
-                submitForm(url, null, 'create', data);
-                // for now we'll just assume it was good and move it to old_stored_rows
-                var old_stored_rows = getOldStoredRows();
-                old_stored_rows.push(stored_row);
-                saveOldStoredRows(old_stored_rows);
-                console.log('marking row ',i,' for deletion');
-                if (false) { // #todo decide whether to retain row - only if it didn't save
-                    remaining_stored_rows.push(stored_row);
+                    console.log('submitting stored row:', data);
+                    // #todo allow submitForm to know which row it was and mark whether it got saved or not
+                    submitForm(url, null, 'create', data);
+                    // for now we'll just assume it was good and move it to old_stored_rows
+                    var old_stored_rows = getOldStoredRows();
+                    old_stored_rows.push(stored_row);
+                    saveOldStoredRows(old_stored_rows);
+                    console.log('marking row ',i,' for deletion');
+                    if (false) { // #todo decide whether to retain row - only if it didn't save
+                        remaining_stored_rows.push(stored_row);
+                    }
                 }
+                
+                // save remaining stored rows
+                console.log('saving stored_rows with deletions', remaining_stored_rows);
+                saveStoredRows(remaining_stored_rows);
+
+                // #todo blank out stored rows one we know they got saved
+                // #todo make interface nicer - don't alert over and over
+
+                // once we've saved, don't warn about previously unsaved rows
+                scope.has_previously_stored_rows = false;
+            }
+            else {
+                alert('No rows to save');
+            }
+
+            return false;
+        }
+
+        // add all the old_stored_rows to stored_rows
+        // so they can be saved to DB in case they were missed
+        function recoverOldStoredRowsClickHandler(
+            crud_api_uri, event
+        ) {
+            var stored_rows = getStoredRows();
+            var old_stored_rows = getOldStoredRows();
+            var num_rows_moved = 0;
+
+            for (var i=0; i<old_stored_rows.length; i++) {
+                stored_row = old_stored_rows[i];
+                stored_rows.push(stored_row);
+                num_rows_moved++;
             }
             
-            // save remaining stored rows
-            console.log('saving stored_rows with deletions', remaining_stored_rows);
-            saveStoredRows(remaining_stored_rows);
+            saveStoredRows(stored_rows);
 
-            // #todo blank out stored rows one we know they got saved
-            // #todo make interface nicer - don't alert over and over
+            // blank out old_stored_rows
+            saveOldStoredRows([]);
 
-            // once we've saved, don't warn about previously unsaved rows
-            scope.has_previously_stored_rows = false;
+            alert(num_rows_moved + ' rows recovered into stored rows');
 
+            return false;
+        }
+
+        function clearStoredRowsClickHandler(
+            crud_api_uri, event
+        ) {
+            saveStoredRows([]);
+            saveOldStoredRows([]);
+            alert('All stored rows cleared');
             return false;
         }
 
