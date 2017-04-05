@@ -141,15 +141,17 @@
                             ) {
                                 $row_color = $row['color'];
                             }
-                            $relname = isset($row['relname'])
-                                            ? $row['relname']
-                                            : null;
-                            if ($color_rows_by_relname
-                                && $relname
-                                && isset($row_colors_by_relname)
-                                && isset($row_colors_by_relname[$relname])
-                            ) {
-                                $row_color = $row_colors_by_relname[$relname];
+                            else {
+                                $relname = isset($row['relname'])
+                                                ? $row['relname']
+                                                : null;
+                                if ($color_rows_by_relname
+                                    && $relname
+                                    && isset($row_colors_by_relname)
+                                    && isset($row_colors_by_relname[$relname])
+                                ) {
+                                    $row_color = $row_colors_by_relname[$relname];
+                                }
                             }
 
 ?>
