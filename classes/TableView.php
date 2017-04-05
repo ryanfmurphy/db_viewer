@@ -546,7 +546,8 @@
 
         public static function load_macro($macro_name) {
             #todo #fixme make macro path a config
-            $path = TRUNK . "server/db/db_viewer/table_view/macros/$macro_name.json";
+            $trunk = dirname(__DIR__);
+            $path = "$trunk/table_view/macros/$macro_name.json";
             return json_decode(
                 file_get_contents($path)
             );
@@ -561,7 +562,8 @@
 
         public static function get_macro_names() {
             #todo #fixme make macro path a config
-            $path = TRUNK . "server/db/db_viewer/table_view/macros";
+            $trunk = dirname(__DIR__);
+            $path = "$trunk/table_view/macros";
             $filenames = glob("$path/*.json");
             $macro_names = array();
             foreach ($filenames as $filename) {

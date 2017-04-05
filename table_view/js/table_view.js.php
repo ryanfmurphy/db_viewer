@@ -780,9 +780,15 @@
         load_query: sql
     });
 
+<?php
+    $db_viewer_macro_uri = Config::$config['db_viewer_macro_uri'];
+    $db_viewer_macro_uri_js = TableView::quot_str_for_js($db_viewer_macro_uri);
+?>
+    var db_viewer_macro_uri = <?= $db_viewer_macro_uri_js ?>;
+
     function saveMacro(macroEvents, macroName) {
         $.ajax({
-            url: '/admin/db_viewer_macro', // #todo #fixme add Config for custom URL
+            url: db_viewer_macro_uri,
             //url: '/table_view/save_db_viewer_macro.php',
             type: 'POST',
             data: {
@@ -801,7 +807,7 @@
 
     function loadMacro(macroName, callback) {
         $.ajax({
-            url: '/admin/db_viewer_macro',
+            url: db_viewer_macro_uri,
             data: {
                 name: macroName
             },

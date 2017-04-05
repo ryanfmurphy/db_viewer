@@ -90,6 +90,8 @@ class Config {
 
             'color_rows_by_relname',
             'row_colors_by_relname',
+
+            'db_viewer_macro_uri',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -188,6 +190,8 @@ class Config {
 
             'color_rows_by_relname' => false,
             'row_colors_by_relname' => array(),
+
+            'db_viewer_macro_uri' => "$uri_trunk/table_view/db_viewer_macro.php",
         );
         return $default_values;
     }
