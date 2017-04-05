@@ -87,6 +87,9 @@ class Config {
 
             'automatic_curly_braces_for_arrays',
             'fields_w_array_type',
+
+            'color_rows_by_relname',
+            'row_colors_by_relname',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -182,6 +185,9 @@ class Config {
 
             'automatic_curly_braces_for_arrays' => false,
             'fields_w_array_type' => null,
+
+            'color_rows_by_relname' => false,
+            'row_colors_by_relname' => array(),
         );
         return $default_values;
     }

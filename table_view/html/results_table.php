@@ -133,18 +133,34 @@
                         }
 
                         { # create table row
+                            # figure out color if any
+                            $row_color = null;
+                            if ($row_colors
+                                && isset($row['color'])
+                                && $row['color']
+                            ) {
+                                $row_color = $row['color'];
+                            }
+                            $relname = isset($row['relname'])
+                                            ? $row['relname']
+                                            : null;
+                            if ($color_rows_by_relname
+                                && $relname
+                                && isset($row_colors_by_relname)
+                                && isset($row_colors_by_relname[$relname])
+                            ) {
+                                $row_color = $row_colors_by_relname[$relname];
+                            }
+
 ?>
     <tr data-row="<?= $rowN ?>"
         <?= ($bold_border_above
                 ? ' class="bold_border_above" '
                 : '') ?>
 <?php
-                if ($row_colors
-                    && isset($row['color'])
-                    && $row['color']
-                ) {
+                if ($row_color) {
 ?>
-        style="background: <?= $row['color'] ?>"
+        style="background: <?= $row_color ?>"
 <?php
                 }
 ?>
