@@ -17,7 +17,11 @@
     scope = {
         table_name: '<?= $table ?>',
         table_view_uri: '<?= $table_view_uri ?>',
-        vals_to_always_include: {}
+        vals_to_always_include: {},
+
+        // cursor to go back and visit stored rows
+        // {array: 'new'/'old', idx:int}
+        stored_row_cursor: null,
 
         // #todo #fixme gracefully handle stored_rows leftover from prev sessions
         //              right now we ignore them at page load,
@@ -406,7 +410,7 @@
 
             var stored_rows = getStoredRows();
             stored_rows.push(new_row);
-            saveStoredRows(stored_rows);
+            saveStoredRows(stored_rows); // locally
             //localStorage.setItem('stored_rows',
             //                     JSON.stringify(stored_rows));
             alert('Row stored locally');
@@ -414,9 +418,11 @@
             return false;
         }
 
+        // actually save to DB
         function saveStoredRowsClickHandler(
             crud_api_uri, event
         ) {
+            cursorReset();
             var stored_rows = getStoredRows();
             // rebuild array of rows that didn't get saved
             var remaining_stored_rows = [];
@@ -472,6 +478,7 @@
         function recoverOldStoredRowsClickHandler(
             crud_api_uri, event
         ) {
+            cursorReset();
             var stored_rows = getStoredRows();
             var old_stored_rows = getOldStoredRows();
             var num_rows_moved = 0;
@@ -495,6 +502,7 @@
         function clearStoredRowsClickHandler(
             crud_api_uri, event
         ) {
+            cursorReset();
             saveStoredRows([]);
             saveOldStoredRows([]);
             alert('All stored rows cleared');
@@ -1126,6 +1134,99 @@
             }
         }
 
+    }
+
+    { // stored_row_cursor to go back and visit stored rows
+
+        function cursorPrev() {
+            var cursor = scope.stored_row_cursor;
+
+            // not on a row (i.e. at the very end)
+            if (cursor === null) {
+                var rows = getStoredRows();
+                if (rows.length > 0) {
+                    cursor = scope.stored_row_cursor = {
+                        array: 'new',
+                        idx: rows.length - 1
+                    };
+                    return cursor;
+                }
+                // else fall thru and end up in old_stored_rows
+            }
+
+            // cursor already exists, go back from there
+            if (cursor
+                && cursor.idx > 0
+            ) {
+                cursor.idx--;
+                return cursor;
+            }
+            // cursor still doesn't exist or has run out of new rows
+            // go to old rows
+            else {
+                var rows = getOldStoredRows();
+                // if we didn't already run thru the old rows
+                if ( (cursor === null
+                      || cursor.array === 'new')
+                     && rows.length > 0
+                ) {
+                    cursor = scope.stored_row_cursor = {
+                        array: 'old',
+                        idx: rows.length - 1
+                    };
+                    return cursor;
+                }
+                else {
+                    alert("Can't go back any further");
+                }
+            }
+        }
+
+        function cursorNext() {
+            var cursor = scope.stored_row_cursor;
+
+            var new_rows = getStoredRows();
+            var old_rows = getOldStoredRows();
+            if (cursor === null) {
+                alert("Can't go forward any further");
+                return;
+            }
+            // we have a cursor
+            else {
+                cursor.idx++;
+
+                if (cursor.array === 'new') {
+                    if (cursor.idx > new_rows.length-1) {
+                        cursor = null;
+                    }
+                }
+                else {
+                    if (cursor.idx > old_rows.length-1) {
+                        if (new_rows.length > 0) {
+                            cursor.array = 'new';
+                            cursor.idx = 0;
+                        }
+                        else {
+                            cursor = null;
+                        }
+                    }
+                }
+                scope.stored_row_cursor = cursor;
+                return cursor;
+            }
+        }
+
+        function cursorReset() {
+            scope.stored_row_cursor = null;
+        }
+
+        function getStoredRowAtCursor() {
+            var cursor = scope.stored_row_cursor;
+            var rows = (cursor.array === 'new'
+                            ? getStoredRows()
+                            : getOldStoredRows());
+            return rows[cursor.idx];
+        }
     }
 
 }
