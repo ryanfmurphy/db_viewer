@@ -437,7 +437,7 @@
 <?php
         }
 ?>
-                    table
+                    <span id="its_a_table">table</span>
                 </h1>
 <?php
         if ($table) {
@@ -445,22 +445,38 @@
                                 ? '&minimal'
                                 : '';
 ?>
-                <a  id="view_all_link"
-                    class="link"
-                    href="<?= Db::view_query_url($table, $maybe_minimal) ?>"
-                    target="_blank"
-                >
+                <a  id="view_all_link" class="link" target="_blank"
+                    href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
                     view all
                 </a>
 
-                <span   id="clear_fields_link"
-                        class="link"
-                        onclick="clearAllFields()"
-                        target="_blank"
-                >
+                <span   id="clear_fields_link" class="link" target="_blank"
+                        onclick="clearAllFields()">
                     clear all fields
-                </a>
+                </span>
 <?php
+            if ($mobile_travel_mode) {
+?>
+                <nobr id="prev_next_row_links">
+                    <span   id="first_row_link" class="link" target="_blank"
+                            onclick="goToFirstRow()">
+                        &lt;&lt;
+                    </span>
+                    <span   id="prev_row_link" class="link" target="_blank"
+                            onclick="goToPrevRow()">
+                        &lt;
+                    </span>
+                    <span   id="next_row_link" class="link" target="_blank"
+                            onclick="goToNextRow()">
+                        &gt;
+                    </span>
+                    <span   id="last_row_link" class="link" target="_blank"
+                            onclick="goToLastRow()">
+                        &gt;&gt;
+                    </span>
+                </nobr>
+<?php
+            }
         }
 ?>
             </div>

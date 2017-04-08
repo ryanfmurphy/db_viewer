@@ -691,12 +691,14 @@
 <?php
     $table_spaces_to_underscores = Config::$config['table_spaces_to_underscores'];
 ?>
-
+    // #todo this is not used for cursorPrev/Next visiting old rows
+    // because it assumes it's already an input
+    // but it'd be nice to use it if it does anything we need
     function selectTable(keyEvent) {
 
         var selectTableInput = document.getElementById('selectTable');
         var table = selectTableInput.value;
-        var table_spaces_to_underscores = <?= $table_spaces_to_underscores ? true : false ?>;
+        var table_spaces_to_underscores = <?= $table_spaces_to_underscores ? 1 : 0; ?>;
         if (table_spaces_to_underscores) {
             table = table.replace(/ /g,'_');
         }
@@ -718,7 +720,7 @@
             // replace input with header again
             document.getElementById('selectTable')
                     .outerHTML = '\
-                            <code onclick="becomeSelectTableInput(this)">\
+                            <code id="table_name" onclick="becomeSelectTableInput(this)">\
                                 ' + table + '\
                             </code>\
                     ';
@@ -1138,6 +1140,9 @@
 
     { // stored_row_cursor to go back and visit stored rows
 
+        // #todo maybe consolidate stored_rows and old_stored_rows into one thing?
+        // and just keep track of whether they've been saved or not?
+
         function cursorPrev() {
             var cursor = scope.stored_row_cursor;
 
@@ -1177,7 +1182,7 @@
                     return cursor;
                 }
                 else {
-                    alert("Can't go back any further");
+                    console.log("Can't go back any further");
                 }
             }
         }
@@ -1188,7 +1193,7 @@
             var new_rows = getStoredRows();
             var old_rows = getOldStoredRows();
             if (cursor === null) {
-                alert("Can't go forward any further");
+                console.log("Can't go forward any further");
                 return;
             }
             // we have a cursor
@@ -1216,17 +1221,90 @@
             }
         }
 
-        function cursorReset() {
+        function cursorFirst() {
+            var old_rows = getOldStoredRows();
+            if (old_rows.length > 0) {
+                scope.stored_row_cursor = {
+                    array: 'old',
+                    idx: 0
+                };
+                return scope.stored_row_cursor;
+            }
+            else {
+                var new_rows = getStoredRows();
+                if (new_rows.length > 0) {
+                    scope.stored_row_cursor = {
+                        array: 'new',
+                        idx: 0
+                    };
+                    return scope.stored_row_cursor;
+                }
+            }
+        }
+
+        function cursorLast() {
             scope.stored_row_cursor = null;
+            return null;
+        }
+
+        function cursorReset() {
+            return cursorLast();
         }
 
         function getStoredRowAtCursor() {
             var cursor = scope.stored_row_cursor;
-            var rows = (cursor.array === 'new'
-                            ? getStoredRows()
-                            : getOldStoredRows());
-            return rows[cursor.idx];
+            if (cursor === null) {
+                return {
+                    data: {}
+                };
+            }
+            else {
+                var rows = (cursor.array === 'new'
+                                ? getStoredRows()
+                                : getOldStoredRows());
+                return rows[cursor.idx];
+            }
         }
+
+        function visitRow(row) {
+            // change table name if needed
+            if (row.hasOwnProperty('table_name')) {
+                var table_name_elem = document.getElementById('table_name');
+                table_name_elem.innerHTML = row.table_name;
+            }
+
+            // fill in the blanks
+            setInputValues(row.data);
+        }
+
+        function visitRowAtCursor() {
+            var cursor = scope.stored_row_cursor;
+            var row = getStoredRowAtCursor();
+            if (row) {
+                visitRow(row);
+            }
+        }
+
+        function goToPrevRow() {
+            var cursor = cursorPrev();
+            visitRowAtCursor();
+        }
+
+        function goToNextRow() {
+            var cursor = cursorNext();
+            visitRowAtCursor();
+        }
+
+        function goToFirstRow() {
+            var cursor = cursorFirst();
+            visitRowAtCursor();
+        }
+
+        function goToLastRow() {
+            var cursor = cursorLast();
+            visitRowAtCursor();
+        }
+
     }
 
 }

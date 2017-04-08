@@ -93,7 +93,8 @@ form#mainForm label {
     font-size: 80%;
 }
 
-#table_header_top > * {
+#table_header_top > *,
+#prev_next_row_links > * {
     display: inline-block;
     vertical-align: middle;
     margin: .5rem;
@@ -151,6 +152,7 @@ body {
 
     body {
         margin: 1em;
+        margin-top: 0;
         font-size: 16px;
     }
 
@@ -186,17 +188,37 @@ body {
         margin-right: auto;
     }
 
-    #choose_table_link, #view_all_link, #clear_fields_link {
+    #whoami, #view_all_link, #clear_fields_link {
         display: none;
         /*display: block;
         margin: .5em 0;*/
     }
 
     h1 {
+        margin-top: 0;
         font-size: 20px;
     }
     h1 code { /* table name */
         font-size: 40px;
+    }
+
+    #prev_next_row_links {
+        display: block;
+        font-size: 150%;
+        margin-top: -.5em;
+        margin-bottom: -.2em;
+    }
+    #prev_next_row_links,
+    #prev_row_link {
+        margin-left: 0;
+    }
+    #prev_next_row_links,
+    #next_row_link {
+        margin-right: 0;
+    }
+
+    #its_a_table {
+        display: none;
     }
 }
 
