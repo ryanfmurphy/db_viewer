@@ -500,9 +500,9 @@
 
                 { # dynamically add a new field
 ?>
-            <div class="formInput">
+            <div class="formInput" id="addNewFieldDiv">
                 <span id="addNewField"
-                      onclick="openAddNewField(this)"
+                      onclick="openAddNewField()"
                 >
                     +
                 </span>

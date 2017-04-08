@@ -226,11 +226,15 @@
         }
     }
 
+    function getForm() {
+        return document.getElementById('mainForm');
+    }
+
     // for submitting the form in the traditional way
     // while using js to dynamically change which action
     // to submit to (used by View buttons for example)
     function setFormAction(url, extra_vars = null) {
-        var form = document.getElementById('mainForm');
+        var form = getForm();
         var inputs = getFormInputs(form);
         console.log('extra_vars',extra_vars);
         addVarsToForm(form, extra_vars);
@@ -238,7 +242,7 @@
         form.action = url;
         console.log('form action url =', url);
         // #todo #fixme why is logging this showing an <input name="action"> instead of the url?
-        // console.log('form action =', form.action);
+        console.log('form action =', form.action);
         setTimeout(function(){
             unhideNamesForBlankVals(inputs);
             removeVarsFromForm(form, extra_vars);
@@ -374,7 +378,7 @@
         function saveLocallyButtonClickHandler(
             crud_api_uri, table_name, event
         ) {
-            var form = document.getElementById('mainForm');
+            var form = getForm();
             var row_data = form2obj(getFormInputs(form),
                                     false,
                                     scope.vals_to_always_include);
@@ -555,7 +559,7 @@
             queryString  = obj2queryString(obj);
         }
         else { // get the data from the form
-            var form = document.getElementById('mainForm');
+            var form = getForm();
             var inputs = getFormInputs(form);
             queryString = serializeForm(
                             inputs, false,
@@ -616,6 +620,7 @@
         }
     }
 
+    // <script>
     // add the new form field html
     // requires the funny container trick
     function createElemFromHtml(html) {
@@ -626,20 +631,31 @@
         return newElem;
     }
 
-    function openAddNewField(elem) { // #todo don't need elem: it's always that +
-        console.log(elem);
-        var plusSignFormInputDiv = elem.parentNode;
-        var mainForm = plusSignFormInputDiv.parentNode;
-        console.log(plusSignFormInputDiv);
-        console.log(mainForm);
+    // #todo #fixme don't need plusSignFormInputDiv, it's always the same
+    function addNewInput(fieldName) {
+        var plusSignFormInputDiv = document.getElementById('addNewFieldDiv');
+        var mainForm = getForm();
+        var newField = createElemFromHtml(
+            <?= echoFormFieldHtml_JsFormat('fieldName'); ?>
+        );
+        console.log('newField', newField);
+        mainForm.insertBefore(newField, plusSignFormInputDiv);
+    }
+
+    function openAddNewField() {
+        //var plusSignFormInputDiv = document.getElementById('addNewFieldDiv');
+        //var mainForm = plusSignFormInputDiv.parentNode;
 
         var fieldName = prompt("Enter Field Name to add:");
         if (fieldName) {
+            addNewInput(fieldName);
+            /*
             var newField = createElemFromHtml(
                 <?= echoFormFieldHtml_JsFormat('fieldName'); ?>
             );
             console.log('newField', newField);
             mainForm.insertBefore(newField, plusSignFormInputDiv);
+            */
         }
     }
 
@@ -875,7 +891,7 @@
         
         // if <select> is on Custom, don't send that hash value,
         // and show the custom value <input>
-        var form = document.getElementById('mainForm');
+        var form = getForm();
         if (form) {
             var selects = form.getElementsByTagName('select');
             for (var i=0; i < selects.length; i++) {
@@ -885,7 +901,7 @@
 
             // get all names from form, to pay attention to those fields
             // even if we set them to blank (which becomes NULL on the backend)
-            var form = document.getElementById('mainForm');
+            var form = getForm();
             var form_names = getFormKeys(form, true);
             for (var i = 0; i < form_names.length; i++) {
                 var key = form_names[i];
@@ -962,10 +978,12 @@
             // #todo is .after well-supported JS?
             elem.after(new_input);
             useCustomValue(new_input);
+            return new_input;
         }
         else {
             useSelectValue(elem);
             removeCustomInput(elem);
+            return null;
         }
     }
 
@@ -1014,30 +1032,100 @@
         }
     }
 
-    // blank out all form fields
-    function clearAllFields() {
-        var form = document.getElementById('mainForm');
-        var inputs = getFormInputs(form);
-        for (var i in inputs) {
-            var input = inputs[i];
-            if (input.tagName == 'INPUT'
-                || input.tagName == 'TEXTAREA'
+    { // fns to set values of inputs
+
+        function clearField(input_elem) {
+            if (input_elem.tagName == 'INPUT'
+                || input_elem.tagName == 'TEXTAREA'
             ) {
-                input.value = '';
+                input_elem.value = '';
             }
-            else if (input.tagName == 'SELECT') {
-                var option1 = input.getElementsByTagName('option')[0];
+            else if (input_elem.tagName == 'SELECT') {
+                var option1 = input_elem.getElementsByTagName('option')[0];
                 if (!option1.selected) {
                     // this assumes we don't have to
                     // deselect the previously chosen 1
                     option1.selected = 'selected';
 
                     // we just chose 'custom'
-                    // so open the custom input
-                    handleCustomValueInputForSelect(input);
+                    // so open the custom input_elem
+                    handleCustomValueInputForSelect(input_elem);
                 }
             }
         }
+
+        // blank out all form fields
+        function clearAllFields() {
+            var form = getForm();
+            var inputs = getFormInputs(form);
+            for (var i in inputs) {
+                var input = inputs[i];
+                clearField(input);
+            }
+        }
+
+        // given a DOM element, fill in the value
+        // note that for a <select>, this will only work
+        // if the select is active, by having the name attribute
+        // if the custom_value_input has the name attribute,
+        // call this fn on that instead
+        function setInputValue(input_elem, value) {
+            if (input_elem.tagName == 'INPUT'
+                || input_elem.tagName == 'TEXTAREA'
+            ) {
+                input_elem.value = value;
+            }
+            else if (input_elem.tagName == 'SELECT') {
+                var option1 = input_elem.getElementsByTagName('option')[0];
+                if (!option1.selected) {
+                    // this assumes we don't have to
+                    // deselect the previously chosen 1
+                    option1.selected = 'selected';
+
+                    // we just chose 'custom'
+                    // so open the custom input_elem
+                    console.log('about to handleCustomValueInputForSelect');
+                    var custom_value_input =
+                        handleCustomValueInputForSelect(input_elem);
+
+                    custom_value_input.value = value;
+                }
+            }
+        }
+
+        // given a js obj, data, add any inputs
+        // for data's keys that aren't there yet
+        function addMissingInputs(data) {
+            var form = getForm();
+            var existing_names = getFormKeys(form);
+            // find missing_names and add inputs
+            for (var name in data) {
+                if (data.hasOwnProperty(name)
+                    && existing_names.indexOf(name) === -1
+                ) {
+                    console.log('missing name', name, '- adding input');
+                    addNewInput(name);
+                }
+            }
+        }
+
+        // given a js obj, data, fill it into the inputs
+        function setInputValues(data) {
+            clearAllFields();
+            var form = getForm();
+            addMissingInputs(data);
+            var inputs = getFormInputs(form);
+            for (var i=0; i<inputs.length; i++) {
+                var input = inputs[i];
+                var name = input.getAttribute('name');
+                if (name
+                    && data.hasOwnProperty(name)
+                ) {
+                    setInputValue(input, data[name]);
+                }
+            }
+        }
+
     }
 
 }
