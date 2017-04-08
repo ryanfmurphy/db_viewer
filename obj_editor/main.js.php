@@ -17,14 +17,14 @@
     scope = {
         table_name: '<?= $table ?>',
         table_view_uri: '<?= $table_view_uri ?>',
-        vals_to_always_include: {},
+        vals_to_always_include: {}
 
         // #todo #fixme gracefully handle stored_rows leftover from prev sessions
         //              right now we ignore them at page load,
         //              then clobber them when we first Save Locally.
         //              Instead, maybe detect if there's something there
         //              and ask the user whether to store it?
-        has_previously_stored_rows: hasPreviouslyStoredRows()
+        //has_previously_stored_rows: hasPreviouslyStoredRows()
     };
 
     // get array of form inputs / textareas / etc
@@ -384,6 +384,7 @@
                 time: currentTimestamp()
             };
 
+            /*
             // rows stored from a previous loading of the page?
             // give an option about whether to append or overwrite
             if (scope.has_previously_stored_rows) {
@@ -397,6 +398,7 @@
                 // otherwise we're overwriting because we started with []
             }
             scope.has_previously_stored_rows = false; // only give that alert once
+            */
 
             var stored_rows = getStoredRows();
             stored_rows.push(new_row);
@@ -452,7 +454,7 @@
                 // #todo make interface nicer - don't alert over and over
 
                 // once we've saved, don't warn about previously unsaved rows
-                scope.has_previously_stored_rows = false;
+                //scope.has_previously_stored_rows = false;
             }
             else {
                 alert('No rows to save');
