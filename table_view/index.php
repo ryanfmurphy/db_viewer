@@ -105,7 +105,7 @@
                     if (!$allow_destructive_queries
                         && $query_is_destructive
                     ) {
-                        die("Cannot perform a destructive query: keywork '$destructive_kw' found");
+                        die("Cannot perform a destructive query: keyword '$destructive_kw' found");
                     }
                 }
             }
