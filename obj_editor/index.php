@@ -512,6 +512,9 @@
                         }
                         echoFormFieldHtml($name, $defaultValues);
                     }
+?>
+            <script> selectFirstFormField(); </script>
+<?php
                 }
 
                 { # dynamically add a new field

@@ -712,6 +712,7 @@
         var change_table_no_reload = (need_alt_for_no_reload
                                         ? keyEvent.altKey
                                         : !keyEvent.altKey);
+        // no reload - change table w pure JS
         if (change_table_no_reload) {
 
             // change which table to submit to
@@ -736,8 +737,10 @@
                 view_all_link.setAttribute('href', view_all_url);
             }
 
+            selectFirstFormField();
+
         }
-        // no alt key - redirect page
+        // reload - redirect page
         else {
             var do_minimal = links_minimal_by_default
                                 ? !keyEvent.ctrlKey
@@ -1305,6 +1308,15 @@
             visitRowAtCursor();
         }
 
+    }
+
+    function selectFirstFormField() {
+        var form = getForm();
+        var inputs = getFormInputs(form);
+        if (inputs.length > 0) {
+            var first_input = inputs[0];
+            first_input.focus();
+        }
     }
 
 }
