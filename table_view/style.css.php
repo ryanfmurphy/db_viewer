@@ -41,6 +41,12 @@
         padding: .3em;
     }
 
+    .link {
+        color: #00F;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
     input[type=text] {
         font-size: 100%;
         padding: .2em;
@@ -125,7 +131,7 @@
 <?php
                 if ($background=='dark') {
 ?>
-    a {
+    a, .link {
         color: #88f;
     }
 <?php
@@ -147,7 +153,8 @@
         font-size: 30%;
     }
 
-    .row_edit_link {
+    .row_edit_link,
+    .row_delete_button {
         font-size: 80%;
     }
 

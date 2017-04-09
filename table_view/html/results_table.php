@@ -29,6 +29,13 @@
         <th class="action_cell"></th>
 <?php
                     }
+
+                    # delete button
+                    if (Config::$config['include_row_delete_button']) {
+?>
+        <th class="action_cell"></th>
+<?php
+                    }
                     for ($i=0; $i<$num_action_columns; $i++) {
 ?>
         <th class="action_cell"></th>
@@ -61,6 +68,14 @@
 
 <?php include('next_prev_page_links.php'); ?>
 <?= TableView::echo_js_handle_edit_link_onclick_fn() ?>
+
+<?php
+    if ($include_row_delete_button) {
+?>
+<?= TableView::echo_js_handle_delete_button_onclick_fn() ?>
+<?php
+    }
+?>
 
 <table id="query_table">
 <?php
@@ -176,6 +191,11 @@
                                         $obj_editor_uri, $tablename_no_quotes,
                                         $primary_key, $links_minimal_by_default
                                     );
+                                    if ($include_row_delete_button) {
+                                        TableView::echo_delete_button(
+                                            $obj_editor_uri, $tablename_no_quotes, $primary_key
+                                        );
+                                    }
                                 }
 
                                 # special ops (optional)

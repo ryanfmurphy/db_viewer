@@ -92,6 +92,8 @@ class Config {
             'row_colors_by_relname',
 
             'db_viewer_macro_uri',
+
+            'include_row_delete_button',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -192,6 +194,8 @@ class Config {
             'row_colors_by_relname' => array(),
 
             'db_viewer_macro_uri' => "$uri_trunk/table_view/db_viewer_macro.php",
+
+            'include_row_delete_button' => true,
         );
         return $default_values;
     }

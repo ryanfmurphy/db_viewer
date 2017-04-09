@@ -294,6 +294,48 @@
 <?php
         }
 
+        // allow alt-click to change the ?minimal value
+        public static function echo_js_handle_delete_button_onclick_fn() {
+            ob_start();
+?>
+        <script>
+        // #todo move
+        function handle_delete_button_onclick(elem, key_event, url) {
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                success: function(r) {
+                    elem.closest('tr').remove();
+                },
+                error: function() {
+                    console.log('Something went wrong');
+                }
+            });
+        }
+        </script>
+<?php
+            return ob_get_clean();
+        }
+
+        # needs handle_delete_button_onclick js fn (above)
+        public static function echo_delete_button(
+            $obj_editor_uri, $tablename_no_quotes, $primary_key
+        ) {
+            $crud_api_uri = Config::$config['crud_api_uri'];
+            #assumption primary_key field is "id"
+            $url = "$crud_api_uri?action=delete_entity_view&where_clauses[id]=$primary_key";
+?>
+        <td class="action_cell">
+            <a  class="row_delete_button link"
+                target="_blank"
+                onclick="handle_delete_button_onclick(this, event, '<?= $url ?>')"
+            >
+                delete
+            </a>
+        </td>
+<?php
+        }
+
         public static function special_op_url(
             $special_op, $tablename_no_quotes,
             $primary_key_field, $primary_key, $crud_api_uri,
