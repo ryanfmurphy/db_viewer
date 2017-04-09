@@ -565,12 +565,13 @@
                 <input onclick="return createButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
                     value="Create" type="submit" id="create_button"
                 />
+<?php
+                    }
+?>
                 <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, scope.table_name)" <?php # view ?>
                     value="View" type="submit" id="view_button"
                 />
 <?php
-                    }
-
                     $disable_delete_button = Config::$config['disable_delete_button'];
                     if ($edit
                         && !$disable_delete_button
