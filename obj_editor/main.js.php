@@ -738,6 +738,7 @@
             }
 
             selectFirstFormField();
+            keyEvent.preventDefault();
 
         }
         // reload - redirect page
