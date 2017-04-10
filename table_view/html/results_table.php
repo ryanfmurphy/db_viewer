@@ -20,6 +20,8 @@
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
                 $row = current($rows);
                 $currentRow = TableView::prep_row($row);
+                $has_delete_column = Config::$config['include_row_delete_button']
+                                     && $has_edit_column;
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php
@@ -31,7 +33,7 @@
                     }
 
                     # delete button
-                    if (Config::$config['include_row_delete_button']) {
+                    if ($has_delete_column) {
 ?>
         <th class="action_cell"></th>
 <?php
