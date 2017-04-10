@@ -107,6 +107,9 @@
                             $primary_key = (isset($row[$primary_key_field])
                                                 ? $row[$primary_key_field]
                                                 : null);
+                            $relname = isset($row['relname'])
+                                            ? $row['relname']
+                                            : null;
                         }
 
                         { # sometimes add a header row
@@ -159,9 +162,6 @@
                                 $row_color = $row['color'];
                             }
                             else {
-                                $relname = isset($row['relname'])
-                                                ? $row['relname']
-                                                : null;
                                 if ($color_rows_by_relname
                                     && $relname
                                     && isset($row_colors_by_relname)
@@ -187,12 +187,18 @@
 <?php
                             { # action column(s): edit link & special_ops
 
-                                # edit link (needs pk)
+                                # edit and delete links (need pk)
                                 if ($has_primary_key_field) {
+                                    # edit
+                                    $table_for_edit_link = ($relname
+                                                                ? DbUtil::strip_quotes($relname)
+                                                                : $tablename_no_quotes);
                                     TableView::echo_edit_link(
-                                        $obj_editor_uri, $tablename_no_quotes,
+                                        $obj_editor_uri, $table_for_edit_link,
                                         $primary_key, $links_minimal_by_default
                                     );
+
+                                    # delete
                                     if ($include_row_delete_button) {
                                         TableView::echo_delete_button(
                                             $obj_editor_uri, $tablename_no_quotes, $primary_key

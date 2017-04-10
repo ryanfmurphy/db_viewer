@@ -94,6 +94,12 @@ class Config {
             'db_viewer_macro_uri',
 
             'include_row_delete_button',
+
+            # useful for schemas that use table inheritance
+            # (especially Postgres) - if the "relname" is in
+            # the row, use that as the table to look in for
+            # the edit link, so you can see all the fields
+            'use_relname_for_edit_link',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -196,6 +202,12 @@ class Config {
             'db_viewer_macro_uri' => "$uri_trunk/table_view/db_viewer_macro.php",
 
             'include_row_delete_button' => true,
+
+            # useful for schemas that use table inheritance
+            # (especially Postgres) - if the "relname" is in
+            # the row, use that as the table to look in for
+            # the edit link, so you can see all the fields
+            'use_relname_for_edit_link' => true,
         );
         return $default_values;
     }

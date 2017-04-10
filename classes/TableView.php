@@ -272,7 +272,9 @@
         public static function echo_edit_link(
             $obj_editor_uri, $tablename_no_quotes, $primary_key, $minimal = false
         ) {
-            $base_url = TableView::obj_editor_url($obj_editor_uri, $tablename_no_quotes, $primary_key);
+            $base_url = TableView::obj_editor_url(
+                $obj_editor_uri, $tablename_no_quotes, $primary_key
+            );
             if ($minimal) {
                 $url = "$base_url&minimal";
                 $url2 = $base_url;
