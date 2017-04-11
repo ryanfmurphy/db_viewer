@@ -523,7 +523,7 @@
                         && !result.success
                     ) {
                         var error_details = result.error_info[2];
-                        alert('Failed... Error '
+                        respond_callback('Failed... Error '
                                 + result.error_code + ': '
                                 + error_details
                         );
