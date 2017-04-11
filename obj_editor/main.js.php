@@ -327,6 +327,15 @@
 
     }
 
+    function updateJsObj(obj_to_update, obj_to_apply) {
+        for (var k in obj_to_apply) {
+            if (obj_to_apply.hasOwnProperty(k)) {
+                obj_to_update[k] = obj_to_apply[k];
+            }
+        }
+        return obj_to_update;
+    }
+
     { // submit button handlers
 
         function createButtonClickHandler(
@@ -387,14 +396,33 @@
             var row_data = form2obj(getFormInputs(form),
                                     false,
                                     scope.vals_to_always_include);
-            var new_row = {
-                data: row_data,
-                table_name: table_name,
-                time: currentTimestamp()
-            };
 
             var stored_rows = getStoredRows();
-            stored_rows.push(new_row);
+            var cursor = scope.stored_row_cursor;
+            var row_wrapper;
+            if (cursor
+                && cursor.array == 'new'
+            ) {
+                // if you're visiting a previous row, and save,
+                // whatever fields you've changed/added get applied
+                // over the existing row object
+                row_wrapper = getStoredRowAtCursor(stored_rows);
+                row_wrapper['update_time'] = currentTimestamp();
+                // #todo save update_time as last_updated on row itself?
+                // write row to array in-place
+                updateJsObj(row_wrapper.data, row_data);
+                stored_rows[cursor.idx] = row_wrapper;
+            }
+            else {
+                row_wrapper = {
+                    data: row_data,
+                    table_name: table_name,
+                    time: currentTimestamp()
+                };
+                // add row to end
+                stored_rows.push(row_wrapper);
+            }
+
             saveStoredRows(stored_rows); // locally
             alert('Row stored locally');
             //clearAllFields();
@@ -714,6 +742,10 @@
             table = table.replace(/ /g,'_');
         }
         var newLocation = '?table='+table;
+
+        // if you change table while visiting previous stored rows,
+        // you're now at the end of the stored rows again
+        cursorReset();
 
         // depending on alt key, don't refresh page,
         // just change the table we're pointing at
@@ -1266,7 +1298,9 @@
             return cursorLast();
         }
 
-        function getStoredRowAtCursor() {
+        function getStoredRowAtCursor(
+            stored_rows // optional, for caching
+        ) {
             var cursor = scope.stored_row_cursor;
             if (cursor === null) {
                 return {
@@ -1275,11 +1309,36 @@
             }
             else {
                 var rows = (cursor.array === 'new'
-                                ? getStoredRows()
+                                ? (stored_rows
+                                        ? stored_rows
+                                        : getStoredRows())
                                 : getOldStoredRows());
                 return rows[cursor.idx];
             }
         }
+
+        /*
+        // only for saving when you're back visiting a prev row.
+        // #todo gracefully handle edge case of going back
+        // and editing an old_stored_row (one that's been saved to DB)
+        function saveStoredRowAtCursor(
+            stored_rows // optional, for caching
+        ) {
+            var cursor = scope.stored_row_cursor;
+            var stored_rows = (stored_rows
+                                        ? stored_rows
+                                        : getStoredRows());
+            if (cursor === null) {
+                console.log("Don't call saveStoredRowAtCursor for null cursor");
+                return;
+            }
+            else {
+                var row = getStoredRowAtCursor(stored_rows);
+                
+                saveStoredRows(stored_rows);
+            }
+        }
+        */
 
         function visitRow(row) {
             // change table name if needed
