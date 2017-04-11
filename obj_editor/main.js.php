@@ -64,9 +64,7 @@
         return formInputs;
     }
 
-    // #todo break this up into one part that makes a js object
-    //       and another part that serializes it into a query string
-
+    // makes a js object from the an array of formInputs
     function form2obj(
         formInputs, includeEmptyVals,
         valsToAlwaysInclude // keys = input names
@@ -109,7 +107,7 @@
         return data;
     }
 
-
+    // serializes a js object into a query string
     function obj2queryString(data) {
         { // vars
             var pairs = [];
@@ -152,54 +150,6 @@
                             includeEmptyVals,
                             valsToAlwaysInclude);
         return obj2queryString(data);
-
-        /*
-        // arg default values
-        if (includeEmptyVals === undefined) {
-            includeEmptyVals = false;
-        }
-        console.log('includeEmptyVals',includeEmptyVals);
-        if (valsToAlwaysInclude === undefined) {
-            valsToAlwaysInclude = {};
-        }
-
-        { // vars
-            var prefix,
-                pairs = [],
-
-                // add a key-value pair to the array
-                addPair = function(key, value) {
-
-                    // Q. is this better/worse than pairs.push()?
-                    if (includeEmptyVals
-                        || value != ""
-                        || key in valsToAlwaysInclude
-                    ) {
-                        if (value == "") {
-                            value = null;
-                        }
-                        pairs[ pairs.length ] =
-                            encodeURIComponent( key ) + "=" +
-                            encodeURIComponent( value === null
-                                                    ? "<?= $magic_null_value ?>"
-                                                    : value
-                                              );
-                    }
-
-                };
-        }
-
-        { // Serialize the form elements
-            for (var i = 0; i < formInputs.length; i++) {
-                pair = formInputs[i];
-                addPair(pair.name, pair.value);
-            }
-        }
-
-        { // Return the resulting serialization
-            return pairs.join( "&" );
-        }
-        */
     }
 
     // prevent the blank vals from getting submitted in the form
