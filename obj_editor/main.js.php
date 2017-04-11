@@ -13,6 +13,10 @@
         }
     }
 
+<?php
+    $table_field_spaces_to_underscores = Config::$config['table_field_spaces_to_underscores'];
+?>
+
     // global-ish state
     scope = {
         table_name: '<?= $table ?>',
@@ -23,12 +27,9 @@
         // {array: 'new'/'old', idx:int}
         stored_row_cursor: null,
 
-        // #todo #fixme gracefully handle stored_rows leftover from prev sessions
-        //              right now we ignore them at page load,
-        //              then clobber them when we first Save Locally.
-        //              Instead, maybe detect if there's something there
-        //              and ask the user whether to store it?
-        //has_previously_stored_rows: hasPreviouslyStoredRows()
+        table_field_spaces_to_underscores: <?= $table_field_spaces_to_underscores
+                                                    ? 1
+                                                    : 0 ?>
     };
 
     // get array of form inputs / textareas / etc
@@ -651,19 +652,12 @@
     }
 
     function openAddNewField() {
-        //var plusSignFormInputDiv = document.getElementById('addNewFieldDiv');
-        //var mainForm = plusSignFormInputDiv.parentNode;
-
         var fieldName = prompt("Enter Field Name to add:");
         if (fieldName) {
+            if (scope.table_field_spaces_to_underscores) {
+                fieldName = fieldName.replace(/ /g,'_');
+            }
             addNewInput(fieldName);
-            /*
-            var newField = createElemFromHtml(
-                <?= echoFormFieldHtml_JsFormat('fieldName'); ?>
-            );
-            console.log('newField', newField);
-            mainForm.insertBefore(newField, plusSignFormInputDiv);
-            */
         }
     }
 
@@ -688,9 +682,6 @@
         }
     }
 
-<?php
-    $table_spaces_to_underscores = Config::$config['table_spaces_to_underscores'];
-?>
     // #todo this is not used for cursorPrev/Next visiting old rows
     // because it assumes it's already an input
     // but it'd be nice to use it if it does anything we need
@@ -698,8 +689,7 @@
 
         var selectTableInput = document.getElementById('selectTable');
         var table = selectTableInput.value;
-        var table_spaces_to_underscores = <?= $table_spaces_to_underscores ? 1 : 0; ?>;
-        if (table_spaces_to_underscores) {
+        if (scope.table_field_spaces_to_underscores) {
             table = table.replace(/ /g,'_');
         }
         var newLocation = '?table='+table;

@@ -194,7 +194,7 @@
 ?>
                     name="<?= $name ?>"
 <?php
-                    $inputAttrs = ob_get_clean();
+                    $commonInputAttrs = ob_get_clean();
                 }
         
                 if (doSelectForInput($name)) {
@@ -251,7 +251,7 @@
 <?php
                     }
 ?>
-                        <?= $inputAttrs ?>
+                        <?= $commonInputAttrs ?>
                         onchange="handleCustomValueInputForSelect(this)"
                     >
                         <option value="<?= $custom_select_magic_value ?>">
@@ -267,7 +267,8 @@
                     if ($inputTag == 'input') {
 ?>
                 <input
-                    <?= $inputAttrs ?>
+                    <?= $commonInputAttrs ?>
+                    autocapitalize="none"
 <?php
                     if (isset($defaultValues[$name])) {
 ?>
@@ -281,7 +282,7 @@
                     elseif ($inputTag == 'textarea') {
 ?>
                 <textarea
-                    <?= $inputAttrs ?>
+                    <?= $commonInputAttrs ?>
                 ><?php
                         if (isset($defaultValues[$name])) {
                             echo $defaultValues[$name];

@@ -83,7 +83,7 @@ class Config {
 
             'row_colors',
 
-            'table_spaces_to_underscores',
+            'table_field_spaces_to_underscores',
 
             'automatic_curly_braces_for_arrays',
             'fields_w_array_type',
@@ -191,7 +191,7 @@ class Config {
 
             'row_colors' => false,
 
-            'table_spaces_to_underscores' => true, #todo maybe not be default?
+            'table_field_spaces_to_underscores' => true, #todo maybe not be default?
 
             'automatic_curly_braces_for_arrays' => false,
             'fields_w_array_type' => null,
