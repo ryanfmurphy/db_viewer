@@ -93,11 +93,16 @@ form#mainForm label {
     font-size: 80%;
 }
 
-#table_header_top > *,
-#prev_next_row_links > * {
+#table_header_top > * {
     display: inline-block;
     vertical-align: middle;
     margin: .5rem;
+}
+
+#prev_next_row_links > * {
+    display: inline-block;
+    vertical-align: middle;
+    margin: .8rem;
 }
 
 #table_header_top > h1 {
@@ -167,6 +172,10 @@ body {
         font-size: 20px;
     }
 
+    .formInput textarea {
+        padding: .15em; /* a bit less padding than on desktop */
+    }
+
     /* #todo selects */
 
     input[type=submit] {
@@ -188,10 +197,8 @@ body {
         margin-right: auto;
     }
 
-    #whoami, #view_all_link, #clear_fields_link {
+    #whoami, #view_all_link {
         display: none;
-        /*display: block;
-        margin: .5em 0;*/
     }
 
     h1 {
@@ -220,5 +227,6 @@ body {
     #its_a_table {
         display: none;
     }
+
 }
 

@@ -450,12 +450,16 @@
                     href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
                     view all
                 </a>
-
+<?php
+            if (!$mobile_travel_mode) {
+?>
                 <span   id="clear_fields_link" class="link" target="_blank"
                         onclick="clearAllFields()">
-                    clear all fields
+                    clear <span class="details">all fields</span>
                 </span>
+
 <?php
+            }
             if ($mobile_travel_mode) {
 ?>
                 <nobr id="prev_next_row_links">
@@ -474,6 +478,10 @@
                     <span   id="last_row_link" class="link" target="_blank"
                             onclick="goToLastRow()">
                         &gt;&gt;
+                    </span>
+                    <span   id="clear_fields_link" class="link" target="_blank"
+                            onclick="clearAllFields()">
+                        clear
                     </span>
                 </nobr>
 <?php

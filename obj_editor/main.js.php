@@ -393,29 +393,11 @@
                 time: currentTimestamp()
             };
 
-            /*
-            // rows stored from a previous loading of the page?
-            // give an option about whether to append or overwrite
-            if (scope.has_previously_stored_rows) {
-                var overwrite = false; //confirm('Previous rows found.  OK to overwrite, Cancel to keep');
-                if (!overwrite) {
-                    // load prev rows before appending to them
-                    scope.store_rows = JSON.parse(
-                        localStorage.getItem('stored_rows')
-                    );
-                }
-                // otherwise we're overwriting because we started with []
-            }
-            scope.has_previously_stored_rows = false; // only give that alert once
-            */
-
             var stored_rows = getStoredRows();
             stored_rows.push(new_row);
             saveStoredRows(stored_rows); // locally
-            //localStorage.setItem('stored_rows',
-            //                     JSON.stringify(stored_rows));
             alert('Row stored locally');
-            clearAllFields();
+            //clearAllFields();
             return false;
         }
 
@@ -461,11 +443,7 @@
                 console.log('saving stored_rows with deletions', remaining_stored_rows);
                 saveStoredRows(remaining_stored_rows);
 
-                // #todo blank out stored rows one we know they got saved
                 // #todo make interface nicer - don't alert over and over
-
-                // once we've saved, don't warn about previously unsaved rows
-                //scope.has_previously_stored_rows = false;
             }
             else {
                 alert('No rows to save');
