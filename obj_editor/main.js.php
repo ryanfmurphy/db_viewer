@@ -401,6 +401,7 @@
             return false;
         }
 
+        // <script>
         // actually save to DB
         function saveStoredRowsClickHandler(
             crud_api_uri, event
@@ -411,6 +412,29 @@
             var remaining_stored_rows = [];
 
             if (stored_rows.length) {
+
+                // prepare responses array and callback fn to collect and display responses
+                // append all the response msgs into an array instead of showing them one by one
+                responses = [];
+                // this callback needs a row_name
+                // which will be curried in when we have a row and know the name
+                generic_respond_callback = function(row_name, response_msg) {
+                    console.log('adding ', response_msg, ' to responses');
+                    console.log('responses:', responses);
+
+                    var msg_w_details = '';
+                    if (row_name) {
+                        msg_w_details += row_name + ' - ';
+                    }
+                    msg_w_details += response_msg;
+                    responses.push(msg_w_details);
+
+                    // do we have all the responses? show them
+                    if (responses.length >= stored_rows.length) {
+                        alert( responses.join('\n') );
+                    }
+                }
+
                 for (var i=0; i<stored_rows.length; i++) {
                     stored_row = stored_rows[i];
                     var table_name = stored_row.table_name;
@@ -427,8 +451,21 @@
                             + '?action=create_'+table_name;
 
                     console.log('submitting stored row:', data);
-                    // #todo allow submitForm to know which row it was and mark whether it got saved or not
-                    submitForm(url, null, 'create', data);
+
+                    // fill in the row data to the generic_respond_callback
+                    // passing in the row name using an extra layer of fn call to
+                    // freeze the value so that it is not overwritten by the next loop
+                    respond_callback = (function(frozen_name) {
+                        // this returned fn becomes the respond_callback:
+                        return function(response_msg) {
+                            // and all it does is call this but give it the name
+                            generic_respond_callback(frozen_name, response_msg);
+                        };
+                    })(data.name /* gets passed in as frozen name */);
+
+                    // save the row and queue up the response_msg in responses
+                    submitForm(url, null, 'create', data, respond_callback);
+
                     // for now we'll just assume it was good and move it to old_stored_rows
                     var old_stored_rows = getOldStoredRows();
                     old_stored_rows.push(stored_row);
@@ -442,8 +479,6 @@
                 // save remaining stored rows
                 console.log('saving stored_rows with deletions', remaining_stored_rows);
                 saveStoredRows(remaining_stored_rows);
-
-                // #todo make interface nicer - don't alert over and over
             }
             else {
                 alert('No rows to save');
@@ -490,7 +525,13 @@
 
     }
 
-    function formSubmitCallback(xhttp, event, action) {
+    function formSubmitCallback(xhttp, event, action, respond_callback) {
+
+        // respond_callback is the fn that will be called with the response msg to the user
+        // alert by default
+        // e.g. Thanks! Row Created
+        if (respond_callback === undefined) respond_callback = alert;
+
         if (xhttp.readyState == 4) {
             if (xhttp.status == 200) {
                 result = JSON.parse(xhttp.responseText);
@@ -511,35 +552,35 @@
                     }
                     else { // success
                         if (action == 'delete') {
-                            alert('Thanks! Row Deleted');
+                            respond_callback('Thanks! Row Deleted');
                         }
                         else if (action == 'create') {
-                            alert('Thanks! Row Created');
+                            respond_callback('Thanks! Row Created');
                             //#todo can only do this change if we get the primary_key var set
                             //changeCreateButtonToUpdateButton();
                         }
                         else if (action == 'update') {
-                            alert('Thanks! Row Updated');
+                            respond_callback('Thanks! Row Updated');
                         }
                         else {
-                            alert('Thanks! Unknown action "' + action + '" done to Row');
+                            respond_callback('Thanks! Unknown action "' + action + '" done to Row');
                         }
                     }
                 }
                 else {
-                    alert('Failed... Try alt-clicking to see the Query');
+                    respond_callback('Failed... Try alt-clicking to see the Query');
                 }
                 console.log(result);
             }
             else {
-                alert('Non-200 Response Code: ' + xhttp.status);
+                respond_callback('Non-200 Response Code: ' + xhttp.status);
             }
         }
     }
 
     // #todo #test pathway that uses a js obj and submits it
     function submitForm(url, event, action,
-                        obj // optional
+                        obj, respond_callback // optional args
     ) {
         var queryString;
         if (obj) { // data provided directly by obj
@@ -558,7 +599,9 @@
             var xhttp = new XMLHttpRequest();
             {   // callback
                 xhttp.onreadystatechange = function() {
-                    return formSubmitCallback(xhttp, event, action);
+                    return formSubmitCallback(
+                        xhttp, event, action, respond_callback
+                    );
                 }
             }
             { // do post
