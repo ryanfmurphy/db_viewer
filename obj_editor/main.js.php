@@ -409,7 +409,7 @@
 
                     // do we have all the responses? show them
                     if (responses.length >= stored_rows.length) {
-                        alert( responses.join('\n') );
+                        alert( responses.join('\n\n') );
                     }
                 }
 

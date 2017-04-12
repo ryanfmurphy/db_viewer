@@ -143,6 +143,7 @@ class Config {
             'background_image_settings' => array(),
             'background' => 'light',
             'links_minimal_by_default' => false,
+            'minimal_fields_by_table' => null,
             'minimal_field_inheritance' => true,
             'use_field_ordering_from_minimal_fields' => false,
             #todo #fixme - collapse this with
