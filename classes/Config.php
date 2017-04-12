@@ -130,6 +130,8 @@ class Config {
             'field_render_filters_by_table' => array(),
             'special_ops' => array(),
 
+            'id_mode' => 'id_only', #todo is this a good default?
+
             # obj view
             'multipleTablesFoundInDifferentSchemas' => false,
             'search_path' => null,
