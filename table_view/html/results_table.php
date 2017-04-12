@@ -153,13 +153,13 @@
                         }
 
                         { # create table row
-                            # figure out color if any
+                            # figure out row color if any
                             $row_color = null;
                             if ($row_colors
-                                && isset($row['color'])
-                                && $row['color']
+                                && isset($row['row_color'])
+                                && $row['row_color']
                             ) {
-                                $row_color = $row['color'];
+                                $row_color = $row['row_color'];
                             }
                             else {
                                 if ($color_rows_by_relname
