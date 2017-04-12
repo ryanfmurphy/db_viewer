@@ -211,7 +211,7 @@
         }
 
         public static function is_table_name_val($val, $fieldName) {
-            return ((preg_match('/Tables_in_/', $fieldName)
+            return ((preg_match('/^Tables_in_|^tablename$|^relname$/', $fieldName)
                      || $fieldName == "Name")
                             ? true
                             : false);
