@@ -69,15 +69,9 @@
 ?>
 
 <?php include('next_prev_page_links.php'); ?>
-<?= TableView::echo_js_handle_edit_link_onclick_fn() ?>
 
-<?php
-    if ($include_row_delete_button) {
-?>
-<?= TableView::echo_js_handle_delete_button_onclick_fn() ?>
-<?php
-    }
-?>
+<?= TableView::echo_js_handle_edit_link_onclick_fn() ?>
+<?= TableView::echo_js__hit_url_and_rm_row_from_ui__fn() ?>
 
 <table id="query_table">
 <?php

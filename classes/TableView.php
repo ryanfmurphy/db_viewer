@@ -297,12 +297,11 @@
         }
 
         // allow alt-click to change the ?minimal value
-        public static function echo_js_handle_delete_button_onclick_fn() {
+        public static function echo_js__hit_url_and_rm_row_from_ui__fn() {
             ob_start();
 ?>
         <script>
-        // #todo move
-        function handle_delete_button_onclick(elem, key_event, url) {
+        function hit_url_and_rm_row_from_ui(elem, event, url) {
             $.ajax({
                 url: url,
                 dataType: 'json',
@@ -319,7 +318,7 @@
             return ob_get_clean();
         }
 
-        # needs handle_delete_button_onclick js fn (above)
+        # needs hit_url_and_rm_row_from_ui js fn (above)
         public static function echo_delete_button(
             $obj_editor_uri, $tablename_no_quotes, $primary_key
         ) {
@@ -330,7 +329,7 @@
         <td class="action_cell">
             <a  class="row_delete_button link"
                 target="_blank"
-                onclick="handle_delete_button_onclick(this, event, '<?= $url ?>')"
+                onclick="hit_url_and_rm_row_from_ui(this, event, '<?= $url ?>')"
             >
                 delete
             </a>
@@ -427,11 +426,16 @@
                         $primary_key_field, $primary_key, $crud_api_uri,
                         $row, $op_col_idx, $op_idx
                     );
+                    $href_or_onclick = (isset($special_op['remove'])
+                                        && $special_op['remove']
+                                            ? "href=\"$special_op_url\""
+                                            : "onclick=\"hit_url_and_rm_row_from_ui(
+                                                            this, event, '$special_op_url')\"");
 ?>
             <li>
                 <nobr>
-                    <a  href="<?= $special_op_url ?>"
-                        class="row_edit_link"
+                    <a  <?= $href_or_onclick ?>
+                        class="row_edit_link link"
                         target="_blank"
                     >
                         <?= $special_op['name'] ?>
