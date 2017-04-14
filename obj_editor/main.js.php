@@ -375,7 +375,7 @@
 
             saveStoredRows(stored_rows); // locally
             alert('Row stored locally');
-            //clearAllFields();
+            clearAllFields();
             return false;
         }
 
