@@ -4,12 +4,18 @@
             $tablename_no_quotes = DbUtil::strip_quotes($inferred_table);
         }
 
-        function includeField($field_name) {
+        function includeField($field_name, $tablename_no_quotes) {
             $minimal = Config::$config['minimal'];
             $minimal_fields = Config::$config['minimal_fields'];
+            $table_view_exclude_fields_by_table = Config::$config['table_view_exclude_fields_by_table'];
+            $exclude_fields = (isset($table_view_exclude_fields_by_table[$tablename_no_quotes])
+                                        ? $table_view_exclude_fields_by_table[$tablename_no_quotes]
+                                        : array());
             return (
-                !$minimal
-                || in_array($field_name, $minimal_fields)
+                !in_array($field_name, $exclude_fields)
+                && (!$minimal
+                    || in_array($field_name, $minimal_fields)
+                   )
             );
         }
 
@@ -17,7 +23,7 @@
             # factored into a function because
             # the <th>'s are repeated every so many rows
             # so it's easier to see what column you're on
-            function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns) {
+            function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns, $tablename_no_quotes) {
                 $row = current($rows);
                 $currentRow = TableView::prep_row($row);
                 $has_delete_column = Config::$config['include_row_delete_button']
@@ -47,7 +53,7 @@
 
                 { # regular data columns
                     foreach ($currentRow as $field_name => $val) {
-                        if (includeField($field_name)) {
+                        if (includeField($field_name, $tablename_no_quotes)) {
 ?>
         <th field_name="<?= $field_name ?>" class="popr" data-id="1">
             <?= $field_name ?>
@@ -111,7 +117,7 @@
                                 $num_action_columns = count($special_ops_cols);
                                 #$has_edit_column = ($primary_key !== null);
                                 $has_edit_column = ($has_primary_key_field);
-                                headerRow($rows, $rowN, $has_edit_column, $num_action_columns);
+                                headerRow($rows, $rowN, $has_edit_column, $num_action_columns, $tablename_no_quotes);
                                 $rowN++;
                             }
                         }
@@ -212,7 +218,7 @@
 
                             { # loop thru fields and make <td>s
                                 foreach ($row as $field_name => $val) {
-                                    if (includeField($field_name)) {
+                                    if (includeField($field_name, $tablename_no_quotes)) {
 ?>
         <td
 <?php

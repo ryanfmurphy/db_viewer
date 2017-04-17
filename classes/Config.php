@@ -58,6 +58,7 @@ class Config {
             'image_max_width',
 
             'obj_editor_exclude_fields',
+            'table_view_exclude_fields_by_table',
 
             'allow_destructive_queries',
             'disable_delete_button',
@@ -169,6 +170,7 @@ class Config {
             'image_max_width' => null,
 
             'obj_editor_exclude_fields' => array(),
+            'table_view_exclude_fields_by_table' => array(),
 
             'allow_destructive_queries' => false,
             'disable_delete_button' => false,
