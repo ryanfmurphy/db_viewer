@@ -279,7 +279,8 @@
 ?>
     }
     a {
-        color: #88f;
+        /*color: #88f;*/
+        color: 00f;
     }
 
     .link_nocolor {
