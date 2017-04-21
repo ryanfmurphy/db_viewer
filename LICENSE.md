@@ -1,5 +1,5 @@
 This software is
-Copyright (c) 2016 Ryan Murphy
+Copyright (c) 2016-2017 Ryan Murphy
 and licensed under:
 
 The MIT License (MIT)
