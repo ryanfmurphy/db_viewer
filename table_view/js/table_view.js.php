@@ -356,6 +356,8 @@
     // future_macro_events is optional, used by playbackMacroEvents (see thClickHandler)
     function openJoin(elem, future_macro_events) {
 
+        // #todo #fixme - document.location = '?sql='+sql+' join other stuff';
+
         // don't do openJoin if this is a popup menu click
         if ($(elem).is('.popr-item')) {
             return false;
@@ -596,6 +598,7 @@
 
     // GLOBALS
     var show_hide_mode = 0;
+    var sql = <?= TableView::quot_str_for_js(str_replace("\n","\n ",$sql)) ?>;
 
 
     // HANDLERS
@@ -773,8 +776,6 @@
     function playbackMacroEvent(macro_event) {
         return playbackMacroEvents([macro_event]);
     }
-
-    var sql = <?= TableView::quot_str_for_js($sql) ?>;
 
     macroEvents.push({
         load_query: sql

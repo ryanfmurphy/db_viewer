@@ -101,6 +101,13 @@ class Config {
             # the row, use that as the table to look in for
             # the edit link, so you can see all the fields
             'use_relname_for_edit_link',
+
+            # if true (default), use javascript/AJAX to
+            # retrieve data that connects to existing rows
+            # within the view, and dynamically extend the
+            # existing table.  if false, refresh the page,
+            # adding the appropriate JOIN to the query
+            'do_joins_in_place',
         );
         $config = compact($config_vars);
         self::$config =& $config;
@@ -213,6 +220,13 @@ class Config {
             # the row, use that as the table to look in for
             # the edit link, so you can see all the fields
             'use_relname_for_edit_link' => true,
+
+            # if true (default), use javascript/AJAX to
+            # retrieve data that connects to existing rows
+            # within the view, and dynamically extend the
+            # existing table.  if false, refresh the page,
+            # adding the appropriate JOIN to the query
+            'do_joins_in_place',
         );
         return $default_values;
     }
