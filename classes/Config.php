@@ -110,8 +110,34 @@ class Config {
             'use_relname_for_edit_link',
         );
         $config = compact($config_vars);
+        self::handle_auth($config /*&*/);
         self::$config =& $config;
         return $config;
+    }
+
+    public static function handle_auth(&$config) {
+        $requestVars = array_merge($_GET, $_POST);
+        if ($config['db_prompt_for_auth']) {
+            if (!isset($_SESSION)) {
+                session_start();
+            }
+
+            # if it's already in the SESSION, use that
+            if (isset($_SESSION['db_user'])) {
+                $config['db_user'] = $_SESSION['db_user'];
+            }
+            if (isset($_SESSION['db_password'])) {
+                $config['db_password'] = $_SESSION['db_password'];
+            }
+
+            # if it's in the requestVars, use that and save in SESSION
+            if (isset($requestVars['db_user'])) {
+                $config['db_user'] = $_SESSION['db_user'] = $requestVars['db_user'];
+            }
+            if (isset($requestVars['db_password'])) {
+                $config['db_password'] = $_SESSION['db_password'] = $requestVars['db_password'];
+            }
+        }
     }
 
     public static function default_values($view_uri) {
@@ -225,6 +251,7 @@ class Config {
             # the edit link, so you can see all the fields
             'use_relname_for_edit_link' => true,
         );
+
         return $default_values;
     }
 

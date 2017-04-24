@@ -24,17 +24,26 @@
         }
 
         # if no username / password
+        $have_db_auth = true;
         if ((!isset($db_user)
             || !isset($db_password))
             && $db_prompt_for_auth
         ) {
-            header("HTTP/1.1 302 Redirect");
-            header("Location: $prompt_for_auth_uri");
-            die();
+            $have_db_auth = false;
+            if ($cur_view != 'auth') {
+                header("HTTP/1.1 302 Redirect");
+                header("Location: $prompt_for_auth_uri");
+                die();
+            }
         }
     }
 
     include("$trunk/includes/include_classes.php");
+
+    if ($have_db_auth) {
+        # try connecting to the db (just to make sure auth is ok)
+        Db::conn();
+    }
 
     { # vars adjustments after includes
         { # search_path
