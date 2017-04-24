@@ -15,10 +15,14 @@ class Config {
             'db_type',
             'requestVars',
             'meetup',
+
             'db_host',
             'db_user',
             'db_password',
             'db_name',
+            # if true, make user log in using db username/password via a form
+            'db_prompt_for_auth',
+
             'id_mode',
             'id_fields_are_uuids',
             'search_path',
@@ -41,9 +45,12 @@ class Config {
             'multipleTablesFoundInDifferentSchemas',
             'edit',
             'minimal',
+
             'obj_editor_uri',
             'table_view_uri',
             'crud_api_uri',
+            'prompt_for_auth_uri',
+
             'trunk',
             'uri_trunk',
             'pluralize_table_names',
@@ -115,6 +122,9 @@ class Config {
         $uri_trunk = self::guess_uri_trunk($view_uri);
         do_log("uri_trunk = $uri_trunk\n");
         $default_values = array(
+            # if true, make user log in using db username/password via a form
+            'db_prompt_for_auth' => false,
+
             # should these really be configs?
             'inferred_table' => null,
             'only_include_these_fields' => null,
@@ -160,6 +170,7 @@ class Config {
             'obj_editor_uri' => "$uri_trunk/obj_editor/index.php",
             'crud_api_uri' => "$uri_trunk/obj_editor/crud_api.php",
             'table_view_uri' => "$uri_trunk/table_view/index.php",
+            'prompt_for_auth_uri' => "$uri_trunk/auth.php",
             'js_path' => "$uri_trunk/table_view/js",
             'popr_js_path' => '',
 

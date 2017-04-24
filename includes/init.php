@@ -20,6 +20,17 @@
         else {
             header("HTTP/1.1 302 Redirect");
             header("Location: setup.php");
+            die();
+        }
+
+        # if no username / password
+        if ((!isset($db_user)
+            || !isset($db_password))
+            && $db_prompt_for_auth
+        ) {
+            header("HTTP/1.1 302 Redirect");
+            header("Location: $prompt_for_auth_uri");
+            die();
         }
     }
 
