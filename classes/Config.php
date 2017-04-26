@@ -115,6 +115,7 @@ class Config {
         return $config;
     }
 
+    # username/pw auth: populate config and check/populate session vars
     public static function handle_auth(&$config) {
         $requestVars = array_merge($_GET, $_POST);
         if ($config['db_prompt_for_auth']) {
@@ -147,6 +148,7 @@ class Config {
         $requestVars = array_merge($_GET, $_POST);
         $uri_trunk = self::guess_uri_trunk($view_uri);
         do_log("uri_trunk = $uri_trunk\n");
+
         $default_values = array(
             # if true, make user log in using db username/password via a form
             'db_prompt_for_auth' => false,
