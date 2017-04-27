@@ -164,10 +164,19 @@
                             else {
                                 if ($color_rows_by_relname
                                     && $relname
-                                    && isset($row_colors_by_relname)
-                                    && isset($row_colors_by_relname[$relname])
                                 ) {
-                                    $row_color = $row_colors_by_relname[$relname];
+                                    # can either get these from the DB
+                                    if ($color_rows_by_relname == 'from db'
+                                        && isset($row['row_color_by_relname'])
+                                    ) {
+                                        $row_color = $row['row_color_by_relname'];
+                                    }
+                                    # or just from a regular PHP array in the db_config
+                                    elseif (isset($row_colors_by_relname)
+                                            && isset($row_colors_by_relname[$relname])
+                                    ) {
+                                        $row_color = $row_colors_by_relname[$relname];
+                                    }
                                 }
                             }
 
