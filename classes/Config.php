@@ -127,12 +127,21 @@ class Config {
             # the edit link, so you can see all the fields
             'use_relname_for_edit_link',
 
+            # UNDER CONSTRUCTION
             # if true (default), use javascript/AJAX to
             # retrieve data that connects to existing rows
             # within the view, and dynamically extend the
             # existing table.  if false, refresh the page,
             # adding the appropriate JOIN to the query
             'do_joins_in_place',
+
+            # array of URLs of extra javascripts to load on table_view
+            'custom_js_scripts',
+
+            # optional js function name to be called
+            # when clicking a <td> data cell in table_view
+            # function should take 1 arg: the event
+            'custom_td_click_handler',
         );
 
         $config = compact($config_vars);
@@ -279,12 +288,21 @@ class Config {
             # the edit link, so you can see all the fields
             'use_relname_for_edit_link' => true,
 
+            # UNDER CONSTRUCTION
             # if true (default), use javascript/AJAX to
             # retrieve data that connects to existing rows
             # within the view, and dynamically extend the
             # existing table.  if false, refresh the page,
             # adding the appropriate JOIN to the query
-            'do_joins_in_place',
+            'do_joins_in_place' => true,
+
+            # array of URLs of extra javascripts to load on table_view
+            'custom_js_scripts' => array(),
+
+            # optional js function name to be called
+            # when clicking a <td> data cell in table_view
+            # function should take 1 arg: the event
+            'custom_td_click_handler' => null,
         );
 
         return $default_values;

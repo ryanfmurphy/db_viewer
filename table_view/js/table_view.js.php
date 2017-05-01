@@ -663,10 +663,20 @@
     // fold / unfold via click
     var tdClickHandler = function(e){
 
+        var elem = e.target;
+
+<?php
+    if ($custom_td_click_handler) {
+?>
+        <?= $custom_td_click_handler ?>(e);
+<?php
+    }
+?>
+
         if (show_hide_mode) {
             // alt to fold/unfold row
             if (e.altKey) {
-                rowN = $(e.target).closest('tr').attr('data-row');
+                rowN = $(elem).closest('tr').attr('data-row');
 
                 if (e.shiftKey) {
                     unfoldRowsFrom(rowN);
@@ -677,7 +687,7 @@
             }
             // no alt to fold/unfold col
             else {
-                colN = colNo(e.target);
+                colN = colNo(elem);
                 if (e.shiftKey) {
                     unfoldColsFrom(colN);
                 }
