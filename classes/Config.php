@@ -72,6 +72,7 @@ class Config {
             'disable_delete_button',
 
             'is_archived_field',
+            'archive_instead_of_delete',
 
             'bold_border_between_weeks',
             'bold_border_between_days',
@@ -250,6 +251,9 @@ class Config {
             'disable_delete_button' => false,
 
             'is_archived_field' => null,
+            # archive instead of delete for table_view
+            # #todo apply to obj_editor delete button too
+            'archive_instead_of_delete' => false,
 
             'bold_border_between_weeks' => false,
             'bold_border_between_days' => false,

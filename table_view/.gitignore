@@ -4,3 +4,4 @@
 /db_config.php.bak
 error_log
 /macros/*.json
+/js/plugins
