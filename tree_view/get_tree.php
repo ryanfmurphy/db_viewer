@@ -25,13 +25,17 @@
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
-        $parent_nodes, $parent_ids, $root_table, $order_by_limit=null,
-        #$parent_field='parent_id', $matching_field_on_parent='id'
+        $parent_nodes,
+        # an array corresponding to the parent_relationships,
+        # and containing the matching parent vals for that relationships
+        $parent_vals_this_lev_by_relationship,
+        $root_table, $order_by_limit=null,
         $parent_relationships
     ) {
         $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
         $parent_field = $parent_relationship['parent_field'];
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+        $parent_ids = $parent_vals_this_lev_by_relationship[0];
 
         my_debug("starting add_tree_lev_by_lev: parent_nodes = ".print_r($parent_nodes,1));
 
@@ -50,7 +54,7 @@
 
             # the parent_node already has the children (which are about to be parents)
             # that are in the parent_id_list
-            $parent_vals_this_lev = array();
+            $parent_vals_next_lev = array();
             $all_children = new stdClass();
             foreach ($rows as $row) {
                 $this_parent_id = $row[$parent_field];
@@ -79,10 +83,11 @@
                 my_debug("adding child at '$parent_match_val': ".print_r($child,1));
                 $children->{$parent_match_val} = $child;
                 $all_children->{$parent_match_val} = $child;
-                $parent_vals_this_lev[] = $parent_match_val;
+                $parent_vals_next_lev[] = $parent_match_val;
             }
+            $parent_vals_next_lev_by_relationship[0] = $parent_vals_next_lev;
             add_tree_lev_by_lev(
-                $all_children, $parent_vals_this_lev, $root_table, $order_by_limit,
+                $all_children, $parent_vals_next_lev_by_relationship, $root_table, $order_by_limit,
                 #$parent_field, $matching_field_on_parent
                 $parent_relationships
             );
@@ -97,6 +102,7 @@
         $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
         $parent_field = $parent_relationship['parent_field'];
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+        $parent_vals_next_lev_by_relationship = array();
 
         $fields = field_list($parent_field, $matching_field_on_parent);
         $sql = "
@@ -109,7 +115,7 @@
         $rows = Db::sql($sql);
 
         $parent_nodes = new stdClass();
-        $parent_vals_this_lev = array();
+        $parent_vals_next_lev = array();
 
         foreach ($rows as $row) {
             my_debug("adding node ".print_r($row,1));
@@ -123,14 +129,15 @@
                 $parent_nodes->{$parent_match_val}->$parent_field = $row[$parent_field];
                 $parent_nodes->{$parent_match_val}->id = $id;
                 $parent_nodes->{$parent_match_val}->name = $row['name'];
-                $parent_vals_this_lev[] = $row[$matching_field_on_parent];
+                $parent_vals_next_lev[] = $row[$matching_field_on_parent];
             }
             else {
                 my_debug("no parent_match_val for this one, id=$id - skipping\n");
             }
         }
+        $parent_vals_next_lev_by_relationship[0] = $parent_vals_next_lev;
         add_tree_lev_by_lev(
-            $parent_nodes, $parent_vals_this_lev, $root_table,
+            $parent_nodes, $parent_vals_next_lev_by_relationship, $root_table,
             $order_by_limit, #$parent_field, $matching_field_on_parent
             $parent_relationships
         );
