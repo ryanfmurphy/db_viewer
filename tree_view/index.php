@@ -78,12 +78,14 @@ var svg_tree = {
     diagonal: undefined,
     margin: undefined,
     width: undefined,
-    height: undefined
+    height: undefined,
+    level_width: undefined
 };
 
-function setupTree(new_width, new_height) {
+function setupTree(new_width, new_height, level_width) {
     if (new_width === undefined) new_width = 960;
     if (new_height === undefined) new_height = 800;
+    if (level_width === undefined) level_width = 180;
 
     var margin = svg_tree.margin =
         {top: 20, right: 120, bottom: 20, left: 120};
@@ -91,6 +93,7 @@ function setupTree(new_width, new_height) {
         new_width - margin.right - margin.left;
     var height = svg_tree.height =
         new_height - margin.top - margin.bottom;
+    svg_tree.level_width = level_width;
 
     svg_tree.i = 0;
     svg_tree.duration = 750;
@@ -110,7 +113,7 @@ function setupTree(new_width, new_height) {
 }
 
 function createTree() {
-    setupTree();
+    //setupTree();
     d3.json("get_tree.php"
                 +"?root_table=<?= urlencode($root_table) ?>"
                 +"&root_cond=<?= urlencode($root_cond) ?>",
@@ -118,8 +121,8 @@ function createTree() {
                 if (error) throw error;
 
                 var width = undefined, height = undefined;
-                //width = 2000, height = 5000;
-                //setupTree(width, height);
+                width = 2000, height = 20000;
+                setupTree(width, height);
 
                 root = flare;
                 root.x0 = svg_tree.height / 2;
@@ -139,7 +142,7 @@ function createTree() {
     );
 
     d3  .select(self.frameElement)
-        .style("height", "800px");
+        .style("height", "800px"); // #todo #fixme hard-coded height
 }
 
 createTree();
@@ -156,7 +159,7 @@ function updateTree(source) {
 
     // Normalize for fixed-depth.
     nodes.forEach(function(d) {
-        d.y = d.depth * 180;
+        d.y = d.depth * svg_tree.level_width;
     });
 
     // Update the nodes…
