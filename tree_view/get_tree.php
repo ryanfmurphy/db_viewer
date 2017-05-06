@@ -24,8 +24,13 @@
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
         $parent_nodes, $parent_ids, $root_table, $order_by_limit=null,
-        $parent_field='parent_id', $matching_field_on_parent='id'
+        #$parent_field='parent_id', $matching_field_on_parent='id'
+        $parent_relationships
     ) {
+        $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
+        $parent_field = $parent_relationship['parent_field'];
+        $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+
         if (count($parent_ids) > 0) {
             # children for next level
             $parent_id_list = Db::make_val_list($parent_ids); #todo rename parent_ids parent_field_vals?
@@ -69,7 +74,8 @@
 
                 add_tree_lev_by_lev(
                     $children, $parent_vals_this_lev, $root_table, $order_by_limit,
-                    $parent_field, $matching_field_on_parent
+                    #$parent_field, $matching_field_on_parent
+                    $parent_relationships
                 );
             }
         }
@@ -77,8 +83,13 @@
 
     function get_tree(
         $root_table, $root_cond, $order_by_limit=null,
-        $parent_field='parent_id', $matching_field_on_parent='id'
+        #$parent_field='parent_id', $matching_field_on_parent='id'
+        $parent_relationships
     ) {
+        $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
+        $parent_field = $parent_relationship['parent_field'];
+        $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+
         $fields = field_list($parent_field, $matching_field_on_parent);
         $sql = "
             select $fields
@@ -112,7 +123,8 @@
         }
         add_tree_lev_by_lev(
             $parent_nodes, $parent_vals_this_lev, $root_table,
-            $order_by_limit, $parent_field, $matching_field_on_parent
+            $order_by_limit, #$parent_field, $matching_field_on_parent
+            $parent_relationships
         );
         return $parent_nodes;
     }
@@ -143,7 +155,8 @@
 
     $tree = get_tree(
         $root_table, $root_cond, $order_by_limit,
-        $parent_field, $matching_field_on_parent
+        #$parent_field, $matching_field_on_parent
+        $parent_relationships
     );
     $tree = unkey_tree($tree);
 
