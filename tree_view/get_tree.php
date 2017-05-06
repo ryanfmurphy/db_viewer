@@ -13,7 +13,9 @@
                     ? $requestVars['root_cond']
                     : 'parent_id is null';
 
-    function get_tree_next_lev($parent_nodes, $parent_ids, $tree_table) {
+    # starting with an array of $parent_nodes,
+    # look in the DB and add all the child_nodes
+    function add_tree_lev_by_lev($parent_nodes, $parent_ids, $tree_table) {
         if (count($parent_ids) > 0) {
             # children for next level
             $parent_id_list = Db::make_val_list($parent_ids);
@@ -30,19 +32,22 @@
                 $this_parent_id = $row['parent_id'];
                 $id = $row['id'];
                 $ids_this_lev = array();
+
                 if (!isset($parent_nodes->$this_parent_id->children)) {
                     $parent_nodes->$this_parent_id->children = new stdClass();
                 }
+                $children = $parent_nodes->$this_parent_id->children;
+
                 $child = (object)array(
                     'id' => $id,
                     'name' => $row['name'],
                 );
-                $parent_nodes->$this_parent_id->children->$id = $child;
-                $children = $parent_nodes->$this_parent_id->children;
+                $children->$id = $child;
+
                 $ids_this_lev[] = $id;
 
-                get_tree_next_lev(
-                    /*&*/$children, $ids_this_lev, $tree_table
+                add_tree_lev_by_lev(
+                    $children, $ids_this_lev, $tree_table
                 );
             }
         }
@@ -71,8 +76,8 @@
             $parent_nodes->$id->name = $row['name'];
             $ids_this_lev[] = $id;
         }
-        get_tree_next_lev(
-            /*&*/$parent_nodes, $ids_this_lev, $tree_table
+        add_tree_lev_by_lev(
+            $parent_nodes, $ids_this_lev, $tree_table
         );
         return $parent_nodes;
     }
