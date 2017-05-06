@@ -1,6 +1,6 @@
 <?php
     function my_debug($msg) {
-        #echo $msg;
+        echo $msg;
     }
 
     { # init: defines $db, TableView,
@@ -84,37 +84,63 @@
                     my_debug("matching_field_on_parent = $matching_field_on_parent\n");
                     $parent_match_val = $row[$matching_field_on_parent];
 
-                    #todo cleanup
-                    if (!isset($parent_nodes->{$this_parent_id}->children)) {
-                        #my_debug("this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
-                        my_debug("creating new children container for $this_parent_id to add $row[name]\n");
-                        $parent_nodes->{$this_parent_id}->children = new stdClass();
-                    }
-                    else {
-                        my_debug("children container for $this_parent_id already exists, adding $row[name]\n");
-                    }
-                    $children = $parent_nodes->{$this_parent_id}->children;
-
+                    # get or create node
                     if (isset($all_nodes_by_id->{$id})) {
                         # need to do anything? all fields should be there.
                         $child = $all_nodes_by_id->{$id};
                     }
                     else {
-                        $child = (object)array(
+                        $child = (object)$row;
+                        /*array(
                             'id' => $id,
                             'name' => $row['name'],
                             $parent_field => $row[$parent_field],
                             $matching_field_on_parent => $row[$matching_field_on_parent]
-                        );
+                        );*/
                         $all_nodes_by_id->{$id} = $child;
                     }
 
-                    my_debug("adding child '$parent_match_val' within container for '$this_parent_id': ".print_r($child,1));
-                    # children off node directly
-                    $children->{$parent_match_val} = $child;
-                    my_debug("now $this_parent_id looks like this: ".print_r($parent_nodes->{$this_parent_id},1));
-                    # children aggregated for this relationship
-                    $children_this_rel->{$parent_match_val} = $child;
+                    # parent SHOULD exist...
+                    if (isset($parent_nodes->{$this_parent_id})) {
+                        $parent = $parent_nodes->{$this_parent_id};
+
+                        # add children - #todo cleanup
+                        if (!isset($parent->children)) {
+                            #my_debug("this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
+                            my_debug("creating new children container for $this_parent_id to add $row[name]\n");
+                            $parent->children = new stdClass();
+                        }
+                        else {
+                            my_debug("children container for $this_parent_id already exists, adding $row[name]\n");
+                        }
+                        $children = $parent->children;
+
+                        my_debug("adding child '$parent_match_val' within container for '$this_parent_id': ".print_r($child,1));
+                        # children off node directly
+                        $children->{$parent_match_val} = $child;
+                        my_debug("now $this_parent_id looks like this: ".print_r($parent_nodes->{$this_parent_id},1));
+                    }
+                    else {
+                        my_debug("WARNING don't actually have the parent $this_parent_id at all, let alone a children container\n");
+                        my_debug("skipping this node\n");
+                    }
+
+                    # add val to each applicable relationship
+                    foreach ($parent_relationships as $this_rel_no => $this_parent_relationship) {
+                        #todo #fixme when relationships can span tables, make sure to check for correct table
+                        $this_matching_field_on_parent = $this_parent_relationship['matching_field_on_parent'];
+                        $this_parent_match_val = $row[$this_matching_field_on_parent];
+                        if ($this_parent_match_val) {
+                            my_debug("adding $row[name] to children_this_rel->'$parent_match_val', relationship_no = $this_rel_no\n");
+                            $all_children_by_relationship[$this_rel_no]->{$this_parent_match_val} = $child;
+                            if ($row['name'] == 'Rod Frank') {
+                                my_debug("all_children_by_relationship[$this_rel_no] now looks like this: ".print_r($all_children_by_relationship[$this_rel_no],1));
+                            }
+                        }
+                        else {
+                            my_debug("no parent_match_val, not adding $row[name] to children_this_rel->'$parent_match_val', relationship_no = $relationship_no\n");
+                        }
+                    }
 
                     $parent_vals_next_lev[] = $parent_match_val;
                     $more_children_to_look_for = true;
@@ -122,7 +148,7 @@
                 my_debug("  }\n");
             }
             $parent_vals_next_lev_by_relationship[$relationship_no] = $parent_vals_next_lev;
-            $all_children_by_relationship[$relationship_no] = $children_this_rel;
+            #$all_children_by_relationship[$relationship_no] = $children_this_rel;
             my_debug("}\n");
         }
         if ($more_children_to_look_for) {
@@ -192,15 +218,14 @@
                     $all_nodes_by_id->{$id} = $tree_node;
                 }
 
+                $tree_node->$parent_field = $row[$parent_field];
+                $tree_node->id = $id;
+                $tree_node->name = $row['name'];
+
                 # we have a parent_match_val so we can actually put it in the array
                 if ($parent_match_val) {
                     $parent_nodes_this_rel->{$parent_match_val} = $tree_node;
-
-                    $parent_nodes_this_rel->{$parent_match_val}->$parent_field = $row[$parent_field];
-                    $parent_nodes_this_rel->{$parent_match_val}->id = $id;
-                    $parent_nodes_this_rel->{$parent_match_val}->name = $row['name'];
                     $parent_vals_next_lev[] = $row[$matching_field_on_parent];
-
                     $more_children_to_look_for = true;
                 }
                 else {
@@ -213,6 +238,8 @@
 
             my_debug("}\n");
         }
+
+        # recursive call
         my_debug("about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
         if ($more_children_to_look_for) {
             add_tree_lev_by_lev(
@@ -259,8 +286,8 @@
     $tree = unkey_tree($tree);
 
     die(
-        json_encode(
-        #print_r(
+        #json_encode(
+        print_r(
             array(
                 'name' => '',
                 'children' => $tree,
