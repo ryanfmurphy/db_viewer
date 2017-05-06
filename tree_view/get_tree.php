@@ -1,5 +1,18 @@
 <?php
     const DEBUG = false;
+
+    # get_tree.php - returns a JSON of tree nodes obtained by
+    # progressively running SQL queries,
+    # 1 per each level per each parent relationship
+
+    { # init: defines $db, TableView,
+        # and Util (if not already present)
+        $trunk = dirname(__DIR__);
+        $cur_view = 'tree_view';
+        require("$trunk/includes/init.php");
+        require("$trunk/tree_view/vars.php");
+    }
+
     function my_debug($msg) {
         if (DEBUG) echo $msg;
     }
@@ -10,14 +23,6 @@
         else {
             return json_encode($data);
         }
-    }
-
-    { # init: defines $db, TableView,
-        # and Util (if not already present)
-        $trunk = dirname(__DIR__);
-        $cur_view = 'tree_view';
-        require("$trunk/includes/init.php");
-        require("$trunk/tree_view/vars.php");
     }
 
     function field_list($parent_relationships) {
@@ -302,6 +307,10 @@
         return $unkeyed_tree;
     }
 
+
+
+    # service the API call
+
     $tree = get_tree(
         $root_table, $root_cond, $order_by_limit,
         $parent_relationships
@@ -316,3 +325,4 @@
             )
         )
     );
+
