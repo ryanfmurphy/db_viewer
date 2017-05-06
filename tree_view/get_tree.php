@@ -17,8 +17,10 @@
     }
 
     function my_debug($msg) {
-        # echo $msg
+        #echo $msg;
     }
+
+    my_debug("parent_relationships: " . print_r($parent_relationships,1));
 
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes

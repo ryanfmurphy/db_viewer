@@ -143,8 +143,11 @@ function createTree() {
                 +"?root_table=<?= urlencode($root_table) ?>"
                 +"&root_cond=<?= urlencode($root_cond) ?>"
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
-                +"&parent_field=<?= urlencode($parent_field) ?>"
-                +"&matching_field_on_parent=<?= urlencode($matching_field_on_parent) ?>"
+<?php
+    $parent_relationship = $parent_relationships[0]; #todo #fixme allow more than more
+?>
+                +"&parent_relationships[0][parent_field]=<?= urlencode($parent_relationship['parent_field']) ?>"
+                +"&parent_relationships[0][matching_field_on_parent]=<?= urlencode($parent_relationship['matching_field_on_parent']) ?>"
             ,
             function(error, flare) {
                 if (error) throw error;
