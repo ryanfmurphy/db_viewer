@@ -89,7 +89,7 @@ function setupTree(new_width, new_height) {
         {top: 20, right: 120, bottom: 20, left: 120};
     var width = svg_tree.width =
         new_width - margin.right - margin.left;
-    var height = svg_tree.width =
+    var height = svg_tree.height =
         new_height - margin.top - margin.bottom;
 
     svg_tree.i = 0;
