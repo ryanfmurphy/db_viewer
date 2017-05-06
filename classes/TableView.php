@@ -318,13 +318,39 @@
             return ob_get_clean();
         }
 
+        public static function get_delete_url(
+            $obj_editor_uri, $tablename_no_quotes, $primary_key
+        ) {
+            $crud_api_uri = Config::$config['crud_api_uri'];
+            $archive_instead_of_delete = Config::$config['archive_instead_of_delete'];
+
+            #todo #fixme #assumption: primary_key field is "id"
+            $where_str = "where_clauses[id]=$primary_key";
+            if ($archive_instead_of_delete) {
+                $is_archived_field = Config::$config['is_archived_field'];
+                if (!$is_archived_field) {
+                    #todo #fixme show this error earlier to avoid
+                    #            weird partial table rendering
+                    die("Error: 'archive_instead_of_delete' is enabled"
+                        ." without an 'is_archived_field' defined");
+                }
+                return "$crud_api_uri?action=update_entity"
+                                    ."&$where_str"
+                                    ."&$is_archived_field=t";
+            }
+            else {
+                return "$crud_api_uri?action=delete_entity"
+                                    ."&$where_str";
+            }
+        }
+
         # needs hit_url_and_rm_row_from_ui js fn (above)
         public static function echo_delete_button(
             $obj_editor_uri, $tablename_no_quotes, $primary_key
         ) {
-            $crud_api_uri = Config::$config['crud_api_uri'];
-            #assumption primary_key field is "id"
-            $url = "$crud_api_uri?action=delete_entity_view&where_clauses[id]=$primary_key";
+            $url = self::get_delete_url(
+                $obj_editor_uri, $tablename_no_quotes, $primary_key
+            );
 ?>
         <td class="action_cell">
             <a  class="row_delete_button link"

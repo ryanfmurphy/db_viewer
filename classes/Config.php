@@ -11,6 +11,7 @@ class Config {
         $requestVars = array_merge($_GET, $_POST);
         extract($default_values);
         include($config_filepath);
+
         $config_vars = array(
             'db_type',
             'requestVars',
@@ -20,7 +21,7 @@ class Config {
             'db_user',
             'db_password',
             'db_name',
-            # if true, make user log in using db username/password via a form
+            # if true, user will log in using db username/password via a form
             'db_prompt_for_auth',
 
             'id_mode',
@@ -71,12 +72,13 @@ class Config {
             'disable_delete_button',
 
             'is_archived_field',
+            'archive_instead_of_delete',
 
             'bold_border_between_weeks',
             'bold_border_between_days',
 
 
-            # some special settings for if you're on a mobile device
+            # some special settings for when you're on a mobile device
             # that is accessing e.g. a locally hosted DB Viewer yet
             # is not always connected to it - you can leave a form open
             # and type your notes and save them whenever you are connected
@@ -96,6 +98,23 @@ class Config {
             'automatic_curly_braces_for_arrays',
             'fields_w_array_type',
 
+            # color_rows_by_relname
+            # ---------------------
+            # Option to color rows not just by their direct row_color field
+            # but based on the "relname" or child table that they come from
+            # This is intended to be used with Postgres inheritance, but
+            # could be adapted to work with views as well.
+            #
+            # Possible values: true, false, or 'from db'
+            #
+            # if 'from db', db_viewer will look for a field
+            # called 'row_color_by_relname' in each row
+            # which you will furnish in your SQL views
+            #
+            # if true, db_viewer will use the 'row_colors_by_relname'
+            # array, looking in the key corresponding to the 'relname'
+            # field of the row.
+            #
             'color_rows_by_relname',
             'row_colors_by_relname',
 
@@ -108,7 +127,26 @@ class Config {
             # the row, use that as the table to look in for
             # the edit link, so you can see all the fields
             'use_relname_for_edit_link',
+
+            # UNDER CONSTRUCTION
+            # if true (default), use javascript/AJAX to
+            # retrieve data that connects to existing rows
+            # within the view, and dynamically extend the
+            # existing table.  if false, refresh the page,
+            # adding the appropriate JOIN to the query
+            'do_joins_in_place',
+
+            # array of URLs of extra javascripts to load on table_view
+            'custom_js_scripts',
+
+            # optional js function name to be called
+            # when clicking a <td> data cell in table_view
+            # function should take 1 arg: the event
+            'custom_td_click_handler',
+
+            'cmp',
         );
+
         $config = compact($config_vars);
         self::handle_auth($config /*&*/);
         self::$config =& $config;
@@ -215,6 +253,9 @@ class Config {
             'disable_delete_button' => false,
 
             'is_archived_field' => null,
+            # archive instead of delete for table_view
+            # #todo apply to obj_editor delete button too
+            'archive_instead_of_delete' => false,
 
             'bold_border_between_weeks' => false,
             'bold_border_between_days' => false,
@@ -252,6 +293,24 @@ class Config {
             # the row, use that as the table to look in for
             # the edit link, so you can see all the fields
             'use_relname_for_edit_link' => true,
+
+            # UNDER CONSTRUCTION
+            # if true (default), use javascript/AJAX to
+            # retrieve data that connects to existing rows
+            # within the view, and dynamically extend the
+            # existing table.  if false, refresh the page,
+            # adding the appropriate JOIN to the query
+            'do_joins_in_place' => true,
+
+            # array of URLs of extra javascripts to load on table_view
+            'custom_js_scripts' => array(),
+
+            # optional js function name to be called
+            # when clicking a <td> data cell in table_view
+            # function should take 1 arg: the event
+            'custom_td_click_handler' => null,
+
+            'cmp' => false,
         );
 
         return $default_values;

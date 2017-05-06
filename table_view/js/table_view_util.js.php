@@ -192,6 +192,32 @@
         }
     }
 
+    function allTableCells() {
+        return document.getElementById('query_table').querySelectorAll('td,th');
+    }
+
+    function applyToLeafNodes(root_node, func) {
+        var node = root_node.firstChild;
+        // leaf node?
+        if (!node) {
+            func(root_node);
+        }
+        else {
+            //console.log('  looping thru children, root_node=',root_node);
+            while (node) {
+                //console.log('    node',node);
+                applyToLeafNodes(node, func);
+                node = node.nextSibling;
+            }
+        }
+    }
+
     </script>
+
 <?php
+                foreach ($custom_js_scripts as $js_script) {
+?>
+    <script src="<?= $js_script ?>"></script>
+<?php
+                }
             }

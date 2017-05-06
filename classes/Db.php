@@ -433,6 +433,18 @@ if (!class_exists('Db')) {
             }
         }
 
+        public static function make_val_list($vals) {
+            $val_list = '(';
+            $first_time = true;
+            foreach ($vals as $val) {
+                if (!$first_time) $val_list .= ',';
+                $first_time = false;
+                $val_list .= self::sql_literal($val);
+            }
+            $val_list .= ')';
+            return $val_list;
+        }
+
     }
 
 }

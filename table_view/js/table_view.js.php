@@ -356,6 +356,8 @@
     // future_macro_events is optional, used by playbackMacroEvents (see thClickHandler)
     function openJoin(elem, future_macro_events) {
 
+        // #todo #fixme - document.location = '?sql='+sql+' join other stuff';
+
         // don't do openJoin if this is a popup menu click
         if ($(elem).is('.popr-item')) {
             return false;
@@ -596,6 +598,7 @@
 
     // GLOBALS
     var show_hide_mode = 0;
+    var sql = <?= TableView::quot_str_for_js(str_replace("\n","\n ",$sql)) ?>;
 
 
     // HANDLERS
@@ -660,10 +663,20 @@
     // fold / unfold via click
     var tdClickHandler = function(e){
 
+        var elem = e.target;
+
+<?php
+    if ($custom_td_click_handler) {
+?>
+        <?= $custom_td_click_handler ?>(e);
+<?php
+    }
+?>
+
         if (show_hide_mode) {
             // alt to fold/unfold row
             if (e.altKey) {
-                rowN = $(e.target).closest('tr').attr('data-row');
+                rowN = $(elem).closest('tr').attr('data-row');
 
                 if (e.shiftKey) {
                     unfoldRowsFrom(rowN);
@@ -674,7 +687,7 @@
             }
             // no alt to fold/unfold col
             else {
-                colN = colNo(e.target);
+                colN = colNo(elem);
                 if (e.shiftKey) {
                     unfoldColsFrom(colN);
                 }
@@ -773,8 +786,6 @@
     function playbackMacroEvent(macro_event) {
         return playbackMacroEvents([macro_event]);
     }
-
-    var sql = <?= TableView::quot_str_for_js($sql) ?>;
 
     macroEvents.push({
         load_query: sql
