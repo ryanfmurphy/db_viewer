@@ -142,9 +142,8 @@ function setupTreeWithSize(root) {
     setupTree(width, height, level_width);
 }
 
-function createTree() {
-    //setupTree();
-    d3.json("get_tree.php"
+function treeDataUrl() {
+    return "get_tree.php"
                 +"?root_table=<?= urlencode($root_table) ?>"
                 +"&root_cond=<?= urlencode($root_cond) ?>"
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
@@ -159,28 +158,34 @@ function createTree() {
 <?php
     }
 ?>
-            ,
-            function(error, flare) {
-                if (error) throw error;
+    ;        
+}
 
-                // #todo should this set the root on the svg_tree?
-                root = flare;
+function createTree() {
+    //setupTree();
+    d3.json(
+        treeDataUrl(),
+        function(error, flare) {
+            if (error) throw error;
 
-                setupTreeWithSize(root);
-                root.x0 = svg_tree.height / 2;
-                root.y0 = 0;
+            // #todo should this set the root on the svg_tree?
+            root = flare;
 
-                function collapse(d) {
-                    if (d.children) {
-                        d._children = d.children;
-                        d._children.forEach(collapse);
-                        d.children = null;
-                    }
+            setupTreeWithSize(root);
+            root.x0 = svg_tree.height / 2;
+            root.y0 = 0;
+
+            function collapse(d) {
+                if (d.children) {
+                    d._children = d.children;
+                    d._children.forEach(collapse);
+                    d.children = null;
                 }
-
-                root.children.forEach(collapse);
-                updateTree(root);
             }
+
+            root.children.forEach(collapse);
+            updateTree(root);
+        }
     );
 
     d3  .select(self.frameElement)
@@ -246,23 +251,24 @@ function updateTree(source) {
             .text(function(d) { return d.name; })
             .style("fill-opacity", 1e-6)
             .on("click", clickLabel);
-            ;
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
             .duration(svg_tree.duration)
-            .attr("transform",  function(d) {
-                                    return "translate(" + d.y + "," + d.x + ")";
-                                }
+            .attr("transform",
+                function(d) {
+                    return "translate(" + d.y + "," + d.x + ")";
+                }
             );
 
     nodeUpdate.select("circle")
             .attr("r", 4.5)
-            .style("fill", function(d) {
-                                return d._children
-                                            ? "lightsteelblue"
-                                            : "#fff";
-                           }
+            .style("fill",
+                function(d) {
+                    return d._children
+                                ? "lightsteelblue"
+                                : "#fff";
+                }
             );
 
     nodeUpdate.select("text")
@@ -285,24 +291,30 @@ function updateTree(source) {
             .style("fill-opacity", 1e-6);
 
     // Update the links…
-    var link = svg.selectAll("path.link")
-            .data(links, function(d) {
-                            return d.target.svg_node_id;
-                         });
+    var link = svg  .selectAll("path.link")
+                    .data(links, function(d) {
+                        return d.target.svg_node_id;
+                    });
 
     // Enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
-            .attr("class", "link")
-            .attr("d", function(d) {
-                var o = {
-                    x: source.x0,
-                    y: source.y0
-                };
-                return diagonal({
-                    source: o,
-                    target: o
+                .attr("class", "link")
+                .attr("d", function(d) {
+                    var o = {
+                        x: source.x0,
+                        y: source.y0
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
+                })
+                // make "root" "connections" not show up
+                .style('stroke', function(d) {
+                    if (d.source.name == '') { // #todo use obj ref
+                        return 'white';
+                    }
                 });
-            });
 
     // Transition links to their new position.
     link.transition()
