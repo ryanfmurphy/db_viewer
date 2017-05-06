@@ -49,7 +49,7 @@
         $parent_nodes_by_relationship,
         # an array corresponding to the parent_relationships,
         # and containing the matching parent vals for that relationships
-        $parent_vals_this_lev_by_relationship,
+        #$parent_vals_this_lev_by_relationship,
         $root_table, $order_by_limit=null,
         $parent_relationships
     ) {
@@ -75,7 +75,7 @@
 
             # values to populate and pass to next level
             $children_this_rel = new stdClass();
-            $parent_vals_next_lev = array();
+            #$parent_vals_next_lev = array();
 
             if (count($parent_ids) > 0) {
                 # children for next level
@@ -156,20 +156,21 @@
                         }
                     }
 
-                    $parent_vals_next_lev[] = $parent_match_val;
+                    #$parent_vals_next_lev[] = $parent_match_val;
                     $more_children_to_look_for = true;
                 }
                 my_debug("  }\n");
             }
-            $parent_vals_next_lev_by_relationship[$relationship_no] = $parent_vals_next_lev;
+            #$parent_vals_next_lev_by_relationship[$relationship_no] = $parent_vals_next_lev;
             #$all_children_by_relationship[$relationship_no] = $children_this_rel;
             my_debug("}\n");
         }
+
         if ($more_children_to_look_for) {
             add_tree_lev_by_lev(
                 $all_nodes_by_id,
                 $all_children_by_relationship,
-                $parent_vals_next_lev_by_relationship,
+                #$parent_vals_next_lev_by_relationship,
                 $root_table, $order_by_limit,
                 #$parent_field, $matching_field_on_parent
                 $parent_relationships
@@ -179,17 +180,14 @@
 
     function get_tree(
         $root_table, $root_cond, $order_by_limit=null,
-        #$parent_field='parent_id', $matching_field_on_parent='id'
         $parent_relationships
     ) {
-        $parent_vals_next_lev_by_relationship = array();
+        #$parent_vals_next_lev_by_relationship = array();
 
         $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
         $parent_field = $parent_relationship['parent_field'];
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
 
-        #todo #fixme - decide what to do - select ALL the parent_fields?
-        # or do separate queries? don't really want to...
         $fields = field_list_all_rels($parent_relationships);
         $sql = "
             select $fields
@@ -204,7 +202,7 @@
         # and always keep building on its relationships
         $all_nodes_by_id = new stdClass();
         # to pass forth to recursive calls that need to separate based on relationship
-        $parent_nodes_by_relationship = array();
+        #$parent_nodes_by_relationship = array();
         # to make sure we stop when we are done
         $more_children_to_look_for = false;
 
@@ -214,7 +212,7 @@
 
             $parent_field = $parent_relationship['parent_field'];
             $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
-            $parent_vals_next_lev = array();
+            #$parent_vals_next_lev = array();
             $parent_nodes_this_rel = new stdClass();
 
             foreach ($rows as $row) {
@@ -239,7 +237,7 @@
                 # we have a parent_match_val so we can actually put it in the array
                 if ($parent_match_val) {
                     $parent_nodes_this_rel->{$parent_match_val} = $tree_node; #todo #fixme I think we don't need this
-                    $parent_vals_next_lev[] = $row[$matching_field_on_parent];
+                    #$parent_vals_next_lev[] = $row[$matching_field_on_parent];
                     $more_children_to_look_for = true;
                 }
                 else {
@@ -247,19 +245,19 @@
                 }
             }
 
-            $parent_vals_next_lev_by_relationship[$relationship_no] = $parent_vals_next_lev;
+            #$parent_vals_next_lev_by_relationship[$relationship_no] = $parent_vals_next_lev;
             $parent_nodes_by_relationship[$relationship_no] = $parent_nodes_this_rel;
 
             my_debug("}\n");
         }
 
         # recursive call
-        my_debug("about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
+        #my_debug("about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
         if ($more_children_to_look_for) {
             add_tree_lev_by_lev(
                 $all_nodes_by_id,
                 $parent_nodes_by_relationship,
-                $parent_vals_next_lev_by_relationship,
+                #$parent_vals_next_lev_by_relationship,
                 $root_table,
                 $order_by_limit, #$parent_field, $matching_field_on_parent
                 $parent_relationships
@@ -294,7 +292,6 @@
 
     $tree = get_tree(
         $root_table, $root_cond, $order_by_limit,
-        #$parent_field, $matching_field_on_parent
         $parent_relationships
     );
     $tree = unkey_tree($tree);

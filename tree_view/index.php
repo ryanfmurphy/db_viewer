@@ -131,9 +131,14 @@ function setupTreeWithSize(root) {
             }
         }
     }
-    approx_max_node_width = max_node_strlen * 5;
+
+    // build in extra space because sometimes
+    // labels are on the other side of node
+    approx_max_node_width = max_node_strlen * 9;
+
     var level_width = Math.max(
         approx_max_node_width, defaults.level_width);
+
     setupTree(width, height, level_width);
 }
 
