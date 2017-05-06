@@ -4,7 +4,13 @@
         $trunk = dirname(__DIR__);
         $cur_view = 'tree_view';
         require("$trunk/includes/init.php");
+
+        # vars
         require("$trunk/tree_view/vars.php");
+
+        $name_cutoff = isset($requestVars['name_cutoff'])
+                            ? $requestVars['name_cutoff']
+                            : null;
     }
 
     if (!$root_table) {
@@ -123,7 +129,9 @@ function setupTreeWithSize(root) {
     var width = undefined; // 2000;
     var max_node_strlen = 0;
     var approx_max_node_width = 0;
-    var name_cutoff = 70;
+    var name_cutoff = <?= $name_cutoff
+                            ? (int)$name_cutoff
+                            : 'undefined' ?>;
     for (var i=0; i<root.children.length; i++) {
         var node = root.children[i];
         var name = node.name;
