@@ -1,6 +1,15 @@
 <?php
+    const DEBUG = false;
     function my_debug($msg) {
-        echo $msg;
+        if (DEBUG) echo $msg;
+    }
+    function encode_response($data) {
+        if (DEBUG) {
+            return print_r($data, 1);
+        }
+        else {
+            return json_encode($data);
+        }
     }
 
     { # init: defines $db, TableView,
@@ -54,8 +63,15 @@
                     . "{\n");
             $parent_field = $parent_relationship['parent_field'];
             $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
-            $parent_ids = $parent_vals_this_lev_by_relationship[$relationship_no];
+
+            # apparently this array is not complete, and anyway it's cleaner to derive it from parent_nodes_by_relationship
+            # now that we have it...
+            #$parent_ids = $parent_vals_this_lev_by_relationship[$relationship_no];
             $parent_nodes = $parent_nodes_by_relationship[$relationship_no];
+            $parent_ids = array();
+            foreach ($parent_nodes as $node) {
+                $parent_ids[] = $node->{$matching_field_on_parent};
+            }
 
             # values to populate and pass to next level
             $children_this_rel = new stdClass();
@@ -63,6 +79,7 @@
 
             if (count($parent_ids) > 0) {
                 # children for next level
+                my_debug("about to make val_list for query.  parent_ids = ".print_r($parent_ids,1));
                 $parent_id_list = Db::make_val_list($parent_ids); #todo rename parent_ids parent_field_vals?
                 #$fields = field_list($parent_field, $matching_field_on_parent);
                 $fields = field_list_all_rels($parent_relationships);
@@ -91,12 +108,6 @@
                     }
                     else {
                         $child = (object)$row;
-                        /*array(
-                            'id' => $id,
-                            'name' => $row['name'],
-                            $parent_field => $row[$parent_field],
-                            $matching_field_on_parent => $row[$matching_field_on_parent]
-                        );*/
                         $all_nodes_by_id->{$id} = $child;
                     }
 
@@ -132,6 +143,9 @@
                         $this_parent_match_val = $row[$this_matching_field_on_parent];
                         if ($this_parent_match_val) {
                             my_debug("adding $row[name] to children_this_rel->'$parent_match_val', relationship_no = $this_rel_no\n");
+                            if (!isset($all_children_by_relationship[$this_rel_no])) {
+                                $all_children_by_relationship[$this_rel_no] = new stdClass();
+                            }
                             $all_children_by_relationship[$this_rel_no]->{$this_parent_match_val} = $child;
                             if ($row['name'] == 'Rod Frank') {
                                 my_debug("all_children_by_relationship[$this_rel_no] now looks like this: ".print_r($all_children_by_relationship[$this_rel_no],1));
@@ -224,7 +238,7 @@
 
                 # we have a parent_match_val so we can actually put it in the array
                 if ($parent_match_val) {
-                    $parent_nodes_this_rel->{$parent_match_val} = $tree_node;
+                    $parent_nodes_this_rel->{$parent_match_val} = $tree_node; #todo #fixme I think we don't need this
                     $parent_vals_next_lev[] = $row[$matching_field_on_parent];
                     $more_children_to_look_for = true;
                 }
@@ -286,8 +300,7 @@
     $tree = unkey_tree($tree);
 
     die(
-        #json_encode(
-        print_r(
+        encode_response(
             array(
                 'name' => '',
                 'children' => $tree,
