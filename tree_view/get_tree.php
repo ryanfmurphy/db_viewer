@@ -234,6 +234,11 @@
             foreach ($rows as $row) {
                 my_debug("adding node ".print_r($row,1));
                 $id = $row['id'];
+                if (!$id) {
+                    my_debug("row has no id!  skipping.  here's the row: ".print_r($row,1));
+                    continue;
+                }
+
                 my_debug("matching_field_on_parent = $matching_field_on_parent\n");
                 $parent_match_val = $row[$matching_field_on_parent];
 
