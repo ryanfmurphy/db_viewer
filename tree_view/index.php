@@ -34,6 +34,7 @@
     }
 
     $root_cond = isset($requestVars['root_cond'])
+                 && $requestVars['root_cond']
                     ? $requestVars['root_cond']
                     : 'parent_id is null';
     #todo #fixme do I need this header? #security
@@ -148,7 +149,6 @@ function updateTree(source) {
     var tree = svg_tree.tree;
     var svg = svg_tree.svg;
     var diagonal = svg_tree.diagonal;
-    var duration = svg_tree.duration;
 
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse(),
@@ -261,12 +261,12 @@ function updateTree(source) {
 
     // Transition links to their new position.
     link.transition()
-            .duration(duration)
+            .duration(svg_tree.duration)
             .attr("d", diagonal);
 
     // Transition exiting nodes to the parent's new position.
     link.exit().transition()
-            .duration(duration)
+            .duration(svg_tree.duration)
             .attr("d", function(d) {
                 var o = {x: source.x, y: source.y};
                 return diagonal({source: o, target: o});
