@@ -7,22 +7,36 @@
         require("$trunk/tree_view/vars.php");
     }
 
+    # get fields for query
+    function field_list($parent_field, $matching_field_on_parent) {
+        $fields = "id, name, $parent_field";
+        if ($matching_field_on_parent != 'id') {
+            $fields .= ", $matching_field_on_parent";
+        }
+        return $fields;
+    }
+
+    function my_debug($msg) {
+        # echo $msg
+    }
+
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
-        $parent_nodes, $parent_ids, $root_table,
-        $order_by_limit=null, $parent_field='parent_id'
+        $parent_nodes, $parent_ids, $root_table, $order_by_limit=null,
+        $parent_field='parent_id', $matching_field_on_parent='id'
     ) {
         if (count($parent_ids) > 0) {
             # children for next level
-            $parent_id_list = Db::make_val_list($parent_ids);
+            $parent_id_list = Db::make_val_list($parent_ids); #todo rename parent_ids parent_field_vals?
+            $fields = field_list($parent_field, $matching_field_on_parent);
             $sql = "
-                select id, name, $parent_field
-                from ".$root_table."
+                select $fields
+                from $root_table
                 where $parent_field in $parent_id_list
                 $order_by_limit
             ";
-            #echo "sql = '$sql'\n\n";
+            my_debug("sql = '$sql'\n\n");
             $rows = Db::sql($sql);
 
             # the parent_node already has the children (which are about to be parents)
@@ -30,60 +44,75 @@
             foreach ($rows as $row) {
                 $this_parent_id = $row[$parent_field];
                 $id = $row['id'];
-                $ids_this_lev = array();
+                my_debug("matching_field_on_parent = $matching_field_on_parent\n");
+                $parent_match_val = $row[$matching_field_on_parent];
+                $parent_vals_this_lev = array();
 
                 #todo cleanup
                 if (!isset($parent_nodes->$this_parent_id->children)) {
-                    $parent_nodes->$this_parent_id->children = new stdClass();
+                    my_debug("this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
+                    $parent_nodes->{$this_parent_id}->children = new stdClass();
                 }
-                $children = $parent_nodes->$this_parent_id->children;
+                $children = $parent_nodes->{$this_parent_id}->children;
 
+                #todo #fixme can I just add the whole row?
                 $child = (object)array(
                     'id' => $id,
                     'name' => $row['name'],
+                    $parent_field => $row[$parent_field],
+                    $matching_field_on_parent => $row[$matching_field_on_parent]
                 );
-                $children->$id = $child;
+                my_debug("adding child at '$parent_match_val': ".print_r($child,1));
+                $children->{$parent_match_val} = $child;
 
-                $ids_this_lev[] = $id;
+                $parent_vals_this_lev[] = $parent_match_val;
 
                 add_tree_lev_by_lev(
-                    $children, $ids_this_lev, $root_table,
-                    $order_by_limit, $parent_field
+                    $children, $parent_vals_this_lev, $root_table, $order_by_limit,
+                    $parent_field, $matching_field_on_parent
                 );
             }
         }
     }
 
     function get_tree(
-        $root_table, $root_cond,
-        $order_by_limit=null, $parent_field='parent_id'
+        $root_table, $root_cond, $order_by_limit=null,
+        $parent_field='parent_id', $matching_field_on_parent='id'
     ) {
+        $fields = field_list($parent_field, $matching_field_on_parent);
         $sql = "
-            select id, name, parent_id
+            select $fields
             from $root_table
             where $root_cond
             $order_by_limit
         ";
-        #echo "root sql = '$sql'\n\n";
+        my_debug("root sql = '$sql'\n\n");
         $rows = Db::sql($sql);
 
         $parent_nodes = new stdClass();
-        $ids_this_lev = array();
+        $parent_vals_this_lev = array();
 
         foreach ($rows as $row) {
-            #echo "adding node ".print_r($row,1);
+            my_debug("adding node ".print_r($row,1));
             $tree_node = new stdClass();
             $id = $row['id'];
-            $parent_nodes->$id = $tree_node;
+            my_debug("matching_field_on_parent = $matching_field_on_parent\n");
+            $parent_match_val = $row[$matching_field_on_parent];
+            if ($parent_match_val) {
+                $parent_nodes->{$parent_match_val} = $tree_node;
 
-            $parent_nodes->$id->parent_id = $row['parent_id'];
-            $parent_nodes->$id->id = $id;
-            $parent_nodes->$id->name = $row['name'];
-            $ids_this_lev[] = $id;
+                $parent_nodes->{$parent_match_val}->$parent_field = $row[$parent_field];
+                $parent_nodes->{$parent_match_val}->id = $id;
+                $parent_nodes->{$parent_match_val}->name = $row['name'];
+                $parent_vals_this_lev[] = $row[$matching_field_on_parent];
+            }
+            else {
+                my_debug("no parent_match_val for this one, id=$id - skipping\n");
+            }
         }
         add_tree_lev_by_lev(
-            $parent_nodes, $ids_this_lev, $root_table,
-            $order_by_limit, $parent_field
+            $parent_nodes, $parent_vals_this_lev, $root_table,
+            $order_by_limit, $parent_field, $matching_field_on_parent
         );
         return $parent_nodes;
     }
@@ -112,11 +141,15 @@
         return $unkeyed_tree;
     }
 
-    $tree = get_tree($root_table, $root_cond, $order_by_limit, $parent_field);
+    $tree = get_tree(
+        $root_table, $root_cond, $order_by_limit,
+        $parent_field, $matching_field_on_parent
+    );
     $tree = unkey_tree($tree);
 
     die(
         json_encode(
+        #print_r(
             array(
                 'name' => '',
                 'children' => $tree,

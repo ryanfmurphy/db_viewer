@@ -14,26 +14,7 @@
     }
 
     if (!$root_table) {
-?>
-<html>
-    <body>
-        <form action="">
-            <h2>Select one or more Root Nodes</h2>
-            <div>
-                <label>Root Table</label>
-                <input name="root_table">
-            </div>
-            <div>
-                <label>Root Condition</label>
-                <input name="root_cond">
-            </div>
-            <div>
-                <input type="submit">
-            </div>
-        </form>
-    </body>
-</html>
-<?php
+        require("$trunk/tree_view/vars_form.php");
     }
 
     $root_cond = isset($requestVars['root_cond'])
@@ -162,7 +143,9 @@ function createTree() {
                 +"?root_table=<?= urlencode($root_table) ?>"
                 +"&root_cond=<?= urlencode($root_cond) ?>"
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
-                +"&parent_field=<?= urlencode($parent_field) ?>",
+                +"&parent_field=<?= urlencode($parent_field) ?>"
+                +"&matching_field_on_parent=<?= urlencode($matching_field_on_parent) ?>"
+            ,
             function(error, flare) {
                 if (error) throw error;
 
