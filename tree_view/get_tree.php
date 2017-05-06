@@ -61,6 +61,53 @@
         return $rows;
     }
 
+    function add_node_to_relationship_lists(
+        $row, $child, $parent_relationships, &$all_children_by_relationship
+    ) {
+        # add val to each applicable relationship
+        foreach ($parent_relationships as $rel_no => $parent_relationship) {
+
+            #todo #fixme when relationships can span tables, make sure to check for correct table
+            $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+            $parent_match_val = $row[$matching_field_on_parent];
+
+            if ($parent_match_val) {
+                my_debug("adding $row[name] to children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
+
+                # detructively modify $add_children_by_relationship
+                if (!isset($all_children_by_relationship[$rel_no])) {
+                    $all_children_by_relationship[$rel_no] = new stdClass();
+                }
+                $all_children_by_relationship[$rel_no]->{$parent_match_val} = $child;
+
+                #if ($row['name'] == 'Rod Frank') {
+                #    my_debug("all_children_by_relationship[$this_rel_no] now looks like this: "
+                #            .print_r($all_children_by_relationship[$this_rel_no],1));
+                #}
+            }
+            else {
+                my_debug("no parent_match_val, not adding $row[name] to"
+                    ." children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
+            }
+        }
+    }
+
+    function add_child_to_tree($child, $parent, $parent_match_val) {
+        # add children container if needed
+        if (!isset($parent->children)) {
+            my_debug("creating new children container for $parent->id to add $child->name\n"); #todo #test
+            $parent->children = new stdClass();
+        }
+        else {
+            my_debug("children container for $parent->id already exists, adding $child->name\n"); #todo #test
+        }
+
+        # add child off node
+        my_debug("adding child '$parent_match_val' within container for '$parent->id': ".print_r($child,1));
+        $parent->children->{$parent_match_val} = $child;
+        my_debug("now $parent->id looks like this: ".print_r($parent,1));
+    }
+
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
@@ -114,47 +161,16 @@
                     # parent SHOULD exist...
                     if (isset($parent_nodes->{$this_parent_id})) {
                         $parent = $parent_nodes->{$this_parent_id};
-
-                        # add children - #todo cleanup
-                        if (!isset($parent->children)) {
-                            my_debug("creating new children container for $this_parent_id to add $row[name]\n");
-                            $parent->children = new stdClass();
-                        }
-                        else {
-                            my_debug("children container for $this_parent_id already exists, adding $row[name]\n");
-                        }
-
-                        # add child off node directly
-                        my_debug("adding child '$parent_match_val' within container for '$this_parent_id': ".print_r($child,1));
-                        $parent->children->{$parent_match_val} = $child;
-                        my_debug("now $this_parent_id looks like this: ".print_r($parent_nodes->{$this_parent_id},1));
+                        add_child_to_tree($child, $parent, $parent_match_val);
                     }
                     else {
                         my_debug("WARNING don't actually have the parent $this_parent_id at all, let alone a children container\n");
                         my_debug("skipping this node\n");
                     }
 
-                    # add val to each applicable relationship
-                    foreach ($parent_relationships as $this_rel_no => $this_parent_relationship) {
-                        #todo #fixme when relationships can span tables, make sure to check for correct table
-                        $this_matching_field_on_parent = $this_parent_relationship['matching_field_on_parent'];
-                        $this_parent_match_val = $row[$this_matching_field_on_parent];
-                        if ($this_parent_match_val) {
-                            my_debug("adding $row[name] to children_this_rel->'$parent_match_val', relationship_no = $this_rel_no\n");
-                            if (!isset($all_children_by_relationship[$this_rel_no])) {
-                                $all_children_by_relationship[$this_rel_no] = new stdClass();
-                            }
-                            $all_children_by_relationship[$this_rel_no]->{$this_parent_match_val} = $child;
-                            if ($row['name'] == 'Rod Frank') {
-                                my_debug("all_children_by_relationship[$this_rel_no] now looks like this: "
-                                        .print_r($all_children_by_relationship[$this_rel_no],1));
-                            }
-                        }
-                        else {
-                            my_debug("no parent_match_val, not adding $row[name] to"
-                                ." children_this_rel->'$parent_match_val', relationship_no = $relationship_no\n");
-                        }
-                    }
+                    add_node_to_relationship_lists(
+                        $row, $child, $parent_relationships, /*&*/$all_children_by_relationship
+                    );
 
                     $more_children_to_look_for = true;
                 }
@@ -258,6 +274,7 @@
                 $parent_relationships
             );
         }
+        #todo #fixme only return the root nodes, they're still connected to the children
         return $all_nodes_by_id;
     }
 
