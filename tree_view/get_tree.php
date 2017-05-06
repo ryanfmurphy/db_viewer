@@ -6,22 +6,23 @@
         require("$trunk/includes/init.php");
     }
 
-    $tree_table = isset($requestVars['tree_table'])
-                    ? $requestVars['tree_table']
-                    : die('need tree_table');
+    $root_table = isset($requestVars['root_table'])
+                    ? $requestVars['root_table']
+                    : die('need root_table');
     $root_cond = isset($requestVars['root_cond'])
+                 && $requestVars['root_cond']
                     ? $requestVars['root_cond']
                     : 'parent_id is null';
 
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
-    function add_tree_lev_by_lev($parent_nodes, $parent_ids, $tree_table) {
+    function add_tree_lev_by_lev($parent_nodes, $parent_ids, $root_table) {
         if (count($parent_ids) > 0) {
             # children for next level
             $parent_id_list = Db::make_val_list($parent_ids);
             $sql = "
                 select id, name, parent_id
-                from ".$tree_table."
+                from ".$root_table."
                 where parent_id in $parent_id_list
             ";
             $rows = Db::sql($sql);
@@ -47,20 +48,21 @@
                 $ids_this_lev[] = $id;
 
                 add_tree_lev_by_lev(
-                    $children, $ids_this_lev, $tree_table
+                    $children, $ids_this_lev, $root_table
                 );
             }
         }
     }
 
-    function get_tree($tree_table, $root_cond) {
+    function get_tree($root_table, $root_cond) {
         #todo define where condition for root
 
-        $rows = Db::sql("
+        $sql = "
             select id, name, parent_id
-            from $tree_table
+            from $root_table
             where $root_cond
-        ");
+        ";
+        $rows = Db::sql($sql);
 
         $parent_nodes = new stdClass();
         $ids_this_lev = array();
@@ -77,7 +79,7 @@
             $ids_this_lev[] = $id;
         }
         add_tree_lev_by_lev(
-            $parent_nodes, $ids_this_lev, $tree_table
+            $parent_nodes, $ids_this_lev, $root_table
         );
         return $parent_nodes;
     }
@@ -106,7 +108,7 @@
         return $unkeyed_tree;
     }
 
-    $tree = get_tree($tree_table, $root_cond);
+    $tree = get_tree($root_table, $root_cond);
     $tree = unkey_tree($tree);
 
     die(

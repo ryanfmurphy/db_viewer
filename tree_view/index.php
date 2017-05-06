@@ -6,9 +6,33 @@
         require("$trunk/includes/init.php");
     }
 
-    $tree_table = isset($requestVars['tree_table'])
-                    ? $requestVars['tree_table']
-                    : die('need tree_table');
+    $root_table = isset($requestVars['root_table'])
+                    ? $requestVars['root_table']
+                    : null;
+
+    if (!$root_table) {
+?>
+<html>
+    <body>
+        <form action="">
+            <h2>Select one or more Root Nodes</h2>
+            <div>
+                <label>Root Table</label>
+                <input name="root_table">
+            </div>
+            <div>
+                <label>Root Condition</label>
+                <input name="root_cond">
+            </div>
+            <div>
+                <input type="submit">
+            </div>
+        </form>
+    </body>
+</html>
+<?php
+    }
+
     $root_cond = isset($requestVars['root_cond'])
                     ? $requestVars['root_cond']
                     : 'parent_id is null';
@@ -44,67 +68,102 @@
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
 
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 3000 /*960*/ - margin.right - margin.left,
-    height = /*30000*/ 800 - margin.top - margin.bottom;
+var svg_tree = {
+    tree: undefined,
+    root: undefined,
+    svg: undefined,
+    i: undefined,
+    duration: undefined,
+    diagonal: undefined,
+    margin: undefined,
+    width: undefined,
+    height: undefined
+};
 
-var i = 0,
-    duration = 750,
-    root;
+function setupTree(new_width, new_height) {
+    if (new_width === undefined) new_width = 960;
+    if (new_height === undefined) new_height = 800;
 
-var tree = d3.layout.tree()
-             .size([height, width]);
+    var margin = svg_tree.margin =
+        {top: 20, right: 120, bottom: 20, left: 120};
+    var width = svg_tree.width =
+        new_width - margin.right - margin.left;
+    var height = svg_tree.width =
+        new_height - margin.top - margin.bottom;
 
-var diagonal = d3.svg.diagonal()
-                 .projection(function(d) { return [d.y, d.x]; });
+    svg_tree.i = 0;
+    svg_tree.duration = 750;
 
-var svg = d3.select("body").append("svg")
-            .attr("width", width + margin.right + margin.left)
-            .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    svg_tree.tree = d3  .layout.tree()
+                        .size([height, width]);
 
-d3.json("get_tree.php"
-            +"?tree_table=<?= urlencode($tree_table) ?>"
-            +"&root_cond=<?= urlencode($root_cond) ?>",
-        function(error, flare) {
-            if (error) throw error;
+    svg_tree.diagonal = d3  .svg.diagonal()
+                            .projection(function(d) { return [d.y, d.x]; });
 
-            root = flare;
-            root.x0 = height / 2;
-            root.y0 = 0;
+    svg_tree.svg = d3.select("body").append("svg")
+                     .attr("width", width + margin.right + margin.left)
+                     .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            function collapse(d) {
-                if (d.children) {
-                    d._children = d.children;
-                    d._children.forEach(collapse);
-                    d.children = null;
+}
+
+function createTree() {
+    setupTree();
+    d3.json("get_tree.php"
+                +"?root_table=<?= urlencode($root_table) ?>"
+                +"&root_cond=<?= urlencode($root_cond) ?>",
+            function(error, flare) {
+                if (error) throw error;
+
+                var width = undefined, height = undefined;
+                //width = 2000, height = 5000;
+                //setupTree(width, height);
+
+                root = flare;
+                root.x0 = svg_tree.height / 2;
+                root.y0 = 0;
+
+                function collapse(d) {
+                    if (d.children) {
+                        d._children = d.children;
+                        d._children.forEach(collapse);
+                        d.children = null;
+                    }
                 }
+
+                root.children.forEach(collapse);
+                updateTree(root);
             }
+    );
 
-            root.children.forEach(collapse);
-            update(root);
-        }
-);
+    d3  .select(self.frameElement)
+        .style("height", "800px");
+}
 
-d3  .select(self.frameElement)
-    .style("height", "800px");
+createTree();
 
-function update(source) {
+function updateTree(source) {
+
+    var tree = svg_tree.tree;
+    var svg = svg_tree.svg;
+    var diagonal = svg_tree.diagonal;
+    var duration = svg_tree.duration;
 
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse(),
         links = tree.links(nodes);
 
     // Normalize for fixed-depth.
-    nodes.forEach(
-        function(d) { d.y = d.depth * 180; }
-    );
+    nodes.forEach(function(d) {
+        d.y = d.depth * 180;
+    });
 
     // Update the nodes…
     var node = svg  .selectAll("g.node")
                     .data(nodes, function(d) {
-                        return d.svg_node_id || (d.svg_node_id = ++i);
+                        return  d.svg_node_id
+                                || (d.svg_node_id = ++svg_tree.i);
                     });
 
     // Enter any new nodes at the parent's previous position.
@@ -146,7 +205,7 @@ function update(source) {
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
-            .duration(duration)
+            .duration(svg_tree.duration)
             .attr("transform",  function(d) {
                                     return "translate(" + d.y + "," + d.x + ")";
                                 }
@@ -166,7 +225,7 @@ function update(source) {
 
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node .exit().transition()
-                        .duration(duration)
+                        .duration(svg_tree.duration)
                         .attr("transform",
                             function(d) {
                                 return "translate(" + source.y + "," + source.x + ")";
@@ -230,14 +289,14 @@ function clickNode(d) {
         d.children = d._children;
         d._children = null;
     }
-    update(d);
+    updateTree(d);
 }
 
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
     // #todo use TableView::obj_editor_url
     var url = "<?= $obj_editor_uri ?>"
-                    +"?table=<?= $tree_table ?>"
+                    +"?table=<?= $root_table ?>"
                     +"&edit=1"
                     +"&primary_key=" + d.id;
     window.open(url, '_blank');
