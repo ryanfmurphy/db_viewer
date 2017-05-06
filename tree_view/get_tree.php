@@ -4,36 +4,35 @@
         $trunk = dirname(__DIR__);
         $cur_view = 'tree_view';
         require("$trunk/includes/init.php");
+        require("$trunk/tree_view/vars.php");
     }
-
-    $root_table = isset($requestVars['root_table'])
-                    ? $requestVars['root_table']
-                    : die('need root_table');
-    $root_cond = isset($requestVars['root_cond'])
-                 && $requestVars['root_cond']
-                    ? $requestVars['root_cond']
-                    : 'parent_id is null';
 
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
-    function add_tree_lev_by_lev($parent_nodes, $parent_ids, $root_table) {
+    function add_tree_lev_by_lev(
+        $parent_nodes, $parent_ids, $root_table,
+        $order_by_limit=null, $parent_field='parent_id'
+    ) {
         if (count($parent_ids) > 0) {
             # children for next level
             $parent_id_list = Db::make_val_list($parent_ids);
             $sql = "
-                select id, name, parent_id
+                select id, name, $parent_field
                 from ".$root_table."
-                where parent_id in $parent_id_list
+                where $parent_field in $parent_id_list
+                $order_by_limit
             ";
+            #echo "sql = '$sql'\n\n";
             $rows = Db::sql($sql);
 
             # the parent_node already has the children (which are about to be parents)
             # that are in the parent_id_list
             foreach ($rows as $row) {
-                $this_parent_id = $row['parent_id'];
+                $this_parent_id = $row[$parent_field];
                 $id = $row['id'];
                 $ids_this_lev = array();
 
+                #todo cleanup
                 if (!isset($parent_nodes->$this_parent_id->children)) {
                     $parent_nodes->$this_parent_id->children = new stdClass();
                 }
@@ -48,20 +47,24 @@
                 $ids_this_lev[] = $id;
 
                 add_tree_lev_by_lev(
-                    $children, $ids_this_lev, $root_table
+                    $children, $ids_this_lev, $root_table,
+                    $order_by_limit, $parent_field
                 );
             }
         }
     }
 
-    function get_tree($root_table, $root_cond) {
-        #todo define where condition for root
-
+    function get_tree(
+        $root_table, $root_cond,
+        $order_by_limit=null, $parent_field='parent_id'
+    ) {
         $sql = "
             select id, name, parent_id
             from $root_table
             where $root_cond
+            $order_by_limit
         ";
+        #echo "root sql = '$sql'\n\n";
         $rows = Db::sql($sql);
 
         $parent_nodes = new stdClass();
@@ -79,7 +82,8 @@
             $ids_this_lev[] = $id;
         }
         add_tree_lev_by_lev(
-            $parent_nodes, $ids_this_lev, $root_table
+            $parent_nodes, $ids_this_lev, $root_table,
+            $order_by_limit, $parent_field
         );
         return $parent_nodes;
     }
@@ -108,7 +112,7 @@
         return $unkeyed_tree;
     }
 
-    $tree = get_tree($root_table, $root_cond);
+    $tree = get_tree($root_table, $root_cond, $order_by_limit, $parent_field);
     $tree = unkey_tree($tree);
 
     die(

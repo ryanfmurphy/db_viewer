@@ -4,11 +4,8 @@
         $trunk = dirname(__DIR__);
         $cur_view = 'tree_view';
         require("$trunk/includes/init.php");
+        require("$trunk/tree_view/vars.php");
     }
-
-    $root_table = isset($requestVars['root_table'])
-                    ? $requestVars['root_table']
-                    : null;
 
     if (!$root_table) {
 ?>
@@ -155,7 +152,9 @@ function createTree() {
     //setupTree();
     d3.json("get_tree.php"
                 +"?root_table=<?= urlencode($root_table) ?>"
-                +"&root_cond=<?= urlencode($root_cond) ?>",
+                +"&root_cond=<?= urlencode($root_cond) ?>"
+                +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
+                +"&parent_field=<?= urlencode($parent_field) ?>",
             function(error, flare) {
                 if (error) throw error;
 
