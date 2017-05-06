@@ -145,9 +145,15 @@ function createTree() {
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
 <?php
     $parent_relationship = $parent_relationships[0]; #todo #fixme allow more than more
+    foreach ($parent_relationships as $i => $parent_relationship) {
+        $parent_field = urlencode($parent_relationship['parent_field']);
+        $matching_field_on_parent = urlencode($parent_relationship['matching_field_on_parent']);
 ?>
-                +"&parent_relationships[0][parent_field]=<?= urlencode($parent_relationship['parent_field']) ?>"
-                +"&parent_relationships[0][matching_field_on_parent]=<?= urlencode($parent_relationship['matching_field_on_parent']) ?>"
+                +"&parent_relationships[<?= $i ?>][parent_field]=<?= $parent_field ?>"
+                +"&parent_relationships[<?= $i ?>][matching_field_on_parent]=<?= $matching_field_on_parent ?>"
+<?php
+    }
+?>
             ,
             function(error, flare) {
                 if (error) throw error;

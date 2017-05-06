@@ -1,4 +1,8 @@
 <?php
+    function my_debug($msg) {
+        #echo $msg;
+    }
+
     { # init: defines $db, TableView,
         # and Util (if not already present)
         $trunk = dirname(__DIR__);
@@ -16,8 +20,15 @@
         return $fields;
     }
 
-    function my_debug($msg) {
-        #echo $msg;
+    function field_list_all_rels($parent_relationships) {
+        $fields = array("id"=>1, "name"=>1);
+        foreach ($parent_relationships as $relationship) {
+            #todo #fixme when we have multiple tables in the future
+            #            make sure to limit these fields to the root table
+            $fields[ $relationship['parent_field'] ] = 1;
+            $fields[ $relationship['matching_field_on_parent'] ] = 1;
+        }
+        return implode(', ', array_keys($fields));
     }
 
     my_debug("parent_relationships: " . print_r($parent_relationships,1));
@@ -25,69 +36,91 @@
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
-        $parent_nodes,
+        $parent_nodes_by_relationship,
         # an array corresponding to the parent_relationships,
         # and containing the matching parent vals for that relationships
         $parent_vals_this_lev_by_relationship,
         $root_table, $order_by_limit=null,
         $parent_relationships
     ) {
-        $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
-        $parent_field = $parent_relationship['parent_field'];
-        $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
-        $parent_ids = $parent_vals_this_lev_by_relationship[0];
+        my_debug("starting add_tree_lev_by_lev: parent_nodes = ".print_r($parent_nodes_by_relationship,1));
 
-        my_debug("starting add_tree_lev_by_lev: parent_nodes = ".print_r($parent_nodes,1));
+        $all_children_by_relationship = array();
+        $more_children_to_look_for = false;
 
-        if (count($parent_ids) > 0) {
-            # children for next level
-            $parent_id_list = Db::make_val_list($parent_ids); #todo rename parent_ids parent_field_vals?
-            $fields = field_list($parent_field, $matching_field_on_parent);
-            $sql = "
-                select $fields
-                from $root_table
-                where $parent_field in $parent_id_list
-                $order_by_limit
-            ";
-            my_debug("sql = '$sql'\n\n");
-            $rows = Db::sql($sql);
+        foreach ($parent_relationships as $relationship_no => $parent_relationship) {
+            my_debug("starting new relationship $relationship_no: ".print_r($parent_relationship,1)
+                    . "{\n");
+            $parent_field = $parent_relationship['parent_field'];
+            $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+            $parent_ids = $parent_vals_this_lev_by_relationship[$relationship_no];
+            $parent_nodes = $parent_nodes_by_relationship[$relationship_no];
 
-            # the parent_node already has the children (which are about to be parents)
-            # that are in the parent_id_list
+            # values to populate and pass to next level
+            $children_this_rel = new stdClass();
             $parent_vals_next_lev = array();
-            $all_children = new stdClass();
-            foreach ($rows as $row) {
-                $this_parent_id = $row[$parent_field];
-                $id = $row['id'];
-                my_debug("matching_field_on_parent = $matching_field_on_parent\n");
-                $parent_match_val = $row[$matching_field_on_parent];
 
-                #todo cleanup
-                if (!isset($parent_nodes->{$this_parent_id}->children)) {
-                    my_debug("this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
-                    $parent_nodes->{$this_parent_id}->children = new stdClass();
+            if (count($parent_ids) > 0) {
+                # children for next level
+                $parent_id_list = Db::make_val_list($parent_ids); #todo rename parent_ids parent_field_vals?
+                #$fields = field_list($parent_field, $matching_field_on_parent);
+                $fields = field_list_all_rels($parent_relationships);
+                $sql = "
+                    select $fields
+                    from $root_table
+                    where $parent_field in $parent_id_list
+                    $order_by_limit
+                ";
+                my_debug("sql = '$sql'\n\n");
+                $rows = Db::sql($sql);
+
+                # the parent_node already has the children (which are about to be parents)
+                # that are in the parent_id_list
+                my_debug("  starting loop thru rows, {\n");
+                foreach ($rows as $row) {
+                    $this_parent_id = $row[$parent_field];
+                    $id = $row['id'];
+                    my_debug("matching_field_on_parent = $matching_field_on_parent\n");
+                    $parent_match_val = $row[$matching_field_on_parent];
+
+                    #todo cleanup
+                    if (!isset($parent_nodes->{$this_parent_id}->children)) {
+                        my_debug("this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
+                        $parent_nodes->{$this_parent_id}->children = new stdClass();
+                    }
+                    else {
+                        my_debug("no problem this time, this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
+                    }
+                    $children = $parent_nodes->{$this_parent_id}->children;
+
+                    #todo #fixme can I just add the whole row?
+                    $child = (object)array(
+                        'id' => $id,
+                        'name' => $row['name'],
+                        $parent_field => $row[$parent_field],
+                        $matching_field_on_parent => $row[$matching_field_on_parent]
+                    );
+
+                    my_debug("adding child at '$parent_match_val': ".print_r($child,1));
+                    # children off node directly
+                    $children->{$parent_match_val} = $child;
+                    # children aggregated for this relationship
+                    $children_this_rel->{$parent_match_val} = $child;
+
+                    $parent_vals_next_lev[] = $parent_match_val;
+                    $more_children_to_look_for = true;
                 }
-                else {
-                    my_debug("no problem this time, this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
-                }
-                $children = $parent_nodes->{$this_parent_id}->children;
-
-                #todo #fixme can I just add the whole row?
-                $child = (object)array(
-                    'id' => $id,
-                    'name' => $row['name'],
-                    $parent_field => $row[$parent_field],
-                    $matching_field_on_parent => $row[$matching_field_on_parent]
-                );
-
-                my_debug("adding child at '$parent_match_val': ".print_r($child,1));
-                $children->{$parent_match_val} = $child;
-                $all_children->{$parent_match_val} = $child;
-                $parent_vals_next_lev[] = $parent_match_val;
+                my_debug("  }\n");
             }
-            $parent_vals_next_lev_by_relationship[0] = $parent_vals_next_lev;
+            $parent_vals_next_lev_by_relationship[$relationship_no] = $parent_vals_next_lev;
+            $all_children_by_relationship[$relationship_no] = $children_this_rel;
+            my_debug("}\n");
+        }
+        if ($more_children_to_look_for) {
             add_tree_lev_by_lev(
-                $all_children, $parent_vals_next_lev_by_relationship, $root_table, $order_by_limit,
+                $all_children_by_relationship,
+                $parent_vals_next_lev_by_relationship,
+                $root_table, $order_by_limit,
                 #$parent_field, $matching_field_on_parent
                 $parent_relationships
             );
@@ -99,12 +132,15 @@
         #$parent_field='parent_id', $matching_field_on_parent='id'
         $parent_relationships
     ) {
+        $parent_vals_next_lev_by_relationship = array();
+
         $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
         $parent_field = $parent_relationship['parent_field'];
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
-        $parent_vals_next_lev_by_relationship = array();
 
-        $fields = field_list($parent_field, $matching_field_on_parent);
+        #todo #fixme - decide what to do - select ALL the parent_fields?
+        # or do separate queries? don't really want to...
+        $fields = field_list_all_rels($parent_relationships);
         $sql = "
             select $fields
             from $root_table
@@ -114,33 +150,68 @@
         my_debug("root sql = '$sql'\n\n");
         $rows = Db::sql($sql);
 
+        # for final return
         $parent_nodes = new stdClass();
-        $parent_vals_next_lev = array();
+        # to pass forth to recursive calls that need to separate based on relationship
+        $parent_nodes_by_relationship = array();
+        # to make sure we stop when we are done
+        $more_children_to_look_for = false;
 
-        foreach ($rows as $row) {
-            my_debug("adding node ".print_r($row,1));
-            $tree_node = new stdClass();
-            $id = $row['id'];
-            my_debug("matching_field_on_parent = $matching_field_on_parent\n");
-            $parent_match_val = $row[$matching_field_on_parent];
-            if ($parent_match_val) {
-                $parent_nodes->{$parent_match_val} = $tree_node;
+        foreach ($parent_relationships as $relationship_no => $parent_relationship) {
+            my_debug("starting new relationship $relationship_no: ".print_r($parent_relationship,1)
+                    . "{\n");
 
-                $parent_nodes->{$parent_match_val}->$parent_field = $row[$parent_field];
-                $parent_nodes->{$parent_match_val}->id = $id;
-                $parent_nodes->{$parent_match_val}->name = $row['name'];
-                $parent_vals_next_lev[] = $row[$matching_field_on_parent];
+            $parent_field = $parent_relationship['parent_field'];
+            $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+            $parent_vals_next_lev = array();
+            $parent_nodes_this_rel = new stdClass();
+
+            foreach ($rows as $row) {
+                my_debug("adding node ".print_r($row,1));
+                $id = $row['id'];
+                my_debug("matching_field_on_parent = $matching_field_on_parent\n");
+                $parent_match_val = $row[$matching_field_on_parent];
+
+                # see if we have a node already or need to make a new one
+                if (isset($parent_nodes->{$id})) {
+                    $tree_node = $parent_nodes->{$id};
+                }
+                else {
+                    $tree_node = new stdClass();
+                    $parent_nodes->{$id} = $tree_node;
+                }
+
+                # we have a parent_match_val so we can actually put it in the array
+                if ($parent_match_val) {
+                    $parent_nodes_this_rel->{$parent_match_val} = $tree_node;
+
+                    $parent_nodes_this_rel->{$parent_match_val}->$parent_field = $row[$parent_field];
+                    $parent_nodes_this_rel->{$parent_match_val}->id = $id;
+                    $parent_nodes_this_rel->{$parent_match_val}->name = $row['name'];
+                    $parent_vals_next_lev[] = $row[$matching_field_on_parent];
+
+                    $more_children_to_look_for = true;
+                }
+                else {
+                    my_debug("no parent_match_val for this one, id=$id - skipping\n");
+                }
             }
-            else {
-                my_debug("no parent_match_val for this one, id=$id - skipping\n");
-            }
+
+            $parent_vals_next_lev_by_relationship[$relationship_no] = $parent_vals_next_lev;
+            $parent_nodes_by_relationship[$relationship_no] = $parent_nodes_this_rel;
+
+            my_debug("}\n");
         }
-        $parent_vals_next_lev_by_relationship[0] = $parent_vals_next_lev;
-        add_tree_lev_by_lev(
-            $parent_nodes, $parent_vals_next_lev_by_relationship, $root_table,
-            $order_by_limit, #$parent_field, $matching_field_on_parent
-            $parent_relationships
-        );
+        my_debug("about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
+        if ($more_children_to_look_for) {
+            add_tree_lev_by_lev(
+                $parent_nodes_by_relationship,
+                $parent_vals_next_lev_by_relationship,
+                $root_table,
+                $order_by_limit, #$parent_field, $matching_field_on_parent
+                $parent_relationships
+            );
+        }
         return $parent_nodes;
     }
 
