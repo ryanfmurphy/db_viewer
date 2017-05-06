@@ -17,10 +17,6 @@
         require("$trunk/tree_view/vars_form.php");
     }
 
-    $root_cond = isset($requestVars['root_cond'])
-                 && $requestVars['root_cond']
-                    ? $requestVars['root_cond']
-                    : 'parent_id is null';
     #todo #fixme do I need this header? #security
     header("Access-Control-Allow-Origin: <origin> | *");
 ?>
@@ -143,7 +139,7 @@ function setupTreeWithSize(root) {
 }
 
 function treeDataUrl() {
-    return "get_tree.php"
+    return "<?= $get_tree_uri ?>"
                 +"?root_table=<?= urlencode($root_table) ?>"
                 +"&root_cond=<?= urlencode($root_cond) ?>"
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"

@@ -25,13 +25,18 @@
         }
     }
 
-    function field_list($parent_relationships) {
-        $fields = array("id"=>1, "name"=>1);
+    function field_list($parent_relationships, $table) {
+        $id_mode = Config::$config['id_mode'];
+        $id_field = DbUtil::get_primary_key_field($id_mode, $table);
+
+        $fields = array($id_field=>1, "name"=>1);
         foreach ($parent_relationships as $relationship) {
             #todo #fixme when we have multiple tables in the future
             #            make sure to limit these fields to the root table
             $fields[ $relationship['parent_field'] ] = 1;
-            $fields[ $relationship['matching_field_on_parent'] ] = 1;
+
+            $matching_field_on_parent = get_matching_field_on_parent($relationship, $table); 
+            $fields[ $matching_field_on_parent ] = 1;
         }
         return implode(', ', array_keys($fields));
     }
@@ -43,6 +48,7 @@
     function get_field_values_for_matching($parent_nodes, $matching_field_on_parent) {
         $vals = array();
         foreach ($parent_nodes as $node) {
+            my_debug("here's the node, we're looking for '$matching_field_on_parent' field: ".print_r($node,1));
             $vals[] = $node->{$matching_field_on_parent};
         }
         return $vals;
@@ -67,13 +73,13 @@
     }
 
     function add_node_to_relationship_lists(
-        $row, $child, $parent_relationships, &$all_children_by_relationship
+        $row, $child, $parent_relationships, &$all_children_by_relationship, $table
     ) {
         # add val to each applicable relationship
         foreach ($parent_relationships as $rel_no => $parent_relationship) {
 
             #todo #fixme when relationships can span tables, make sure to check for correct table
-            $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship, $table);
             $parent_match_val = $row[$matching_field_on_parent];
 
             if ($parent_match_val) {
@@ -97,20 +103,24 @@
         }
     }
 
-    function add_child_to_tree($child, $parent, $parent_match_val) {
+    function add_child_to_tree($child, $parent, $parent_match_val, $table) {
+        $id_mode = Config::$config['id_mode'];
+        $id_field = DbUtil::get_primary_key_field($id_mode, $table);
+        $id = $parent->{$id_field};
+
         # add children container if needed
         if (!isset($parent->children)) {
-            my_debug("creating new children container for $parent->id to add $child->name\n"); #todo #test
+            my_debug("creating new children container for $id to add $child->name\n"); #todo #test
             $parent->children = new stdClass();
         }
         else {
-            my_debug("children container for $parent->id already exists, adding $child->name\n"); #todo #test
+            my_debug("children container for $id already exists, adding $child->name\n"); #todo #test
         }
 
         # add child off node
-        my_debug("adding child '$parent_match_val' within container for '$parent->id': ".print_r($child,1));
+        my_debug("adding child '$parent_match_val' within container for '$id': ".print_r($child,1));
         $parent->children->{$parent_match_val} = $child;
-        my_debug("now $parent->id looks like this: ".print_r($parent,1));
+        my_debug("now $id looks like this: ".print_r($parent,1));
     }
 
     # starting with an array of $parent_nodes,
@@ -121,17 +131,19 @@
         $root_table, $order_by_limit=null,
         $parent_relationships
     ) {
-        my_debug("starting add_tree_lev_by_lev: parent_nodes = ".print_r($parent_nodes_by_relationship,1));
+        my_debug("starting add_tree_lev_by_lev: parent_nodes = "
+                .print_r($parent_nodes_by_relationship,1));
+        $id_mode = Config::$config['id_mode'];
 
         $all_children_by_relationship = array();
         $more_children_to_look_for = false;
-        $fields = field_list($parent_relationships);
+        $fields = field_list($parent_relationships, $root_table);
 
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
             my_debug("starting new relationship $relationship_no: ".print_r($parent_relationship,1)
                     . "{\n");
             $parent_field = $parent_relationship['parent_field'];
-            $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship, $root_table);
 
             $parent_nodes = $parent_nodes_by_relationship[$relationship_no];
             $parent_vals = get_field_values_for_matching($parent_nodes, $matching_field_on_parent);
@@ -149,7 +161,10 @@
                 my_debug("  starting loop thru rows, {\n");
                 foreach ($rows as $row) {
                     $this_parent_id = $row[$parent_field];
-                    $id = $row['id'];
+                    $id_field = DbUtil::get_primary_key_field(
+                        $id_mode, $root_table
+                    );
+                    $id = $row[$id_field];
                     my_debug("matching_field_on_parent = $matching_field_on_parent\n");
                     $parent_match_val = $row[$matching_field_on_parent];
 
@@ -166,7 +181,7 @@
                     # parent SHOULD exist...
                     if (isset($parent_nodes->{$this_parent_id})) {
                         $parent = $parent_nodes->{$this_parent_id};
-                        add_child_to_tree($child, $parent, $parent_match_val);
+                        add_child_to_tree($child, $parent, $parent_match_val, $root_table);
                     }
                     else {
                         my_debug("WARNING don't actually have the parent $this_parent_id at all, let alone a children container\n");
@@ -174,7 +189,7 @@
                     }
 
                     add_node_to_relationship_lists(
-                        $row, $child, $parent_relationships, /*&*/$all_children_by_relationship
+                        $row, $child, $parent_relationships, /*&*/$all_children_by_relationship, $root_table
                     );
 
                     $more_children_to_look_for = true;
@@ -194,17 +209,29 @@
         }
     }
 
+    function get_matching_field_on_parent($parent_relationship, $table) {
+        $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+        if ($matching_field_on_parent == '{{USE PRIMARY KEY}}') {
+            $id_mode = Config::$config['id_mode'];
+            $id_field = DbUtil::get_primary_key_field($id_mode, $table);
+            $matching_field_on_parent = $id_field;
+        }
+        return $matching_field_on_parent;
+    }
+
     function get_tree(
         $root_table, $root_cond, $order_by_limit=null,
         $parent_relationships
     ) {
+        $id_mode = Config::$config['id_mode'];
+
         #$parent_vals_next_lev_by_relationship = array();
 
         $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
         $parent_field = $parent_relationship['parent_field'];
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
 
-        $fields = field_list($parent_relationships);
+        $fields = field_list($parent_relationships, $root_table);
         $sql = "
             select $fields
             from $root_table
@@ -226,14 +253,17 @@
             my_debug("starting new relationship $relationship_no: ".print_r($parent_relationship,1)
                     . "{\n");
 
+            $id_field = DbUtil::get_primary_key_field(
+                $id_mode, $root_table
+            );
             $parent_field = $parent_relationship['parent_field'];
-            $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship, $root_table);
             #$parent_vals_next_lev = array();
             $parent_nodes_this_rel = new stdClass();
 
             foreach ($rows as $row) {
                 my_debug("adding node ".print_r($row,1));
-                $id = $row['id'];
+                $id = $row[$id_field];
                 if (!$id) {
                     my_debug("row has no id!  skipping.  here's the row: ".print_r($row,1));
                     continue;
@@ -242,6 +272,17 @@
                 my_debug("matching_field_on_parent = $matching_field_on_parent\n");
                 $parent_match_val = $row[$matching_field_on_parent];
 
+                # get or create node
+                if (isset($all_nodes_by_id->{$id})) {
+                    # need to do anything? all fields should be there.
+                    $tree_node = $all_nodes_by_id->{$id};
+                }
+                else {
+                    $tree_node = (object)$row;
+                    $all_nodes_by_id->{$id} = $tree_node;
+                }
+
+                /*
                 # see if we have a node already or need to make a new one
                 if (isset($all_nodes_by_id->{$id})) {
                     $tree_node = $all_nodes_by_id->{$id};
@@ -254,6 +295,7 @@
                 $tree_node->$parent_field = $row[$parent_field];
                 $tree_node->id = $id;
                 $tree_node->name = $row['name'];
+                */
 
                 # we have a parent_match_val so we can actually put it in the array
                 if ($parent_match_val) {
