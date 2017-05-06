@@ -36,6 +36,7 @@
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
+        $all_nodes_by_id,
         $parent_nodes_by_relationship,
         # an array corresponding to the parent_relationships,
         # and containing the matching parent vals for that relationships
@@ -85,25 +86,33 @@
 
                     #todo cleanup
                     if (!isset($parent_nodes->{$this_parent_id}->children)) {
-                        my_debug("this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
+                        #my_debug("this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
+                        my_debug("creating new children container for $this_parent_id to add $row[name]\n");
                         $parent_nodes->{$this_parent_id}->children = new stdClass();
                     }
                     else {
-                        my_debug("no problem this time, this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
+                        my_debug("children container for $this_parent_id already exists, adding $row[name]\n");
                     }
                     $children = $parent_nodes->{$this_parent_id}->children;
 
-                    #todo #fixme can I just add the whole row?
-                    $child = (object)array(
-                        'id' => $id,
-                        'name' => $row['name'],
-                        $parent_field => $row[$parent_field],
-                        $matching_field_on_parent => $row[$matching_field_on_parent]
-                    );
+                    if (isset($all_nodes_by_id->{$id})) {
+                        # need to do anything? all fields should be there.
+                        $child = $all_nodes_by_id->{$id};
+                    }
+                    else {
+                        $child = (object)array(
+                            'id' => $id,
+                            'name' => $row['name'],
+                            $parent_field => $row[$parent_field],
+                            $matching_field_on_parent => $row[$matching_field_on_parent]
+                        );
+                        $all_nodes_by_id->{$id} = $child;
+                    }
 
-                    my_debug("adding child at '$parent_match_val': ".print_r($child,1));
+                    my_debug("adding child '$parent_match_val' within container for '$this_parent_id': ".print_r($child,1));
                     # children off node directly
                     $children->{$parent_match_val} = $child;
+                    my_debug("now $this_parent_id looks like this: ".print_r($parent_nodes->{$this_parent_id},1));
                     # children aggregated for this relationship
                     $children_this_rel->{$parent_match_val} = $child;
 
@@ -118,6 +127,7 @@
         }
         if ($more_children_to_look_for) {
             add_tree_lev_by_lev(
+                $all_nodes_by_id,
                 $all_children_by_relationship,
                 $parent_vals_next_lev_by_relationship,
                 $root_table, $order_by_limit,
@@ -150,8 +160,9 @@
         my_debug("root sql = '$sql'\n\n");
         $rows = Db::sql($sql);
 
-        # for final return
-        $parent_nodes = new stdClass();
+        # to make sure we never recreate a node from scratch
+        # and always keep building on its relationships
+        $all_nodes_by_id = new stdClass();
         # to pass forth to recursive calls that need to separate based on relationship
         $parent_nodes_by_relationship = array();
         # to make sure we stop when we are done
@@ -173,12 +184,12 @@
                 $parent_match_val = $row[$matching_field_on_parent];
 
                 # see if we have a node already or need to make a new one
-                if (isset($parent_nodes->{$id})) {
-                    $tree_node = $parent_nodes->{$id};
+                if (isset($all_nodes_by_id->{$id})) {
+                    $tree_node = $all_nodes_by_id->{$id};
                 }
                 else {
                     $tree_node = new stdClass();
-                    $parent_nodes->{$id} = $tree_node;
+                    $all_nodes_by_id->{$id} = $tree_node;
                 }
 
                 # we have a parent_match_val so we can actually put it in the array
@@ -205,6 +216,7 @@
         my_debug("about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
         if ($more_children_to_look_for) {
             add_tree_lev_by_lev(
+                $all_nodes_by_id,
                 $parent_nodes_by_relationship,
                 $parent_vals_next_lev_by_relationship,
                 $root_table,
@@ -212,7 +224,7 @@
                 $parent_relationships
             );
         }
-        return $parent_nodes;
+        return $all_nodes_by_id;
     }
 
     # to gain our ordering back before we get off PHP to JS
