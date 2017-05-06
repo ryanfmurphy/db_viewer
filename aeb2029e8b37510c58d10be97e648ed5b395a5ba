@@ -1,0 +1,3 @@
+Initial benchmark: tree-view was loading my test tree in 80ms, now down to 25ms
+
+test tree of 480 nodes with 90 relationships
