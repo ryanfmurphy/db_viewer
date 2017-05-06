@@ -33,6 +33,8 @@
         $parent_field = $parent_relationship['parent_field'];
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
 
+        my_debug("starting add_tree_lev_by_lev: parent_nodes = ".print_r($parent_nodes,1));
+
         if (count($parent_ids) > 0) {
             # children for next level
             $parent_id_list = Db::make_val_list($parent_ids); #todo rename parent_ids parent_field_vals?
@@ -48,17 +50,21 @@
 
             # the parent_node already has the children (which are about to be parents)
             # that are in the parent_id_list
+            $parent_vals_this_lev = array();
+            $all_children = new stdClass();
             foreach ($rows as $row) {
                 $this_parent_id = $row[$parent_field];
                 $id = $row['id'];
                 my_debug("matching_field_on_parent = $matching_field_on_parent\n");
                 $parent_match_val = $row[$matching_field_on_parent];
-                $parent_vals_this_lev = array();
 
                 #todo cleanup
-                if (!isset($parent_nodes->$this_parent_id->children)) {
+                if (!isset($parent_nodes->{$this_parent_id}->children)) {
                     my_debug("this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
                     $parent_nodes->{$this_parent_id}->children = new stdClass();
+                }
+                else {
+                    my_debug("no problem this time, this_parent_id = ".print_r($parent_nodes->{$this_parent_id},1)."\n");
                 }
                 $children = $parent_nodes->{$this_parent_id}->children;
 
@@ -69,17 +75,17 @@
                     $parent_field => $row[$parent_field],
                     $matching_field_on_parent => $row[$matching_field_on_parent]
                 );
+
                 my_debug("adding child at '$parent_match_val': ".print_r($child,1));
                 $children->{$parent_match_val} = $child;
-
+                $all_children->{$parent_match_val} = $child;
                 $parent_vals_this_lev[] = $parent_match_val;
-
-                add_tree_lev_by_lev(
-                    $children, $parent_vals_this_lev, $root_table, $order_by_limit,
-                    #$parent_field, $matching_field_on_parent
-                    $parent_relationships
-                );
             }
+            add_tree_lev_by_lev(
+                $all_children, $parent_vals_this_lev, $root_table, $order_by_limit,
+                #$parent_field, $matching_field_on_parent
+                $parent_relationships
+            );
         }
     }
 
