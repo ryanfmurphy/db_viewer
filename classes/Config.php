@@ -143,6 +143,8 @@ class Config {
             # when clicking a <td> data cell in table_view
             # function should take 1 arg: the event
             'custom_td_click_handler',
+
+            'cmp',
         );
 
         $config = compact($config_vars);
@@ -307,6 +309,8 @@ class Config {
             # when clicking a <td> data cell in table_view
             # function should take 1 arg: the event
             'custom_td_click_handler' => null,
+
+            'cmp' => false,
         );
 
         return $default_values;

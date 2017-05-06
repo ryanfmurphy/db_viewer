@@ -40,7 +40,7 @@
         }
 
         { # vars
-            $cmp = class_exists('Util');
+            #$cmp = class_exists('Util');
             { # url & resource setup - jquery etc
                 {
                     if (!isset($js_path)) { # allow js_path to be specified in config
