@@ -82,10 +82,16 @@ var svg_tree = {
     level_width: undefined
 };
 
+var defaults = {
+    width: 5000,
+    height: 800,
+    level_width: 180 
+}
+
 function setupTree(new_width, new_height, level_width) {
-    if (new_width === undefined) new_width = 960;
-    if (new_height === undefined) new_height = 800;
-    if (level_width === undefined) level_width = 180;
+    if (new_width === undefined) new_width = defaults.width;
+    if (new_height === undefined) new_height = defaults.height;
+    if (level_width === undefined) level_width = defaults.level_width;
 
     var margin = svg_tree.margin =
         {top: 20, right: 120, bottom: 20, left: 120};
@@ -112,6 +118,39 @@ function setupTree(new_width, new_height, level_width) {
 
 }
 
+function setupTreeWithSize(root) {
+    // figure out a good size
+    var num_nodes = root.children.length;
+    var height = Math.max(
+        num_nodes * 12, defaults.height);
+    var width = undefined; // 2000;
+    var max_node_strlen = 0;
+    var approx_max_node_width = 0;
+    var name_cutoff = 70;
+    for (var i=0; i<root.children.length; i++) {
+        var node = root.children[i];
+        var name = node.name;
+
+        if (typeof name  === 'string') {
+            // apply name cutoff if any
+            if (name_cutoff
+                && name.length > name_cutoff
+            ) {
+                name = node.name =
+                    name.slice(0,name_cutoff) + '...';
+            }
+
+            if (name.length > max_node_strlen) {
+                max_node_strlen = name.length;
+            }
+        }
+    }
+    approx_max_node_width = max_node_strlen * 5;
+    var level_width = Math.max(
+        approx_max_node_width, defaults.level_width);
+    setupTree(width, height, level_width);
+}
+
 function createTree() {
     //setupTree();
     d3.json("get_tree.php"
@@ -120,11 +159,10 @@ function createTree() {
             function(error, flare) {
                 if (error) throw error;
 
-                var width = undefined, height = undefined;
-                width = 2000, height = 20000;
-                setupTree(width, height);
-
+                // #todo should this set the root on the svg_tree?
                 root = flare;
+
+                setupTreeWithSize(root);
                 root.x0 = svg_tree.height / 2;
                 root.y0 = 0;
 
