@@ -7,23 +7,45 @@
     { # config vars
         require_once("$trunk/classes/Config.php");
 
-        if (!isset($cur_subview)) $cur_subview = 'index';
-        $default_values = Config::default_values(
-            "/$cur_view/$cur_subview.php"
-        );
-
         if (file_exists("$trunk/db_config.php")) {
+            # config exists: load it
+            if (!isset($cur_subview)) $cur_subview = 'index';
+            $default_values = Config::default_values(
+                "/$cur_view/$cur_subview.php"
+            );
+
             $config = Config::load_config("$trunk/db_config.php",
                                           $default_values);
             extract($config);
         }
         else {
+            # config doesn't exist: redirect to setup
             header("HTTP/1.1 302 Redirect");
             header("Location: setup.php");
+            die();
+        }
+
+        # if not logged in, go to auth page (if config'd that way)
+        $have_db_auth = true;
+        if ((!isset($db_user)
+            || !isset($db_password))
+            && $db_prompt_for_auth
+        ) {
+            $have_db_auth = false;
+            if ($cur_view != 'auth') {
+                header("HTTP/1.1 302 Redirect");
+                header("Location: $prompt_for_auth_uri");
+                die();
+            }
         }
     }
 
     include("$trunk/includes/include_classes.php");
+
+    if ($have_db_auth) {
+        # try connecting to the db (just to make sure auth is ok)
+        Db::conn();
+    }
 
     { # vars adjustments after includes
         { # search_path

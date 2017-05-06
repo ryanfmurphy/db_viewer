@@ -13,10 +13,28 @@ if (!class_exists('Db')) {
                 die("Must pass set Db::\$config to the \$config array first\n");
             }
             extract(Config::$config); # creates variables
-            $db = self::$db = new PDO(
-                "$db_type:host=$db_host;dbname=$db_name",
-                $db_user, $db_password
-            );
+            try {
+                $db = self::$db = new PDO(
+                    "$db_type:host=$db_host;dbname=$db_name",
+                    $db_user, $db_password
+                );
+            }
+            catch (PDOException $e) {
+                # redirect to the auth page if db_prompt_for_auth is enabled
+                $db_prompt_for_auth = Config::$config['db_prompt_for_auth'];
+                $err_msg = "Error connecting to DB: ".$e->getMessage();
+                if ($db_prompt_for_auth) {
+                    #todo #fixme foward the error along so that they can see it on the Auth page
+                    unset($_SESSION['db_user']);
+                    unset($_SESSION['db_password']);
+                    header("HTTP/1.1 302 Redirect");
+                    header("Location: $prompt_for_auth_uri");
+                    die();
+                }
+                else {
+                    die($err_msg);
+                }
+            }
             return $db;
         }
 
