@@ -49,7 +49,9 @@ class Config {
 
             'obj_editor_uri',
             'table_view_uri',
+            'tree_view_uri',
             'crud_api_uri',
+            'get_tree_uri',
             'prompt_for_auth_uri',
 
             'trunk',
@@ -145,6 +147,9 @@ class Config {
             'custom_td_click_handler',
 
             'cmp',
+
+            # tree view stuff
+            'default_parent_field',
         );
 
         $config = compact($config_vars);
@@ -236,6 +241,8 @@ class Config {
             'obj_editor_uri' => "$uri_trunk/obj_editor/index.php",
             'crud_api_uri' => "$uri_trunk/obj_editor/crud_api.php",
             'table_view_uri' => "$uri_trunk/table_view/index.php",
+            'tree_view_uri' => "$uri_trunk/tree_view/index.php",
+            'get_tree_uri' => "$uri_trunk/tree_view/get_tree.php",
             'prompt_for_auth_uri' => "$uri_trunk/auth.php",
             'js_path' => "$uri_trunk/table_view/js",
             'popr_js_path' => '',
@@ -311,6 +318,9 @@ class Config {
             'custom_td_click_handler' => null,
 
             'cmp' => false,
+
+            # tree view stuff
+            'default_parent_field' => 'parent_id',
         );
 
         return $default_values;

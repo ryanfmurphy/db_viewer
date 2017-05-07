@@ -17,10 +17,6 @@
         require("$trunk/tree_view/vars_form.php");
     }
 
-    $root_cond = isset($requestVars['root_cond'])
-                 && $requestVars['root_cond']
-                    ? $requestVars['root_cond']
-                    : 'parent_id is null';
     #todo #fixme do I need this header? #security
     header("Access-Control-Allow-Origin: <origin> | *");
 ?>
@@ -143,7 +139,7 @@ function setupTreeWithSize(root) {
 }
 
 function treeDataUrl() {
-    return "get_tree.php"
+    return "<?= $get_tree_uri ?>"
                 +"?root_table=<?= urlencode($root_table) ?>"
                 +"&root_cond=<?= urlencode($root_cond) ?>"
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
@@ -349,13 +345,18 @@ function clickNode(d) {
     updateTree(d);
 }
 
+<?php
+    $id_mode = Config::$config['id_mode'];
+    $id_field = DbUtil::get_primary_key_field($id_mode, $root_table);
+?>
+
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
     // #todo use TableView::obj_editor_url
     var url = "<?= $obj_editor_uri ?>"
                     +"?table=<?= $root_table ?>"
                     +"&edit=1"
-                    +"&primary_key=" + d.id;
+                    +"&primary_key=" + d['<?= $id_field ?>'];
     window.open(url, '_blank');
 }
 

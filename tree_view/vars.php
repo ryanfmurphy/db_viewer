@@ -6,7 +6,7 @@
     $root_cond = isset($requestVars['root_cond'])
                  && $requestVars['root_cond']
                     ? $requestVars['root_cond']
-                    : 'parent_id is null';
+                    : "$default_parent_field is null";
 
     $order_by_limit = isset($requestVars['order_by_limit'])
                         ? $requestVars['order_by_limit']
@@ -16,8 +16,8 @@
                                 ? $requestVars['parent_relationships']
                                 : array(
                                     array(
-                                        'parent_field' => 'parent_id',
-                                        'matching_field_on_parent' => 'id',
+                                        'parent_field' => $default_parent_field,
+                                        'matching_field_on_parent' => '{{USE PRIMARY KEY}}',
                                     )
                                   );
 
