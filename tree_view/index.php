@@ -46,7 +46,18 @@
 
 </style>
 <body>
+<?php
+    if ($load_d3_via_cdn) {
+?>
 <script src="//d3js.org/d3.v3.min.js"></script>
+<?php
+    }
+    else {
+?>
+<script src="<?= $d3_js_uri ?>"></script>
+<?php
+    }
+?>
 <script>
 
 var svg_tree = {

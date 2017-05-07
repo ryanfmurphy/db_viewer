@@ -50,6 +50,7 @@ class Config {
             'obj_editor_uri',
             'table_view_uri',
             'tree_view_uri',
+            'd3_js_uri',
             'crud_api_uri',
             'get_tree_uri',
             'prompt_for_auth_uri',
@@ -150,6 +151,8 @@ class Config {
 
             # tree view stuff
             'default_parent_field',
+
+            'load_d3_via_cdn',
         );
 
         $config = compact($config_vars);
@@ -244,6 +247,7 @@ class Config {
             'tree_view_uri' => "$uri_trunk/tree_view/index.php",
             'get_tree_uri' => "$uri_trunk/tree_view/get_tree.php",
             'prompt_for_auth_uri' => "$uri_trunk/auth.php",
+            'd3_js_uri' => "$uri_trunk/tree_view/d3.js",
             'js_path' => "$uri_trunk/table_view/js",
             'popr_js_path' => '',
 
@@ -321,6 +325,7 @@ class Config {
 
             # tree view stuff
             'default_parent_field' => 'parent_id',
+            'load_d3_via_cdn' => false,
         );
 
         return $default_values;
