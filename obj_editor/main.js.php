@@ -730,7 +730,7 @@
                 view_all_link.setAttribute('href', view_all_url);
             }
 
-            selectFirstFormField();
+            selectFirstFormField(keyEvent);
             keyEvent.preventDefault();
 
         }
@@ -1331,11 +1331,15 @@
 
     }
 
-    function selectFirstFormField() {
+    function selectFirstFormField(e) {
         var form = getForm();
         var inputs = getFormInputs(form);
         if (inputs.length > 0) {
             var first_input = inputs[0];
+            // mobile iOS browsers aren't doing the focus unless I preventDefault
+            if (e) {
+                e.preventDefault();
+            }
             first_input.focus();
         }
     }

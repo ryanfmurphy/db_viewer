@@ -522,7 +522,9 @@
                         echoFormFieldHtml($name, $defaultValues);
                     }
 ?>
-            <script> selectFirstFormField(); </script>
+            <script>
+                selectFirstFormField(); // doesn't seem to work on mobile :/ boohoo
+            </script>
 <?php
                 }
 
