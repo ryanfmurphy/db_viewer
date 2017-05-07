@@ -109,6 +109,11 @@ form#mainForm label {
     margin-left: 0;
 }
 
+input#selectTable {
+    font-size: 20px;
+    width: 5em;
+}
+
 #multipleTablesWarning {
     font-size: 80%;
     font-style: italic;
@@ -205,7 +210,7 @@ body {
         margin-top: 0;
         font-size: 20px;
     }
-    h1 code { /* table name */
+    h1 code#table_name {
         font-size: 40px;
     }
 
