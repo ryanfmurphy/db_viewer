@@ -111,7 +111,7 @@ form#mainForm label {
 
 input#selectTable {
     font-size: 20px;
-    width: 5em;
+    width: 7em;
 }
 
 #multipleTablesWarning {

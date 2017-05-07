@@ -262,16 +262,16 @@
                 JSON.stringify(val)
             );
         }
-        function getStoredRows() {
+        function getStoredRowsLocal() {
             return getLocalStorageArray('stored_rows');
         }
-        function saveStoredRows(rows) {
+        function saveStoredRowsLocal(rows) {
             return saveLocalStorageJson('stored_rows', rows);
         }
-        function getOldStoredRows() {
+        function getOldStoredRowsLocal() {
             return getLocalStorageArray('old_stored_rows');
         }
-        function saveOldStoredRows(rows) {
+        function saveOldStoredRowsLocal(rows) {
             return saveLocalStorageJson('old_stored_rows', rows);
         }
 
@@ -347,7 +347,7 @@
                                     false,
                                     scope.vals_to_always_include);
 
-            var stored_rows = getStoredRows();
+            var stored_rows = getStoredRowsLocal();
             var cursor = scope.stored_row_cursor;
             var row_wrapper;
             if (cursor
@@ -373,7 +373,7 @@
                 stored_rows.push(row_wrapper);
             }
 
-            saveStoredRows(stored_rows); // locally
+            saveStoredRowsLocal(stored_rows); // locally
             alert('Row stored locally');
             clearAllFields();
             return false;
@@ -385,7 +385,7 @@
             crud_api_uri, event
         ) {
             cursorReset();
-            var stored_rows = getStoredRows();
+            var stored_rows = getStoredRowsLocal();
             // rebuild array of rows that didn't get saved
             var remaining_stored_rows = [];
 
@@ -445,9 +445,9 @@
                     submitForm(url, null, 'create', data, respond_callback);
 
                     // for now we'll just assume it was good and move it to old_stored_rows
-                    var old_stored_rows = getOldStoredRows();
+                    var old_stored_rows = getOldStoredRowsLocal();
                     old_stored_rows.push(stored_row);
-                    saveOldStoredRows(old_stored_rows);
+                    saveOldStoredRowsLocal(old_stored_rows);
                     console.log('marking row ',i,' for deletion');
                     if (false) { // #todo decide whether to retain row - only if it didn't save
                         remaining_stored_rows.push(stored_row);
@@ -456,7 +456,7 @@
                 
                 // save remaining stored rows
                 console.log('saving stored_rows with deletions', remaining_stored_rows);
-                saveStoredRows(remaining_stored_rows);
+                saveStoredRowsLocal(remaining_stored_rows);
             }
             else {
                 alert('No rows to save');
@@ -471,8 +471,8 @@
             crud_api_uri, event
         ) {
             cursorReset();
-            var stored_rows = getStoredRows();
-            var old_stored_rows = getOldStoredRows();
+            var stored_rows = getStoredRowsLocal();
+            var old_stored_rows = getOldStoredRowsLocal();
             var num_rows_moved = 0;
 
             for (var i=0; i<old_stored_rows.length; i++) {
@@ -481,10 +481,10 @@
                 num_rows_moved++;
             }
             
-            saveStoredRows(stored_rows);
+            saveStoredRowsLocal(stored_rows);
 
             // blank out old_stored_rows
-            saveOldStoredRows([]);
+            saveOldStoredRowsLocal([]);
 
             alert(num_rows_moved + ' rows recovered into stored rows');
 
@@ -495,8 +495,8 @@
             crud_api_uri, event
         ) {
             cursorReset();
-            saveStoredRows([]);
-            saveOldStoredRows([]);
+            saveStoredRowsLocal([]);
+            saveOldStoredRowsLocal([]);
             alert('All stored rows cleared');
             return false;
         }
@@ -1145,7 +1145,7 @@
 
             // not on a row (i.e. at the very end)
             if (cursor === null) {
-                var rows = getStoredRows();
+                var rows = getStoredRowsLocal();
                 if (rows.length > 0) {
                     cursor = scope.stored_row_cursor = {
                         array: 'new',
@@ -1166,7 +1166,7 @@
             // cursor still doesn't exist or has run out of new rows
             // go to old rows
             else {
-                var rows = getOldStoredRows();
+                var rows = getOldStoredRowsLocal();
                 // if we didn't already run thru the old rows
                 if ( (cursor === null
                       || cursor.array === 'new')
@@ -1187,8 +1187,8 @@
         function cursorNext() {
             var cursor = scope.stored_row_cursor;
 
-            var new_rows = getStoredRows();
-            var old_rows = getOldStoredRows();
+            var new_rows = getStoredRowsLocal();
+            var old_rows = getOldStoredRowsLocal();
             if (cursor === null) {
                 console.log("Can't go forward any further");
                 return;
@@ -1219,7 +1219,7 @@
         }
 
         function cursorFirst() {
-            var old_rows = getOldStoredRows();
+            var old_rows = getOldStoredRowsLocal();
             if (old_rows.length > 0) {
                 scope.stored_row_cursor = {
                     array: 'old',
@@ -1228,7 +1228,7 @@
                 return scope.stored_row_cursor;
             }
             else {
-                var new_rows = getStoredRows();
+                var new_rows = getStoredRowsLocal();
                 if (new_rows.length > 0) {
                     scope.stored_row_cursor = {
                         array: 'new',
@@ -1261,8 +1261,8 @@
                 var rows = (cursor.array === 'new'
                                 ? (stored_rows
                                         ? stored_rows
-                                        : getStoredRows())
-                                : getOldStoredRows());
+                                        : getStoredRowsLocal())
+                                : getOldStoredRowsLocal());
                 return rows[cursor.idx];
             }
         }
@@ -1277,7 +1277,7 @@
             var cursor = scope.stored_row_cursor;
             var stored_rows = (stored_rows
                                         ? stored_rows
-                                        : getStoredRows());
+                                        : getStoredRowsLocal());
             if (cursor === null) {
                 console.log("Don't call saveStoredRowAtCursor for null cursor");
                 return;
@@ -1285,7 +1285,7 @@
             else {
                 var row = getStoredRowAtCursor(stored_rows);
                 
-                saveStoredRows(stored_rows);
+                saveStoredRowsLocal(stored_rows);
             }
         }
         */
