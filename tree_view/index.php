@@ -465,12 +465,13 @@ function clickNode(d) {
 
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
-    // #todo use TableView::obj_editor_url
-    var url = "<?= $obj_editor_uri ?>"
-                    +"?table=<?= $root_table ?>"
-                    +"&edit=1"
-                    +"&primary_key=" + d['<?= $id_field ?>'];
-    window.open(url, '_blank');
+    if ('_node_table' in d) {
+        var url = "<?= $obj_editor_uri ?>"
+                        +"?table="+d._node_table
+                        +"&edit=1"
+                        +"&primary_key=" + d['<?= $id_field ?>'];
+        window.open(url, '_blank');
+    }
 }
 
 </script>

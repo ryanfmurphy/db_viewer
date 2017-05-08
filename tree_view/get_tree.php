@@ -208,6 +208,7 @@
                     $parent_match_val = $row[$matching_field_on_parent];
 
                     # get or create node
+                    $row['_node_table'] = $child_table;
                     $row['_node_color'] = $table_color;
                     if (isset($all_nodes->{"$child_table:$id"})) {
                         # need to do anything? all fields should be there.
@@ -337,6 +338,7 @@
                 $parent_match_val = $row[$matching_field_on_parent];
 
                 # get or create node
+                $row['_node_table'] = $root_table;
                 $row['_node_color'] = $table_color;
                 if (isset($all_nodes->{"$root_table:$id"})) {
                     # need to do anything? all fields should be there.
