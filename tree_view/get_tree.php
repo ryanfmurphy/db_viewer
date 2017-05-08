@@ -241,11 +241,11 @@
         my_debug("root sql = '$sql'\n\n");
         $rows = Db::sql($sql);
 
-        # to make sure we never recreate a node from scratch
+        # root nodes to return from this function
+        $root_nodes = new stdClass();
+        # all_nodes, to make sure we never recreate a node from scratch
         # and always keep building on its relationships
         $all_nodes_by_id = new stdClass();
-        # to pass forth to recursive calls that need to separate based on relationship
-        #$parent_nodes_by_relationship = array();
         # to make sure we stop when we are done
         $more_children_to_look_for = false;
 
@@ -279,28 +279,13 @@
                 }
                 else {
                     $tree_node = (object)$row;
+                    $root_nodes->{$id} = $tree_node;
                     $all_nodes_by_id->{$id} = $tree_node;
                 }
-
-                /*
-                # see if we have a node already or need to make a new one
-                if (isset($all_nodes_by_id->{$id})) {
-                    $tree_node = $all_nodes_by_id->{$id};
-                }
-                else {
-                    $tree_node = new stdClass();
-                    $all_nodes_by_id->{$id} = $tree_node;
-                }
-
-                $tree_node->$parent_field = $row[$parent_field];
-                $tree_node->id = $id;
-                $tree_node->name = $row['name'];
-                */
 
                 # we have a parent_match_val so we can actually put it in the array
                 if ($parent_match_val) {
                     $parent_nodes_this_rel->{$parent_match_val} = $tree_node; #todo #fixme I think we don't need this
-                    #$parent_vals_next_lev[] = $row[$matching_field_on_parent];
                     $more_children_to_look_for = true;
                 }
                 else {
@@ -308,7 +293,6 @@
                 }
             }
 
-            #$parent_vals_next_lev_by_relationship[$relationship_no] = $parent_vals_next_lev;
             $parent_nodes_by_relationship[$relationship_no] = $parent_nodes_this_rel;
 
             my_debug("}\n");
@@ -326,8 +310,7 @@
                 $parent_relationships
             );
         }
-        #todo #fixme only return the root nodes, they're still connected to the children
-        return $all_nodes_by_id;
+        return $root_nodes;
     }
 
     # to gain our ordering back before we get off PHP to JS
