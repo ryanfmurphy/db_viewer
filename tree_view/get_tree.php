@@ -245,7 +245,7 @@
 
                     # make sure 'name' is available
                     $name_field = DbUtil::get_name_field($child_table);
-                    $row['name'] = $row[$name_field];
+                    $row['_node_name'] = $row[$name_field];
 
                     if (isset($all_nodes->{"$child_table:$id"})) {
                         # need to do anything? all fields should be there.

@@ -205,7 +205,7 @@ function getMaxNodeStrlen(node, name_cutoff) {
         if (name_cutoff
             && name.length > name_cutoff
         ) {
-            name = node.name =
+            name = node._node_name =
                 name.slice(0,name_cutoff) + '...';
         }
 
