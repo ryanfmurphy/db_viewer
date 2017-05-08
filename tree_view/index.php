@@ -109,39 +109,76 @@ function setupTree(new_width, new_height, level_width) {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 }
 
-function setupTreeWithSize(root) {
-    // figure out a good size
-    var num_nodes = root.children.length;
-    var height = Math.max(
-        num_nodes * 12, defaults.height);
-    var width = undefined; // 2000;
-    var max_node_strlen = 0;
-    var approx_max_node_width = 0;
-    var name_cutoff = <?= $name_cutoff
-                            ? (int)$name_cutoff
-                            : 'undefined' ?>;
-    // #todo #fixme - don't just look at the root children, look thru the whole tree
-    for (var i=0; i<root.children.length; i++) {
-        var node = root.children[i];
-        var name = node.name;
-
-        if (typeof name  === 'string') {
-            // apply name cutoff if any
-            if (name_cutoff
-                && name.length > name_cutoff
-            ) {
-                name = node.name =
-                    name.slice(0,name_cutoff) + '...';
-            }
-
-            if (name.length > max_node_strlen) {
-                max_node_strlen = name.length;
+function countTreeNodes(node) {
+    var num_nodes = 1;
+    var keys = ['children','_children'];
+    for (var k=0; k < keys.length; k++) {
+        var key = keys[k];
+        if (key in node) {
+            var children = node[key];
+            for (var i=0; i < children.length; i++) {
+                var child = children[i];
+                num_nodes += countTreeNodes(child);
             }
         }
     }
+    return num_nodes;
+}
+
+function getMaxNodeStrlen(node, name_cutoff) {
+    var max_node_strlen = 0;
+
+    // check this node's name directly
+    var name = node.name;
+    if (typeof name  === 'string') {
+        // apply name cutoff if any
+        if (name_cutoff
+            && name.length > name_cutoff
+        ) {
+            name = node.name =
+                name.slice(0,name_cutoff) + '...';
+        }
+
+        if (name.length > max_node_strlen) {
+            max_node_strlen = name.length;
+        }
+    }
+
+    var keys = ['children','_children'];
+    for (var k=0; k < keys.length; k++) {
+        var key = keys[k];
+        if (key in node) {
+            var children = node[key];
+            for (var i=0; i < children.length; i++) {
+                var child = children[i];
+                max_node_strlen = Math.max(
+                    getMaxNodeStrlen(child),
+                    max_node_strlen
+                );
+            }
+        }
+    }
+    return max_node_strlen;
+}
+
+function setupTreeWithSize(root) {
+    // figure out a good size
+    //var num_nodes = root.children.length;
+    var num_nodes = countTreeNodes(root);
+    console.log('num_nodes',num_nodes);
+    var height = Math.max(
+        (num_nodes ** .75) * 12,
+        defaults.height
+    );
+    var width = undefined; // 2000;
+
+    var name_cutoff = <?= $name_cutoff
+                            ? (int)$name_cutoff
+                            : 'undefined' ?>;
+    var max_node_strlen = getMaxNodeStrlen(root, name_cutoff);
 
     // guess how much space the name needs
-    approx_max_node_width = max_node_strlen * 4;
+    var approx_max_node_width = max_node_strlen * 4;
 
     var level_width = Math.max(
         approx_max_node_width, defaults.level_width);
@@ -149,11 +186,17 @@ function setupTreeWithSize(root) {
     setupTree(width, height, level_width);
 }
 
+<?php
+    #todo #fixme find a better way to build this query string
+    #            I have a pretty good pure-JS form -> query string fn
+    #            but it doesn't handle arrays yet
+?>
 function treeDataUrl() {
     return "<?= $get_tree_uri ?>"
                 +"?root_table=<?= urlencode($root_table) ?>"
                 +"&root_cond=<?= urlencode($root_cond) ?>"
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
+                +"&root_nodes_w_child_only=<?= urlencode($root_nodes_w_child_only) ?>"
 <?php
     $parent_relationship = $parent_relationships[0]; #todo #fixme allow more than more
     foreach ($parent_relationships as $i => $parent_relationship) {
@@ -307,8 +350,8 @@ function updateTree(source) {
             .on("click", clickLabel);
 
     // Transition nodes to their new position.
-    var nodeUpdate = node.transition()
-            .duration(svg_tree.duration)
+    var nodeUpdate = node//.transition()
+            //.duration(svg_tree.duration)
             .attr("transform",
                 function(d) {
                     return "translate(" + d.y + "," + d.x + ")";
@@ -329,8 +372,8 @@ function updateTree(source) {
             .style("fill-opacity", 1);
 
     // Transition exiting nodes to the parent's new position.
-    var nodeExit = node .exit().transition()
-                        .duration(svg_tree.duration)
+    var nodeExit = node .exit()//.transition()
+                        //.duration(svg_tree.duration)
                         .attr("transform",
                             function(d) {
                                 return "translate(" + source.y + "," + source.x + ")";
@@ -371,13 +414,13 @@ function updateTree(source) {
                 });
 
     // Transition links to their new position.
-    link.transition()
-            .duration(svg_tree.duration)
+    link//.transition()
+            //.duration(svg_tree.duration)
             .attr("d", diagonal);
 
     // Transition exiting nodes to the parent's new position.
-    link.exit().transition()
-            .duration(svg_tree.duration)
+    link.exit()//.transition()
+            //.duration(svg_tree.duration)
             .attr("d", function(d) {
                 var o = {x: source.x, y: source.y};
                 return diagonal({source: o, target: o});
