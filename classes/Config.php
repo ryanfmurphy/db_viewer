@@ -65,6 +65,8 @@ class Config {
             'custom_select_magic_value',
             'magic_null_value',
 
+            'log_path',
+
             'show_images',
             'image_max_width',
 
@@ -151,8 +153,8 @@ class Config {
 
             # tree view stuff
             'default_parent_field',
-
             'load_d3_via_cdn',
+            'start_w_tree_fully_expanded',
 
             # mobile_travel_mode: when you save your locally-saved rows
             # also save a JSON file on the server of the rows,
@@ -214,6 +216,9 @@ class Config {
             # magic values - usually don't need to be changed
             'custom_select_magic_value' => sha1('custom'),
             'magic_null_value' => sha1('_null_'),
+
+            # not used everywhere yet, but tree_log goes there
+            'log_path' => "$trunk/log",
 
             # table view
             'header_every' => 15,
@@ -334,6 +339,7 @@ class Config {
             # tree view stuff
             'default_parent_field' => 'parent_id',
             'load_d3_via_cdn' => false,
+            'start_w_tree_fully_expanded' => false,
 
             # mobile_travel_mode: when you save your locally-saved rows
             # also save a JSON file on the server of the rows,

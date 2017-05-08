@@ -86,6 +86,10 @@
                 <input name="name_cutoff" type="text">
             </div>
             <div>
+                <label>Only Include Root Nodes with at least 1 Child</label>
+                <input name="root_node_w_child_only" type="text">
+            </div>
+            <div>
                 <input type="submit">
             </div>
         </form>
