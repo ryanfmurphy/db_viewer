@@ -222,7 +222,7 @@ function getMaxNodeStrlen(node, name_cutoff) {
             for (var i=0; i < children.length; i++) {
                 var child = children[i];
                 max_node_strlen = Math.max(
-                    getMaxNodeStrlen(child),
+                    getMaxNodeStrlen(child, name_cutoff),
                     max_node_strlen
                 );
             }
@@ -266,6 +266,7 @@ function treeDataUrl() {
                 +"&root_cond=<?= urlencode($root_cond) ?>"
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
                 +"&root_nodes_w_child_only=<?= urlencode($root_nodes_w_child_only) ?>"
+                +"&name_cutoff=<?= urlencode($name_cutoff) ?>"
 <?php
     foreach ($parent_relationships as $i => $parent_relationship) {
         $parent_field = urlencode($parent_relationship['parent_field']);
