@@ -628,7 +628,11 @@ infer_limit_from_query: query didn't match regex.
 
         # get id field
         public static function get_primary_key_field($id_mode, $tablename_no_quotes) {
-            if ($id_mode == 'id_only') {
+            $pk_fields_by_table = Config::$config['primary_key_fields_by_table'];
+            if (isset($pk_fields_by_table[$tablename_no_quotes])) {
+                return $pk_fields_by_table[$tablename_no_quotes];
+            }
+            elseif ($id_mode == 'id_only') {
                 $primary_key_field = 'id';
             }
             else {
@@ -645,6 +649,18 @@ infer_limit_from_query: query didn't match regex.
             else {
                 return 'name';
             }
+        }
+
+        // pass by ref for performance, non-destructive
+        public static function get_name_val($table, &$row) {
+            $name_field = DbUtil::get_name_field($table);
+            $filter_fns = Config::$config['name_field_filter_fn_by_table'];
+            $name_val = $row[$name_field];
+            if (isset($filter_fns[$table])) {
+                $fn = $filter_fns[$table];
+                $name_val = $fn($name_val);
+            }
+            return $name_val;
         }
 
         # get fields of table from db

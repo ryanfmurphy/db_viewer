@@ -244,8 +244,8 @@
                     $row['_node_color'] = $table_color;
 
                     # make sure 'name' is available
-                    $name_field = DbUtil::get_name_field($child_table);
-                    $row['_node_name'] = $row[$name_field];
+                    # #todo #fixme #performance - cache these couple of values outside the loop
+                    $row['_node_name'] = DbUtil::get_name_val($child_table, $row);
 
                     if (isset($all_nodes->{"$child_table:$id"})) {
                         # need to do anything? all fields should be there.
@@ -390,9 +390,9 @@
                 $row['_node_table'] = $node_tablename;
                 $row['_node_color'] = $table_color;
 
-                # make sure '_node_name' is available
-                $name_field = DbUtil::get_name_field($root_table);
-                $row['_node_name'] = $row[$name_field];
+                # make sure 'name' is available
+                # #todo #fixme #performance - cache these couple of values outside the loop
+                $row['_node_name'] = DbUtil::get_name_val($root_table, $row);
 
                 if (isset($all_nodes->{"$root_table:$id"})) {
                     # need to do anything? all fields should be there.

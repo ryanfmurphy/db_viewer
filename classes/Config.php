@@ -161,6 +161,10 @@ class Config {
             # "name" or display field e.g. for trees
             # ('name' by default)
             'name_fields_by_table',
+            # filter fn: in case you need to strip_tags or something
+            'name_field_filter_fn_by_table',
+            # exceptions to your id_mode primary_key scheme go here:
+            'primary_key_fields_by_table',
 
             # UNDER CONSTRUCTION
             # mobile_travel_mode: when you save your locally-saved rows
@@ -328,6 +332,10 @@ class Config {
             # "name" or display field e.g. for trees
             # ('name' by default)
             'name_fields_by_table' => array(),
+            # filter fn: in case you need to strip_tags or something
+            'name_field_filter_fn_by_table' => array(),
+            # exceptions to your id_mode primary_key scheme go here:
+            'primary_key_fields_by_table' => array(),
 
             # UNDER CONSTRUCTION
             # if true (default), use javascript/AJAX to
