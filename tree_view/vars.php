@@ -55,3 +55,21 @@
     }
     */
 
+    # mostly color for now
+    $table_info = array();
+    # use keys for uniqueness
+    $table_info[$root_table] = array(
+        'color' => name_to_rgb($root_table)
+    );
+    foreach ($parent_relationships as $relationship) {
+        $table = $relationship['parent_table'];
+        $table_info[$table] = array(
+            'color' => name_to_rgb($table)
+        );
+
+        $table = $relationship['child_table'];
+        $table_info[$table] = array(
+            'color' => name_to_rgb($table)
+        );
+    }
+

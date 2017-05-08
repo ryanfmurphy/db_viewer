@@ -14,8 +14,8 @@
         $trunk = dirname(__DIR__);
         $cur_view = 'tree_view';
         require("$trunk/includes/init.php");
-        require("$trunk/tree_view/vars.php");
         require("$trunk/tree_view/hash_color.php");
+        require("$trunk/tree_view/vars.php");
     }
 
     function tree_log($msg) {
