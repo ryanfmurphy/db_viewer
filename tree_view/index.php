@@ -198,7 +198,6 @@ function treeDataUrl() {
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
                 +"&root_nodes_w_child_only=<?= urlencode($root_nodes_w_child_only) ?>"
 <?php
-    $parent_relationship = $parent_relationships[0]; #todo #fixme allow more than more
     foreach ($parent_relationships as $i => $parent_relationship) {
         $parent_field = urlencode($parent_relationship['parent_field']);
         $matching_field_on_parent = urlencode($parent_relationship['matching_field_on_parent']);
@@ -459,17 +458,40 @@ function clickNode(d) {
 }
 
 <?php
-    $id_mode = Config::$config['id_mode'];
-    $id_field = DbUtil::get_primary_key_field($id_mode, $root_table);
+    { # figure out primary key fields for all needed tables
+      # and provide array to JS
+        $id_mode = Config::$config['id_mode'];
+
+        $id_fields_by_table = array();
+        $id_fields_by_table[$root_table] =
+            DbUtil::get_primary_key_field($id_mode, $root_table);
+
+        foreach ($parent_relationships as $relationship) {
+            $child_table = $relationship['child_table'];
+            $parent_table = $relationship['parent_table'];
+            if (!isset($id_fields_by_table[$child_table])) {
+                $id_fields_by_table[$child_table] =
+                    DbUtil::get_primary_key_field($id_mode, $child_table);
+            }
+            if (!isset($id_fields_by_table[$parent_table])) {
+                $id_fields_by_table[$parent_table] =
+                    DbUtil::get_primary_key_field($id_mode, $parent_table);
+            }
+        }
+    }
 ?>
+
+id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
     if ('_node_table' in d) {
+        var table = d._node_table;
+        var id_field = id_fields_by_table[table];
         var url = "<?= $obj_editor_uri ?>"
-                        +"?table="+d._node_table
+                        +"?table="+table
                         +"&edit=1"
-                        +"&primary_key=" + d['<?= $id_field ?>'];
+                        +"&primary_key=" + d[id_field];
         window.open(url, '_blank');
     }
 }
