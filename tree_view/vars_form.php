@@ -22,7 +22,7 @@
         </style>
     </head>
     <body>
-        <form id="vars_form" action="">
+        <form id="vars_form" action="" target="_blank">
             <h1>Table View</h1>
             <h2>Select Root Nodes</h2>
             <div>
@@ -45,7 +45,7 @@
                     <input name="parent_relationships[0][parent_field]" type="text">
                 </div>
                 <div>
-                    <label>...matching Field on Parent</label>
+                    <label>...Matching Field on Parent</label>
                     <input name="parent_relationships[0][matching_field_on_parent]" type="text">
                 </div>
             </div>
