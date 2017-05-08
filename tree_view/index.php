@@ -106,7 +106,6 @@ function setupTree(new_width, new_height, level_width) {
                      .attr("height", height + margin.top + margin.bottom)
             .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 }
 
 function setupTreeWithSize(root) {
@@ -191,11 +190,49 @@ function createTree() {
 
             root.children.forEach(collapse);
             updateTree(root);
+
+            ghostRootNode();
         }
     );
 
     d3  .select(self.frameElement)
         .style("height", "800px"); // #todo #fixme hard-coded height
+}
+
+// the root node is the one the furthest to the left
+// the one with the lowest X coordinate
+function getRootNode() {
+    var nodes = document.querySelectorAll('circle');
+    var min_x = undefined;
+    var root_node = undefined;
+    for (var i=0; i<nodes.length; i++) {
+        console.log('i =',i);
+        var node = nodes[i];
+        console.log('node =',node);
+        var rect = node.getBoundingClientRect();
+        console.log('rect =',rect);
+        var new_x = rect.x;
+        console.log('new_x =', new_x);
+        if (min_x === undefined
+            || new_x < min_x
+        ) {
+            console.log("and that's good enough to make", node, 'the new root');
+            console.log('min_x was', min_x);
+            root_node = node;
+            min_x = new_x;
+        }
+    }
+    return root_node;
+}
+
+// hide the "root" node because in our "tree"
+// all the 2nd-level nodes are really the "root nodes"
+function ghostRootNode() {
+    // HACK: using a timeout because all the nodes
+    // start at the same place - wait for the spread
+    setTimeout(function(){
+        getRootNode().style.display = 'none'
+    },500);
 }
 
 createTree();
