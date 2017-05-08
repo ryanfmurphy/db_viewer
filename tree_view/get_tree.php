@@ -1,4 +1,5 @@
 <?php
+    error_reporting(E_ALL);
     const DEBUG = false;
 
     # get_tree.php - returns a JSON of tree nodes obtained by
@@ -28,15 +29,22 @@
     function field_list($parent_relationships, $table) {
         $id_mode = Config::$config['id_mode'];
         $id_field = DbUtil::get_primary_key_field($id_mode, $table);
+        $name_field = "name";
+        $fields = array($id_field=>1, $name_field=>1);
 
-        $fields = array($id_field=>1, "name"=>1);
         foreach ($parent_relationships as $relationship) {
-            #todo #fixme when we have multiple tables in the future
-            #            make sure to limit these fields to the root table
-            $fields[ $relationship['parent_field'] ] = 1;
-
-            $matching_field_on_parent = get_matching_field_on_parent($relationship, $table); 
-            $fields[ $matching_field_on_parent ] = 1;
+            # we only want fields that make sense for this table
+            my_debug("checking relationship: ".print_r($relationship,1));
+            if ($relationship['child_table'] == $table) {
+                $parent_field = $relationship['parent_field'];
+                my_debug("adding parent_field $parent_field because child_table $relationship[child_table] matches table $table\n");
+                $fields[$parent_field] = 1;
+            }
+            if ($relationship['parent_table'] == $table) {
+                $matching_field_on_parent = get_matching_field_on_parent($relationship, $table); 
+                my_debug("adding matching_field_on_parent $matching_field_on_parent because child_table $relationship[child_table] matches tabl $table\n");
+                $fields[ $matching_field_on_parent ] = 1;
+            }
         }
         return implode(', ', array_keys($fields));
     }
@@ -48,7 +56,8 @@
     function get_field_values_for_matching($parent_nodes, $matching_field_on_parent) {
         $vals = array();
         foreach ($parent_nodes as $node) {
-            my_debug("here's the node, we're looking for '$matching_field_on_parent' field: ".print_r($node,1));
+            my_debug("here's the node, we're looking for"
+                    ." '$matching_field_on_parent' field: ".print_r($node,1));
             $vals[] = $node->{$matching_field_on_parent};
         }
         return $vals;
@@ -56,14 +65,15 @@
 
     # SQL query to get children for next level
     function get_next_level_of_children(
-        $parent_vals, $fields, $parent_field, $root_table, $order_by_limit
+        $parent_vals, $fields, $parent_field, $table, $order_by_limit
     ) {
-        my_debug("about to make val_list for query.  parent_ids = ".print_r($parent_vals,1));
+        my_debug("about to make val_list for query.".
+                "  parent_ids = ".print_r($parent_vals,1));
         $parent_val_list = Db::make_val_list($parent_vals);
 
         $sql = "
             select $fields
-            from $root_table
+            from $table
             where $parent_field in $parent_val_list
             $order_by_limit
         ";
@@ -72,33 +82,37 @@
         return $rows;
     }
 
+    # this is to build up the matching list that goes in the SQL query
+    # to look for all children that have {parent_field} within that list
+    # #todo #fixme maybe rename $child to $parent / $all_children to $all_parents?
+    #              since it's to build up the parent val list to select against?
     function add_node_to_relationship_lists(
-        $row, $child, $parent_relationships, &$all_children_by_relationship, $table
+        $row, $child, $parent_relationships,
+        &$all_children_by_relationship, $table
     ) {
         # add val to each applicable relationship
         foreach ($parent_relationships as $rel_no => $parent_relationship) {
 
-            #todo #fixme when relationships can span tables, make sure to check for correct table
-            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship, $table);
-            $parent_match_val = $row[$matching_field_on_parent];
+            # only add this child to the relationships w the same table
+            if ($parent_relationship['parent_table'] == $table) {
+                $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
+                                                                         $table);
+                $parent_match_val = $row[$matching_field_on_parent];
 
-            if ($parent_match_val) {
-                my_debug("adding $row[name] to children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
+                if ($parent_match_val) {
+                    my_debug("adding $row[name] to children_this_rel->'$parent_match_val',"
+                            ." relationship_no = $rel_no\n");
 
-                # detructively modify $add_children_by_relationship
-                if (!isset($all_children_by_relationship[$rel_no])) {
-                    $all_children_by_relationship[$rel_no] = new stdClass();
+                    # detructively modify $add_children_by_relationship
+                    if (!isset($all_children_by_relationship[$rel_no])) {
+                        $all_children_by_relationship[$rel_no] = new stdClass();
+                    }
+                    $all_children_by_relationship[$rel_no]->{$parent_match_val} = $child;
                 }
-                $all_children_by_relationship[$rel_no]->{$parent_match_val} = $child;
-
-                #if ($row['name'] == 'Rod Frank') {
-                #    my_debug("all_children_by_relationship[$this_rel_no] now looks like this: "
-                #            .print_r($all_children_by_relationship[$this_rel_no],1));
-                #}
-            }
-            else {
-                my_debug("no parent_match_val, not adding $row[name] to"
-                    ." children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
+                else {
+                    my_debug("no parent_match_val, not adding $row[name] to"
+                        ." children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
+                }
             }
         }
     }
@@ -137,26 +151,37 @@
 
         $all_children_by_relationship = array();
         $more_children_to_look_for = false;
-        $fields = field_list($parent_relationships, $root_table);
 
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
-            my_debug("starting new relationship $relationship_no: ".print_r($parent_relationship,1)
-                    . "{\n");
+            my_debug("starting new relationship $relationship_no: "
+                        .print_r($parent_relationship,1)
+                        . "{\n");
+
+            $table = $parent_relationship['child_table'];
+            $fields = field_list($parent_relationships, $table);
+            #print_r($fields);
+
             $parent_field = $parent_relationship['parent_field'];
-            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship, $root_table);
+            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
+                                                                     $root_table);
 
             $parent_nodes = $parent_nodes_by_relationship[$relationship_no];
-            $parent_vals = get_field_values_for_matching($parent_nodes, $matching_field_on_parent);
+            $parent_vals = get_field_values_for_matching($parent_nodes,
+                                                         $matching_field_on_parent);
+
+            $table = $parent_relationship['child_table'];
 
             # values to populate and pass to next level
             $children_this_rel = new stdClass();
 
             if (count($parent_vals) > 0) {
                 $rows = get_next_level_of_children(
-                    $parent_vals, $fields, $parent_field, $root_table, $order_by_limit
+                    $parent_vals, $fields, $parent_field,
+                    $table, $order_by_limit
                 );
 
-                # the parent_node already has the children (which are about to be parents)
+                # the parent_node already has the children
+                # (which are about to be parents)
                 # that are in the parent_id_list
                 my_debug("  starting loop thru rows, {\n");
                 foreach ($rows as $row) {
@@ -178,18 +203,30 @@
                         $all_nodes_by_id->{$id} = $child;
                     }
 
-                    # parent SHOULD exist...
-                    if (isset($parent_nodes->{$this_parent_id})) {
-                        $parent = $parent_nodes->{$this_parent_id};
-                        add_child_to_tree($child, $parent, $parent_match_val, $root_table);
+                    if ($parent_match_val) {
+                        # parent SHOULD exist...
+                        if (isset($parent_nodes->{$this_parent_id})) {
+                            $parent = $parent_nodes->{$this_parent_id};
+                            add_child_to_tree($child, $parent,
+                                              $parent_match_val,
+                                              $table);
+                        }
+                        else {
+                            my_debug("WARNING don't actually have the parent $this_parent_id"
+                                    ." at all, let alone a children container\n");
+                            my_debug("skipping this node\n");
+                        }
                     }
                     else {
-                        my_debug("WARNING don't actually have the parent $this_parent_id at all, let alone a children container\n");
+                        my_debug("WARNING don't have parent_match_val on the parent"
+                                ." to connect the child to the parent\n");
                         my_debug("skipping this node\n");
                     }
 
                     add_node_to_relationship_lists(
-                        $row, $child, $parent_relationships, /*&*/$all_children_by_relationship, $root_table
+                        $row, $child, $parent_relationships,
+                        /*&*/$all_children_by_relationship,
+                        $table
                     );
 
                     $more_children_to_look_for = true;
@@ -225,8 +262,6 @@
     ) {
         $id_mode = Config::$config['id_mode'];
 
-        #$parent_vals_next_lev_by_relationship = array();
-
         $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
         $parent_field = $parent_relationship['parent_field'];
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
@@ -249,16 +284,20 @@
         # to make sure we stop when we are done
         $more_children_to_look_for = false;
 
+        #todo #fixme - does it make more sense for these foreach loops
+        #              to be nested the other way?
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
-            my_debug("starting new relationship $relationship_no: ".print_r($parent_relationship,1)
-                    . "{\n");
+
+            my_debug("starting new relationship $relationship_no: "
+                        .print_r($parent_relationship,1)
+                        . "{\n");
 
             $id_field = DbUtil::get_primary_key_field(
                 $id_mode, $root_table
             );
             $parent_field = $parent_relationship['parent_field'];
-            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship, $root_table);
-            #$parent_vals_next_lev = array();
+            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
+                                                                     $root_table);
             $parent_nodes_this_rel = new stdClass();
 
             foreach ($rows as $row) {
@@ -285,7 +324,7 @@
 
                 # we have a parent_match_val so we can actually put it in the array
                 if ($parent_match_val) {
-                    $parent_nodes_this_rel->{$parent_match_val} = $tree_node; #todo #fixme I think we don't need this
+                    $parent_nodes_this_rel->{$parent_match_val} = $tree_node;
                     $more_children_to_look_for = true;
                 }
                 else {
@@ -304,9 +343,8 @@
             add_tree_lev_by_lev(
                 $all_nodes_by_id,
                 $parent_nodes_by_relationship,
-                #$parent_vals_next_lev_by_relationship,
                 $root_table,
-                $order_by_limit, #$parent_field, $matching_field_on_parent
+                $order_by_limit,
                 $parent_relationships
             );
         }

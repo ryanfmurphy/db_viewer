@@ -120,6 +120,7 @@ function setupTreeWithSize(root) {
     var name_cutoff = <?= $name_cutoff
                             ? (int)$name_cutoff
                             : 'undefined' ?>;
+    // #todo #fixme - don't just look at the root children, look thru the whole tree
     for (var i=0; i<root.children.length; i++) {
         var node = root.children[i];
         var name = node.name;
@@ -158,9 +159,13 @@ function treeDataUrl() {
     foreach ($parent_relationships as $i => $parent_relationship) {
         $parent_field = urlencode($parent_relationship['parent_field']);
         $matching_field_on_parent = urlencode($parent_relationship['matching_field_on_parent']);
+        $child_table = urlencode($parent_relationship['child_table']);
+        $parent_table = urlencode($parent_relationship['parent_table']);
 ?>
                 +"&parent_relationships[<?= $i ?>][parent_field]=<?= $parent_field ?>"
                 +"&parent_relationships[<?= $i ?>][matching_field_on_parent]=<?= $matching_field_on_parent ?>"
+                +"&parent_relationships[<?= $i ?>][child_table]=<?= $child_table ?>"
+                +"&parent_relationships[<?= $i ?>][parent_table]=<?= $parent_table ?>"
 <?php
     }
 ?>

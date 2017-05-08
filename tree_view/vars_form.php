@@ -37,15 +37,19 @@
             <div class="relationship" data-rel_no=0>
                 <h3>Relationship 0</h3>
                 <div>
-                    <label>Table of Child</label>
+                    <label>Table of Child...</label>
                     <input name="parent_relationships[0][child_table]" type="text">
                 </div>
                 <div>
-                    <label>Field on Child...</label>
+                    <label>...hooking to Table of Parent</label>
+                    <input name="parent_relationships[0][parent_table]" type="text">
+                </div>
+                <div>
+                    <label>...by Field on Child...</label>
                     <input name="parent_relationships[0][parent_field]" type="text">
                 </div>
                 <div>
-                    <label>...Matching Field on Parent</label>
+                    <label>...matching Field on Parent</label>
                     <input name="parent_relationships[0][matching_field_on_parent]" type="text">
                 </div>
             </div>
