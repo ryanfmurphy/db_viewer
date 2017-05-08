@@ -65,6 +65,8 @@ class Config {
             'custom_select_magic_value',
             'magic_null_value',
 
+            'log_path',
+
             'show_images',
             'image_max_width',
 
@@ -207,6 +209,9 @@ class Config {
             # magic values - usually don't need to be changed
             'custom_select_magic_value' => sha1('custom'),
             'magic_null_value' => sha1('_null_'),
+
+            # not used everywhere yet, but tree_log goes there
+            'log_path' => "$trunk/log",
 
             # table view
             'header_every' => 15,

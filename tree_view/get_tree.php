@@ -1,6 +1,9 @@
 <?php
     error_reporting(E_ALL);
     const DEBUG = false;
+    const DEBUG_SQL = false;
+    const DEBUG_UNKEY = false;
+    const DEBUG_RESULT = false;
 
     # get_tree.php - returns a JSON of tree nodes obtained by
     # progressively running SQL queries,
@@ -14,11 +17,21 @@
         require("$trunk/tree_view/vars.php");
     }
 
+    function tree_log($msg) {
+        $log_path = Config::$config['log_path'];
+        error_log($msg,3,"$log_path/tree_log");
+    }
     function my_debug($msg) {
-        if (DEBUG) echo $msg;
+        if (DEBUG) tree_log($msg);
+    }
+    function my_debug_sql($msg) {
+        if (DEBUG_SQL) tree_log($msg);
+    }
+    function my_debug_unkey($msg) {
+        if (DEBUG_UNKEY) tree_log($msg);
     }
     function encode_response($data) {
-        if (DEBUG) {
+        if (DEBUG_RESULT) {
             return print_r($data, 1);
         }
         else {
@@ -77,8 +90,9 @@
             where $parent_field in $parent_val_list
             $order_by_limit
         ";
-        my_debug("sql = '$sql'\n\n");
+        my_debug_sql("sql = {'$sql'}\n");
         $rows = Db::sql($sql);
+        my_debug_sql("  # rows = ".count($rows)."\n\n");
         return $rows;
     }
 
@@ -150,6 +164,10 @@
         $id_mode = Config::$config['id_mode'];
 
         $all_children_by_relationship = array();
+        foreach ($parent_relationships as $relationship_no => $parent_relationship) {
+            $all_children_by_relationship[$relationship_no] = new stdClass();
+        }
+
         $more_children_to_look_for = false;
 
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
@@ -157,8 +175,9 @@
                         .print_r($parent_relationship,1)
                         . "{\n");
 
-            $table = $parent_relationship['child_table'];
-            $fields = field_list($parent_relationships, $table);
+            $child_table = $parent_relationship['child_table'];
+            $parent_table = $parent_relationship['parent_table'];
+            $fields = field_list($parent_relationships, $child_table);
             #print_r($fields);
 
             $parent_field = $parent_relationship['parent_field'];
@@ -169,15 +188,10 @@
             $parent_vals = get_field_values_for_matching($parent_nodes,
                                                          $matching_field_on_parent);
 
-            $table = $parent_relationship['child_table'];
-
-            # values to populate and pass to next level
-            $children_this_rel = new stdClass();
-
             if (count($parent_vals) > 0) {
                 $rows = get_next_level_of_children(
                     $parent_vals, $fields, $parent_field,
-                    $table, $order_by_limit
+                    $child_table, $order_by_limit
                 );
 
                 # the parent_node already has the children
@@ -196,7 +210,13 @@
                     # get or create node
                     if (isset($all_nodes_by_id->{$id})) {
                         # need to do anything? all fields should be there.
-                        $child = $all_nodes_by_id->{$id};
+                        $tree_view_avoid_recursion = true; #todo #fixme move to Config
+                        if ($tree_view_avoid_recursion) {
+                            $child = (object)$row;
+                        }
+                        else {
+                            $child = $all_nodes_by_id->{$id};
+                        }
                     }
                     else {
                         $child = (object)$row;
@@ -209,7 +229,7 @@
                             $parent = $parent_nodes->{$this_parent_id};
                             add_child_to_tree($child, $parent,
                                               $parent_match_val,
-                                              $table);
+                                              $parent_table);
                         }
                         else {
                             my_debug("WARNING don't actually have the parent $this_parent_id"
@@ -226,7 +246,7 @@
                     add_node_to_relationship_lists(
                         $row, $child, $parent_relationships,
                         /*&*/$all_children_by_relationship,
-                        $table
+                        $child_table
                     );
 
                     $more_children_to_look_for = true;
@@ -273,8 +293,9 @@
             where $root_cond
             $order_by_limit
         ";
-        my_debug("root sql = '$sql'\n\n");
+        my_debug_sql("root sql = {'$sql'}\n");
         $rows = Db::sql($sql);
+        my_debug_sql("  # rows = ".count($rows)."\n\n");
 
         # root nodes to return from this function
         $root_nodes = new stdClass();
@@ -314,7 +335,13 @@
                 # get or create node
                 if (isset($all_nodes_by_id->{$id})) {
                     # need to do anything? all fields should be there.
-                    $tree_node = $all_nodes_by_id->{$id};
+                    $tree_view_avoid_recursion = true; #todo #fixme move to Config
+                    if ($tree_view_avoid_recursion) {
+                        $tree_node = (object)$row;
+                    }
+                    else {
+                        $tree_node = $all_nodes_by_id->{$id};
+                    }
                 }
                 else {
                     $tree_node = (object)$row;
