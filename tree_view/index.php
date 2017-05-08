@@ -227,6 +227,52 @@ function countTreeNodes(node) {
     return num_nodes;
 }
 
+// add elements of arr2 to elements of arr2, offsetting
+// arr2 by off, so that arr2[0] aligns with arr1[off]
+// destructively modifies arr1
+function addArrayAtIndex(arr1, arr2, off) {
+    for (var i=0; i<arr2.length; i++) {
+        var arr1_idx = i + off
+        if (arr1.length <= arr1_idx) {
+            arr1[arr1_idx] = 0;
+        }
+        arr1[arr1_idx] += arr2[i];
+    }
+}
+
+function countNodesByLevel(node, level) {
+    if (level === undefined) level = 0;
+    var num_nodes_by_level = [1];
+    var keys = ['children','_children'];
+    for (var k=0; k < keys.length; k++) {
+        var key = keys[k];
+        if (key in node) {
+            var children = node[key];
+            for (var i=0; i < children.length; i++) {
+                var child = children[i];
+                addArrayAtIndex(
+                    num_nodes_by_level, // adds them to this
+                    countNodesByLevel(child, level+1),
+                    1 // offset addition by 1
+                );
+            }
+        }
+    }
+    return num_nodes_by_level;
+}
+
+function numNodesInLargestLevel(node) {
+    num_nodes_by_level = countNodesByLevel(node, 0);
+    max_nodes_any_lev = 0;
+    for (var i=0; i<num_nodes_by_level.length; i++) {
+        num_nodes_this_lev = num_nodes_by_level[i];
+        if (num_nodes_this_lev > max_nodes_any_lev) {
+            max_nodes_any_lev = num_nodes_this_lev;
+        }
+    }
+    return max_nodes_any_lev;
+}
+
 function getMaxNodeStrlen(node, name_cutoff) {
     var max_node_strlen = 0;
 
@@ -263,15 +309,22 @@ function getMaxNodeStrlen(node, name_cutoff) {
     return max_node_strlen;
 }
 
+//var ROOT;
 function setupTreeWithSize(root) {
+    //ROOT = root;
     //console.log(root);
     // figure out a good size
     //var num_nodes = root.children.length;
-    var num_nodes = countTreeNodes(root);
+    /*var num_nodes = countTreeNodes(root);
     var height = Math.max(
         (num_nodes ** .75) * 12,
         defaults.height
-    ) * 10;
+    ) * 10;*/
+    var num_nodes_updown = numNodesInLargestLevel(root);
+    var height = Math.max(
+        num_nodes_updown * 12,
+        defaults.height
+    );
     var width = undefined; // 2000;
 
     var name_cutoff = <?= $name_cutoff
