@@ -40,7 +40,7 @@
 
 .link {
     fill: none;
-    stroke: #ccc;
+    stroke: #ddd;
     stroke-width: 1.5px;
 }
 
@@ -139,9 +139,8 @@ function setupTreeWithSize(root) {
         }
     }
 
-    // build in extra space because sometimes
-    // labels are on the other side of node
-    approx_max_node_width = max_node_strlen * 9;
+    // guess how much space the name needs
+    approx_max_node_width = max_node_strlen * 4;
 
     var level_width = Math.max(
         approx_max_node_width, defaults.level_width);
@@ -245,15 +244,20 @@ function updateTree(source) {
 
     nodeEnter.append("text")
             .attr("x", function(d) {
-                            return d.children || d._children
+                            // where the text goes
+                            /*return d.children || d._children
                                         ? -10
-                                        : 10;
+                                        : 10;*/
+                            // put all on the left
+                            return -10;
                        })
             .attr("dy", ".35em")
             .attr("text-anchor", function(d) {
-                                    return d.children || d._children
+                                    // text justify
+                                    /* return d.children || d._children
                                         ? "end"
-                                        : "start";
+                                        : "start"; */
+                                    return "end";
                                  })
             .text(function(d) { return d.name; })
             .style("fill-opacity", 1e-6)
