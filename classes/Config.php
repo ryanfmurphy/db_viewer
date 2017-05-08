@@ -153,8 +153,8 @@ class Config {
 
             # tree view stuff
             'default_parent_field',
-
             'load_d3_via_cdn',
+            'start_w_tree_fully_expanded',
         );
 
         $config = compact($config_vars);
@@ -331,6 +331,7 @@ class Config {
             # tree view stuff
             'default_parent_field' => 'parent_id',
             'load_d3_via_cdn' => false,
+            'start_w_tree_fully_expanded' => false,
         );
 
         return $default_values;

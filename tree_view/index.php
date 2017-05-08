@@ -237,7 +237,13 @@ function createTree() {
                 }
             }
 
-            //root.children.forEach(collapse);
+<?php
+    if (!$start_w_tree_fully_expanded) {
+?>
+            root.children.forEach(collapse);
+<?php
+    }
+?>
             updateTree(root);
 
             ghostRootNode();
