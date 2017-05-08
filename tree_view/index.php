@@ -264,6 +264,7 @@ function getMaxNodeStrlen(node, name_cutoff) {
 }
 
 function setupTreeWithSize(root) {
+    //console.log(root);
     // figure out a good size
     //var num_nodes = root.children.length;
     var num_nodes = countTreeNodes(root);
