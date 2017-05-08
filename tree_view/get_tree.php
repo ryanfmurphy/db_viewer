@@ -132,24 +132,21 @@
         }
     }
 
-    function add_child_to_tree($child, $parent, $parent_match_val, $table) {
+    function add_child_to_tree($child, $parent, $parent_match_val, $parent_table, $child_table) {
         $id_mode = Config::$config['id_mode'];
-        $id_field = DbUtil::get_primary_key_field($id_mode, $table);
-        $id = $parent->{$id_field};
+        $parent_id_field = DbUtil::get_primary_key_field($id_mode, $parent_table);
+        $parent_id = $parent->{$parent_id_field};
+
+        $child_id_field = DbUtil::get_primary_key_field($id_mode, $child_table);
+        $child_id = $child->{$child_id_field};
 
         # add children container if needed
         if (!isset($parent->children)) {
-            my_debug("creating new children container for $id to add $child->name\n"); #todo #test
             $parent->children = new stdClass();
-        }
-        else {
-            my_debug("children container for $id already exists, adding $child->name\n"); #todo #test
         }
 
         # add child off node
-        my_debug("adding child '$parent_match_val' within container for '$id': ".print_r($child,1));
-        $parent->children->{$parent_match_val} = $child;
-        my_debug("now $id looks like this: ".print_r($parent,1));
+        $parent->children->{"$child_table:$child_id"} = $child;
     }
 
     # starting with an array of $parent_nodes,
@@ -233,7 +230,8 @@
                             $parent = $parent_nodes->{$this_parent_id};
                             add_child_to_tree($child, $parent,
                                               $parent_match_val,
-                                              $parent_table);
+                                              $parent_table,
+                                              $child_table);
                         }
                         else {
                             my_debug("WARNING don't actually have the parent $this_parent_id"
@@ -393,7 +391,7 @@
             }
         }
 
-        return $all_nodes; #$root_nodes;
+        return $root_nodes;
     }
 
     # to gain our ordering back before we get off PHP to JS
@@ -428,7 +426,6 @@
             $root_table, $root_cond, $order_by_limit,
             $parent_relationships, $root_nodes_w_child_only
         );
-        #die(print_r($tree,1));
         $tree = unkey_tree($tree);
 
         die(
