@@ -425,8 +425,7 @@
                     //      what if time_added was specified manually?
                     data.time_added = stored_row.time;
 
-                    var url = crud_api_uri
-                            + '?action=create_'+table_name;
+                    var url = crud_api_uri + '?action=create_'+table_name;
 
                     console.log('submitting stored row:', data);
 
@@ -457,6 +456,8 @@
                 // save remaining stored rows
                 console.log('saving stored_rows with deletions', remaining_stored_rows);
                 saveStoredRowsLocal(remaining_stored_rows);
+
+                saveJsonDumpOfStoredRows();
             }
             else {
                 alert('No rows to save');
@@ -501,6 +502,23 @@
             return false;
         }
 
+    }
+
+    // save JSON dump of stored_rows in case something went wrong
+    function saveJsonDumpOfStoredRows() {
+        var data = {
+            'stored_rows': getStoredRowsLocal(),
+            'old_stored_rows': getOldStoredRowsLocal()
+        };
+        var json_dump = JSON.stringify(data);
+
+        // do the ajax
+        var url = '<?= $save_json_dump_uri ?>';
+        console.log('saving JSON dump', json_dump);
+        submitForm(url, null, 'create',
+            function() {
+            }
+        );
     }
 
     function formSubmitCallback(xhttp, event, action, respond_callback) {
@@ -556,11 +574,14 @@
         }
     }
 
-    // #todo #test pathway that uses a js obj and submits it
+    // #todo #fixme factor this into a more generalized AJAX function
+    // like jQuery's $.ajax: separate the AJAX stuff from the submitForm stuff
     function submitForm(url, event, action,
                         obj, respond_callback // optional args
     ) {
         var queryString;
+
+        // if obj is supplied, it is a js obj to be submitted directly
         if (obj) { // data provided directly by obj
             queryString  = obj2queryString(obj);
         }
@@ -589,12 +610,11 @@
                     "application/x-www-form-urlencoded"
                 );
 
-                var postData;
-
                 var valsToAlwaysInclude = scope;
-                postData  = (action == 'delete'
+                var postData  = (action == 'delete'
                                 ? "" // don't include key-val pairs for delete
-                                     // (except where_clause for primary key)
+                                     // (except where_clause for primary key,
+                                     //  added later)
                                 : queryString
                             );
 

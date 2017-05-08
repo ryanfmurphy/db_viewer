@@ -153,6 +153,13 @@ class Config {
             'default_parent_field',
 
             'load_d3_via_cdn',
+
+            # mobile_travel_mode: when you save your locally-saved rows
+            # also save a JSON file on the server of the rows,
+            # (in case some of them didn't make it into the database
+            #  e.g. if they reference a nonexistent table or field)
+            'backup_local_storage_rows_as_json',
+            'save_json_dump_uri',
         );
 
         $config = compact($config_vars);
@@ -249,6 +256,7 @@ class Config {
             'prompt_for_auth_uri' => "$uri_trunk/auth.php",
             'd3_js_uri' => "$uri_trunk/tree_view/d3.js",
             'js_path' => "$uri_trunk/table_view/js",
+            'save_json_dump_uri' => "$uri_trunk/obj_editor/save_json_dump.php",
             'popr_js_path' => '',
 
             # filesystem paths
@@ -326,6 +334,12 @@ class Config {
             # tree view stuff
             'default_parent_field' => 'parent_id',
             'load_d3_via_cdn' => false,
+
+            # mobile_travel_mode: when you save your locally-saved rows
+            # also save a JSON file on the server of the rows,
+            # (in case some of them didn't make it into the database
+            #  e.g. if they reference a nonexistent table or field)
+            'backup_local_storage_rows_as_json' => false,
         );
 
         return $default_values;
