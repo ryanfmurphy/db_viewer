@@ -637,6 +637,16 @@ infer_limit_from_query: query didn't match regex.
             return $primary_key_field;
         }
 
+        public static function get_name_field($table) {
+            $name_fields_by_table = Config::$config['name_fields_by_table'];
+            if (isset($name_fields_by_table[$table])) {
+                return $name_fields_by_table[$table];
+            }
+            else {
+                return 'name';
+            }
+        }
+
         # get fields of table from db
         # returns false if table $table doesn't exist
         public static function get_table_fields($table, $schemas_in_path=null) {

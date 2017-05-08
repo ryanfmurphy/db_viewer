@@ -199,7 +199,7 @@ function getMaxNodeStrlen(node, name_cutoff) {
     var max_node_strlen = 0;
 
     // check this node's name directly
-    var name = node.name;
+    var name = node._node_name;
     if (typeof name  === 'string') {
         // apply name cutoff if any
         if (name_cutoff
@@ -419,7 +419,7 @@ function updateTree(source) {
                                         : "start"; */
                                     return "end";
                                  })
-            .text(function(d) { return d.name; })
+            .text(function(d) { return d._node_name; })
             .style("fill-opacity", 1e-6)
             .on("click", clickLabel)
             .style("stroke", function(d) {
@@ -488,7 +488,7 @@ function updateTree(source) {
                 })
                 // make "root" "connections" not show up
                 .style('stroke', function(d) {
-                    if (d.source.name == '') { // #todo use obj ref
+                    if (d.source._node_name == '') { // #todo use obj ref
                         return 'white';
                     }
                 });

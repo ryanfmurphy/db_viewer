@@ -157,6 +157,10 @@ class Config {
             'start_w_tree_fully_expanded',
             # may be a bool or a list of tables
             'use_relname_for_tree_node_table',
+            # the field that will be considered the
+            # "name" or display field e.g. for trees
+            # ('name' by default)
+            'name_fields_by_table',
 
             # UNDER CONSTRUCTION
             # mobile_travel_mode: when you save your locally-saved rows
@@ -320,6 +324,10 @@ class Config {
             # the row, use that as the table to look in for
             # the edit link, so you can see all the fields
             'use_relname_for_edit_link' => true,
+            # the field that will be considered the
+            # "name" or display field e.g. for trees
+            # ('name' by default)
+            'name_fields_by_table',
 
             # UNDER CONSTRUCTION
             # if true (default), use javascript/AJAX to

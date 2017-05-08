@@ -43,7 +43,7 @@
     function field_list($parent_relationships, $table) {
         $id_mode = Config::$config['id_mode'];
         $id_field = DbUtil::get_primary_key_field($id_mode, $table);
-        $name_field = "name";
+        $name_field = DbUtil::get_name_field($table);
         $fields = array($id_field=>1, $name_field=>1);
 
         $tables_to_use_relname = Config::$config['use_relname_for_tree_node_table'];
@@ -243,6 +243,10 @@
                     $row['_node_table'] = $node_tablename;
                     $row['_node_color'] = $table_color;
 
+                    # make sure 'name' is available
+                    $name_field = DbUtil::get_name_field($child_table);
+                    $row['name'] = $row[$name_field];
+
                     if (isset($all_nodes->{"$child_table:$id"})) {
                         # need to do anything? all fields should be there.
                         $tree_view_avoid_recursion = false; #todo #fixme move to Config
@@ -385,6 +389,11 @@
                 # get or create node
                 $row['_node_table'] = $node_tablename;
                 $row['_node_color'] = $table_color;
+
+                # make sure '_node_name' is available
+                $name_field = DbUtil::get_name_field($root_table);
+                $row['_node_name'] = $row[$name_field];
+
                 if (isset($all_nodes->{"$root_table:$id"})) {
                     # need to do anything? all fields should be there.
                     $tree_view_avoid_recursion = true; #todo #fixme move to Config
