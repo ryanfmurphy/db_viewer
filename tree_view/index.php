@@ -13,7 +13,7 @@
                             : null;
     }
 
-    if (!$root_table) {
+    if (!$root_table || $edit_vars) {
         require("$trunk/tree_view/vars_form.php");
         die();
     }
@@ -22,44 +22,71 @@
     header("Access-Control-Allow-Origin: <origin> | *");
 ?>
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
 
-.node {
-    cursor: pointer;
-}
+            body {
+                font-family: sans-serif;
+            }
 
-.node circle {
-    fill: #fff;
-    stroke: steelblue;
-    stroke-width: 1.5px;
-}
+            .node {
+                cursor: pointer;
+            }
 
-.node text {
-    font: 10px sans-serif;
-}
+            .node circle {
+                fill: #fff;
+                stroke: steelblue;
+                stroke-width: 1.5px;
+            }
 
-.link {
-    fill: none;
-    stroke: #ddd;
-    stroke-width: 1.5px;
-}
+            .node text {
+                font: 10px sans-serif;
+            }
 
-</style>
-<body>
+            .link {
+                fill: none;
+                stroke: #ddd;
+                stroke-width: 1.5px;
+            }
+
+            #edit_vars_link {
+                text-decoration: none;
+            }
+            #edit_vars_link:hover {
+                text-decoration: underline;
+            }
+
+            </style>
+        </head>
+
+        <body>
 <?php
+    { # Edit Tree Variables link
+        $vars_for_edit_link = $requestVars;
+        $vars_for_edit_link['edit_vars'] = 1;
+?>
+            <a id="edit_vars_link"
+               href="<?= "?".http_build_query($vars_for_edit_link) ?>"
+               target="_blank">
+                Edit Tree Variables / Relationships
+            </a>
+<?php
+    }
+
     if ($load_d3_via_cdn) {
 ?>
-<script src="//d3js.org/d3.v3.min.js"></script>
+        <script src="//d3js.org/d3.v3.min.js"></script>
 <?php
     }
     else {
 ?>
-<script src="<?= $d3_js_uri ?>"></script>
+        <script src="<?= $d3_js_uri ?>"></script>
 <?php
     }
 ?>
-<script>
+        <script>
 
 var svg_tree = {
     tree: undefined,
@@ -510,5 +537,7 @@ function clickLabel(d) {
     }
 }
 
-</script>
+        </script>
+    </body>
+</html>
 

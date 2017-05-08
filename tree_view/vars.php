@@ -27,6 +27,10 @@
                                     )
                                   );
 
+    $edit_vars = isset($requestVars['edit_vars'])
+                    ? $requestVars['edit_vars']
+                    : null;
+
     # make sure tables are filled out for all relationships
     # (default to root_table)
     /*
