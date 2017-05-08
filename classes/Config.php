@@ -155,7 +155,10 @@ class Config {
             'default_parent_field',
             'load_d3_via_cdn',
             'start_w_tree_fully_expanded',
+            # may be a bool or a list of tables
+            'use_relname_for_tree_node_table',
 
+            # UNDER CONSTRUCTION
             # mobile_travel_mode: when you save your locally-saved rows
             # also save a JSON file on the server of the rows,
             # (in case some of them didn't make it into the database
@@ -340,6 +343,8 @@ class Config {
             'default_parent_field' => 'parent_id',
             'load_d3_via_cdn' => false,
             'start_w_tree_fully_expanded' => false,
+            # may be a bool or a list of tables
+            'use_relname_for_tree_node_table' => false,
 
             # mobile_travel_mode: when you save your locally-saved rows
             # also save a JSON file on the server of the rows,

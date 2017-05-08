@@ -46,6 +46,15 @@
         $name_field = "name";
         $fields = array($id_field=>1, $name_field=>1);
 
+        $tables_to_use_relname = Config::$config['use_relname_for_tree_node_table'];
+        if (is_array($tables_to_use_relname)
+            && in_array($table,
+                        $tables_to_use_relname)
+        ) {
+            #todo #fixme only add it for tables that have that field
+            $fields['relname'] = 1;
+        }
+
         foreach ($parent_relationships as $relationship) {
             # we only want fields that make sense for this table
             my_debug("checking relationship: ".print_r($relationship,1));
@@ -149,6 +158,17 @@
         $parent->children->{"$child_table:$child_id"} = $child;
     }
 
+    function determine_node_tablename(&$row, $child_table) {
+        if (Config::$config['use_relname_for_tree_node_table']
+            && isset($row['relname'])
+        ) {
+            return $row['relname'];
+        }
+        else {
+            return $child_table;
+        }
+    }
+
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
@@ -167,6 +187,7 @@
         }
 
         $more_children_to_look_for = false;
+        $use_relname = Config::$config['use_relname_for_tree_node_table'];
 
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
             my_debug("starting new relationship $relationship_no: "
@@ -186,7 +207,10 @@
             $parent_vals = get_field_values_for_matching($parent_nodes,
                                                          $matching_field_on_parent);
 
-            $table_color = name_to_rgb($child_table);
+            if (!$use_relname) { # no need to calculate for each row
+                $node_tablename = $child_table;
+                $table_color = name_to_rgb($node_tablename);
+            }
 
             if (count($parent_vals) > 0) {
                 $rows = get_next_level_of_children(
@@ -207,9 +231,18 @@
                     my_debug("matching_field_on_parent = $matching_field_on_parent\n");
                     $parent_match_val = $row[$matching_field_on_parent];
 
+                    if ($use_relname) { # must calculate for each row
+                        $node_tablename = determine_node_tablename($row, $child_table);
+                        $table_color = name_to_rgb($node_tablename);
+                        # still save original connection table
+                        # so front-end can look up id field in its hash
+                        $row['_conn_table'] = $child_table;
+                    }
+
                     # get or create node
-                    $row['_node_table'] = $child_table;
+                    $row['_node_table'] = $node_tablename;
                     $row['_node_color'] = $table_color;
+
                     if (isset($all_nodes->{"$child_table:$id"})) {
                         # need to do anything? all fields should be there.
                         $tree_view_avoid_recursion = false; #todo #fixme move to Config
@@ -308,7 +341,11 @@
         # to make sure we stop when we are done
         $more_children_to_look_for = false;
 
-        $table_color = name_to_rgb($root_table);
+        $use_relname = Config::$config['use_relname_for_tree_node_table'];
+        if (!$use_relname) { # no need to calculate for each row
+            $node_tablename = determine_node_tablename($row, $root_table);
+            $table_color = name_to_rgb($node_tablename);
+        }
 
         #todo #fixme - does it make more sense for these foreach loops
         #              to be nested the other way?
@@ -337,8 +374,16 @@
                 my_debug("matching_field_on_parent = $matching_field_on_parent\n");
                 $parent_match_val = $row[$matching_field_on_parent];
 
+                if ($use_relname) { # must calculate for each row
+                    $node_tablename = determine_node_tablename($row, $root_table);
+                    $table_color = name_to_rgb($node_tablename);
+                    # still save original connection table
+                    # so front-end can look up id field in its hash
+                    $row['_conn_table'] = $root_table;
+                }
+
                 # get or create node
-                $row['_node_table'] = $root_table;
+                $row['_node_table'] = $node_tablename;
                 $row['_node_color'] = $table_color;
                 if (isset($all_nodes->{"$root_table:$id"})) {
                     # need to do anything? all fields should be there.

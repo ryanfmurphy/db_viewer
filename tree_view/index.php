@@ -165,7 +165,6 @@ function setupTreeWithSize(root) {
     // figure out a good size
     //var num_nodes = root.children.length;
     var num_nodes = countTreeNodes(root);
-    console.log('num_nodes',num_nodes);
     var height = Math.max(
         (num_nodes ** .75) * 12,
         defaults.height
@@ -260,18 +259,18 @@ function getRootNode() {
     var min_x = undefined;
     var root_node = undefined;
     for (var i=0; i<nodes.length; i++) {
-        console.log('i =',i);
+        //console.log('i =',i);
         var node = nodes[i];
-        console.log('node =',node);
+        //console.log('node =',node);
         var rect = node.getBoundingClientRect();
-        console.log('rect =',rect);
+        //console.log('rect =',rect);
         var new_x = rect.x;
-        console.log('new_x =', new_x);
+        //console.log('new_x =', new_x);
         if (min_x === undefined
             || new_x < min_x
         ) {
-            console.log("and that's good enough to make", node, 'the new root');
-            console.log('min_x was', min_x);
+            //console.log("and that's good enough to make", node, 'the new root');
+            //console.log('min_x was', min_x);
             root_node = node;
             min_x = new_x;
         }
@@ -485,9 +484,24 @@ id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
-    if ('_node_table' in d) {
-        var table = d._node_table;
-        var id_field = id_fields_by_table[table];
+
+    var table = ('_node_table' in d
+                    ? d._node_table
+                    : null);
+
+    // Use _conn_table if possible because if it's here
+    // it means the _node_table a polymorphic table read
+    // from the 'relname' field due to the option
+    // 'use_relname_for_tree_node_table'.
+    // We may not have that table in id_fields_by_table
+    // so the backend gives us '_conn_table' which is the
+    // non-polymorphic base-table that we have in our hash
+    var conn_table = ('_conn_table' in d
+                        ? d._conn_table
+                        : table);
+
+    if (table && conn_table) {
+        var id_field = id_fields_by_table[conn_table];
         var url = "<?= $obj_editor_uri ?>"
                         +"?table="+table
                         +"&edit=1"
