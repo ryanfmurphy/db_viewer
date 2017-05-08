@@ -61,6 +61,10 @@
                 text-decoration: underline;
             }
 
+            #summary {
+                margin-left: .15em;
+            }
+
             </style>
         </head>
 
@@ -108,7 +112,7 @@
 
 ?>
             <h1>
-                Tree View:
+                🌳 Tree View:
                 <span id="summary">
                     <?= tree_view_summary_txt($root_table, $parent_relationships) ?>
                 </span>

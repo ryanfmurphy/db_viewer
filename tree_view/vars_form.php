@@ -1,27 +1,47 @@
 <html>
     <head>
         <style>
+<?php
+    $gray = '#888';
+?>
         form {
             font-family: sans-serif;
             margin-left: auto;
             margin-right: auto;
-            width: 25rem;
+            width: 30rem;
         }
         form#vars_form label {
             display: block;
+            color: <?= $gray ?>;
         }
         form#vars_form div {
             margin: 1rem auto;
         }
         form#vars_form input[type=text] {
             width: 100%;
+            font-size: 100%;
+        }
+        form#vars_form input[type=submit] {
+            margin: 1em auto;
+            /* HACK: for some reason centering wasn't happening */
+            margin-left: 7em;
+            font-size: 150%;
+        }
+
+        h1 {
+            text-align: center;
         }
         h2 {
-            font-size: 125%;
+            font-weight: normal;
+            margin-top: 1.5em;
+        }
+        h3 {
         }
         #add_relationship_link {
             cursor: pointer;
             color: blue;
+            text-align: center;
+            width: 100%;
         }
         #add_relationship_link:hover {
             text-decoration: underline;
@@ -29,11 +49,37 @@
         #relationship_template {
             display: none;
         }
+        form#vars_form div#rel_order_comment {
+            font-size: 80%;
+            margin-top: -1em;
+            color: <?= $gray ?>;
+        }
+
+        form#vars_form .relationship {
+            background: #f3f3f3;
+            padding: .5em 1.2em;
+            margin: 1.5em auto;
+        }
+
+        form#vars_form .relationship label {
+            text-align: right;
+            display: inline-block;
+            width: 39%;
+            vertical-align: baseline;
+            font-size: 90%;
+            margin-left: 3em;
+        }
+        form#vars_form .relationship input {
+            display: inline-block;
+            width: 49%;
+            vertical-align: baseline;
+            font-size: 90%;
+        }
         </style>
     </head>
     <body>
         <form id="vars_form" action="" target="_blank">
-            <h1>Tree View</h1>
+            <h1>Tree View 🌳</h1>
             <h2>Select Root Nodes</h2>
             <div>
                 <label>Root Table</label>
@@ -42,6 +88,11 @@
             <div>
                 <label>Root Condition</label>
                 <input name="root_cond" value="<?= $root_cond ?>" type="text">
+            </div>
+
+            <h2>Define Relationships</h2>
+            <div id="rel_order_comment">
+                Relationships can be in any order, order does not matter
             </div>
 
 <?php
@@ -63,25 +114,25 @@
             >
                 <h3>Relationship <?= $rel_no ?></h3>
                 <div>
-                    <label>Table of Child...</label>
+                    <label>Table of Child:</label>
                     <input  name="parent_relationships[<?= $rel_no ?>][child_table]"
                             value="<?= $relationship['child_table'] ?>"
                             type="text">
                 </div>
                 <div>
-                    <label>...hooking to Table of Parent</label>
+                    <label>hooking to Table of Parent:</label>
                     <input  name="parent_relationships[<?= $rel_no ?>][parent_table]"
                             value="<?= $relationship['parent_table'] ?>"
                             type="text">
                 </div>
                 <div>
-                    <label>...by Field on Child...</label>
+                    <label>by Field on Child:</label>
                     <input  name="parent_relationships[<?= $rel_no ?>][parent_field]"
                             value="<?= $relationship['parent_field'] ?>"
                             type="text">
                 </div>
                 <div>
-                    <label>...matching Field on Parent</label>
+                    <label>matching Field on Parent:</label>
                     <input  name="parent_relationships[<?= $rel_no ?>][matching_field_on_parent]"
                             value="<?= $relationship['matching_field_on_parent'] ?>"
                             type="text">
@@ -89,7 +140,9 @@
             </div>
 <?php
     }
+?>
 
+<?php
     foreach ($parent_relationships as $rel_no => $relationship) {
         render_relationship_form($relationship, $rel_no);
     }
@@ -117,13 +170,13 @@
                 + Add Relationship
             </div>
 
-            <h3>Misc</h3>
+            <h2>More Settings</h2>
             <div>
-                <label>Order By / Limit</label>
+                <label>Order By / Limit (include <code>order by</code> etc)</label>
                 <input name="order_by_limit" value="<?= $order_by_limit ?>" type="text">
             </div>
             <div>
-                <label>Name Cutoff</label>
+                <label>Cutoff Names at X Characters</label>
                 <input name="name_cutoff" value="<?= $name_cutoff ?>" type="text">
             </div>
             <div>
@@ -133,7 +186,7 @@
                        type="text">
             </div>
             <div>
-                <input type="submit">
+                <input type="submit" value="Show Tree">
             </div>
         </form>
 <?php
