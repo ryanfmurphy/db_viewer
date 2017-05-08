@@ -15,6 +15,7 @@
 
     if (!$root_table) {
         require("$trunk/tree_view/vars_form.php");
+        die();
     }
 
     #todo #fixme do I need this header? #security
