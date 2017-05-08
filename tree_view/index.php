@@ -65,6 +65,36 @@
                 margin-left: .15em;
             }
 
+<?php
+    # mostly color for now
+    $table_info = array();
+    # use keys for uniqueness
+    $table_info[$root_table] = array(
+        'color' => name_to_rgb($root_table)
+    );
+    foreach ($parent_relationships as $relationship) {
+        $table = $relationship['parent_table'];
+        $table_info[$table] = array(
+            'color' => name_to_rgb($table)
+        );
+
+        $table = $relationship['child_table'];
+        $table_info[$table] = array(
+            'color' => name_to_rgb($table)
+        );
+    }
+
+    foreach ($table_info as $table => $info) {
+        $color = $info['color'];
+?>
+            .<?= $table ?>_tbl_color {
+                color: <?= $color ?>;
+                stroke: <?= $color ?>;
+            }
+<?php
+    }
+?>
+
             </style>
         </head>
 
@@ -86,7 +116,7 @@
         { ob_start();
             $color = name_to_rgb($table);
 ?>
-            <span style="color: <?= $color ?>">
+            <span class="<?= $table ?>_tbl_color">
                 <?= $table ?>
             </span>
 <?php
@@ -130,6 +160,8 @@
     }
 ?>
         <script>
+
+var table_info = <?= json_encode($table_info) ?>;
 
 var svg_tree = {
     tree: undefined,
@@ -423,11 +455,20 @@ function updateTree(source) {
             .text(function(d) { return d._node_name; })
             .style("fill-opacity", 1e-6)
             .on("click", clickLabel)
-            .style("stroke", function(d) {
-                                return d._node_color
-                                        ? d._node_color
-                                        : 'black';
-                             })
+            .attr("class", function(d) {
+                return d._node_table
+                    ? d._node_table + '_tbl_color'
+                    : null;
+            })
+            //.style("stroke", function(d) {
+            //                    return d._node_table
+            //                           && d._node_table in table_info
+            //                                ? table_info[d._node_table].color
+            //                                : 'black';
+            //                    /*return d._node_color
+            //                            ? d._node_color
+            //                            : 'black';*/
+            //                 })
             ;
 
     // Transition nodes to their new position.
