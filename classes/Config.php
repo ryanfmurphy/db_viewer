@@ -327,7 +327,7 @@ class Config {
             # the field that will be considered the
             # "name" or display field e.g. for trees
             # ('name' by default)
-            'name_fields_by_table',
+            'name_fields_by_table' => array(),
 
             # UNDER CONSTRUCTION
             # if true (default), use javascript/AJAX to
