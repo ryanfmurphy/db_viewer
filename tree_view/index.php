@@ -211,22 +211,6 @@ function setupTree(new_width, new_height, level_width) {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 }
 
-function countTreeNodes(node) {
-    var num_nodes = 1;
-    var keys = ['children','_children'];
-    for (var k=0; k < keys.length; k++) {
-        var key = keys[k];
-        if (key in node) {
-            var children = node[key];
-            for (var i=0; i < children.length; i++) {
-                var child = children[i];
-                num_nodes += countTreeNodes(child);
-            }
-        }
-    }
-    return num_nodes;
-}
-
 // add elements of arr2 to elements of arr2, offsetting
 // arr2 by off, so that arr2[0] aligns with arr1[off]
 // destructively modifies arr1
@@ -309,20 +293,10 @@ function getMaxNodeStrlen(node, name_cutoff) {
     return max_node_strlen;
 }
 
-//var ROOT;
 function setupTreeWithSize(root) {
-    //ROOT = root;
-    //console.log(root);
-    // figure out a good size
-    //var num_nodes = root.children.length;
-    /*var num_nodes = countTreeNodes(root);
-    var height = Math.max(
-        (num_nodes ** .75) * 12,
-        defaults.height
-    ) * 10;*/
     var num_nodes_updown = numNodesInLargestLevel(root);
     var height = Math.max(
-        num_nodes_updown * 12,
+        num_nodes_updown * 15,
         defaults.height
     );
     var width = undefined; // 2000;
