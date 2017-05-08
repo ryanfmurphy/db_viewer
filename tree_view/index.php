@@ -169,7 +169,7 @@ function setupTreeWithSize(root) {
     var height = Math.max(
         (num_nodes ** .75) * 12,
         defaults.height
-    );
+    ) * 10;
     var width = undefined; // 2000;
 
     var name_cutoff = <?= $name_cutoff
@@ -237,7 +237,7 @@ function createTree() {
                 }
             }
 
-            root.children.forEach(collapse);
+            //root.children.forEach(collapse);
             updateTree(root);
 
             ghostRootNode();
@@ -347,7 +347,13 @@ function updateTree(source) {
                                  })
             .text(function(d) { return d.name; })
             .style("fill-opacity", 1e-6)
-            .on("click", clickLabel);
+            .on("click", clickLabel)
+            .style("stroke", function(d) {
+                                return d._node_color
+                                        ? d._node_color
+                                        : 'black';
+                             })
+            ;
 
     // Transition nodes to their new position.
     var nodeUpdate = node//.transition()

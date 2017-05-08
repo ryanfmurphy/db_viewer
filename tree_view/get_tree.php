@@ -15,6 +15,7 @@
         $cur_view = 'tree_view';
         require("$trunk/includes/init.php");
         require("$trunk/tree_view/vars.php");
+        require("$trunk/tree_view/hash_color.php");
     }
 
     function tree_log($msg) {
@@ -188,6 +189,8 @@
             $parent_vals = get_field_values_for_matching($parent_nodes,
                                                          $matching_field_on_parent);
 
+            $table_color = name_to_rgb($child_table);
+
             if (count($parent_vals) > 0) {
                 $rows = get_next_level_of_children(
                     $parent_vals, $fields, $parent_field,
@@ -208,9 +211,10 @@
                     $parent_match_val = $row[$matching_field_on_parent];
 
                     # get or create node
+                    $row['_node_color'] = $table_color;
                     if (isset($all_nodes->{"$child_table:$id"})) {
                         # need to do anything? all fields should be there.
-                        $tree_view_avoid_recursion = true; #todo #fixme move to Config
+                        $tree_view_avoid_recursion = false; #todo #fixme move to Config
                         if ($tree_view_avoid_recursion) {
                             $child = (object)$row;
                         }
@@ -305,6 +309,8 @@
         # to make sure we stop when we are done
         $more_children_to_look_for = false;
 
+        $table_color = name_to_rgb($root_table);
+
         #todo #fixme - does it make more sense for these foreach loops
         #              to be nested the other way?
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
@@ -333,6 +339,7 @@
                 $parent_match_val = $row[$matching_field_on_parent];
 
                 # get or create node
+                $row['_node_color'] = $table_color;
                 if (isset($all_nodes->{"$root_table:$id"})) {
                     # need to do anything? all fields should be there.
                     $tree_view_avoid_recursion = true; #todo #fixme move to Config
@@ -386,7 +393,7 @@
             }
         }
 
-        return $root_nodes;
+        return $all_nodes; #$root_nodes;
     }
 
     # to gain our ordering back before we get off PHP to JS
@@ -421,6 +428,7 @@
             $root_table, $root_cond, $order_by_limit,
             $parent_relationships, $root_nodes_w_child_only
         );
+        #die(print_r($tree,1));
         $tree = unkey_tree($tree);
 
         die(
