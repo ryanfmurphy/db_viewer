@@ -33,7 +33,7 @@
     </head>
     <body>
         <form id="vars_form" action="" target="_blank">
-            <h1>Table View</h1>
+            <h1>Tree View</h1>
             <h2>Select Root Nodes</h2>
             <div>
                 <label>Root Table</label>

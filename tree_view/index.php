@@ -4,13 +4,8 @@
         $trunk = dirname(__DIR__);
         $cur_view = 'tree_view';
         require("$trunk/includes/init.php");
-
-        # vars
         require("$trunk/tree_view/vars.php");
-
-        $name_cutoff = isset($requestVars['name_cutoff'])
-                            ? $requestVars['name_cutoff']
-                            : null;
+        require("$trunk/tree_view/hash_color.php");
     }
 
     if (!$root_table || $edit_vars) {
@@ -29,6 +24,14 @@
 
             body {
                 font-family: sans-serif;
+            }
+            h1 {
+                color: gray;
+                font-weight: normal;
+                text-align: center;
+            }
+            h1 span {
+                font-weight: bold;
             }
 
             .node {
@@ -75,6 +78,42 @@
 <?php
     }
 
+    function table_name_w_color($table) {
+        { ob_start();
+            $color = name_to_rgb($table);
+?>
+            <span style="color: <?= $color ?>">
+                <?= $table ?>
+            </span>
+<?php
+            $html = ob_get_clean();
+        }
+        return $html;
+    }
+
+    # come up with a short textual headline describing the view
+    function tree_view_summary_txt($root_table, $parent_relationships) {
+        $txt = table_name_w_color($root_table) . " → ";
+        $tables = array();
+        # use keys for uniqueness
+        foreach ($parent_relationships as $relationship) {
+            $table = $relationship['child_table'];
+            $tables[
+                table_name_w_color($table)
+            ] = 1;
+        }
+        $txt .= implode(', ', array_keys($tables));
+        return $txt;
+    }
+
+?>
+            <h1>
+                Tree View:
+                <span id="summary">
+                    <?= tree_view_summary_txt($root_table, $parent_relationships) ?>
+                </span>
+            </h1>
+<?php
     if ($load_d3_via_cdn) {
 ?>
         <script src="//d3js.org/d3.v3.min.js"></script>

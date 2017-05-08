@@ -27,6 +27,10 @@
                                     )
                                   );
 
+    $name_cutoff = isset($requestVars['name_cutoff'])
+                        ? $requestVars['name_cutoff']
+                        : null;
+
     $edit_vars = isset($requestVars['edit_vars'])
                     ? $requestVars['edit_vars']
                     : null;
