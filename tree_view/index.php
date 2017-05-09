@@ -182,22 +182,41 @@ function numNodesInLargestLevel(node) {
     return max_nodes_any_lev;
 }
 
-function getMaxNodeStrlen(node, name_cutoff) {
+// i and j only count as half
+function strlenVarWidth(str) {
+    var num_short_ones = 0;
+    for (var i=0; i < str.length; i++) {
+        if (   str[i] == 'i' || str[i] == 'I'
+            || str[i] == 'j' || str[i] == 'l'
+        ) {
+            num_short_ones++;
+        }
+    }
+    return str.length - (num_short_ones/2);
+}
+
+function getMaxNodeStrlen(node, name_cutoff, strlen_fn) {
     var max_node_strlen = 0;
+    if (strlen_fn === undefined) {
+        strlen_fn = function(str) {
+            return str.length;
+        }
+    }
 
     // check this node's name directly
     var name = node._node_name;
     if (typeof name  === 'string') {
         // apply name cutoff if any
         if (name_cutoff
-            && name.length > name_cutoff
+            && strlen_fn(name) > name_cutoff
         ) {
             name = node._node_name =
                 name.slice(0,name_cutoff) + '...';
         }
 
-        if (name.length > max_node_strlen) {
-            max_node_strlen = name.length;
+        var len = strlen_fn(name);
+        if (len > max_node_strlen) {
+            max_node_strlen = len;
         }
     }
 
@@ -209,7 +228,7 @@ function getMaxNodeStrlen(node, name_cutoff) {
             for (var i=0; i < children.length; i++) {
                 var child = children[i];
                 max_node_strlen = Math.max(
-                    getMaxNodeStrlen(child, name_cutoff),
+                    getMaxNodeStrlen(child, name_cutoff, strlen_fn),
                     max_node_strlen
                 );
             }
@@ -229,10 +248,12 @@ function setupTreeWithSize(root) {
     var name_cutoff = <?= $name_cutoff
                             ? (int)$name_cutoff
                             : 'undefined' ?>;
-    var max_node_strlen = getMaxNodeStrlen(root, name_cutoff);
+    var max_node_strlen = getMaxNodeStrlen(
+        root, name_cutoff, strlenVarWidth
+    );
 
     // guess how much space the name needs
-    var approx_max_node_width = max_node_strlen * 4;
+    var approx_max_node_width = max_node_strlen * 5.2;
 
     var level_width = Math.max(
         approx_max_node_width, defaults.level_width);

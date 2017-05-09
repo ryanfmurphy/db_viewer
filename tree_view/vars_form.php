@@ -176,7 +176,7 @@
                 <input name="order_by_limit" value="<?= $order_by_limit ?>" type="text">
             </div>
             <div>
-                <label>Cutoff Names at X Characters</label>
+                <label>Cutoff Names at Approximately X Characters</label>
                 <input name="name_cutoff" value="<?= $name_cutoff ?>" type="text">
             </div>
             <div>
