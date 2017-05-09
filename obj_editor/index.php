@@ -16,6 +16,8 @@
             $table = isset($requestVars['table'])
                         ? $requestVars['table']
                         : null;
+            # remove quotes
+            $table = str_replace('"','',$table);
 
             # default values specified in config
             $defaultValues = isset($default_values_by_table[$table])
