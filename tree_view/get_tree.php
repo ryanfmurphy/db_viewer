@@ -22,8 +22,20 @@
         $log_path = Config::$config['log_path'];
         error_log($msg,3,"$log_path/tree_log");
     }
-    function my_debug($msg) {
-        if (DEBUG) tree_log($msg);
+    function my_debug($category, $msg) {
+        if (DEBUG
+            || in_array($category, array(
+                                        #'fields'
+                                   ))
+        ) {
+            tree_log($msg);
+        }
+        if (in_array($category, array(
+                                    #'tables_n_fields'
+                                ))
+        ) {
+            echo($msg);
+        }
     }
     function my_debug_sql($msg) {
         if (DEBUG_SQL) tree_log($msg);
@@ -38,7 +50,7 @@
     }
 
     function field_list($parent_relationships, $table) {
-        my_debug("  { field_list\n");
+        my_debug('fields', "  { field_list\n");
         $id_mode = Config::$config['id_mode'];
         $id_field = DbUtil::get_primary_key_field($id_mode, $table);
         $name_field = DbUtil::get_name_field($table);
@@ -55,35 +67,50 @@
 
         foreach ($parent_relationships as $relationship) {
             # we only want fields that make sense for this table
-            my_debug("checking relationship: ".print_r($relationship,1));
+            my_debug('fields', "checking relationship: ".json_encode($relationship,1)."\n");
             if ($relationship['child_table'] == $table) {
                 $parent_field = $relationship['parent_field'];
-                my_debug("adding parent_field $parent_field because child_table"
-                        ." $relationship[child_table] matches table $table\n");
+                my_debug('fields', "adding parent_field $parent_field because child_table"
+                                    ." $relationship[child_table] matches table $table\n");
                 $fields[$parent_field] = 1;
             }
             if ($relationship['parent_table'] == $table) {
                 $matching_field_on_parent = get_matching_field_on_parent($relationship, $table); 
-                my_debug("adding matching_field_on_parent $matching_field_on_parent because"
-                        ." child_table $relationship[child_table] matches tabl $table\n");
+                my_debug('fields', "adding matching_field_on_parent $matching_field_on_parent because"
+                                    ." child_table $relationship[child_table] matches tabl $table\n");
                 $fields[ $matching_field_on_parent ] = 1;
             }
         }
-        my_debug("  } (finishing field_list)\n");
+        my_debug('fields', "  } (finishing field_list)\n");
         return implode(', ', array_keys($fields));
     }
 
     # get an array of the matching values for a given relationship
     # helps to create the next level SQL query to get the next level of tree nodes
     function get_field_values_for_matching($parent_nodes, $matching_field_on_parent) {
-        my_debug("  { get_field_values_for_matching\n");
+        my_debug(NULL, "  { get_field_values_for_matching\n");
+
+        $parent_field_is_array = in_array($matching_field_on_parent,
+                                          Config::$config['fields_w_array_type']);
+
         $vals = array();
         foreach ($parent_nodes as $node) {
-            my_debug("here's the node, we're looking for"
+            my_debug(NULL, "here's the node, we're looking for"
                     ." '$matching_field_on_parent' field: ".print_r($node,1));
-            $vals[] = $node->{$matching_field_on_parent};
+            $field_val = $node->{$matching_field_on_parent};
+            if ($field_val) {
+                if ($parent_field_is_array) {
+                    $arr = DbUtil::pg_array2array($field_val);
+                    foreach ($arr as $val) {
+                        $vals[] = $val;
+                    }
+                }
+                else {
+                    $vals[] = $field_val;
+                }
+            }
         }
-        my_debug("  } (get_field_values_for_matching)\n");
+        my_debug(NULL, "  } (get_field_values_for_matching)\n");
         return $vals;
     }
 
@@ -91,7 +118,7 @@
     function get_next_level_of_children(
         $parent_vals, $fields, $parent_field, $table, $order_by_limit
     ) {
-        my_debug("about to make val_list for query.".
+        my_debug(NULL, "about to make val_list for query.".
                 "  parent_ids = ".print_r($parent_vals,1));
         $parent_val_list = Db::make_val_list($parent_vals);
 
@@ -125,7 +152,7 @@
                 $parent_match_val = $row[$matching_field_on_parent];
 
                 if ($parent_match_val) {
-                    #my_debug("adding $row[name] to children_this_rel->'$parent_match_val',"
+                    #my_debug(NULL, "adding $row[name] to children_this_rel->'$parent_match_val',"
                     #        ." relationship_no = $rel_no\n");
 
                     # detructively modify $add_children_by_relationship
@@ -135,7 +162,7 @@
                     $all_children_by_relationship[$rel_no]->{$parent_match_val} = $child;
                 }
                 else {
-                    #my_debug("no parent_match_val, not adding $row[name] to"
+                    #my_debug(NULL, "no parent_match_val, not adding $row[name] to"
                     #    ." children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
                 }
             }
@@ -143,9 +170,9 @@
     }
 
     function add_child_to_tree($child, $parent, $parent_match_val, $parent_table, $child_table) {
-        my_debug(" {add_child_to_tree: parent_table = $parent_table, child_table = $child_table\n");
-        my_debug("  child = ".print_r($child,1));
-        my_debug("  parent = ".print_r($parent,1));
+        my_debug(NULL, " {add_child_to_tree: parent_table = $parent_table, child_table = $child_table\n");
+        my_debug(NULL, "  child = ".print_r($child,1));
+        my_debug(NULL, "  parent = ".print_r($parent,1));
         $id_mode = Config::$config['id_mode'];
         $parent_id_field = DbUtil::get_primary_key_field($id_mode, $parent_table);
         $parent_id = $parent->{$parent_id_field};
@@ -160,8 +187,8 @@
 
         # add child off node
         $parent->children->{"$child_table:$child_id"} = $child;
-        my_debug("   did the add, now parent = ".print_r($parent,1));
-        my_debug(" } (add_child_to_tree)\n");
+        my_debug(NULL, "   did the add, now parent = ".print_r($parent,1));
+        my_debug(NULL, " } (add_child_to_tree)\n");
     }
 
     function determine_node_tablename(&$row, $child_table) {
@@ -183,7 +210,7 @@
         /*$root_table,*/ $order_by_limit=null,
         $parent_relationships
     ) {
-        my_debug("starting add_tree_lev_by_lev: parent_nodes = "
+        my_debug(NULL, "starting add_tree_lev_by_lev: parent_nodes = "
                 .print_r($parent_nodes_by_relationship,1));
         $id_mode = Config::$config['id_mode'];
 
@@ -196,13 +223,15 @@
         $use_relname = Config::$config['use_relname_for_tree_node_table'];
 
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
-            my_debug("starting new relationship $relationship_no: "
+            my_debug(NULL, "starting new relationship $relationship_no: "
                         .print_r($parent_relationship,1)
                         . "{\n");
 
             $child_table = $parent_relationship['child_table'];
             $parent_table = $parent_relationship['parent_table'];
+            my_debug('tables_n_fields', "this relationship, child_table='$child_table', parent_table='$parent_table'\n");
             $fields = field_list($parent_relationships, $child_table);
+            my_debug('tables_n_fields', "fields = $fields\n");
             #print_r($fields);
 
             $parent_field = $parent_relationship['parent_field'];
@@ -226,15 +255,17 @@
                 # the parent_node already has the children
                 # (which are about to be parents)
                 # that are in the parent_id_list
-                my_debug("  starting loop thru rows, {\n");
+                my_debug(NULL, "  starting loop thru rows, {\n");
+                my_debug('tables_n_fields', "matching_field_on_parent = $matching_field_on_parent\n");
                 foreach ($rows as $row) {
                     $this_parent_id = $row[$parent_field];
                     $id_field = DbUtil::get_primary_key_field(
                         $id_mode, $child_table
                     );
                     $id = $row[$id_field];
-                    my_debug("matching_field_on_parent = $matching_field_on_parent\n");
-                    $parent_match_val = $row[$matching_field_on_parent];
+                    $parent_match_val = isset($row[$matching_field_on_parent])
+                                            ? $row[$matching_field_on_parent]
+                                            : null;
 
                     if ($use_relname) { # must calculate for each row
                         $node_tablename = determine_node_tablename($row, $child_table);
@@ -278,15 +309,15 @@
                                               $child_table);
                         }
                         else {
-                            my_debug("WARNING don't actually have the parent $this_parent_id"
+                            my_debug(NULL, "WARNING don't actually have the parent $this_parent_id"
                                     ." at all, let alone a children container\n");
-                            my_debug("skipping this node\n");
+                            my_debug(NULL, "skipping this node\n");
                         }
                     }
                     else {
-                        my_debug("WARNING don't have parent_match_val on the parent"
+                        my_debug(NULL, "WARNING don't have parent_match_val on the parent"
                                 ." to connect the child to the parent\n");
-                        my_debug("skipping this node\n");
+                        my_debug(NULL, "skipping this node\n");
                     }
 
                     add_node_to_relationship_lists(
@@ -297,9 +328,9 @@
 
                     $more_children_to_look_for = true;
                 }
-                my_debug("  }\n");
+                my_debug(NULL, "  }\n");
             }
-            my_debug("}\n");
+            my_debug(NULL, "}\n");
         }
 
         if ($more_children_to_look_for) {
@@ -361,7 +392,7 @@
         #              to be nested the other way?
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
 
-            my_debug("starting new relationship $relationship_no: "
+            my_debug(NULL, "starting new relationship $relationship_no: "
                         .print_r($parent_relationship,1)
                         . "{\n");
 
@@ -380,14 +411,14 @@
             # don't even bother if this relationship doesn't hook to this table
             if ($parent_table == $root_table) {
                 foreach ($rows as $row) {
-                    my_debug("adding node ".print_r($row,1));
+                    my_debug(NULL, "adding node ".print_r($row,1));
                     $id = $row[$id_field];
                     if (!$id) {
-                        my_debug("row has no id!  skipping.  here's the row: ".print_r($row,1));
+                        my_debug(NULL, "row has no id!  skipping.  here's the row: ".print_r($row,1));
                         continue;
                     }
 
-                    my_debug("matching_field_on_parent = $matching_field_on_parent\n");
+                    my_debug(NULL, "matching_field_on_parent = $matching_field_on_parent\n");
                     $parent_match_val = $row[$matching_field_on_parent];
 
                     if ($use_relname) { # must calculate for each row
@@ -429,18 +460,18 @@
                         $more_children_to_look_for = true;
                     }
                     else {
-                        my_debug("no parent_match_val for this one, id=$id - skipping\n");
+                        my_debug(NULL, "no parent_match_val for this one, id=$id - skipping\n");
                     }
                 }
             }
 
             $parent_nodes_by_relationship[$relationship_no] = $parent_nodes_this_rel;
 
-            my_debug("}\n");
+            my_debug(NULL, "}\n");
         }
 
         # recursive call
-        #my_debug("about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
+        #my_debug(NULL, "about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
         if ($more_children_to_look_for) {
             add_tree_lev_by_lev(
                 $all_nodes,
@@ -490,7 +521,7 @@
 
 
     { # service the API call
-        my_debug("parent_relationships: " . print_r($parent_relationships,1));
+        my_debug(NULL, "parent_relationships: " . print_r($parent_relationships,1));
 
         $tree = get_tree(
             $root_table, $root_cond, $order_by_limit,
