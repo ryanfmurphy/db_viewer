@@ -173,7 +173,12 @@
                         $arr = DbUtil::pg_array2array($parent_match_val);
                         foreach ($arr as $val) {
                             my_debug('arrays', "    val = $val\n");
-                            $all_children_by_relationship[$rel_no]->{$val} = $child;
+                            if ($val) {
+                                $all_children_by_relationship[$rel_no]->{$val} = $child;
+                            }
+                            else {
+                                my_debug('not truthy, skipping', "    val = $val\n");
+                            }
                         }
                     }
                     else {
@@ -432,49 +437,51 @@
             # don't even bother if this relationship doesn't hook to this table
             # #todo #fixme but this is wrong - we still need to put these nodes in the hashes
             #              for any other relationships that may hinge of these.
-            if ($parent_table == $root_table) {
+            #if ($parent_table == $root_table) {
                 foreach ($rows as $row) {
-                    my_debug(NULL, "adding node ".print_r($row,1));
-                    $id = $row[$id_field];
-                    if (!$id) {
-                        my_debug(NULL, "row has no id!  skipping.  here's the row: ".print_r($row,1));
-                        continue;
-                    }
+                    if ($parent_table == $root_table) {
+                        my_debug(NULL, "adding node ".print_r($row,1));
+                        $id = $row[$id_field];
+                        if (!$id) {
+                            my_debug(NULL, "row has no id!  skipping.  here's the row: ".print_r($row,1));
+                            continue;
+                        }
 
-                    my_debug(NULL, "matching_field_on_parent = $matching_field_on_parent\n");
-                    $parent_match_val = $row[$matching_field_on_parent];
+                        my_debug(NULL, "matching_field_on_parent = $matching_field_on_parent\n");
+                        $parent_match_val = $row[$matching_field_on_parent];
 
-                    if ($use_relname) { # must calculate for each row
-                        $node_tablename = determine_node_tablename($row, $root_table);
-                        $table_color = name_to_rgb($node_tablename);
-                        # still save original connection table
-                        # so front-end can look up id field in its hash
-                        $row['_conn_table'] = $root_table;
-                        $row['_node_color'] = $table_color;
-                    }
+                        if ($use_relname) { # must calculate for each row
+                            $node_tablename = determine_node_tablename($row, $root_table);
+                            $table_color = name_to_rgb($node_tablename);
+                            # still save original connection table
+                            # so front-end can look up id field in its hash
+                            $row['_conn_table'] = $root_table;
+                            $row['_node_color'] = $table_color;
+                        }
 
-                    # get or create node
-                    $row['_node_table'] = $node_tablename;
-                    #$row['_node_color'] = $table_color;
+                        # get or create node
+                        $row['_node_table'] = $node_tablename;
+                        #$row['_node_color'] = $table_color;
 
-                    # make sure 'name' is available
-                    # #todo #fixme #performance - cache these couple of values outside the loop
-                    $row['_node_name'] = DbUtil::get_name_val($root_table, $row);
+                        # make sure 'name' is available
+                        # #todo #fixme #performance - cache these couple of values outside the loop
+                        $row['_node_name'] = DbUtil::get_name_val($root_table, $row);
 
-                    if (isset($all_nodes->{"$root_table:$id"})) {
-                        # need to do anything? all fields should be there.
-                        $tree_view_avoid_recursion = false; #todo #fixme move to Config
-                        if ($tree_view_avoid_recursion) {
-                            $tree_node = (object)$row;
+                        if (isset($all_nodes->{"$root_table:$id"})) {
+                            # need to do anything? all fields should be there.
+                            $tree_view_avoid_recursion = false; #todo #fixme move to Config
+                            if ($tree_view_avoid_recursion) {
+                                $tree_node = (object)$row;
+                            }
+                            else {
+                                $tree_node = $all_nodes->{"$root_table:$id"};
+                            }
                         }
                         else {
-                            $tree_node = $all_nodes->{"$root_table:$id"};
+                            $tree_node = (object)$row;
+                            $root_nodes->{$id} = $tree_node;
+                            $all_nodes->{"$root_table:$id"} = $tree_node;
                         }
-                    }
-                    else {
-                        $tree_node = (object)$row;
-                        $root_nodes->{$id} = $tree_node;
-                        $all_nodes->{"$root_table:$id"} = $tree_node;
                     }
 
                     # we have a parent_match_val so we can actually put it in the array
@@ -493,7 +500,12 @@
                             $arr = DbUtil::pg_array2array($parent_match_val);
                             foreach ($arr as $val) {
                                 my_debug('arrays', "    val = $val\n");
-                                $parent_nodes_this_rel->{$val} = $tree_node;
+                                if ($val) {
+                                    $parent_nodes_this_rel->{$val} = $tree_node;
+                                }
+                                else {
+                                    my_debug('not truthy, skipping', "    val = $val\n");
+                                }
                             }
                         }
                         else {
@@ -507,7 +519,7 @@
                         my_debug(NULL, "no parent_match_val for this one, id=$id - skipping\n");
                     }
                 }
-            }
+            #}
 
             $parent_nodes_by_relationship[$relationship_no] = $parent_nodes_this_rel;
 
