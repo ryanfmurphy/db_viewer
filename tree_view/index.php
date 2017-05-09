@@ -413,15 +413,11 @@ function updateTree(source) {
                     ? d._node_table + '_tbl_color'
                     : null;
             })
-            //.style("stroke", function(d) {
-            //                    return d._node_table
-            //                           && d._node_table in table_info
-            //                                ? table_info[d._node_table].color
-            //                                : 'black';
-            //                    /*return d._node_color
-            //                            ? d._node_color
-            //                            : 'black';*/
-            //                 })
+            .style("stroke", function(d) {
+                                return d._node_color
+                                    ? d._node_color
+                                    : null;
+                             })
             ;
 
     // Transition nodes to their new position.

@@ -215,7 +215,6 @@
 
             if (!$use_relname) { # no need to calculate for each row
                 $node_tablename = $child_table;
-                #$table_color = name_to_rgb($node_tablename);
             }
 
             if (count($parent_vals) > 0) {
@@ -239,10 +238,11 @@
 
                     if ($use_relname) { # must calculate for each row
                         $node_tablename = determine_node_tablename($row, $child_table);
-                        #$table_color = name_to_rgb($node_tablename);
+                        $table_color = name_to_rgb($node_tablename);
                         # still save original connection table
                         # so front-end can look up id field in its hash
                         $row['_conn_table'] = $child_table;
+                        $row['_node_color'] = $table_color;
                     }
 
                     # get or create node
@@ -392,10 +392,11 @@
 
                     if ($use_relname) { # must calculate for each row
                         $node_tablename = determine_node_tablename($row, $root_table);
-                        #$table_color = name_to_rgb($node_tablename);
+                        $table_color = name_to_rgb($node_tablename);
                         # still save original connection table
                         # so front-end can look up id field in its hash
                         $row['_conn_table'] = $root_table;
+                        $row['_node_color'] = $table_color;
                     }
 
                     # get or create node
