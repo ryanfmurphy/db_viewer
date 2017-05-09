@@ -4,8 +4,7 @@
     # 1 per each level per each parent relationship
 
     error_reporting(E_ALL);
-    const DEBUG = false;
-    const DEBUG_SQL = true;
+    const DEBUG_ALL = false;
     const DEBUG_PRE_UNKEYED = false;
     const DEBUG_RESULT = false;
 
@@ -23,7 +22,7 @@
         error_log($msg,3,"$log_path/tree_log");
     }
     function my_debug($category, $msg) {
-        if (DEBUG
+        if (DEBUG_ALL
             || in_array($category, array(
                                         #'fields'
                                    ))
