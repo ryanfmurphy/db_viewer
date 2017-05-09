@@ -31,7 +31,7 @@
             tree_log($msg);
         }
         if (in_array($category, array(
-                                    'arrays', 'sql'
+                                    #'arrays', 'sql'
                                     #'tables_n_fields'
                                 ))
         ) {
