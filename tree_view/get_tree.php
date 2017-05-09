@@ -31,14 +31,12 @@
             tree_log($msg);
         }
         if (in_array($category, array(
+                                    'arrays', 'sql'
                                     #'tables_n_fields'
                                 ))
         ) {
             echo($msg);
         }
-    }
-    function my_debug_sql($msg) {
-        if (DEBUG_SQL) tree_log($msg);
     }
     function encode_response($data) {
         if (DEBUG_RESULT) {
@@ -85,13 +83,15 @@
         return implode(', ', array_keys($fields));
     }
 
+    function field_is_array($field) {
+        return in_array($field,
+                        Config::$config['fields_w_array_type']);
+    }
+
     # get an array of the matching values for a given relationship
     # helps to create the next level SQL query to get the next level of tree nodes
     function get_field_values_for_matching($parent_nodes, $matching_field_on_parent) {
         my_debug(NULL, "  { get_field_values_for_matching\n");
-
-        $parent_field_is_array = in_array($matching_field_on_parent,
-                                          Config::$config['fields_w_array_type']);
 
         $vals = array();
         foreach ($parent_nodes as $node) {
@@ -99,7 +99,9 @@
                     ." '$matching_field_on_parent' field: ".print_r($node,1));
             $field_val = $node->{$matching_field_on_parent};
             if ($field_val) {
-                if ($parent_field_is_array) {
+                # check if the field on the parent is an array
+                # if so, all of these values should go the val_list
+                if (field_is_array($matching_field_on_parent)) {
                     $arr = DbUtil::pg_array2array($field_val);
                     foreach ($arr as $val) {
                         $vals[] = $val;
@@ -128,9 +130,9 @@
             where $parent_field in $parent_val_list
             $order_by_limit
         ";
-        my_debug_sql("sql = {'$sql'}\n");
+        my_debug('sql',"sql = {'$sql'}\n");
         $rows = Db::sql($sql);
-        my_debug_sql("  # rows = ".count($rows)."\n\n");
+        my_debug('sql',"  # rows = ".count($rows)."\n\n");
         return $rows;
     }
 
@@ -142,6 +144,7 @@
         $row, $child, $parent_relationships,
         &$all_children_by_relationship, $table
     ) {
+        my_debug('arrays', "top of add_node_to_relationship_lists...\n");
         # add val to each applicable relationship
         foreach ($parent_relationships as $rel_no => $parent_relationship) {
 
@@ -159,7 +162,25 @@
                     if (!isset($all_children_by_relationship[$rel_no])) {
                         $all_children_by_relationship[$rel_no] = new stdClass();
                     }
-                    $all_children_by_relationship[$rel_no]->{$parent_match_val} = $child;
+
+                    # If that the child is going to try to match to this node
+                    # is an array, then we break up our array right now and
+                    # put the node in under all the different values as keys.
+                    # That way, matching any of them will be fine.
+                    my_debug('arrays', "in add_node_to_relationship_lists... rel_no = $rel_no\n");
+                    my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
+                    if (field_is_array($matching_field_on_parent)) {
+                        my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
+                        $arr = DbUtil::pg_array2array($parent_match_val);
+                        foreach ($arr as $val) {
+                            my_debug('arrays', "    val = $val\n");
+                            $all_children_by_relationship[$rel_no]->{$val} = $child;
+                        }
+                    }
+                    else {
+                        my_debug('arrays', "  it is not, adding it normally\n");
+                        $all_children_by_relationship[$rel_no]->{$parent_match_val} = $child;
+                    }
                 }
                 else {
                     #my_debug(NULL, "no parent_match_val, not adding $row[name] to"
@@ -357,6 +378,7 @@
         $root_table, $root_cond, $order_by_limit=null,
         $parent_relationships, $root_nodes_w_child_only=false
     ) {
+        my_debug('arrays', "top of get_tree...\n");
         $id_mode = Config::$config['id_mode'];
 
         $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
@@ -370,9 +392,9 @@
             where $root_cond
             $order_by_limit
         ";
-        my_debug_sql("root sql = {'$sql'}\n");
+        my_debug('sql',"root sql = {'$sql'}\n");
         $rows = Db::sql($sql);
-        my_debug_sql("  # rows = ".count($rows)."\n\n");
+        my_debug('sql',"  # rows = ".count($rows)."\n\n");
 
         # root nodes to return from this function
         $root_nodes = new stdClass();
@@ -409,6 +431,8 @@
             $parent_nodes_this_rel = new stdClass();
 
             # don't even bother if this relationship doesn't hook to this table
+            # #todo #fixme but this is wrong - we still need to put these nodes in the hashes
+            #              for any other relationships that may hinge of these.
             if ($parent_table == $root_table) {
                 foreach ($rows as $row) {
                     my_debug(NULL, "adding node ".print_r($row,1));
@@ -456,7 +480,28 @@
 
                     # we have a parent_match_val so we can actually put it in the array
                     if ($parent_match_val) {
-                        $parent_nodes_this_rel->{$parent_match_val} = $tree_node;
+                        # #todo #fixme - don't let this stay duplicated
+                        # get_tree should be factored to use add_node...
+                        # ------
+                        # If that the child is going to try to match to this node
+                        # is an array, then we break up our array right now and
+                        # put the node in under all the different values as keys.
+                        # That way, matching any of them will be fine.
+                        my_debug('arrays', "in get_tree... relationship_no = $relationship_no\n");
+                        my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
+                        if (field_is_array($matching_field_on_parent)) {
+                            my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
+                            $arr = DbUtil::pg_array2array($parent_match_val);
+                            foreach ($arr as $val) {
+                                my_debug('arrays', "    val = $val\n");
+                                $parent_nodes_this_rel->{$val} = $tree_node;
+                            }
+                        }
+                        else {
+                            my_debug('arrays', "  it is not, adding it normally\n");
+                            $parent_nodes_this_rel->{$parent_match_val} = $tree_node;
+                        }
+                        #$parent_nodes_this_rel->{$parent_match_val} = $tree_node;
                         $more_children_to_look_for = true;
                     }
                     else {
