@@ -310,9 +310,12 @@
                 openBacklinkedJoin(elem);
             });
 
-            // show_hide_mode toggle
+            // keypress:
+            // textarea ctrl-enter submit
+            // and show_hide_mode toggle
             $(document).on('keypress', 'body', function(e){
                 var focusedElem = document.activeElement;
+                // textarea ctrl-enter submit
                 if (queryBoxElem() === focusedElem) { // Ctrl-Enter
                     var Enter_code = 13;
                     var UNIX_Enter_code = 10;
@@ -326,7 +329,8 @@
                 else if (focusedElem === document.getElementById('save_macro_input')) {
                     // don't interrupt typing in input for Show/Hide mode
                 }
-                else { // show-hide mode
+                // show_hide_mode toggle
+                else {
                     var H_code = 104;
                     if (e.which == H_code) {
                         show_hide_mode = 1 - show_hide_mode;

@@ -563,11 +563,30 @@ function clickNode(d) {
     }
 ?>
 
-id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
+var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
+
+// Nest Mode - some crude UI to help easily nest nodes under other nodes
+
+var nest_mode = false; // false, 'get_id' or 'update_parent_id'
+var id_to_nest_under = null;
+
+document.addEventListener('keypress', function(event){
+    var N_code = 110;
+    if (event.which == N_code) {
+        if (nest_mode == 'update_parent_id') {
+            nest_mode = false;
+            alert('Nest mode disabled');
+        }
+        else if (!nest_mode) {
+            nest_mode = 'get_id';
+            alert('Nest mode: click a node to nest others under it');
+        }
+    }
+});
+
 
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
-
     var table = ('_node_table' in d
                     ? d._node_table
                     : null);
@@ -585,11 +604,34 @@ function clickLabel(d) {
 
     if (table && conn_table) {
         var id_field = id_fields_by_table[conn_table];
-        var url = "<?= $obj_editor_uri ?>"
-                        +"?table="+table
-                        +"&edit=1"
-                        +"&primary_key=" + d[id_field];
-        window.open(url, '_blank');
+        if (nest_mode) {
+            if (nest_mode == 'get_id') {
+                id_to_nest_under = d[id_field];
+                nest_mode = 'update_parent_id';
+                alert('Click other nodes to nest under that one.  N to stop.');
+            }
+           else if (nest_mode == 'update_parent_id') {
+                var primary_key = d[id_field];
+                var where_str = "where_clauses[id]="
+                                + encodeURIComponent(primary_key);
+                var parent_id_field = 'parent_id'; // #todo #fixme variablize
+                var url = "<?= $crud_api_uri ?>"
+                                +"?action=update_entity"
+                                +"&"+where_str
+                                +"&"+parent_id_field+"="
+                                    + encodeURIComponent(id_to_nest_under);
+                console.log(url);
+                window.open(url, '_blank'); // #todo #fixme make AJAX
+            }
+        }
+        // link to obj_editor
+        else {
+            var url = "<?= $obj_editor_uri ?>"
+                            +"?table="+table
+                            +"&edit=1"
+                            +"&primary_key=" + d[id_field];
+            window.open(url, '_blank');
+        }
     }
 }
 
