@@ -253,7 +253,7 @@ function setupTreeWithSize(root) {
     );
 
     // guess how much space the name needs
-    var approx_max_node_width = max_node_strlen * 5.2;
+    var approx_max_node_width = max_node_strlen * 8; //5.2;
 
     var level_width = Math.max(
         approx_max_node_width, defaults.level_width);
@@ -419,6 +419,7 @@ function updateTree(source) {
                             return -10;
                        })
             .attr("dy", ".35em")
+            .style("font-size", "1em")
             .attr("text-anchor", function(d) {
                                     // text justify
                                     /* return d.children || d._children
@@ -434,16 +435,16 @@ function updateTree(source) {
                     ? d._node_table + '_tbl_color'
                     : null;
             })
-            .style("stroke", function(d) {
+            /*.style("stroke", function(d) {
                                 return d._node_color
                                     ? d._node_color
                                     : null;
-                             })
+                             })*/
             ;
 
     // Transition nodes to their new position.
-    var nodeUpdate = node//.transition()
-            //.duration(svg_tree.duration)
+    var nodeUpdate = node.transition()
+            .duration(svg_tree.duration)
             .attr("transform",
                 function(d) {
                     return "translate(" + d.y + "," + d.x + ")";
@@ -464,8 +465,8 @@ function updateTree(source) {
             .style("fill-opacity", 1);
 
     // Transition exiting nodes to the parent's new position.
-    var nodeExit = node .exit()//.transition()
-                        //.duration(svg_tree.duration)
+    var nodeExit = node .exit().transition()
+                        .duration(svg_tree.duration)
                         .attr("transform",
                             function(d) {
                                 return "translate(" + source.y + "," + source.x + ")";
@@ -506,13 +507,13 @@ function updateTree(source) {
                 });
 
     // Transition links to their new position.
-    link//.transition()
-            //.duration(svg_tree.duration)
+    link.transition()
+            .duration(svg_tree.duration)
             .attr("d", diagonal);
 
     // Transition exiting nodes to the parent's new position.
-    link.exit()//.transition()
-            //.duration(svg_tree.duration)
+    link.exit().transition()
+            .duration(svg_tree.duration)
             .attr("d", function(d) {
                 var o = {x: source.x, y: source.y};
                 return diagonal({source: o, target: o});
