@@ -5,8 +5,28 @@
 
     error_reporting(E_ALL);
     const DEBUG_ALL = false;
-    const DEBUG_PRE_UNKEYED = false;
+    const DEBUG_ECHO = false;
+    const DEBUG_PRE_UNKEYED = DEBUG_ECHO;
     const DEBUG_RESULT = false;
+
+    function my_debug($category, $msg) {
+        if (DEBUG_ALL
+            || in_array($category, array(
+                                    'arrays', 'sql', 'rel', 'overview',
+                                        #'fields'
+                                   ))
+        ) {
+            tree_log($msg);
+        }
+        if (DEBUG_ECHO
+            && in_array($category, array(
+                                    #'arrays', 'sql', 'rel', 'overview',
+                                    #'tables_n_fields'
+                                   ))
+        ) {
+            echo($msg);
+        }
+    }
 
     { # init: defines $db, TableView,
         # and Util (if not already present)
@@ -20,22 +40,6 @@
     function tree_log($msg) {
         $log_path = Config::$config['log_path'];
         error_log($msg,3,"$log_path/tree_log");
-    }
-    function my_debug($category, $msg) {
-        if (DEBUG_ALL
-            || in_array($category, array(
-                                        #'fields'
-                                   ))
-        ) {
-            tree_log($msg);
-        }
-        if (in_array($category, array(
-                                    #'arrays', 'sql'
-                                    #'tables_n_fields'
-                                ))
-        ) {
-            echo($msg);
-        }
     }
     function encode_response($data) {
         if (DEBUG_RESULT) {
@@ -233,10 +237,11 @@
         $all_nodes,
         $parent_nodes_by_relationship,
         /*$root_table,*/ $order_by_limit=null,
-        $parent_relationships
+        $parent_relationships,
+        $level = 0
     ) {
-        my_debug(NULL, "starting add_tree_lev_by_lev: parent_nodes = "
-                .print_r($parent_nodes_by_relationship,1));
+        my_debug('overview', "{ top of add_tree_lev_by_lev: level $level, parent_nodes = "
+                            .print_r($parent_nodes_by_relationship,1));
         $id_mode = Config::$config['id_mode'];
 
         $all_children_by_relationship = array();
@@ -248,9 +253,9 @@
         $use_relname = Config::$config['use_relname_for_tree_node_table'];
 
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
-            my_debug(NULL, "starting new relationship $relationship_no: "
-                        .print_r($parent_relationship,1)
-                        . "{\n");
+            my_debug('overview', "starting new relationship $relationship_no: "
+                                .print_r($parent_relationship,1)
+                                . "{\n");
 
             $child_table = $parent_relationship['child_table'];
             $parent_table = $parent_relationship['parent_table'];
@@ -355,15 +360,17 @@
                 }
                 my_debug(NULL, "  }\n");
             }
-            my_debug(NULL, "}\n");
+            my_debug('overview', "}\n");
         }
 
+        my_debug('overview', "} add_tree_lev_by_lev level $level (except for kick off next level)\n");
         if ($more_children_to_look_for) {
             add_tree_lev_by_lev(
                 $all_nodes,
                 $all_children_by_relationship,
                 /*$root_table,*/ $order_by_limit,
-                $parent_relationships
+                $parent_relationships,
+                $level + 1
             );
         }
     }
@@ -382,12 +389,12 @@
         $root_table, $root_cond, $order_by_limit=null,
         $parent_relationships, $root_nodes_w_child_only=false
     ) {
-        my_debug('arrays', "top of get_tree...\n");
+        my_debug('overview', "top of get_tree...\n");
         $id_mode = Config::$config['id_mode'];
 
-        $parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
-        $parent_field = $parent_relationship['parent_field'];
-        $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
+        #$parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
+        #$parent_field = $parent_relationship['parent_field'];
+        #$matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
 
         $fields = field_list($parent_relationships, $root_table);
         $sql = "
@@ -416,40 +423,38 @@
 
         #todo #fixme - does it make more sense for these foreach loops
         #              to be nested the other way?
-        foreach ($parent_relationships as $relationship_no => $parent_relationship) {
+        #foreach ($parent_relationships as $relationship_no => $parent_relationship) {
 
-            my_debug(NULL, "starting new relationship $relationship_no: "
-                        .print_r($parent_relationship,1)
-                        . "{\n");
+            #my_debug(NULL, "starting new relationship $relationship_no: "
+            #            .print_r($parent_relationship,1)
+            #            . "{\n");
 
             $id_field = DbUtil::get_primary_key_field(
                 $id_mode, $root_table
             );
 
-            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
-                                                                     $root_table);
+            #$matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
+            #                                                         $root_table);
 
-            $parent_field = $parent_relationship['parent_field'];
-            $parent_table = $parent_relationship['parent_table'];
+            #$parent_field = $parent_relationship['parent_field'];
+            #$parent_table = $parent_relationship['parent_table'];
 
-            $parent_nodes_this_rel = new stdClass();
+            #$parent_nodes_this_rel = new stdClass();
 
             # don't even bother if this relationship doesn't hook to this table
             # #todo #fixme but this is wrong - we still need to put these nodes in the hashes
             #              for any other relationships that may hinge of these.
-            #if ($parent_table == $root_table) {
-                foreach ($rows as $row) {
-                    if ($parent_table == $root_table) {
-                        my_debug(NULL, "adding node ".print_r($row,1));
-                        $id = $row[$id_field];
-                        if (!$id) {
-                            my_debug(NULL, "row has no id!  skipping.  here's the row: ".print_r($row,1));
-                            continue;
-                        }
+            # actually this is fine ....
+            foreach ($rows as $row) {
+                #if ($parent_table == $root_table) {
+                    my_debug(NULL, "adding node ".print_r($row,1));
+                    $id = $row[$id_field];
+                    if (!$id) {
+                        my_debug(NULL, "row has no id!  skipping.  here's the row: ".print_r($row,1));
+                        continue;
+                    }
 
-                        my_debug(NULL, "matching_field_on_parent = $matching_field_on_parent\n");
-                        $parent_match_val = $row[$matching_field_on_parent];
-
+                    { # populate extra stuff on row so the node will be populated
                         if ($use_relname) { # must calculate for each row
                             $node_tablename = determine_node_tablename($row, $root_table);
                             $table_color = name_to_rgb($node_tablename);
@@ -466,65 +471,87 @@
                         # make sure 'name' is available
                         # #todo #fixme #performance - cache these couple of values outside the loop
                         $row['_node_name'] = DbUtil::get_name_val($root_table, $row);
-
-                        if (isset($all_nodes->{"$root_table:$id"})) {
-                            # need to do anything? all fields should be there.
-                            $tree_view_avoid_recursion = false; #todo #fixme move to Config
-                            if ($tree_view_avoid_recursion) {
-                                $tree_node = (object)$row;
-                            }
-                            else {
-                                $tree_node = $all_nodes->{"$root_table:$id"};
-                            }
-                        }
-                        else {
-                            $tree_node = (object)$row;
-                            $root_nodes->{$id} = $tree_node;
-                            $all_nodes->{"$root_table:$id"} = $tree_node;
-                        }
                     }
 
-                    # we have a parent_match_val so we can actually put it in the array
-                    if ($parent_match_val) {
-                        # #todo #fixme - don't let this stay duplicated
-                        # get_tree should be factored to use add_node...
-                        # ------
-                        # If that the child is going to try to match to this node
-                        # is an array, then we break up our array right now and
-                        # put the node in under all the different values as keys.
-                        # That way, matching any of them will be fine.
-                        my_debug('arrays', "in get_tree... relationship_no = $relationship_no\n");
-                        my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
-                        if (field_is_array($matching_field_on_parent)) {
-                            my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
-                            $arr = DbUtil::pg_array2array($parent_match_val);
-                            foreach ($arr as $val) {
-                                my_debug('arrays', "    val = $val\n");
-                                if ($val) {
-                                    $parent_nodes_this_rel->{$val} = $tree_node;
-                                }
-                                else {
-                                    my_debug('not truthy, skipping', "    val = $val\n");
-                                }
-                            }
+                    if (isset($all_nodes->{"$root_table:$id"})) {
+                        # need to do anything? all fields should be there.
+                        $tree_view_avoid_recursion = false; #todo #fixme move to Config
+                        if ($tree_view_avoid_recursion) {
+                            $tree_node = (object)$row;
                         }
                         else {
-                            my_debug('arrays', "  it is not, adding it normally\n");
-                            $parent_nodes_this_rel->{$parent_match_val} = $tree_node;
+                            $tree_node = $all_nodes->{"$root_table:$id"};
                         }
-                        #$parent_nodes_this_rel->{$parent_match_val} = $tree_node;
-                        $more_children_to_look_for = true;
                     }
                     else {
-                        my_debug(NULL, "no parent_match_val for this one, id=$id - skipping\n");
+                        $tree_node = (object)$row;
+                        $root_nodes->{$id} = $tree_node;
+                        $all_nodes->{"$root_table:$id"} = $tree_node;
                     }
+                #}
+
+                foreach ($parent_relationships as $relationship_no => $parent_relationship) {
+
+                    if (!isset($parent_nodes_by_relationship[$relationship_no])) {
+                        $parent_nodes_by_relationship[$relationship_no] = new stdClass();
+                    }
+                    $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
+                                                                             $root_table);
+                    $parent_table = $parent_relationship['parent_table'];
+
+                    if ($parent_table == $root_table) {
+                        $parent_field = $parent_relationship['parent_field'];
+                        my_debug('rel', "  relationship $relationship_no\n");
+                        my_debug('rel', "    matching_field_on_parent = $matching_field_on_parent\n");
+                        $parent_match_val = $row[$matching_field_on_parent];
+
+                        # we have a parent_match_val so we can actually put it in the array
+                        if ($parent_match_val) {
+                            # #todo #fixme - don't let this stay duplicated
+                            # get_tree should be factored to use add_node...
+                            # ------
+                            # If that the child is going to try to match to this node
+                            # is an array, then we break up our array right now and
+                            # put the node in under all the different values as keys.
+                            # That way, matching any of them will be fine.
+                            my_debug('arrays', "    in get_tree... relationship_no = $relationship_no\n");
+                            my_debug('arrays', "    checking if field '$matching_field_on_parent' is an array\n");
+                            if (field_is_array($matching_field_on_parent)) {
+                                my_debug('arrays', "      it is - deconstructing the array and adding each key\n");
+                                $arr = DbUtil::pg_array2array($parent_match_val);
+                                foreach ($arr as $val) {
+                                    my_debug('arrays', "        val = $val\n");
+                                    if ($val) {
+                                        $parent_nodes_by_relationship[$relationship_no]->{$val} = $tree_node;
+                                    }
+                                    else {
+                                        my_debug('arrays', "      not truthy, skipping\n");
+                                    }
+                                }
+                            }
+                            else {
+                                my_debug('arrays', "      it is not, adding it normally\n");
+                                $parent_nodes_by_relationship[$relationship_no]->{$parent_match_val} = $tree_node;
+                            }
+                            #$parent_nodes_this_rel->{$parent_match_val} = $tree_node;
+                            $more_children_to_look_for = true;
+                        }
+                        else {
+                            my_debug('rel', "no parent_match_val for this one, id=$id - skipping\n");
+                        }
+                    }
+                    else {
+                        my_debug('rel', "    skipping rel $relationship_no because parent_table $parent_table != root_table $root_table\n");
+                    }
+
+                    my_debug(NULL, "}\n");
                 }
-            #}
+            }
 
-            $parent_nodes_by_relationship[$relationship_no] = $parent_nodes_this_rel;
+            #$parent_nodes_by_relationship[$relationship_no] = $parent_nodes_this_rel;
 
-            my_debug(NULL, "}\n");
-        }
+            #my_debug(NULL, "}\n");
+        #}
 
         # recursive call
         #my_debug(NULL, "about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
