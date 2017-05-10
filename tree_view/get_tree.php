@@ -55,7 +55,7 @@
         $id_mode = Config::$config['id_mode'];
         $id_field = DbUtil::get_primary_key_field($id_mode, $table);
         $name_field = DbUtil::get_name_field($table);
-        $fields = array($id_field=>1, $name_field=>1);
+        $fields = array($id_field=>1, $name_field=>1, 'stars'=>1); #todo #fixme
 
         $tables_to_use_relname = Config::$config['use_relname_for_tree_node_table'];
         if (is_array($tables_to_use_relname)

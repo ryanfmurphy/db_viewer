@@ -253,7 +253,7 @@ function setupTreeWithSize(root) {
     );
 
     // guess how much space the name needs
-    var approx_max_node_width = max_node_strlen * 8; //5.2;
+    var approx_max_node_width = max_node_strlen * 9; //5.2;
 
     var level_width = Math.max(
         approx_max_node_width, defaults.level_width);
@@ -419,7 +419,17 @@ function updateTree(source) {
                             return -10;
                        })
             .attr("dy", ".35em")
-            .style("font-size", "1em")
+            .style("font-size", function(d) {
+                if ('stars' in d && d.stars !== null) {
+                    var ems_for_2_stars = 1;
+                    var multiplier = d.stars / 2;
+                    var ems = ems_for_2_stars * multiplier;
+                    return ems.toString() + 'em';
+                }
+                else {
+                    return "1em";
+                }
+            })
             .attr("text-anchor", function(d) {
                                     // text justify
                                     /* return d.children || d._children
@@ -435,11 +445,11 @@ function updateTree(source) {
                     ? d._node_table + '_tbl_color'
                     : null;
             })
-            /*.style("stroke", function(d) {
+            .style("stroke", function(d) {
                                 return d._node_color
                                     ? d._node_color
                                     : null;
-                             })*/
+                             })
             ;
 
     // Transition nodes to their new position.
