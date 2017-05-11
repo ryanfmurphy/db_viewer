@@ -628,6 +628,8 @@ document.addEventListener('keypress', function(event){
 });
 
 
+/*
+// #todo probably don't need this, parent seems to be stored in tree
 function findParent(node, root) {
     console.log('top of findParent: node',node,'root',root);
     if (root === undefined) root = svg_tree.root;
@@ -660,6 +662,7 @@ function findParent(node, root) {
         }
     }
 }
+*/
 
 function removeChildFromNode(node, child) {
     console.log('removeChildFromNode, node=',node,'child=',child);
@@ -698,6 +701,9 @@ function cloneSvgNode(obj) {
 
 function addChildToNode(node, child) {
     // #todo #fixme what if node isn't expanded? _children
+    if (!node.hasOwnProperty('children')) {
+        node.children = [];
+    }
     node.children.push(
         cloneSvgNode(child)
     );
@@ -747,8 +753,7 @@ function clickLabel(d) {
                 var success = function(xhttp) {
                     var r = xhttp.responseText;
                     do_alert('Success. Refresh to see changes.', 'green', 750, true);
-                    var parent = findParent(d);
-                    removeChildFromNode(parent, d);
+                    removeChildFromNode(d.parent, d);
                     addChildToNode(node_to_nest_under, d);
                     //updateTree(svg_tree.root);
                 }
