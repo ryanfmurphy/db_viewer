@@ -11,6 +11,15 @@
                 font-weight: bold;
             }
 
+            #alert {
+                position: fixed;
+                text-align: center;
+                display: none;
+                background: orange;
+                padding: 1em;
+                color: white;
+            }
+
             .node {
                 cursor: pointer;
             }

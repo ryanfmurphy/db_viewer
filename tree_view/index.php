@@ -29,6 +29,7 @@
         $vars_for_edit_link = $requestVars;
         $vars_for_edit_link['edit_vars'] = 1;
 ?>
+            <span id="alert"></span>
             <a id="edit_vars_link"
                href="<?= "?".http_build_query($vars_for_edit_link) ?>"
                target="_blank">
@@ -440,16 +441,16 @@ function updateTree(source) {
             .text(function(d) { return d._node_name; })
             .style("fill-opacity", 1e-6)
             .on("click", clickLabel)
-            .attr("class", function(d) {
+            /*.attr("class", function(d) {
                 return d._node_table
                     ? d._node_table + '_tbl_color'
                     : null;
             })
-            .style("stroke", function(d) {
+            .style("fill", function(d) {
                                 return d._node_color
                                     ? d._node_color
                                     : null;
-                             })
+                             })*/
             ;
 
     // Transition nodes to their new position.
@@ -580,16 +581,29 @@ var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 var nest_mode = false; // false, 'get_id' or 'update_parent_id'
 var id_to_nest_under = null;
 
+function get_alert_elem() {
+    return document.getElementById('alert');
+}
+
+function do_alert(msg) {
+    var alert_elem = get_alert_elem();
+    alert_elem.innerHTML = msg;
+    alert_elem.style.display = 'inline';
+}
+
 document.addEventListener('keypress', function(event){
     var N_code = 110;
     if (event.which == N_code) {
-        if (nest_mode == 'update_parent_id') {
+        if (nest_mode) {
             nest_mode = false;
-            alert('Nest mode disabled');
+            do_alert('Nest mode disabled');
+            setTimeout(function(){
+                get_alert_elem().style.display = 'none';
+            }, 1500);
         }
         else if (!nest_mode) {
             nest_mode = 'get_id';
-            alert('Nest mode: click a node to nest others under it');
+            do_alert('Nest mode: click a node to nest others under it');
         }
     }
 });
@@ -618,7 +632,7 @@ function clickLabel(d) {
             if (nest_mode == 'get_id') {
                 id_to_nest_under = d[id_field];
                 nest_mode = 'update_parent_id';
-                alert('Click other nodes to nest under that one.  N to stop.');
+                do_alert('Click other nodes to nest under that one.  N to stop.');
             }
            else if (nest_mode == 'update_parent_id') {
                 var primary_key = d[id_field];
