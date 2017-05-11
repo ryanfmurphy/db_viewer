@@ -582,34 +582,48 @@ var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
 // Nest Mode - some crude UI to help easily nest nodes under other nodes
 
-var nest_mode = false; // false, 'get_id' or 'update_parent_id'
-var node_to_nest_under = null;
-var id_to_nest_under = null;
+var nest_mode = false;
+//var node_to_nest_under = null;
+//var id_to_nest_under = null;
+var node_to_move = null;
 
 function get_alert_elem() {
     return document.getElementById('alert');
 }
 
-function do_alert(msg, color, timeout, restore_prev_after_timeout) {
+function do_alert(msg, color) {
     var alert_elem = get_alert_elem();
-    if (restore_prev_after_timeout) {
-        var prev_elem = {
-            msg: alert_elem.innerHTML,
-            color: alert_elem.style.background
-        };
-    }
     alert_elem.innerHTML = msg;
     alert_elem.style.display = 'inline';
     alert_elem.style.background = color;
-    if (timeout) {
-        setTimeout(function(){
-            if (restore_prev_after_timeout) {
-                do_alert(prev_elem.msg, prev_elem.color);
-            }
-            else {
-                get_alert_elem().style.display = 'none';
-            }
-        }, timeout);
+}
+
+function doNestModeAlert(mode) {
+    if (nest_mode === 'click_node_to_move') {
+        do_alert('Nest mode: click a node to move, or N to stop', 'orange');
+    }
+    else if (nest_mode === 'click_new_parent') {
+        do_alert('Click another node to move this node under that one, or N to stop', 'purple');
+    }
+    else if (nest_mode === 'success') {
+        do_alert('Success. Refresh to see changes.', 'green');
+        nest_mode = 'click_node_to_move';
+        setTimeout(function() {
+            doNestModeAlert(nest_mode);
+        }, 750);
+    }
+    else if (nest_mode === 'error') {
+        do_alert("Something went wrong", 'red');
+        nest_mode = false;
+        setTimeout(function() {
+            doNestModeAlert(nest_mode);
+        }, 1500);
+    }
+    else if (nest_mode === false) {
+        do_alert('Nest mode disabled', 'blue');
+        setTimeout(function() {
+            get_alert_elem().style.display = 'none';
+        }, 1500);
     }
 }
 
@@ -618,51 +632,14 @@ document.addEventListener('keypress', function(event){
     if (event.which == N_code) {
         if (nest_mode) {
             nest_mode = false;
-            do_alert('Nest mode disabled', 'blue', 1500);
+            doNestModeAlert(nest_mode);
         }
         else if (!nest_mode) {
-            nest_mode = 'get_id';
-            do_alert('Nest mode: click a node to nest others under it', 'orange');
+            nest_mode = 'click_node_to_move';
+            doNestModeAlert(nest_mode);
         }
     }
 });
-
-
-/*
-// #todo probably don't need this, parent seems to be stored in tree
-function findParent(node, root) {
-    console.log('top of findParent: node',node,'root',root);
-    if (root === undefined) root = svg_tree.root;
-    var keys = ['children','_children'];
-    for (var k=0; k < keys.length; k++) {
-        //console.log('  testing key',key);
-        var key = keys[k];
-        if (key in root) {
-            //console.log('  found key',key,'in node');
-            var children = root[key];
-            for (var i=0; i < children.length; i++) {
-                var child = children[i];
-                //console.log('comparing',child,'with',node);
-                if (child === node) {
-                    //console.log('one and the same!');
-                    return root;
-                }
-                else {
-                    //console.log('not the same, trying within child');
-                    var found_node = findParent(node, child);
-                    if (found_node) {
-                        //console.log('found within the child!');
-                        return found_node;
-                    }
-                    else {
-                        //console.log('did not find within the child');
-                    }
-                }
-            }
-        }
-    }
-}
-*/
 
 function removeChildFromNode(node, child) {
     console.log('removeChildFromNode, node=',node,'child=',child);
@@ -730,16 +707,15 @@ function clickLabel(d) {
     if (table && conn_table) {
         var id_field = id_fields_by_table[conn_table];
         if (nest_mode) {
-            if (nest_mode == 'get_id') {
-                node_to_nest_under = d;
-                id_to_nest_under = d[id_field];
-                nest_mode = 'update_parent_id';
-                do_alert('Click other nodes to nest under that one.  N to stop.', 'brown');
+            if (nest_mode == 'click_node_to_move') {
+                node_to_move = d;
+                nest_mode = 'click_new_parent';
+                doNestModeAlert(nest_mode);
             }
-           else if (nest_mode == 'update_parent_id') {
-                var primary_key = d[id_field];
-                var where_str = "where_clauses[id]="
-                                + encodeURIComponent(primary_key);
+            else if (nest_mode == 'click_new_parent') {
+                // node_to_move var is already populated
+                var new_parent = d;
+                var primary_key = node_to_move[id_field];
                 var parent_id_field = 'parent_id'; // #todo #fixme variablize
 
                 var url = "<?= $crud_api_uri ?>";
@@ -749,17 +725,19 @@ function clickLabel(d) {
                         id: primary_key
                     },
                 };
-                data[parent_id_field] = id_to_nest_under;
+                data[parent_id_field] = new_parent[id_field];
                 var success = function(xhttp) {
                     var r = xhttp.responseText;
-                    do_alert('Success. Refresh to see changes.', 'green', 750, true);
-                    removeChildFromNode(d.parent, d);
-                    addChildToNode(node_to_nest_under, d);
-                    //updateTree(svg_tree.root);
+                    nest_mode = 'success';
+                    doNestModeAlert(nest_mode);
+                    console.log('removing child');
+                    removeChildFromNode(node_to_move.parent, node_to_move);
+                    addChildToNode(new_parent, node_to_move);
                 }
                 var error = function(xhttp) {
                     var r = xhttp.responseText;
-                    do_alert("Something went wrong", 'red', 1500);
+                    nest_mode = 'error'
+                    doNestModeAlert(nest_mode);
                 }
                 doAjax("POST", url, data, success, error);
             }
