@@ -245,7 +245,7 @@ function getMaxNodeStrlen(node, name_cutoff, strlen_fn) {
 function setupTreeWithSize(root) {
     var num_nodes_updown = numNodesInLargestLevel(root);
     var height = Math.max(
-        num_nodes_updown * 15,
+        num_nodes_updown * 18,
         defaults.height
     );
     var width = undefined; // 2000;
@@ -414,6 +414,7 @@ function updateTree(source) {
             )
             .on("click", clickNode);
 
+    var vary_node_colors = <?= (int)Config::$config['vary_node_colors']; ?>;
     nodeEnter.append("text")
             .attr("x", function(d) {
                             // where the text goes
@@ -445,16 +446,16 @@ function updateTree(source) {
             .text(function(d) { return d._node_name; })
             .style("fill-opacity", 1e-6)
             .on("click", clickLabel)
-            /*.attr("class", function(d) {
-                return d._node_table
+            .attr("class", function(d) {
+                return d._node_table && vary_node_colors
                     ? d._node_table + '_tbl_color'
                     : null;
             })
             .style("fill", function(d) {
-                                return d._node_color
-                                    ? d._node_color
-                                    : null;
-                             })*/
+                return d._node_color && vary_node_colors
+                    ? d._node_color
+                    : null;
+            })
             ;
 
     // Transition nodes to their new position.

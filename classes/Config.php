@@ -155,8 +155,11 @@ class Config {
             'default_parent_field',
             'load_d3_via_cdn',
             'start_w_tree_fully_expanded',
+            'vary_node_colors',
             # may be a bool or a list of tables
             'use_relname_for_tree_node_table',
+            # stars field can made node text bigger or smaller
+            'use_stars_for_node_size',
             # the field that will be considered the
             # "name" or display field e.g. for trees
             # ('name' by default)
@@ -359,8 +362,19 @@ class Config {
             'default_parent_field' => 'parent_id',
             'load_d3_via_cdn' => false,
             'start_w_tree_fully_expanded' => false,
+            'vary_node_colors' => true,
             # may be a bool or a list of tables
             'use_relname_for_tree_node_table' => false,
+            # stars field can made node text bigger or smaller
+            'use_stars_for_node_size' => false,
+            # the field that will be considered the
+            # "name" or display field e.g. for trees
+            # ('name' by default)
+            'name_fields_by_table' => array(),
+            # filter fn: in case you need to strip_tags or something
+            'name_field_filter_fn_by_table' => array(),
+            # exceptions to your id_mode primary_key scheme go here:
+            'primary_key_fields_by_table' => array(),
 
             # mobile_travel_mode: when you save your locally-saved rows
             # also save a JSON file on the server of the rows,
