@@ -87,6 +87,10 @@
 ?>
         <script>
 
+<?php
+    require_once("$trunk/js/ajax.js");
+?>
+
 var table_info = <?= json_encode($table_info) ?>;
 
 var svg_tree = {
@@ -585,10 +589,27 @@ function get_alert_elem() {
     return document.getElementById('alert');
 }
 
-function do_alert(msg) {
+function do_alert(msg, color, timeout, restore_prev_after_timeout) {
     var alert_elem = get_alert_elem();
+    if (restore_prev_after_timeout) {
+        var prev_elem = {
+            msg: alert_elem.innerHTML,
+            color: alert_elem.style.background
+        };
+    }
     alert_elem.innerHTML = msg;
     alert_elem.style.display = 'inline';
+    alert_elem.style.background = color;
+    if (timeout) {
+        setTimeout(function(){
+            if (restore_prev_after_timeout) {
+                do_alert(prev_elem.msg, prev_elem.color);
+            }
+            else {
+                get_alert_elem().style.display = 'none';
+            }
+        }, timeout);
+    }
 }
 
 document.addEventListener('keypress', function(event){
@@ -596,14 +617,11 @@ document.addEventListener('keypress', function(event){
     if (event.which == N_code) {
         if (nest_mode) {
             nest_mode = false;
-            do_alert('Nest mode disabled');
-            setTimeout(function(){
-                get_alert_elem().style.display = 'none';
-            }, 1500);
+            do_alert('Nest mode disabled', 'blue', 1500);
         }
         else if (!nest_mode) {
             nest_mode = 'get_id';
-            do_alert('Nest mode: click a node to nest others under it');
+            do_alert('Nest mode: click a node to nest others under it', 'orange');
         }
     }
 });
@@ -632,20 +650,31 @@ function clickLabel(d) {
             if (nest_mode == 'get_id') {
                 id_to_nest_under = d[id_field];
                 nest_mode = 'update_parent_id';
-                do_alert('Click other nodes to nest under that one.  N to stop.');
+                do_alert('Click other nodes to nest under that one.  N to stop.', 'brown');
             }
            else if (nest_mode == 'update_parent_id') {
                 var primary_key = d[id_field];
                 var where_str = "where_clauses[id]="
                                 + encodeURIComponent(primary_key);
                 var parent_id_field = 'parent_id'; // #todo #fixme variablize
-                var url = "<?= $crud_api_uri ?>"
-                                +"?action=update_entity"
-                                +"&"+where_str
-                                +"&"+parent_id_field+"="
-                                    + encodeURIComponent(id_to_nest_under);
-                console.log(url);
-                window.open(url, '_blank'); // #todo #fixme make AJAX
+
+                var url = "<?= $crud_api_uri ?>";
+                var data = {
+                    action: 'update_entity',
+                    where_clauses: {
+                        id: primary_key
+                    },
+                };
+                data[parent_id_field] = id_to_nest_under;
+                var success = function(xhttp) {
+                    var r = xhttp.responseText;
+                    do_alert('Success. Refresh to see changes.', 'green', 750, true);
+                }
+                var error = function(xhttp) {
+                    var r = xhttp.responseText;
+                    do_alert("Something went wrong", 'red', 1500);
+                }
+                doAjax("POST", url, data, success, error);
             }
         }
         // link to obj_editor

@@ -457,7 +457,7 @@
                 console.log('saving stored_rows with deletions', remaining_stored_rows);
                 saveStoredRowsLocal(remaining_stored_rows);
 
-                saveJsonDumpOfStoredRows();
+                //saveJsonDumpOfStoredRows();
             }
             else {
                 alert('No rows to save');
