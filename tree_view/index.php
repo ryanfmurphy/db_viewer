@@ -303,7 +303,7 @@ function createTree() {
             if (error) throw error;
 
             // #todo should this set the root on the svg_tree?
-            root = flare;
+            root = svg_tree.root = flare;
 
             setupTreeWithSize(root);
             root.x0 = svg_tree.height / 2;
@@ -583,6 +583,7 @@ var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 // Nest Mode - some crude UI to help easily nest nodes under other nodes
 
 var nest_mode = false; // false, 'get_id' or 'update_parent_id'
+var node_to_nest_under = null;
 var id_to_nest_under = null;
 
 function get_alert_elem() {
@@ -627,6 +628,82 @@ document.addEventListener('keypress', function(event){
 });
 
 
+function findParent(node, root) {
+    console.log('top of findParent: node',node,'root',root);
+    if (root === undefined) root = svg_tree.root;
+    var keys = ['children','_children'];
+    for (var k=0; k < keys.length; k++) {
+        //console.log('  testing key',key);
+        var key = keys[k];
+        if (key in root) {
+            //console.log('  found key',key,'in node');
+            var children = root[key];
+            for (var i=0; i < children.length; i++) {
+                var child = children[i];
+                //console.log('comparing',child,'with',node);
+                if (child === node) {
+                    //console.log('one and the same!');
+                    return root;
+                }
+                else {
+                    //console.log('not the same, trying within child');
+                    var found_node = findParent(node, child);
+                    if (found_node) {
+                        //console.log('found within the child!');
+                        return found_node;
+                    }
+                    else {
+                        //console.log('did not find within the child');
+                    }
+                }
+            }
+        }
+    }
+}
+
+function removeChildFromNode(node, child) {
+    console.log('removeChildFromNode, node=',node,'child=',child);
+    var keys = ['children','_children'];
+    for (var k=0; k < keys.length; k++) {
+        var key = keys[k];
+        if (key in node) {
+            var children = node[key];
+            for (var i = children.length - 1; i >= 0; i--) {
+                console.log('checking child',i);
+                var this_child = children[i];
+                console.log('child=',child);
+                if (child === this_child) {
+                    console.log('deleting children['+i+']');
+                    children.splice(i,1);
+                    return node;
+                }
+            }
+        }
+    }
+    updateTree(node);
+}
+
+function cloneSvgNode(obj) {
+    var obj2 = {};
+    for (var k in obj) {
+        if (k != 'svg_node_id'
+            && obj.hasOwnProperty(k)
+        ) {
+            obj2[k] = obj[k];
+        }
+    }
+    console.log('obj2',obj2);
+    return obj2;
+}
+
+function addChildToNode(node, child) {
+    // #todo #fixme what if node isn't expanded? _children
+    node.children.push(
+        cloneSvgNode(child)
+    );
+    updateTree(node);
+}
+
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
     var table = ('_node_table' in d
@@ -648,6 +725,7 @@ function clickLabel(d) {
         var id_field = id_fields_by_table[conn_table];
         if (nest_mode) {
             if (nest_mode == 'get_id') {
+                node_to_nest_under = d;
                 id_to_nest_under = d[id_field];
                 nest_mode = 'update_parent_id';
                 do_alert('Click other nodes to nest under that one.  N to stop.', 'brown');
@@ -669,6 +747,10 @@ function clickLabel(d) {
                 var success = function(xhttp) {
                     var r = xhttp.responseText;
                     do_alert('Success. Refresh to see changes.', 'green', 750, true);
+                    var parent = findParent(d);
+                    removeChildFromNode(parent, d);
+                    addChildToNode(node_to_nest_under, d);
+                    //updateTree(svg_tree.root);
                 }
                 var error = function(xhttp) {
                     var r = xhttp.responseText;
