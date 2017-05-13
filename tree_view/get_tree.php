@@ -268,7 +268,7 @@
     function add_tree_lev_by_lev(
         $all_nodes,
         $parent_nodes_by_relationship,
-        /*$root_table,*/ $order_by_limit=null,
+        $order_by_limit=null,
         $parent_relationships,
         $level = 0
     ) {
@@ -282,7 +282,6 @@
         }
 
         $more_children_to_look_for = false;
-        #$use_relname = Config::$config['use_relname_for_tree_node_table'];
 
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
             my_debug('overview', "starting new relationship $relationship_no: "
@@ -303,10 +302,6 @@
             $parent_nodes = $parent_nodes_by_relationship[$relationship_no];
             $parent_vals = get_field_values_for_matching($parent_nodes,
                                                          $matching_field_on_parent);
-
-            #if (!$use_relname) { # no need to calculate for each row
-            #    $node_tablename = $child_table;
-            #}
 
             if (count($parent_vals) > 0) {
                 $rows = get_next_level_of_children(
@@ -439,10 +434,6 @@
             $parent_nodes_by_relationship[$rel_no] = new stdClass();
         }
 
-        # don't even bother if this relationship doesn't hook to this table
-        # #todo #fixme but this is wrong - we still need to put these nodes in the hashes
-        #              for any other relationships that may hinge of these.
-        # actually this is fine ....
         foreach ($rows as $row) {
             #if ($parent_table == $root_table)
             my_debug(NULL, "adding node ".print_r($row,1));
