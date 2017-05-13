@@ -325,8 +325,11 @@
                                             : null;
 
                     {
-                        add_node_metadata_to_row($row, $child_table);
+                        add_node_metadata_to_row(/*&*/$row, $child_table);
 
+                        $child = get_or_create_node($row, $child_table, $id,
+                                               /*&*/$all_nodes);
+                        /*
                         if (isset($all_nodes->{"$child_table:$id"})) {
                             # need to do anything? all fields should be there.
                             $tree_view_avoid_recursion = false; #todo #fixme move to Config
@@ -341,6 +344,7 @@
                             $child = (object)$row;
                             $all_nodes->{"$child_table:$id"} = $child;
                         }
+                        */
                     }
 
                     if ($parent_match_val) {
@@ -399,6 +403,31 @@
         return $matching_field_on_parent;
     }
 
+    # Check if the node exists already in the hash
+    # and if so return it, otherwise create the object.
+    # Populate $all_nodes, and, if passed in, $root_nodes
+    # Does not modify $row array, by reference for #performance
+    function get_or_create_node(&$row, $table, $id, &$all_nodes, &$root_nodes = null) {
+        if (isset($all_nodes->{"$table:$id"})) {
+            # need to do anything? all fields should be there.
+            $tree_view_avoid_recursion = false; #todo #fixme move to Config
+            if ($tree_view_avoid_recursion) {
+                $tree_node = (object)$row;
+            }
+            else {
+                $tree_node = $all_nodes->{"$table:$id"};
+            }
+        }
+        else {
+            $tree_node = (object)$row;
+            if ($root_nodes !== null) {
+                $root_nodes->{$id} = $tree_node;
+            }
+            $all_nodes->{"$table:$id"} = $tree_node;
+        }
+        return $tree_node;
+    }
+
     function get_tree(
         $root_table, $root_cond, $order_by_limit=null,
         $parent_relationships, $root_nodes_w_child_only=false
@@ -435,7 +464,6 @@
         }
 
         foreach ($rows as $row) {
-            #if ($parent_table == $root_table)
             my_debug(NULL, "adding node ".print_r($row,1));
             $id = $row[$id_field];
             if (!$id) {
@@ -444,8 +472,11 @@
             }
 
             {
-                add_node_metadata_to_row($row, $root_table);
+                add_node_metadata_to_row(/*&*/$row, $root_table);
 
+                $tree_node = get_or_create_node($row, $root_table, $id,
+                                           /*&*/$all_nodes, /*&*/$root_nodes);
+                /*
                 if (isset($all_nodes->{"$root_table:$id"})) {
                     # need to do anything? all fields should be there.
                     $tree_view_avoid_recursion = false; #todo #fixme move to Config
@@ -461,6 +492,7 @@
                     $root_nodes->{$id} = $tree_node;
                     $all_nodes->{"$root_table:$id"} = $tree_node;
                 }
+                */
             }
 
             add_node_to_relationship_lists(
