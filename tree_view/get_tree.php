@@ -126,7 +126,8 @@
 
     # SQL query to get children for next level
     function get_next_level_of_children(
-        $parent_vals, $fields, $parent_field, $table, $order_by_limit
+        $parent_vals, $fields, $parent_field,
+        $table, $order_by_limit, $where_cond
     ) {
         my_debug(NULL, "about to make val_list for query.".
                 "  parent_ids = ".print_r($parent_vals,1));
@@ -136,6 +137,9 @@
             select $fields
             from $table
             where $parent_field in $parent_val_list
+        " . ($where_cond
+                ? " and $where_cond "
+                : null) . "
             $order_by_limit
         ";
         my_debug('sql',"sql = {'$sql'}\n");
@@ -272,8 +276,8 @@
     # * Call add_tree_lev_by_lev() to add the next level
     #   and keep recursively adding the remaining levels.
     function get_tree(
-        $root_table, $root_cond, $order_by_limit=null,
-        $parent_relationships, $root_nodes_w_child_only=false
+        $root_table, $root_cond, $parent_relationships,
+        $order_by_limit=null, $root_nodes_w_child_only=false
     ) {
         my_debug('overview', "top of get_tree...\n");
 
@@ -362,7 +366,8 @@
         $parent_nodes_by_relationship,
         $parent_relationships,
         $order_by_limit=null,
-        $level = 0
+        $level = 0,
+        $where_cond = null
     ) {
         my_debug('overview', "{ top of add_tree_lev_by_lev: level $level,"
                             ." parent_nodes = ".print_r(
@@ -400,7 +405,7 @@
             if (count($parent_vals) > 0) {
                 $rows = get_next_level_of_children(
                     $parent_vals, $fields, $parent_field,
-                    $child_table, $order_by_limit
+                    $child_table, $order_by_limit, $where_cond
                 );
 
                 # the parent_node already has the children
@@ -464,7 +469,8 @@
                 $all_children_by_relationship,
                 $parent_relationships,
                 $order_by_limit,
-                $level + 1
+                $level + 1,
+                $where_cond
             );
         }
     }
@@ -533,8 +539,8 @@
         my_debug(NULL, "parent_relationships: " . print_r($parent_relationships,1));
 
         $tree = get_tree(
-            $root_table, $root_cond, $order_by_limit,
-            $parent_relationships, $root_nodes_w_child_only
+            $root_table, $root_cond, $parent_relationships,
+            $order_by_limit, $root_nodes_w_child_only
         );
         if (DEBUG_PRE_UNKEYED) {
             die(print_r($tree,1));
