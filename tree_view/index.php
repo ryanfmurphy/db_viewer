@@ -279,6 +279,7 @@ function treeDataUrl() {
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
                 +"&root_nodes_w_child_only=<?= urlencode($root_nodes_w_child_only) ?>"
                 +"&name_cutoff=<?= urlencode($name_cutoff) ?>"
+                +"&use_stars_for_node_size=<?= urlencode($use_stars_for_node_size) ?>"
 <?php
     foreach ($parent_relationships as $i => $parent_relationship) {
         $parent_field = urlencode($parent_relationship['parent_field']);
