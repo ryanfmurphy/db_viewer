@@ -248,6 +248,9 @@
             $table_color = name_to_rgb($node_tablename);
             $row['_node_color'] = $table_color;
         }
+        else {
+            $node_tablename = $table;
+        }
 
         # get or create node
         $row['_node_table'] = $node_tablename;
