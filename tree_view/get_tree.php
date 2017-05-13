@@ -155,50 +155,53 @@
         # add val to each applicable relationship
         foreach ($parent_relationships as $rel_no => $parent_relationship) {
 
-            # only add this child to the relationships w the same table
-            if ($parent_relationship['parent_table'] == $table) {
                 $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
                                                                          $table);
-                $parent_match_val = $row[$matching_field_on_parent];
 
-                if ($parent_match_val) {
-                    #my_debug(NULL, "adding $row[name] to children_this_rel->'$parent_match_val',"
-                    #        ." relationship_no = $rel_no\n");
+                # only add this child to the relationships w the same table
+                if ($parent_relationship['parent_table'] == $table) {
+                    #$parent_field = $parent_relationship['parent_field'];
+                    $parent_match_val = $row[$matching_field_on_parent];
 
-                    # detructively modify $add_children_by_relationship
-                    if (!isset($all_parents_by_relationship[$rel_no])) {
-                        $all_parents_by_relationship[$rel_no] = new stdClass();
-                    }
+                    # we have a parent_match_val so we can actually put it in the array
+                    if ($parent_match_val) {
+                        #my_debug(NULL, "adding $row[name] to children_this_rel->'$parent_match_val',"
+                        #        ." relationship_no = $rel_no\n");
 
-                    # If that the child is going to try to match to this node
-                    # is an array, then we break up our array right now and
-                    # put the node in under all the different values as keys.
-                    # That way, matching any of them will be fine.
-                    my_debug('arrays', "in add_node_to_relationship_lists... rel_no = $rel_no\n");
-                    my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
-                    if (field_is_array($matching_field_on_parent)) {
-                        my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
-                        $arr = DbUtil::pg_array2array($parent_match_val);
-                        foreach ($arr as $val) {
-                            my_debug('arrays', "    val = $val\n");
-                            if ($val) {
-                                $all_parents_by_relationship[$rel_no]->{$val} = $parent;
+                        # detructively modify $add_children_by_relationship
+                        if (!isset($all_parents_by_relationship[$rel_no])) {
+                            $all_parents_by_relationship[$rel_no] = new stdClass();
+                        }
+
+                        # If that the child is going to try to match to this node
+                        # is an array, then we break up our array right now and
+                        # put the node in under all the different values as keys.
+                        # That way, matching any of them will be fine.
+                        my_debug('arrays', "in add_node_to_relationship_lists... rel_no = $rel_no\n");
+                        my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
+                        if (field_is_array($matching_field_on_parent)) {
+                            my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
+                            $arr = DbUtil::pg_array2array($parent_match_val);
+                            foreach ($arr as $val) {
+                                my_debug('arrays', "    val = $val\n");
+                                if ($val) {
+                                    $all_parents_by_relationship[$rel_no]->{$val} = $parent;
+                                }
+                                else {
+                                    my_debug('not truthy, skipping', "    val = $val\n");
+                                }
                             }
-                            else {
-                                my_debug('not truthy, skipping', "    val = $val\n");
-                            }
+                        }
+                        else {
+                            my_debug('arrays', "  it is not, adding it normally\n");
+                            $all_parents_by_relationship[$rel_no]->{$parent_match_val} = $parent;
                         }
                     }
                     else {
-                        my_debug('arrays', "  it is not, adding it normally\n");
-                        $all_parents_by_relationship[$rel_no]->{$parent_match_val} = $parent;
+                        #my_debug(NULL, "no parent_match_val, not adding $row[name] to"
+                        #    ." children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
                     }
                 }
-                else {
-                    #my_debug(NULL, "no parent_match_val, not adding $row[name] to"
-                    #    ." children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
-                }
-            }
         }
     }
 
@@ -469,62 +472,12 @@
                 }
             }
 
-            foreach ($parent_relationships as $rel_no => $parent_relationship) {
+            add_node_to_relationship_lists(
+                $row, $tree_node, $parent_relationships,
+                $parent_nodes_by_relationship, $root_table
+            );
 
-                #if (!isset($parent_nodes_by_relationship[$rel_no])) {
-                #    $parent_nodes_by_relationship[$rel_no] = new stdClass();
-                #}
-                $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
-                                                                         $root_table);
-                $parent_table = $parent_relationship['parent_table'];
-
-                if ($parent_table == $root_table) {
-                    $parent_field = $parent_relationship['parent_field'];
-                    my_debug('rel', "  relationship $rel_no\n");
-                    my_debug('rel', "    matching_field_on_parent = $matching_field_on_parent\n");
-                    $parent_match_val = $row[$matching_field_on_parent];
-
-                    # we have a parent_match_val so we can actually put it in the array
-                    if ($parent_match_val) {
-                        # #todo #fixme - don't let this stay duplicated
-                        # get_tree should be factored to use add_node...
-                        # ------
-                        # If that the child is going to try to match to this node
-                        # is an array, then we break up our array right now and
-                        # put the node in under all the different values as keys.
-                        # That way, matching any of them will be fine.
-                        my_debug('arrays', "    in get_tree... rel_no = $rel_no\n");
-                        my_debug('arrays', "    checking if field '$matching_field_on_parent' is an array\n");
-                        if (field_is_array($matching_field_on_parent)) {
-                            my_debug('arrays', "      it is - deconstructing the array and adding each key\n");
-                            $arr = DbUtil::pg_array2array($parent_match_val);
-                            foreach ($arr as $val) {
-                                my_debug('arrays', "        val = $val\n");
-                                if ($val) {
-                                    $parent_nodes_by_relationship[$rel_no]->{$val} = $tree_node;
-                                }
-                                else {
-                                    my_debug('arrays', "      not truthy, skipping\n");
-                                }
-                            }
-                        }
-                        else {
-                            my_debug('arrays', "      it is not, adding it normally\n");
-                            $parent_nodes_by_relationship[$rel_no]->{$parent_match_val} = $tree_node;
-                        }
-                        #$parent_nodes_this_rel->{$parent_match_val} = $tree_node;
-                        $more_children_to_look_for = true;
-                    }
-                    else {
-                        my_debug('rel', "no parent_match_val for this one, id=$id - skipping\n");
-                    }
-                }
-                else {
-                    my_debug('rel', "    skipping rel $rel_no because parent_table $parent_table != root_table $root_table\n");
-                }
-
-                my_debug(NULL, "}\n");
-            }
+            $more_children_to_look_for = true;
         }
 
         # recursive call
