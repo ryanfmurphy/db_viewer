@@ -272,8 +272,10 @@
         $parent_relationships,
         $level = 0
     ) {
-        my_debug('overview', "{ top of add_tree_lev_by_lev: level $level, parent_nodes = "
-                            .print_r($parent_nodes_by_relationship,1));
+        my_debug('overview', "{ top of add_tree_lev_by_lev: level $level,"
+                            ." parent_nodes = ".print_r(
+                                $parent_nodes_by_relationship,1
+                            ));
         $id_mode = Config::$config['id_mode'];
 
         $all_children_by_relationship = array();
@@ -290,10 +292,10 @@
 
             $child_table = $parent_relationship['child_table'];
             $parent_table = $parent_relationship['parent_table'];
-            my_debug('tables_n_fields', "this relationship, child_table='$child_table', parent_table='$parent_table'\n");
+            my_debug('tables_n_fields', "this relationship,"
+                ." child_table='$child_table', parent_table='$parent_table'\n");
             $fields = field_list($parent_relationships, $child_table);
             my_debug('tables_n_fields', "fields = $fields\n");
-            #print_r($fields);
 
             $parent_field = $parent_relationship['parent_field'];
             $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
@@ -313,7 +315,8 @@
                 # (which are about to be parents)
                 # that are in the parent_id_list
                 my_debug(NULL, "  starting loop thru rows, {\n");
-                my_debug('tables_n_fields', "matching_field_on_parent = $matching_field_on_parent\n");
+                my_debug('tables_n_fields', "matching_field_on_parent = "
+                                            ."$matching_field_on_parent\n");
                 foreach ($rows as $row) {
                     $this_parent_id = $row[$parent_field];
                     $id_field = DbUtil::get_primary_key_field(
@@ -324,28 +327,9 @@
                                             ? $row[$matching_field_on_parent]
                                             : null;
 
-                    {
-                        add_node_metadata_to_row(/*&*/$row, $child_table);
-
-                        $child = get_or_create_node($row, $child_table, $id,
-                                               /*&*/$all_nodes);
-                        /*
-                        if (isset($all_nodes->{"$child_table:$id"})) {
-                            # need to do anything? all fields should be there.
-                            $tree_view_avoid_recursion = false; #todo #fixme move to Config
-                            if ($tree_view_avoid_recursion) {
-                                $child = (object)$row;
-                            }
-                            else {
-                                $child = $all_nodes->{"$child_table:$id"};
-                            }
-                        }
-                        else {
-                            $child = (object)$row;
-                            $all_nodes->{"$child_table:$id"} = $child;
-                        }
-                        */
-                    }
+                    add_node_metadata_to_row(/*&*/$row, $child_table);
+                    $child = get_or_create_node($row, $child_table, $id,
+                                           /*&*/$all_nodes);
 
                     if ($parent_match_val) {
                         # parent SHOULD exist...
@@ -386,7 +370,7 @@
             add_tree_lev_by_lev(
                 $all_nodes,
                 $all_children_by_relationship,
-                /*$root_table,*/ $order_by_limit,
+                $order_by_limit,
                 $parent_relationships,
                 $level + 1
             );
@@ -471,29 +455,9 @@
                 continue;
             }
 
-            {
-                add_node_metadata_to_row(/*&*/$row, $root_table);
-
-                $tree_node = get_or_create_node($row, $root_table, $id,
-                                           /*&*/$all_nodes, /*&*/$root_nodes);
-                /*
-                if (isset($all_nodes->{"$root_table:$id"})) {
-                    # need to do anything? all fields should be there.
-                    $tree_view_avoid_recursion = false; #todo #fixme move to Config
-                    if ($tree_view_avoid_recursion) {
-                        $tree_node = (object)$row;
-                    }
-                    else {
-                        $tree_node = $all_nodes->{"$root_table:$id"};
-                    }
-                }
-                else {
-                    $tree_node = (object)$row;
-                    $root_nodes->{$id} = $tree_node;
-                    $all_nodes->{"$root_table:$id"} = $tree_node;
-                }
-                */
-            }
+            add_node_metadata_to_row(/*&*/$row, $root_table);
+            $tree_node = get_or_create_node($row, $root_table, $id,
+                                       /*&*/$all_nodes, /*&*/$root_nodes);
 
             add_node_to_relationship_lists(
                 $row, $tree_node, $parent_relationships,
@@ -509,7 +473,6 @@
             add_tree_lev_by_lev(
                 $all_nodes,
                 $parent_nodes_by_relationship,
-                #$root_table,
                 $order_by_limit,
                 $parent_relationships
             );
