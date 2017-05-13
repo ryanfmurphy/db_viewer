@@ -146,11 +146,10 @@
 
     # this is to build up the matching list that goes in the SQL query
     # to look for all children that have {parent_field} within that list
-    # #todo #fixme maybe rename $child to $parent / $all_children to $all_parents?
-    #              since it's to build up the parent val list to select against?
+    # (build up the parent val list to select against)
     function add_node_to_relationship_lists(
-        $row, $child, $parent_relationships,
-        &$all_children_by_relationship, $table
+        $row, $parent, $parent_relationships,
+        &$all_parents_by_relationship, $table
     ) {
         my_debug('arrays', "top of add_node_to_relationship_lists...\n");
         # add val to each applicable relationship
@@ -167,8 +166,8 @@
                     #        ." relationship_no = $rel_no\n");
 
                     # detructively modify $add_children_by_relationship
-                    if (!isset($all_children_by_relationship[$rel_no])) {
-                        $all_children_by_relationship[$rel_no] = new stdClass();
+                    if (!isset($all_parents_by_relationship[$rel_no])) {
+                        $all_parents_by_relationship[$rel_no] = new stdClass();
                     }
 
                     # If that the child is going to try to match to this node
@@ -183,7 +182,7 @@
                         foreach ($arr as $val) {
                             my_debug('arrays', "    val = $val\n");
                             if ($val) {
-                                $all_children_by_relationship[$rel_no]->{$val} = $child;
+                                $all_parents_by_relationship[$rel_no]->{$val} = $parent;
                             }
                             else {
                                 my_debug('not truthy, skipping', "    val = $val\n");
@@ -192,7 +191,7 @@
                     }
                     else {
                         my_debug('arrays', "  it is not, adding it normally\n");
-                        $all_children_by_relationship[$rel_no]->{$parent_match_val} = $child;
+                        $all_parents_by_relationship[$rel_no]->{$parent_match_val} = $parent;
                     }
                 }
                 else {
