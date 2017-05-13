@@ -243,6 +243,7 @@ function getMaxNodeStrlen(node, name_cutoff, strlen_fn) {
 }
 
 function setupTreeWithSize(root) {
+    // #todo #fixme make a weighted count fn that cares about stars
     var num_nodes_updown = numNodesInLargestLevel(root);
     var height = Math.max(
         num_nodes_updown * 18,

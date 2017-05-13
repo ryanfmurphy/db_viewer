@@ -1,4 +1,20 @@
 <style>
+<?php
+        /*
+        $background_image_url = TableView::choose_background_image(
+            $root_table, $backgroundImages
+        );
+        if ($background_image_url) {
+?>
+            body {
+                background-image: url(<?= $background_image_url ?>);
+                background-position: center;
+                background-repeat: repeat;
+            }
+<?php
+        }
+        */
+?>
             body {
                 font-family: sans-serif;
             }
