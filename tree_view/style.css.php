@@ -73,7 +73,7 @@
 ?>
             .<?= $table ?>_tbl_color {
                 color: <?= $color ?>;
-                stroke: <?= $color ?>;
+                fill: <?= $color ?>;
             }
 <?php
     }
