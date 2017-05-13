@@ -192,6 +192,12 @@
                        type="text">
             </div>
             <div>
+                <label>Vary Node Colors based on Table Name?</label>
+                <input name="vary_node_colors"
+                       value="<?= $vary_node_colors ?>"
+                       type="text">
+            </div>
+            <div>
                 <input type="submit" value="Show Tree">
             </div>
         </form>
