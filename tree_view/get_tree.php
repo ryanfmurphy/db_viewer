@@ -328,26 +328,6 @@
 
                     {
                         add_node_metadata_to_row($row, $child_table);
-                        /*
-                        { # populate extra stuff on row so the node will be populated
-                            if ($use_relname) { # must calculate for each row
-                                $node_tablename = determine_node_tablename($row, $child_table);
-                                $table_color = name_to_rgb($node_tablename);
-                                # still save original connection table
-                                # so front-end can look up id field in its hash
-                                $row['_conn_table'] = $child_table;
-                                $row['_node_color'] = $table_color;
-                            }
-
-                            # get or create node
-                            $row['_node_table'] = $node_tablename;
-                            #$row['_node_color'] = $table_color;
-
-                            # make sure 'name' is available
-                            # #todo #fixme #performance - cache these couple of values outside the loop
-                            $row['_node_name'] = DbUtil::get_name_val($child_table, $row);
-                        }
-                        */
 
                         if (isset($all_nodes->{"$child_table:$id"})) {
                             # need to do anything? all fields should be there.
@@ -428,10 +408,6 @@
         my_debug('overview', "top of get_tree...\n");
         $id_mode = Config::$config['id_mode'];
 
-        #$parent_relationship = $parent_relationships[0]; #todo #fixme support more than one
-        #$parent_field = $parent_relationship['parent_field'];
-        #$matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
-
         $fields = field_list($parent_relationships, $root_table);
         $sql = "
             select $fields
@@ -451,15 +427,14 @@
         # to make sure we stop when we are done
         $more_children_to_look_for = false;
 
-        #$use_relname = Config::$config['use_relname_for_tree_node_table'];
-        #if (!$use_relname) { # no need to calculate for each row
-            #$node_tablename = determine_node_tablename($row, $root_table);
-            #$table_color = name_to_rgb($node_tablename);
-        #}
-
         $id_field = DbUtil::get_primary_key_field(
             $id_mode, $root_table
         );
+
+        $parent_nodes_by_relationship = array();
+        foreach ($parent_relationships as $rel_no => $parent_relationship) {
+            $parent_nodes_by_relationship[$rel_no] = new stdClass();
+        }
 
         # don't even bother if this relationship doesn't hook to this table
         # #todo #fixme but this is wrong - we still need to put these nodes in the hashes
@@ -476,26 +451,6 @@
 
             {
                 add_node_metadata_to_row($row, $root_table);
-                /*
-                { # populate extra stuff on row so the node will be populated
-                    if ($use_relname) { # must calculate for each row
-                        $node_tablename = determine_node_tablename($row, $root_table);
-                        $table_color = name_to_rgb($node_tablename);
-                        # still save original connection table
-                        # so front-end can look up id field in its hash
-                        $row['_conn_table'] = $root_table;
-                        $row['_node_color'] = $table_color;
-                    }
-
-                    # get or create node
-                    $row['_node_table'] = $node_tablename;
-                    #$row['_node_color'] = $table_color;
-
-                    # make sure 'name' is available
-                    # #todo #fixme #performance - cache these couple of values outside the loop
-                    $row['_node_name'] = DbUtil::get_name_val($root_table, $row);
-                }
-                */
 
                 if (isset($all_nodes->{"$root_table:$id"})) {
                     # need to do anything? all fields should be there.
@@ -514,18 +469,18 @@
                 }
             }
 
-            foreach ($parent_relationships as $relationship_no => $parent_relationship) {
+            foreach ($parent_relationships as $rel_no => $parent_relationship) {
 
-                if (!isset($parent_nodes_by_relationship[$relationship_no])) {
-                    $parent_nodes_by_relationship[$relationship_no] = new stdClass();
-                }
+                #if (!isset($parent_nodes_by_relationship[$rel_no])) {
+                #    $parent_nodes_by_relationship[$rel_no] = new stdClass();
+                #}
                 $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
                                                                          $root_table);
                 $parent_table = $parent_relationship['parent_table'];
 
                 if ($parent_table == $root_table) {
                     $parent_field = $parent_relationship['parent_field'];
-                    my_debug('rel', "  relationship $relationship_no\n");
+                    my_debug('rel', "  relationship $rel_no\n");
                     my_debug('rel', "    matching_field_on_parent = $matching_field_on_parent\n");
                     $parent_match_val = $row[$matching_field_on_parent];
 
@@ -538,7 +493,7 @@
                         # is an array, then we break up our array right now and
                         # put the node in under all the different values as keys.
                         # That way, matching any of them will be fine.
-                        my_debug('arrays', "    in get_tree... relationship_no = $relationship_no\n");
+                        my_debug('arrays', "    in get_tree... rel_no = $rel_no\n");
                         my_debug('arrays', "    checking if field '$matching_field_on_parent' is an array\n");
                         if (field_is_array($matching_field_on_parent)) {
                             my_debug('arrays', "      it is - deconstructing the array and adding each key\n");
@@ -546,7 +501,7 @@
                             foreach ($arr as $val) {
                                 my_debug('arrays', "        val = $val\n");
                                 if ($val) {
-                                    $parent_nodes_by_relationship[$relationship_no]->{$val} = $tree_node;
+                                    $parent_nodes_by_relationship[$rel_no]->{$val} = $tree_node;
                                 }
                                 else {
                                     my_debug('arrays', "      not truthy, skipping\n");
@@ -555,7 +510,7 @@
                         }
                         else {
                             my_debug('arrays', "      it is not, adding it normally\n");
-                            $parent_nodes_by_relationship[$relationship_no]->{$parent_match_val} = $tree_node;
+                            $parent_nodes_by_relationship[$rel_no]->{$parent_match_val} = $tree_node;
                         }
                         #$parent_nodes_this_rel->{$parent_match_val} = $tree_node;
                         $more_children_to_look_for = true;
@@ -565,7 +520,7 @@
                     }
                 }
                 else {
-                    my_debug('rel', "    skipping rel $relationship_no because parent_table $parent_table != root_table $root_table\n");
+                    my_debug('rel', "    skipping rel $rel_no because parent_table $parent_table != root_table $root_table\n");
                 }
 
                 my_debug(NULL, "}\n");
