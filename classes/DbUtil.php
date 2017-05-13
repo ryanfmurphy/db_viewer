@@ -660,6 +660,9 @@ infer_limit_from_query: query didn't match regex.
                 $fn = $filter_fns[$table];
                 $name_val = $fn($name_val);
             }
+            if (!$name_val) {
+                $name_val = '[untitled]';
+            }
             return $name_val;
         }
 
