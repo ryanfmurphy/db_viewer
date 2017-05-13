@@ -4,7 +4,7 @@
                     : null;
 
     $root_cond = isset($requestVars['root_cond'])
-                 && $requestVars['root_cond']
+                 && $requestVars['root_cond'] !== ''
                     ? $requestVars['root_cond']
                     : "$default_parent_field is null";
 
@@ -76,6 +76,7 @@
     Config::$config['use_stars_for_node_size']
         = $use_stars_for_node_size
             = isset($requestVars['use_stars_for_node_size'])
+              && $requestVars['use_stars_for_node_size'] !== ''
                 ? $requestVars['use_stars_for_node_size']
                 : Config::$config['use_stars_for_node_size'];
 

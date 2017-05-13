@@ -186,6 +186,12 @@
                        type="text">
             </div>
             <div>
+                <label>Use Stars for Node Size (more stars = bigger)</label>
+                <input name="use_stars_for_node_size"
+                       value="<?= $use_stars_for_node_size ?>"
+                       type="text">
+            </div>
+            <div>
                 <input type="submit" value="Show Tree">
             </div>
         </form>
