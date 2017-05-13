@@ -263,13 +263,105 @@
         $row['_node_name'] = DbUtil::get_name_val($table, $row);
     }
 
+    # get_tree() - main function for building the tree
+    # ------------------------------------------------
+    # * Build a SQL query the queries $root_table
+    #   where $root_cond.
+    # * Loop thru the parent_relationships and build up
+    #   the $parent_relationships hash.
+    # * Call add_tree_lev_by_lev() to add the next level
+    #   and keep recursively adding the remaining levels.
+    function get_tree(
+        $root_table, $root_cond, $order_by_limit=null,
+        $parent_relationships, $root_nodes_w_child_only=false
+    ) {
+        my_debug('overview', "top of get_tree...\n");
+
+        { # do sql query
+            $id_mode = Config::$config['id_mode'];
+            $fields = field_list($parent_relationships, $root_table);
+            $sql = "
+                select $fields
+                from $root_table
+                where $root_cond
+                $order_by_limit
+            ";
+            my_debug('sql',"root sql = {'$sql'}\n");
+            $rows = Db::sql($sql);
+            my_debug('sql',"  # rows = ".count($rows)."\n\n");
+        }
+
+        { # setup the hashes that will be built up
+            # root nodes to return from this function
+            $root_nodes = new stdClass();
+            # all_nodes, to make sure we never recreate a node from scratch
+            # and always keep building on its relationships
+            $all_nodes = new stdClass();
+
+            # each parent_relationship gets its own hash
+            $parent_nodes_by_relationship = array();
+            foreach ($parent_relationships as $rel_no => $parent_relationship) {
+                $parent_nodes_by_relationship[$rel_no] = new stdClass();
+            }
+        }
+
+        # to make sure we stop when we are done
+        $more_children_to_look_for = false;
+
+        $id_field = DbUtil::get_primary_key_field($id_mode, $root_table);
+
+        # loop thru rows and build up this level of tree
+        foreach ($rows as $row) {
+            my_debug(NULL, "adding node ".print_r($row,1));
+            $id = $row[$id_field];
+            if (!$id) {
+                my_debug(NULL, "row has no id!  skipping.  here's the row: ".print_r($row,1));
+                continue;
+            }
+
+            add_node_metadata_to_row(/*&*/$row, $root_table);
+            $tree_node = get_or_create_node($row, $root_table, $id,
+                                       /*&*/$all_nodes, /*&*/$root_nodes);
+
+            add_node_to_relationship_lists(
+                $row, $tree_node, $parent_relationships,
+                $parent_nodes_by_relationship, $root_table
+            );
+
+            $more_children_to_look_for = true;
+        }
+
+        # recursive call
+        #my_debug(NULL, "about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
+        if ($more_children_to_look_for) {
+            add_tree_lev_by_lev(
+                $all_nodes,
+                $parent_nodes_by_relationship,
+                $parent_relationships,
+                $order_by_limit
+            );
+        }
+
+        if ($root_nodes_w_child_only) {
+            foreach ($root_nodes as $key => $node) {
+                if (!isset($node->children)
+                    || count($node->children) == 0
+                ) {
+                    unset($root_nodes->{$key});
+                }
+            }
+        }
+
+        return $root_nodes;
+    }
+
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
         $all_nodes,
         $parent_nodes_by_relationship,
-        $order_by_limit=null,
         $parent_relationships,
+        $order_by_limit=null,
         $level = 0
     ) {
         my_debug('overview', "{ top of add_tree_lev_by_lev: level $level,"
@@ -298,12 +390,12 @@
             my_debug('tables_n_fields', "fields = $fields\n");
 
             $parent_field = $parent_relationship['parent_field'];
-            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
-                                                                     $parent_table);
+            $matching_field_on_parent = get_matching_field_on_parent(
+                                    $parent_relationship, $parent_table);
 
             $parent_nodes = $parent_nodes_by_relationship[$relationship_no];
             $parent_vals = get_field_values_for_matching($parent_nodes,
-                                                         $matching_field_on_parent);
+                                                 $matching_field_on_parent);
 
             if (count($parent_vals) > 0) {
                 $rows = get_next_level_of_children(
@@ -370,8 +462,8 @@
             add_tree_lev_by_lev(
                 $all_nodes,
                 $all_children_by_relationship,
-                $order_by_limit,
                 $parent_relationships,
+                $order_by_limit,
                 $level + 1
             );
         }
@@ -410,85 +502,6 @@
             $all_nodes->{"$table:$id"} = $tree_node;
         }
         return $tree_node;
-    }
-
-    function get_tree(
-        $root_table, $root_cond, $order_by_limit=null,
-        $parent_relationships, $root_nodes_w_child_only=false
-    ) {
-        my_debug('overview', "top of get_tree...\n");
-        $id_mode = Config::$config['id_mode'];
-
-        $fields = field_list($parent_relationships, $root_table);
-        $sql = "
-            select $fields
-            from $root_table
-            where $root_cond
-            $order_by_limit
-        ";
-        my_debug('sql',"root sql = {'$sql'}\n");
-        $rows = Db::sql($sql);
-        my_debug('sql',"  # rows = ".count($rows)."\n\n");
-
-        # root nodes to return from this function
-        $root_nodes = new stdClass();
-        # all_nodes, to make sure we never recreate a node from scratch
-        # and always keep building on its relationships
-        $all_nodes = new stdClass();
-        # to make sure we stop when we are done
-        $more_children_to_look_for = false;
-
-        $id_field = DbUtil::get_primary_key_field(
-            $id_mode, $root_table
-        );
-
-        $parent_nodes_by_relationship = array();
-        foreach ($parent_relationships as $rel_no => $parent_relationship) {
-            $parent_nodes_by_relationship[$rel_no] = new stdClass();
-        }
-
-        foreach ($rows as $row) {
-            my_debug(NULL, "adding node ".print_r($row,1));
-            $id = $row[$id_field];
-            if (!$id) {
-                my_debug(NULL, "row has no id!  skipping.  here's the row: ".print_r($row,1));
-                continue;
-            }
-
-            add_node_metadata_to_row(/*&*/$row, $root_table);
-            $tree_node = get_or_create_node($row, $root_table, $id,
-                                       /*&*/$all_nodes, /*&*/$root_nodes);
-
-            add_node_to_relationship_lists(
-                $row, $tree_node, $parent_relationships,
-                $parent_nodes_by_relationship, $root_table
-            );
-
-            $more_children_to_look_for = true;
-        }
-
-        # recursive call
-        #my_debug(NULL, "about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
-        if ($more_children_to_look_for) {
-            add_tree_lev_by_lev(
-                $all_nodes,
-                $parent_nodes_by_relationship,
-                $order_by_limit,
-                $parent_relationships
-            );
-        }
-
-        if ($root_nodes_w_child_only) {
-            foreach ($root_nodes as $key => $node) {
-                if (!isset($node->children)
-                    || count($node->children) == 0
-                ) {
-                    unset($root_nodes->{$key});
-                }
-            }
-        }
-
-        return $root_nodes;
     }
 
     # to gain our ordering back before we get off PHP to JS
