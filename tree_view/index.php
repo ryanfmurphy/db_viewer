@@ -460,9 +460,17 @@ function updateTree(source) {
             })
             ;
 
+<?php
+    $maybe_tree_transitions = ($do_tree_transitions
+                                    ? '
+                                        .transition()
+                                        .duration(svg_tree.duration)
+                                      '
+                                    : '');
+?>
     // Transition nodes to their new position.
-    var nodeUpdate = node.transition()
-            .duration(svg_tree.duration)
+    var nodeUpdate = node
+            <?= $maybe_tree_transitions ?>
             .attr("transform",
                 function(d) {
                     return "translate(" + d.y + "," + d.x + ")";
@@ -483,8 +491,8 @@ function updateTree(source) {
             .style("fill-opacity", 1);
 
     // Transition exiting nodes to the parent's new position.
-    var nodeExit = node .exit().transition()
-                        .duration(svg_tree.duration)
+    var nodeExit = node .exit()
+                        <?= $maybe_tree_transitions ?>
                         .attr("transform",
                             function(d) {
                                 return "translate(" + source.y + "," + source.x + ")";
@@ -525,13 +533,13 @@ function updateTree(source) {
                 });
 
     // Transition links to their new position.
-    link.transition()
-            .duration(svg_tree.duration)
+    link
+            <?= $maybe_tree_transitions ?>
             .attr("d", diagonal);
 
     // Transition exiting nodes to the parent's new position.
-    link.exit().transition()
-            .duration(svg_tree.duration)
+    link.exit()
+            <?= $maybe_tree_transitions ?>
             .attr("d", function(d) {
                 var o = {x: source.x, y: source.y};
                 return diagonal({source: o, target: o});

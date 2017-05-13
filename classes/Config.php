@@ -156,6 +156,7 @@ class Config {
             'load_d3_via_cdn',
             'start_w_tree_fully_expanded',
             'vary_node_colors',
+            'do_tree_transitions',
             # may be a bool or a list of tables
             'use_relname_for_tree_node_table',
             # stars field can made node text bigger or smaller
@@ -363,6 +364,7 @@ class Config {
             'load_d3_via_cdn' => false,
             'start_w_tree_fully_expanded' => false,
             'vary_node_colors' => true,
+            'do_tree_transitions' => true,
             # may be a bool or a list of tables
             'use_relname_for_tree_node_table' => false,
             # stars field can made node text bigger or smaller
