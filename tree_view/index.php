@@ -246,7 +246,7 @@ function setupTreeWithSize(root) {
     // #todo #fixme make a weighted count fn that cares about stars
     var num_nodes_updown = numNodesInLargestLevel(root);
     var height = Math.max(
-        num_nodes_updown * 18,
+        num_nodes_updown * 24,
         defaults.height
     );
     var width = undefined; // 2000;
