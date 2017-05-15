@@ -177,6 +177,7 @@ class Config {
             #  e.g. if they reference a nonexistent table or field)
             'backup_local_storage_rows_as_json',
             'save_json_dump_uri',
+            'save_json_dump_of_stored_rows',
         );
 
         $config = compact($config_vars);
@@ -383,6 +384,7 @@ class Config {
             # (in case some of them didn't make it into the database
             #  e.g. if they reference a nonexistent table or field)
             'backup_local_storage_rows_as_json' => false,
+            'save_json_dump_of_stored_rows' => false,
         );
 
         return $default_values;

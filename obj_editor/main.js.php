@@ -1,5 +1,9 @@
 //<script>
 
+<?php
+    include("$trunk/js/ajax.js");
+?>
+
 { // main javascript
 
     function hasPreviouslyStoredRows() {
@@ -107,6 +111,8 @@
         return data;
     }
 
+    /*
+    // #todo #fixme get this from ajax.js
     // serializes a js object into a query string
     function obj2queryString(data) {
         { // vars
@@ -138,6 +144,7 @@
             return pairs.join( "&" );
         }
     }
+    */
 
 
     // Serialize an array of form elements
@@ -456,12 +463,18 @@
                 // save remaining stored rows
                 console.log('saving stored_rows with deletions', remaining_stored_rows);
                 saveStoredRowsLocal(remaining_stored_rows);
-
-                //saveJsonDumpOfStoredRows();
             }
             else {
                 alert('No rows to save');
             }
+
+<?php
+    #if (Config::$config['save_json_dump_of_stored_rows']) {
+?>
+            saveJsonDumpOfStoredRows();
+<?php
+    #}
+?>
 
             return false;
         }
@@ -515,8 +528,12 @@
         // do the ajax
         var url = '<?= $save_json_dump_uri ?>';
         console.log('saving JSON dump', json_dump);
-        submitForm(url, null, 'create',
+        doAjax('POST', url, {json_dump: json_dump},
             function() {
+                //alert('yeehaw');
+            },
+            function() {
+                alert('Could not save JSON dump of stored rows.');
             }
         );
     }
