@@ -2,3 +2,4 @@
 *.swp
 *.swo
 error_log
+/stored_rows_dump_*

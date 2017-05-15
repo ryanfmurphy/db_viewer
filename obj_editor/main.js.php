@@ -398,6 +398,14 @@
 
             if (stored_rows.length) {
 
+<?php
+    if (Config::$config['save_json_dump_of_stored_rows']) {
+?>
+            saveJsonDumpOfStoredRows();
+<?php
+    }
+?>
+
                 // prepare responses array and callback fn to collect and display responses
                 // append all the response msgs into an array instead of showing them one by one
                 responses = [];
@@ -468,14 +476,6 @@
                 alert('No rows to save');
             }
 
-<?php
-    #if (Config::$config['save_json_dump_of_stored_rows']) {
-?>
-            saveJsonDumpOfStoredRows();
-<?php
-    #}
-?>
-
             return false;
         }
 
@@ -519,19 +519,18 @@
 
     // save JSON dump of stored_rows in case something went wrong
     function saveJsonDumpOfStoredRows() {
-        var data = {
+        var data = getStoredRowsLocal();
+        /*{
             'stored_rows': getStoredRowsLocal(),
             'old_stored_rows': getOldStoredRowsLocal()
-        };
+        };*/
         var json_dump = JSON.stringify(data);
 
         // do the ajax
         var url = '<?= $save_json_dump_uri ?>';
         console.log('saving JSON dump', json_dump);
         doAjax('POST', url, {json_dump: json_dump},
-            function() {
-                //alert('yeehaw');
-            },
+            Function.prototype, // noop
             function() {
                 alert('Could not save JSON dump of stored rows.');
             }
