@@ -1378,6 +1378,7 @@
             var first_input = inputs[0];
             // mobile iOS browsers aren't doing the focus unless I preventDefault
             if (e) {
+                // #todo #fixme actually this is broken for me on iOS again, even with this fix
                 e.preventDefault();
             }
             first_input.focus();
