@@ -341,11 +341,15 @@
 
         function echoSelectTableInputHtml() {
 ?>
+            <form   id="selectTableForm"
+                    style="display:inline"
+                    onsubmit="doSelectTable(event); return false"
+            >
                 <input  id="selectTable"
                         placeholder="select table"
-                        onkeypress="selectTableOnEnter(event)"
                         autocapitalize="none"
                 />
+            </form>
 <?php
         }
 
