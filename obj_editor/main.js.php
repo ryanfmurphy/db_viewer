@@ -720,7 +720,7 @@
     // #todo this is not used for cursorPrev/Next visiting old rows
     // because it assumes it's already an input
     // but it'd be nice to use it if it does anything we need
-    function doSelectTable(event) {
+    function selectTable(keyEvent) {
 
         var selectTableInput = document.getElementById('selectTable');
         var table = selectTableInput.value;
@@ -739,8 +739,8 @@
                                             ? 'true'
                                             : 'false') ?>;
         var change_table_no_reload = (need_alt_for_no_reload
-                                        ? event.altKey
-                                        : !event.altKey);
+                                        ? keyEvent.altKey
+                                        : !keyEvent.altKey);
         // no reload - change table w pure JS
         if (change_table_no_reload) {
 
@@ -748,7 +748,7 @@
             scope.table_name = table;
 
             // replace input with header again
-            document.getElementById('selectTableForm')
+            document.getElementById('selectTable')
                     .outerHTML = '\
                             <code id="table_name" onclick="becomeSelectTableInput(this)">\
                                 ' + table + '\
@@ -766,16 +766,15 @@
                 view_all_link.setAttribute('href', view_all_url);
             }
 
-            //event.preventDefault();
-            selectFirstFormField(event);
-            return false;
+            selectFirstFormField(keyEvent);
+            keyEvent.preventDefault();
 
         }
         // reload - redirect page
         else {
             var do_minimal = links_minimal_by_default
-                                ? !event.ctrlKey
-                                : event.ctrlKey;
+                                ? !keyEvent.ctrlKey
+                                : keyEvent.ctrlKey;
             if (do_minimal) {
                 newLocation += '&minimal';
             }
@@ -806,13 +805,12 @@
     }
 
 
-    // #todo #fixme may not need this anymore
     function selectTableOnEnter(keyEvent) {
         var ENTER = 13, UNIX_ENTER = 10;
         if (keyEvent.which == ENTER
             || keyEvent.which == UNIX_ENTER
         ) {
-            doSelectTable(keyEvent);
+            selectTable(keyEvent);
         }
     }
 
@@ -825,11 +823,9 @@
         var html = <?= echoSelectTableInputHtml_JsFormat() ?>;
         html = html.trim();
         tempContainer.innerHTML = html;
-        var selectTableForm = tempContainer.firstChild;
-        var selectTableInput = selectTableForm.children[0]; // first child Element, not Text Node
-        console.log('form',selectTableForm,'input',selectTableInput);
+        var selectTableInput = tempContainer.firstChild;
         selectTableInput.value = currentTableName;
-        parentElem.replaceChild(selectTableForm, elem);
+        parentElem.replaceChild(selectTableInput, elem);
 
         // focus and select all text
         selectTableInput.focus();
