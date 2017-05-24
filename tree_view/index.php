@@ -613,8 +613,12 @@ function doNestModeAlert(mode) {
     if (nest_mode === 'click_node_to_move') {
         do_alert('Nest mode: click a node to move, or N to stop', 'orange');
     }
-    else if (nest_mode === 'click_new_parent') {
-        do_alert('Click another node to move this node under that one, or N to stop', 'purple');
+    else if (nest_mode === 'click_new_parent_or_select_more') {
+        do_alert(
+            'Click another node to move selected node(s) there,<br>\
+            shift-click more nodes to select them them too, or N to cancel',
+            'purple'
+        );
     }
     else if (nest_mode === 'success') {
         do_alert('Success. Refresh to see changes.', 'green');
@@ -700,6 +704,7 @@ function addChildToNode(node, child) {
 
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
+    console.log(d3.event);
     var table = ('_node_table' in d
                     ? d._node_table
                     : null);
@@ -720,10 +725,10 @@ function clickLabel(d) {
         if (nest_mode) {
             if (nest_mode == 'click_node_to_move') {
                 node_to_move = d;
-                nest_mode = 'click_new_parent';
+                nest_mode = 'click_new_parent_or_select_more';
                 doNestModeAlert(nest_mode);
             }
-            else if (nest_mode == 'click_new_parent') {
+            else if (nest_mode == 'click_new_parent_or_select_more') {
                 // node_to_move var is already populated
                 var new_parent = d;
                 var primary_key = node_to_move[id_field];
