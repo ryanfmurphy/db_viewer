@@ -24,12 +24,15 @@ class ContentContainer {
         $id = Db::quote($id);
         $id_field = self::getIdField();
         $is_archived_field = Config::$config['is_archived_field'];
+        $false_value = (Config::$config['db_type'] == 'pgsql'
+                            ? 'false'
+                            : 0);
         $sql = "
             select *
             from content_container
             where $id_field = $id
             ".($is_archived_field
-                    ? "and $is_archived_field = 0"
+                    ? "and $is_archived_field = $false_value"
                     : '')."
         ";
         $rows = Db::sql($sql, PDO::FETCH_CLASS, get_called_class());
@@ -46,12 +49,15 @@ class ContentContainer {
     public static function getByName($name) {
         $name = Db::quote($name);
         $is_archived_field = Config::$config['is_archived_field'];
+        $false_value = (Config::$config['db_type'] == 'pgsql'
+                            ? 'false'
+                            : 0);
         $sql = "
             select *
             from content_container
             where name = $name
             ".($is_archived_field
-                    ? "and $is_archived_field = 0"
+                    ? "and $is_archived_field = $false_value"
                     : '')."
         ";
         $rows = Db::sql($sql, PDO::FETCH_CLASS, get_called_class());
@@ -77,6 +83,9 @@ class ContentContainer {
             $section = Db::sql_literal($section);
         }
         $is_archived_field = Config::$config['is_archived_field'];
+        $false_value = (Config::$config['db_type'] == 'pgsql'
+                            ? 'false'
+                            : 0);
         $sql = "
             select * from content_module
             where doc_template_id = $docTemplateId
@@ -85,7 +94,7 @@ class ContentContainer {
                         ? "and section = $section"
                         : "") . "
                 ".($is_archived_field
-                        ? "and $is_archived_field = 0"
+                        ? "and $is_archived_field = $false_value"
                         : '')."
             order by sort_order
         ";
