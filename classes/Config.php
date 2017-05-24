@@ -101,7 +101,10 @@ class Config {
             'table_field_spaces_to_underscores',
 
             'automatic_curly_braces_for_arrays',
+
             'fields_w_array_type',
+            'fields_that_render_html',
+            'fields_that_render_html_by_table',
 
             # color_rows_by_relname
             # ---------------------
@@ -320,6 +323,9 @@ class Config {
 
             'automatic_curly_braces_for_arrays' => false,
             'fields_w_array_type' => null,
+
+            'fields_that_render_html' => array(),
+            'fields_that_render_html_by_table' => array(),
 
             'color_rows_by_relname' => false,
             'row_colors_by_relname' => array(),

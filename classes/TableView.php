@@ -170,6 +170,15 @@
                 $fn = $field_render_filters_by_table[$table][$fieldname];
                 return $fn($val, $obj_editor_uri, $fieldname);
             }
+            # allow html (don't escape val)
+            elseif ((isset(Config::$config['fields_that_render_html'])
+                     && in_array($fieldname, Config::$config['fields_that_render_html']))
+                    || (isset(Config::$config['fields_that_render_html_by_table'])
+                        && isset(Config::$config['fields_that_render_html_by_table'][$table])
+                        && in_array($fieldname, Config::$config['fields_that_render_html_by_table'][$table]))
+            ) {
+                return $val;
+            }
             # default quoting / handling of val
             else {
                 $val = htmlentities($val);
