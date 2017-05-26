@@ -596,7 +596,7 @@ var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 var nest_mode = false;
 //var node_to_nest_under = null;
 //var id_to_nest_under = null;
-var node_to_move = null;
+var selected_nodes = [];
 
 function get_alert_elem() {
     return document.getElementById('alert');
@@ -610,7 +610,7 @@ function do_alert(msg, color) {
 }
 
 function doNestModeAlert(mode) {
-    if (nest_mode === 'click_node_to_move') {
+    if (nest_mode === 'click_selected_nodes') {
         do_alert('Nest mode: click a node to move, or N to stop', 'orange');
     }
     else if (nest_mode === 'click_new_parent_or_select_more') {
@@ -622,7 +622,7 @@ function doNestModeAlert(mode) {
     }
     else if (nest_mode === 'success') {
         do_alert('Success. Refresh to see changes.', 'green');
-        nest_mode = 'click_node_to_move';
+        nest_mode = 'click_selected_nodes';
         setTimeout(function() {
             doNestModeAlert(nest_mode);
         }, 750);
@@ -650,7 +650,7 @@ document.addEventListener('keypress', function(event){
             doNestModeAlert(nest_mode);
         }
         else if (!nest_mode) {
-            nest_mode = 'click_node_to_move';
+            nest_mode = 'click_selected_nodes';
             doNestModeAlert(nest_mode);
         }
     }
@@ -704,7 +704,7 @@ function addChildToNode(node, child) {
 
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
-    console.log(d3.event);
+    console.log(d3.event.shiftKey);
     var table = ('_node_table' in d
                     ? d._node_table
                     : null);
@@ -723,39 +723,53 @@ function clickLabel(d) {
     if (table && conn_table) {
         var id_field = id_fields_by_table[conn_table];
         if (nest_mode) {
-            if (nest_mode == 'click_node_to_move') {
-                node_to_move = d;
+            if (nest_mode == 'click_selected_nodes') {
+                selected_nodes = [d];
                 nest_mode = 'click_new_parent_or_select_more';
                 doNestModeAlert(nest_mode);
             }
             else if (nest_mode == 'click_new_parent_or_select_more') {
-                // node_to_move var is already populated
-                var new_parent = d;
-                var primary_key = node_to_move[id_field];
-                var parent_id_field = 'parent_id'; // #todo #fixme variablize
+                var sub_mode = (d3.event.shiftKey
+                                    ? 'select_more'
+                                    : 'click_new_parent');
 
-                var url = "<?= $crud_api_uri ?>";
-                var data = {
-                    action: 'update_entity',
-                    where_clauses: {
-                        id: primary_key
-                    },
-                };
-                data[parent_id_field] = new_parent[id_field];
-                var success = function(xhttp) {
-                    var r = xhttp.responseText;
-                    nest_mode = 'success';
-                    doNestModeAlert(nest_mode);
-                    console.log('removing child');
-                    removeChildFromNode(node_to_move.parent, node_to_move);
-                    addChildToNode(new_parent, node_to_move);
+                console.log('sub_mode',sub_mode);
+                if (sub_mode == 'click_new_parent') {
+                    // #todo #factor into a function moveNodeUnderNewParent()
+                    // selected_nodes var is already populated
+                    var new_parent = d;
+                    var node_to_move = selected_nodes[0]; // #todo #fixme
+                    var primary_key = node_to_move[id_field];
+                    var parent_id_field = 'parent_id'; // #todo #fixme variablize
+
+                    var url = "<?= $crud_api_uri ?>";
+                    var data = {
+                        action: 'update_entity',
+                        where_clauses: {
+                            id: primary_key
+                        },
+                    };
+                    data[parent_id_field] = new_parent[id_field];
+                    var success = function(xhttp) {
+                        var r = xhttp.responseText;
+                        nest_mode = 'success';
+                        doNestModeAlert(nest_mode);
+                        console.log('removing child');
+                        removeChildFromNode(node_to_move.parent, node_to_move);
+                        addChildToNode(new_parent, node_to_move);
+                    }
+                    var error = function(xhttp) {
+                        var r = xhttp.responseText;
+                        nest_mode = 'error'
+                        doNestModeAlert(nest_mode);
+                    }
+                    doAjax("POST", url, data, success, error);
                 }
-                var error = function(xhttp) {
-                    var r = xhttp.responseText;
-                    nest_mode = 'error'
-                    doNestModeAlert(nest_mode);
+                else if (sub_mode == 'click_new_parent') {
                 }
-                doAjax("POST", url, data, success, error);
+                else {
+                    console.log('unknown sub_mode');
+                }
             }
         }
         // link to obj_editor
