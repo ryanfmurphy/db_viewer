@@ -12,7 +12,11 @@
                 if (encode_key === undefined) encode_key = true;
 
                 console.log('addPair key',key,'value',value);
-                if (typeof value === 'array') {
+                var scalar = false;
+                if (value === null) {
+                    scalar = true;
+                }
+                else if (typeof value === 'array') {
                     console.log('  ahh an array');
                     for (var i=0; i<value.length; i++) {
                         var full_key = key + '[' + i + ']';
@@ -32,6 +36,10 @@
                     }
                 }
                 else {
+                    scalar = true;
+                }
+
+                if (scalar) {
                     console.log('  a plain pair');
                     // Q. is this better/worse than pairs.push()?
                     pairs[ pairs.length ] =
