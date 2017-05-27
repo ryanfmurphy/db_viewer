@@ -656,7 +656,9 @@ document.addEventListener('keypress', function(event){
     }
 });
 
-function removeChildFromNode(node, child) {
+// <script>
+function removeChildFromNode(node, child, doUpdateTree) {
+    if (doUpdateTree === undefined) doUpdateTree = true;
     console.log('removeChildFromNode, node=',node,'child=',child);
     var keys = ['children','_children'];
     for (var k=0; k < keys.length; k++) {
@@ -675,7 +677,9 @@ function removeChildFromNode(node, child) {
             }
         }
     }
-    updateTree(node);
+    if (doUpdateTree) {
+        updateTree(node);
+    }
 }
 
 function cloneSvgNode(obj) {
@@ -691,7 +695,8 @@ function cloneSvgNode(obj) {
     return obj2;
 }
 
-function addChildToNode(node, child) {
+function addChildToNode(node, child, doUpdateTree) {
+    if (doUpdateTree === undefined) doUpdateTree = true;
     // #todo #fixme what if node isn't expanded? _children
     if (!node.hasOwnProperty('children')) {
         node.children = [];
@@ -699,9 +704,12 @@ function addChildToNode(node, child) {
     node.children.push(
         cloneSvgNode(child)
     );
-    updateTree(node);
+    if (doUpdateTree) {
+        updateTree(node);
+    }
 }
 
+// <script>
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
     console.log(d3.event.shiftKey);
@@ -724,6 +732,7 @@ function clickLabel(d) {
         var id_field = id_fields_by_table[conn_table];
         if (nest_mode) {
             if (nest_mode == 'click_selected_nodes') {
+                console.log('click_selected_nodes');
                 selected_nodes = [d];
                 nest_mode = 'click_new_parent_or_select_more';
                 doNestModeAlert(nest_mode);
@@ -733,39 +742,56 @@ function clickLabel(d) {
                                     ? 'select_more'
                                     : 'click_new_parent');
 
-                console.log('sub_mode',sub_mode);
                 if (sub_mode == 'click_new_parent') {
+                    console.log('click_new_parent');
                     // #todo #factor into a function moveNodeUnderNewParent()
                     // selected_nodes var is already populated
                     var new_parent = d;
-                    var node_to_move = selected_nodes[0]; // #todo #fixme
-                    var primary_key = node_to_move[id_field];
-                    var parent_id_field = 'parent_id'; // #todo #fixme variablize
+                    var num_succeeded = 0;
+                    for (var i = 0; i < selected_nodes.length; i++) {
+                        var node_to_move = selected_nodes[i]; // #todo #fixme
+                        console.log('loop, i', i, 'node_to_move', node_to_move);
+                        var primary_key = node_to_move[id_field];
+                        var parent_id_field = 'parent_id'; // #todo #fixme variablize
 
-                    var url = "<?= $crud_api_uri ?>";
-                    var data = {
-                        action: 'update_entity',
-                        where_clauses: {
-                            id: primary_key
-                        },
-                    };
-                    data[parent_id_field] = new_parent[id_field];
-                    var success = function(xhttp) {
-                        var r = xhttp.responseText;
-                        nest_mode = 'success';
-                        doNestModeAlert(nest_mode);
-                        console.log('removing child');
-                        removeChildFromNode(node_to_move.parent, node_to_move);
-                        addChildToNode(new_parent, node_to_move);
+                        var url = "<?= $crud_api_uri ?>";
+                        var data = {
+                            action: 'update_entity',
+                            where_clauses: {
+                                id: primary_key
+                            },
+                        };
+                        data[parent_id_field] = new_parent[id_field];
+                        var success = (function(node_to_move, parent_id_field) {
+                            return function(xhttp) {
+                                var r = xhttp.responseText;
+                                nest_mode = 'success';
+                                doNestModeAlert(nest_mode);
+                                console.log('removing child');
+
+                                removeChildFromNode(node_to_move.parent, node_to_move, false);
+                                addChildToNode(new_parent, node_to_move, false);
+
+                                num_succeeded++;
+                                if (num_succeeded == selected_nodes.length) {
+                                    // #todo #performance - could find the leafiest common node to update at
+                                    updateTree(svg_tree.root);
+                                }
+                            }
+                        })(node_to_move, parent_id_field);
+                        var error = function(xhttp) {
+                            var r = xhttp.responseText;
+                            nest_mode = 'error'
+                            doNestModeAlert(nest_mode);
+                        }
+                        doAjax("POST", url, data, success, error);
                     }
-                    var error = function(xhttp) {
-                        var r = xhttp.responseText;
-                        nest_mode = 'error'
-                        doNestModeAlert(nest_mode);
-                    }
-                    doAjax("POST", url, data, success, error);
                 }
-                else if (sub_mode == 'click_new_parent') {
+                else if (sub_mode == 'select_more') {
+                    console.log('select_more, adding', d);
+                    selected_nodes.push(d);
+                    nest_mode = 'click_new_parent_or_select_more';
+                    doNestModeAlert(nest_mode);
                 }
                 else {
                     console.log('unknown sub_mode');
