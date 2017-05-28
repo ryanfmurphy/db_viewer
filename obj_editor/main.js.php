@@ -25,7 +25,7 @@
     scope = {
         table_name: '<?= $table ?>',
         table_view_uri: '<?= $table_view_uri ?>',
-        vals_to_always_include: {},
+        vals_already_set_on_row: {},
 
         // cursor to go back and visit stored rows
         // {array: 'new'/'old', idx:int}
@@ -110,41 +110,6 @@
 
         return data;
     }
-
-    /*
-    // #todo #fixme get this from ajax.js
-    // serializes a js object into a query string
-    function obj2queryString(data) {
-        { // vars
-            var pairs = [];
-
-            // add a key-value pair to the array
-            var addPair = function(key, value) {
-
-                // Q. is this better/worse than pairs.push()?
-                pairs[ pairs.length ] =
-                    encodeURIComponent( key ) + "=" +
-                    encodeURIComponent( value === null
-                                            ? "<?= $magic_null_value ?>"
-                                            : value
-                                      );
-
-            };
-        }
-
-        { // Serialize the form elements
-            for (k in data) {
-                if (data.hasOwnProperty(k)) {
-                    addPair(k, data[k]);
-                }
-            }
-        }
-
-        { // Return the resulting serialization
-            return pairs.join( "&" );
-        }
-    }
-    */
 
 
     // Serialize an array of form elements
@@ -352,7 +317,7 @@
             var form = getForm();
             var row_data = form2obj(getFormInputs(form),
                                     false,
-                                    scope.vals_to_always_include);
+                                    scope.vals_already_set_on_row);
 
             var stored_rows = getStoredRowsLocal();
             var cursor = scope.stored_row_cursor;
@@ -606,7 +571,7 @@
             var inputs = getFormInputs(form);
             queryString = serializeForm(
                             inputs, false,
-                            scope.vals_to_always_include
+                            scope.vals_already_set_on_row
                           );
         }
 
@@ -717,6 +682,46 @@
         }
     }
 
+    function changeToCreateChildForm() {
+        resetToCreateTable(null, true);
+    }
+
+    // change Update button to Create
+    // optionally clear the form
+    // optionally change to another table
+    // without reloading the page
+    function resetToCreateTable(table, do_clear_fields) {
+        if (do_clear_fields === undefined) do_clear_fields = false;
+
+        // if you change table while visiting previous stored rows,
+        // you're now at the end of the stored rows again
+        cursorReset();
+
+        // change which table to submit to
+        if (table) {
+            // change "table_name" var
+            if (scope.table_field_spaces_to_underscores) {
+                table = table.replace(/ /g,'_');
+            }
+            scope.table_name = table;
+
+            // change "view all" link
+            console.log('doing view_all_link');
+            view_all_link = document.getElementById('view_all_link');
+            if (view_all_link) {
+                view_all_url = scope.table_view_uri + '?sql=' + table + maybe_minimal();
+                view_all_link.setAttribute('href', view_all_url);
+            }
+        }
+
+        // change update button to create button
+        changeUpdateButtonToCreateButton();
+
+        if (do_clear_fields) {
+            clearAllFields();
+        }
+    }
+
     // #todo this is not used for cursorPrev/Next visiting old rows
     // because it assumes it's already an input
     // but it'd be nice to use it if it does anything we need
@@ -724,14 +729,15 @@
 
         var selectTableInput = document.getElementById('selectTable');
         var table = selectTableInput.value;
+        /*var table = selectTableInput.value;
         if (scope.table_field_spaces_to_underscores) {
             table = table.replace(/ /g,'_');
         }
-        var newLocation = '?table='+table;
 
         // if you change table while visiting previous stored rows,
         // you're now at the end of the stored rows again
         cursorReset();
+        */
 
         // depending on alt key, don't refresh page,
         // just change the table we're pointing at
@@ -741,11 +747,14 @@
         var change_table_no_reload = (need_alt_for_no_reload
                                         ? keyEvent.altKey
                                         : !keyEvent.altKey);
+        resetToCreateTable(table, false);
+        var newLocation = '?table='+table;
+
         // no reload - change table w pure JS
         if (change_table_no_reload) {
 
-            // change which table to submit to
-            scope.table_name = table;
+            selectFirstFormField(keyEvent);
+            keyEvent.preventDefault();
 
             // replace input with header again
             document.getElementById('selectTable')
@@ -754,20 +763,6 @@
                                 ' + table + '\
                             </code>\
                     ';
-
-            // change update button to create button
-            changeUpdateButtonToCreateButton();
-
-            // change "view all" link
-            console.log('doing view_all_link');
-            view_all_link = document.getElementById('view_all_link');
-            if (view_all_link) {
-                view_all_url = scope.table_view_uri + '?sql=' + table + maybe_minimal();
-                view_all_link.setAttribute('href', view_all_url);
-            }
-
-            selectFirstFormField(keyEvent);
-            keyEvent.preventDefault();
 
         }
         // reload - redirect page
@@ -791,6 +786,9 @@
                 />\
             ';
         }
+
+        // if we're changing to Create mode, there's no existing row to care about any vals
+        scope.vals_already_set_on_row = {};
     }
 
     function changeCreateButtonToUpdateButton() {
@@ -948,9 +946,9 @@
             var form_names = getFormKeys(form, true);
             for (var i = 0; i < form_names.length; i++) {
                 var key = form_names[i];
-                scope.vals_to_always_include[key] = true;
+                scope.vals_already_set_on_row[key] = true;
             }
-            console.log('vals_to_always_include = ', scope.vals_to_always_include);
+            console.log('vals_already_set_on_row = ', scope.vals_already_set_on_row);
         }
         else {
             console.log('no form, not doing form-related init');

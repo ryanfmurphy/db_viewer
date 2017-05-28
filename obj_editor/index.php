@@ -463,6 +463,7 @@
 <?php
             }
             if ($mobile_travel_mode) {
+                #todo #fixme why are these target blank?
 ?>
                 <nobr id="prev_next_row_links">
                     <span   id="first_row_link" class="link" target="_blank"
@@ -488,6 +489,13 @@
                 </nobr>
 <?php
             }
+            if (Config::$config['include_create_child_button']) {
+?>
+                <span class="link" onclick="changeToCreateChildForm()">
+                    create child
+                </span>
+<?php
+                        }
         }
 ?>
             </div>

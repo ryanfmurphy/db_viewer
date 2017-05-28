@@ -181,6 +181,9 @@ class Config {
             'backup_local_storage_rows_as_json',
             'save_json_dump_uri',
             'save_json_dump_of_stored_rows',
+
+            # obj_editor
+            'include_create_child_button',
         );
 
         $config = compact($config_vars);
@@ -391,6 +394,9 @@ class Config {
             #  e.g. if they reference a nonexistent table or field)
             'backup_local_storage_rows_as_json' => false,
             'save_json_dump_of_stored_rows' => false,
+
+            # obj_editor
+            'include_create_child_button' => false,
         );
 
         return $default_values;
