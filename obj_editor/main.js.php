@@ -682,8 +682,32 @@
         }
     }
 
+    function getFormVal(name) {
+        var formInputs = getFormInputs(getForm());
+        var data = form2obj(formInputs,
+                            false,
+                            scope.vals_already_set_on_row);
+        return data[name];
+    }
+
+    function setFormVal(name, val) {
+        var formInputs = getFormInputs(getForm());
+        for (var i=0; i < formInputs.length; i++) {
+            var input = formInputs[i];
+            if (input.getAttribute('name') == name) {
+                console.log('setFormVal: found matching input with name',name,
+                            'input:',input,'val:',val);
+                input.value = val;
+            }
+        }
+    }
+
     function changeToCreateChildForm() {
+        var id = getFormVal('id');
+        console.log(id);
         resetToCreateTable(null, true);
+        setFormVal('parent_id', id);
+        focusFirstFormField();
     }
 
     // change Update button to Create
@@ -753,7 +777,7 @@
         // no reload - change table w pure JS
         if (change_table_no_reload) {
 
-            selectFirstFormField(keyEvent);
+            focusFirstFormField(keyEvent);
             keyEvent.preventDefault();
 
             // replace input with header again
@@ -1365,7 +1389,7 @@
 
     }
 
-    function selectFirstFormField(e) {
+    function focusFirstFormField(e) {
         var form = getForm();
         var inputs = getFormInputs(form);
         if (inputs.length > 0) {

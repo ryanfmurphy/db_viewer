@@ -533,7 +533,7 @@
                     }
 ?>
             <script>
-                selectFirstFormField(); // doesn't seem to work on mobile :/ boohoo
+                focusFirstFormField(); // doesn't seem to work on mobile :/ boohoo
             </script>
 <?php
                 }

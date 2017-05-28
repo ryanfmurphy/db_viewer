@@ -14,8 +14,11 @@
 <?php
         }
         */
+
+        $background_color = 'white'; #todo #fixme
 ?>
             body {
+                background: <?= $background_color ?>;
                 font-family: sans-serif;
             }
             h1 {
