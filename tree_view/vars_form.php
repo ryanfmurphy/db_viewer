@@ -104,6 +104,7 @@
                 'parent_table' => null,
                 'parent_field' => null,
                 'matching_field_on_parent' => null,
+                'condition' => null,
             );
         }
 ?>
@@ -135,6 +136,12 @@
                     <label>matching Field on Parent:</label>
                     <input  name="parent_relationships[<?= $rel_no ?>][matching_field_on_parent]"
                             value="<?= $relationship['matching_field_on_parent'] ?>"
+                            type="text">
+                </div>
+                <div>
+                    <label>optional Filter Condition:</label>
+                    <input  name="parent_relationships[<?= $rel_no ?>][condition]"
+                            value="<?= $relationship['condition'] ?>"
                             type="text">
                 </div>
             </div>

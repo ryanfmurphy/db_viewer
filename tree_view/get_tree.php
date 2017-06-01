@@ -62,7 +62,6 @@
             && in_array($table,
                         $tables_to_use_relname)
         ) {
-            #todo #fixme only add it for tables that have that field
             $fields['relname'] = 1;
         }
 
@@ -402,7 +401,7 @@
                                                  $matching_field_on_parent);
 
             if (count($parent_vals) > 0) {
-                $where_cond = null; #todo #fixme store where_conds in each relationship
+                $where_cond = $parent_relationship['condition'];
                 $rows = get_next_level_of_children(
                     $parent_vals, $fields, $parent_field,
                     $child_table, $order_by_limit, $where_cond

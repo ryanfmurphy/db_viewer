@@ -24,6 +24,7 @@
                                         'parent_table' => $root_table,
                                         'parent_field' => $default_parent_field,
                                         'matching_field_on_parent' => '{{USE PRIMARY KEY}}',
+                                        'condition' => '',
                                     )
                                   );
 
@@ -35,11 +36,20 @@
                     ? $requestVars['edit_vars']
                     : null;
 
-    # make sure tables are filled out for all relationships
-    # (default to root_table)
-    /*
+    # make sure details are set for all relationships (default to null)
     foreach ($parent_relationships as $no => $relationship) {
+        if (!isset($parent_relationships[$no]['child_table']))
+            $parent_relationships[$no]['child_table'] = null;
+        if (!isset($parent_relationships[$no]['parent_table']))
+            $parent_relationships[$no]['parent_table'] = null;
+        if (!isset($parent_relationships[$no]['parent_field']))
+            $parent_relationships[$no]['parent_field'] = null;
+        if (!isset($parent_relationships[$no]['matching_field_on_parent']))
+            $parent_relationships[$no]['matching_field_on_parent'] = null;
+        if (!isset($parent_relationships[$no]['condition']))
+            $parent_relationships[$no]['condition'] = null;
 
+        /*
         if (!isset($relationship['child_table'])
             || !$relationship['child_table']
         ) {
@@ -51,9 +61,9 @@
         ) {
             $parent_relationships[$no]['parent_table'] = $root_table;
         }
+        */
 
     }
-    */
 
     # mostly color for now
     $table_info = array();

@@ -270,7 +270,7 @@ function setupTreeWithSize(root) {
 <?php
     #todo #fixme find a better way to build this query string
     #            I have a pretty good pure-JS form -> query string fn
-    #            but it doesn't handle arrays yet
+    #            but it doesn't handle arrays (actually I think it does now!)
 ?>
 function treeDataUrl() {
     return "<?= $get_tree_uri ?>"
@@ -286,11 +286,13 @@ function treeDataUrl() {
         $matching_field_on_parent = urlencode($parent_relationship['matching_field_on_parent']);
         $child_table = urlencode($parent_relationship['child_table']);
         $parent_table = urlencode($parent_relationship['parent_table']);
+        $condition = urlencode($parent_relationship['condition']);
 ?>
                 +"&parent_relationships[<?= $i ?>][parent_field]=<?= $parent_field ?>"
                 +"&parent_relationships[<?= $i ?>][matching_field_on_parent]=<?= $matching_field_on_parent ?>"
                 +"&parent_relationships[<?= $i ?>][child_table]=<?= $child_table ?>"
                 +"&parent_relationships[<?= $i ?>][parent_table]=<?= $parent_table ?>"
+                +"&parent_relationships[<?= $i ?>][condition]=<?= $condition ?>"
 <?php
     }
 ?>
