@@ -141,6 +141,7 @@ function setupTree(new_width, new_height, level_width) {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 }
 
+// <script>
 // add elements of arr2 to elements of arr2, offsetting
 // arr2 by off, so that arr2[0] aligns with arr1[off]
 // destructively modifies arr1
@@ -176,9 +177,10 @@ function countNodesByLevel(node, level) {
 }
 
 function numNodesInLargestLevel(node) {
-    num_nodes_by_level = countNodesByLevel(node, 0);
-    max_nodes_any_lev = 0;
-    for (var i=0; i<num_nodes_by_level.length; i++) {
+    var num_nodes_by_level = countNodesByLevel(node, 0);
+    console.log('num_nodes_by_level', num_nodes_by_level);
+    var max_nodes_any_lev = 0;
+    for (var i=0; i < num_nodes_by_level.length; i++) {
         num_nodes_this_lev = num_nodes_by_level[i];
         if (num_nodes_this_lev > max_nodes_any_lev) {
             max_nodes_any_lev = num_nodes_this_lev;
@@ -187,6 +189,22 @@ function numNodesInLargestLevel(node) {
     return max_nodes_any_lev;
 }
 
+// numNodesInLargestLevel but also caring about the avg nodes in level
+function treeHeightFactor(node) {
+    var num_nodes_by_level = countNodesByLevel(node, 0);
+    console.log('num_nodes_by_level', num_nodes_by_level);
+    var max_nodes_any_lev = 0;
+    for (var i=0; i < num_nodes_by_level.length; i++) {
+        num_nodes_this_lev = num_nodes_by_level[i];
+        if (num_nodes_this_lev > max_nodes_any_lev) {
+            max_nodes_any_lev = num_nodes_this_lev;
+        }
+    }
+    var avg_nodes_any_lev = max_nodes_any_lev / num_nodes_by_level.length;
+    return (max_nodes_any_lev + avg_nodes_any_lev) / 2;
+}
+
+// <script>
 // i and j only count as half
 function strlenVarWidth(str) {
     var num_short_ones = 0;
@@ -244,9 +262,16 @@ function getMaxNodeStrlen(node, name_cutoff, strlen_fn) {
 
 function setupTreeWithSize(root) {
     // #todo #fixme make a weighted count fn that cares about stars
-    var num_nodes_updown = numNodesInLargestLevel(root);
+    /*var num_nodes_updown = numNodesInLargestLevel(root);
     var height = Math.max(
         num_nodes_updown * 24,
+        defaults.height
+    );
+    */
+    var num_nodes_updown = treeHeightFactor(root);
+    console.log('num_nodes_updown', num_nodes_updown);
+    var height = Math.max(
+        num_nodes_updown * 65,
         defaults.height
     );
     var width = undefined; // 2000;
@@ -262,7 +287,8 @@ function setupTreeWithSize(root) {
     var approx_max_node_width = max_node_strlen * 9; //5.2;
 
     var level_width = Math.max(
-        approx_max_node_width, defaults.level_width);
+        approx_max_node_width, defaults.level_width
+    );
 
     setupTree(width, height, level_width);
 }
