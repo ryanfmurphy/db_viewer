@@ -495,7 +495,18 @@
                     create child
                 </span>
 <?php
-                        }
+            }
+            #todo #fixme this trello link should be a plugin, not part of the code code
+            if (in_array('trello_card_url', $fields)
+                && isset($defaultValues['trello_card_url'])
+                && $defaultValues['trello_card_url']
+            ) {
+?>
+                <a target="_blank" class="link" href="<?= $defaultValues['trello_card_url'] ?>">
+                    trello
+                </a>
+<?php
+            }
         }
 ?>
             </div>
