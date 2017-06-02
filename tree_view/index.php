@@ -347,14 +347,18 @@ function createTree() {
                 }
             }
 
+            // #todo functionalize
 <?php
     if (!$start_w_tree_fully_expanded) {
 ?>
             root.children.forEach(collapse);
+            updateTree(root);
+            setTimeout(function(){
+                expandRootNodes();
+            }, 500);
 <?php
     }
 ?>
-            updateTree(root);
 
             ghostRootNode();
         }
@@ -442,7 +446,7 @@ function updateTree(source) {
                                     : "#fff";
                             }
             )
-            .on("click", clickNode);
+            .on("click", toggleNodeExpansion);
 
     var vary_node_colors = <?= (int)Config::$config['vary_node_colors']; ?>;
     nodeEnter.append("text")
@@ -581,16 +585,38 @@ function updateTree(source) {
     });
 }
 
-// toggle children on click.
-function clickNode(d) {
-    if (d.children) {
-        d._children = d.children;
-        d.children = null;
-    } else {
-        d.children = d._children;
-        d._children = null;
-    }
+function nodeIsExpanded(d) {
+    return d.children; // care about truthiness
+}
+
+function expandNode(d) {
+    d.children = d._children;
+    d._children = null;
     updateTree(d);
+}
+function collapseNode(d) {
+    d._children = d.children;
+    d.children = null;
+    updateTree(d);
+}
+
+// toggle children on click.
+function toggleNodeExpansion(d) {
+    if (nodeIsExpanded(d)) {
+        collapseNode(d)
+    }
+    else {
+        expandNode(d)
+    }
+}
+
+function expandRootNodes() {
+    var rootRoot = svg_tree.root;
+    var roots = rootRoot.children;
+    for (var i=0; i < roots.length; i++) {
+        var node = roots[i];
+        expandNode(node);
+    }
 }
 
 <?php
