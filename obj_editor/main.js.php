@@ -711,9 +711,9 @@
     }
 
     // change Update button to Create
+    // without reloading the page
     // optionally clear the form
     // optionally change to another table
-    // without reloading the page
     function resetToCreateTable(table, do_clear_fields) {
         if (do_clear_fields === undefined) do_clear_fields = false;
 
@@ -724,6 +724,7 @@
         // change which table to submit to
         if (table) {
             // change "table_name" var
+            // #todo #fixme this doesn't seem to work anymore after the #factor
             if (scope.table_field_spaces_to_underscores) {
                 table = table.replace(/ /g,'_');
             }
@@ -745,6 +746,17 @@
             clearAllFields();
         }
     }
+
+    function change_SelectTableInput_to_header(table) {
+        // replace input with header again
+        document.getElementById('selectTable')
+                .outerHTML = '\
+                        <code id="table_name" onclick="becomeSelectTableInput(this)">\
+                            ' + table + '\
+                        </code>\
+                ';
+    }
+
 
     // #todo this is not used for cursorPrev/Next visiting old rows
     // because it assumes it's already an input
@@ -779,15 +791,7 @@
 
             focusFirstFormField(keyEvent);
             keyEvent.preventDefault();
-
-            // replace input with header again
-            document.getElementById('selectTable')
-                    .outerHTML = '\
-                            <code id="table_name" onclick="becomeSelectTableInput(this)">\
-                                ' + table + '\
-                            </code>\
-                    ';
-
+            change_SelectTableInput_to_header(table);
         }
         // reload - redirect page
         else {
@@ -836,16 +840,14 @@
         }
     }
 
+    // given elem, make it become an <input> to select the table
     function becomeSelectTableInput(elem) {
         var currentTableName = elem.innerText.trim();
         var parentElem = elem.parentNode;
 
         // swap in new <input> DOM element
-        var tempContainer = document.createElement('div');
         var html = <?= echoSelectTableInputHtml_JsFormat() ?>;
-        html = html.trim();
-        tempContainer.innerHTML = html;
-        var selectTableInput = tempContainer.firstChild;
+        var selectTableInput = createElemFromHtml(html);
         selectTableInput.value = currentTableName;
         parentElem.replaceChild(selectTableInput, elem);
 
