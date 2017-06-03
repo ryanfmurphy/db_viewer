@@ -13,9 +13,14 @@ if (!class_exists('Db')) {
                 die("Must pass set Db::\$config to the \$config array first\n");
             }
             extract(Config::$config); # creates variables
+
+            $connection_str = ($db_type == 'sqlite'
+                                ? "$db_type:$db_name"
+                                : "$db_type:host=$db_host;dbname=$db_name");
+
             try {
                 $db = self::$db = new PDO(
-                    "$db_type:host=$db_host;dbname=$db_name",
+                    $connection_str,
                     $db_user, $db_password
                 );
             }

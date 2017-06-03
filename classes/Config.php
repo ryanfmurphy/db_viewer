@@ -227,6 +227,10 @@ class Config {
         do_log("uri_trunk = $uri_trunk\n");
 
         $default_values = array(
+            # for SQLite e.g. these should be null
+            'db_user' => null,
+            'db_password' => null,
+
             # if true, make user log in using db username/password via a form
             'db_prompt_for_auth' => false,
 
