@@ -802,6 +802,29 @@ infer_limit_from_query: query didn't match regex.
             }
         }
 
+        public static function get_tables_array() {
+            {   ob_start();
+?>
+                    select table_schema, table_name
+                    from information_schema.tables
+                    where table_schema = 'public' -- #todo #fixme
+<?php
+                $sql = ob_get_clean();
+            }
+            $rows = Db::sql($sql);
+
+            $tables = array();
+            foreach ($rows as $row) {
+                $schema = $row['table_schema'];
+                $table_name = $row['table_name'];
+                if ($schema != 'public') {
+                    $table_name = "$schema.$table_name";
+                }
+                $tables[] = $table_name;
+            }  
+            return $tables;
+        }
+
     }
 
 }

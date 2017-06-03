@@ -342,6 +342,7 @@
         function echoSelectTableInputHtml() {
 ?>
                 <input  id="selectTable"
+                        list="tableList"
                         placeholder="select table"
                         onkeypress="selectTableOnEnter(event)"
                         autocapitalize="none"
@@ -404,9 +405,17 @@
     <body>
 <?php
     { # HTML for header stuff: table header/input etc
-
-        #todo #fixme fix this href: should not be hardcoded
 ?>
+        <datalist id="tableList">
+<?php
+        foreach (DbUtil::get_tables_array() as $table_name) {
+?>
+            <option value="<?= $table_name ?>">
+<?php
+        }
+?>
+        </datalist>
+
         <p id="whoami">
             <a id="choose_table_link" href="<?= $obj_editor_uri ?>">
                 choose table
