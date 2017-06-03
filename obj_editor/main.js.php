@@ -654,9 +654,7 @@
     function openAddNewField() {
         var fieldName = prompt("Enter Field Name to add:");
         if (fieldName) {
-            if (scope.table_field_spaces_to_underscores) {
-                fieldName = fieldName.replace(/ /g,'_');
-            }
+            fieldName = prepIdentifierName(fieldName);
             addNewInput(fieldName);
         }
     }
@@ -710,6 +708,26 @@
         focusFirstFormField();
     }
 
+    function prepIdentifierName(table_name) { // table or field name
+        if (scope.table_field_spaces_to_underscores) {
+            table_name = table_name.replace(/ /g,'_');
+        }
+        var default_tablename = '<?= Config::$config['obj_editor_default_tablename'] ?>';
+        if (!table_name && default_tablename) {
+            table_name = default_tablename;
+        }
+        return table_name;
+    }
+
+    function changeViewAllLink(table) {
+        console.log('changing view_all_link');
+        view_all_link = document.getElementById('view_all_link');
+        if (view_all_link) {
+            view_all_url = scope.table_view_uri + '?sql=' + table + maybe_minimal();
+            view_all_link.setAttribute('href', view_all_url);
+        }
+    }
+
     // change Update button to Create
     // without reloading the page
     // optionally clear the form
@@ -721,22 +739,10 @@
         // you're now at the end of the stored rows again
         cursorReset();
 
-        // change which table to submit to
+        // change which table to insert/update on form submit
         if (table) {
-            // change "table_name" var
-            // #todo #fixme this doesn't seem to work anymore after the #factor
-            if (scope.table_field_spaces_to_underscores) {
-                table = table.replace(/ /g,'_');
-            }
-            scope.table_name = table;
-
-            // change "view all" link
-            console.log('doing view_all_link');
-            view_all_link = document.getElementById('view_all_link');
-            if (view_all_link) {
-                view_all_url = scope.table_view_uri + '?sql=' + table + maybe_minimal();
-                view_all_link.setAttribute('href', view_all_url);
-            }
+            scope.table_name = table; // already did prepIdentifierName
+            changeViewAllLink(table);
         }
 
         // change update button to create button
@@ -765,30 +771,22 @@
 
         var selectTableInput = document.getElementById('selectTable');
         var table = selectTableInput.value;
-        /*var table = selectTableInput.value;
-        if (scope.table_field_spaces_to_underscores) {
-            table = table.replace(/ /g,'_');
-        }
+        table = prepIdentifierName(table);
 
-        // if you change table while visiting previous stored rows,
-        // you're now at the end of the stored rows again
-        cursorReset();
-        */
-
-        // depending on alt key, don't refresh page,
-        // just change the table we're pointing at
-        var need_alt_for_no_reload = <?= ($need_alt_for_no_reload
-                                            ? 'true'
-                                            : 'false') ?>;
+        // depending on alt key, decide whether to refresh page,
+        // or just change the table we're pointing at
+        var need_alt_for_no_reload = <?= ($need_alt_for_no_reload ? 'true' : 'false') ?>;
         var change_table_no_reload = (need_alt_for_no_reload
                                         ? keyEvent.altKey
                                         : !keyEvent.altKey);
+
+        // change live document (#todo probably only need this if (change_table_no_reload))
         resetToCreateTable(table, false);
+
         var newLocation = '?table='+table;
 
         // no reload - change table w pure JS
         if (change_table_no_reload) {
-
             focusFirstFormField(keyEvent);
             keyEvent.preventDefault();
             change_SelectTableInput_to_header(table);
