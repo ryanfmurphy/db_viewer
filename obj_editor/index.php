@@ -92,9 +92,9 @@
                 #);
 
                 #todo #fixme a lot of this is duplicate of DbUtil::get_table_fields
-                #$get_columns_sql = DbUtil::get_columns_sql(
-                #    $table, $schemas_in_path
-                #);
+                $get_columns_sql = DbUtil::get_columns_sql(
+                    $table, $schemas_in_path
+                );
                 if ($db_type == 'sqlite') {
                     $rawFieldsRows = Db::sql($get_columns_sql);
                     $fieldsRows = array();
