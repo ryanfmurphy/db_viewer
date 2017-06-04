@@ -108,6 +108,7 @@
 
                 if (count($fieldsRows) > 0) {
 
+                    $fieldsRowsBySchema = array();
                     if ($db_type == 'sqlite') {
                         $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
                         if (isset($minimal_fields_by_table[$table])) {
@@ -119,7 +120,6 @@
                     }
                     else {
                         { # group by schema
-                            $fieldsRowsBySchema = array();
                             #todo #fixme Warning: Invalid argument supplied for foreach()
                             foreach ($fieldsRows as $fieldsRow) {
                                 $schema = $fieldsRow['table_schema'];
