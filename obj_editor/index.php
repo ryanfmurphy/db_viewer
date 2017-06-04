@@ -61,7 +61,7 @@
 
         { # vars
             $schemas_in_path = DbUtil::schemas_in_path($search_path);
-            $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
+            #$schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
             { # choose background
                 $background_image_url = TableView::choose_background_image(
@@ -89,6 +89,7 @@
 
                 #todo #fixme a lot of this is duplicate of DbUtil::get_table_fields
 
+                /*
                 { ob_start(); # do query
 ?>
                         select
@@ -104,6 +105,8 @@
                     }
                     $get_columns_sql = ob_get_clean();
                 }
+                */
+                $get_columns_sql = DbUtil::get_columns_sql($table, $schemas_in_path);
                 $fieldsRows = Db::sql($get_columns_sql);
 
                 if (count($fieldsRows) > 0) {
