@@ -429,12 +429,13 @@
                 Table <code><?= $table ?></code> doesn't exist
             </p>
 <?php
+            $table = null;
         }
 ?>
             <div id="table_header_top">
                 <h1>
 <?php
-        if ($table && !$nonexistentTable) {
+        if ($table) {
             #todo #fixme make this not get small when editing it in mobile_travel_mode
             #todo #fixme make this not lose its id when editing in mobile_travel_mode
 ?>
@@ -537,7 +538,7 @@
     }
 
     { # main HTML content
-        if ($table && !$nonexistentTable) {
+        if ($table) {
 
             { # the form
 ?>
