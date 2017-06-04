@@ -140,6 +140,11 @@ if (!class_exists('DbUtil')) {
                     where table_schema in ('public')
                 ");
             }
+            elseif ($db_type == 'sqlite') {
+                $rows = Db::sql("
+                    select name from sqlite_master where type='table'
+                ");
+            }
 			else { # probably mysql
                 $rows = Db::sql('show tables');
             }
