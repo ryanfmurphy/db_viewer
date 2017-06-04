@@ -88,30 +88,26 @@
             if ($table) { # get fields of table from db
 
                 #todo #fixme a lot of this is duplicate of DbUtil::get_table_fields
-
-                /*
-                { ob_start(); # do query
-?>
-                        select
-                            table_schema, table_name,
-                            column_name
-                        from information_schema.columns
-                        where table_name='<?= $table ?>'
-<?php
-                    if ($schemas_val_list) {
-?>
-                            and table_schema in (<?= $schemas_val_list ?>)
-<?php
+                $get_columns_sql = DbUtil::get_columns_sql(
+                    $table, $schemas_in_path
+                );
+                if ($db_type == 'sqlite') {
+                    $rawFieldsRows = Db::sql($get_columns_sql);
+                    $fieldRows = array();
+                    foreach ($rawFieldsRows as $rawFieldsRow) {
+                        $row['table_schema'] = 'public';
+                        $row['column_name'] = $rawFieldsRow['name'];
+                        $fieldsRows[] = $row;
                     }
-                    $get_columns_sql = ob_get_clean();
                 }
-                */
-                $get_columns_sql = DbUtil::get_columns_sql($table, $schemas_in_path);
-                $fieldsRows = Db::sql($get_columns_sql);
+                else {
+                    $fieldsRows = Db::sql($get_columns_sql);
+                }
 
                 if (count($fieldsRows) > 0) {
 
                     $fieldsRowsBySchema = array();
+                    /*
                     if ($db_type == 'sqlite') {
                         $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
                         if (isset($minimal_fields_by_table[$table])) {
@@ -121,7 +117,7 @@
                             $fields = array('name','txt','id','time');
                         }
                     }
-                    else {
+                    else*/ {
                         { # group by schema
                             #todo #fixme Warning: Invalid argument supplied for foreach()
                             foreach ($fieldsRows as $fieldsRow) {

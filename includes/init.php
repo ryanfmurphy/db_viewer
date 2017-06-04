@@ -51,9 +51,11 @@
         { # search_path
             if (!isset($search_path)) {
                 $search_path =
-                    ($db_type == 'pgsql'
-                        ? $search_path = 'public'
-                        : $search_path = $db_name
+                    ($db_type == 'mysql'
+                        ? $search_path = $db_name
+                          # sqlite will have a pretend 'public' schema for our purposes
+                          # #todo #fixme are there any sqlite cases where this search_path breaks?
+                        : $search_path = 'public'
                     );
             }
 

@@ -675,8 +675,15 @@ infer_limit_from_query: query didn't match regex.
             $table, $schemas_in_path
         ) {
             $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
+            $db_type = Config::$config['db_type'];
 
-            { ob_start();
+            if ($db_type == 'sqlite') {
+                $get_columns_sql = "
+                    pragma table_info('entity')
+                ";
+            }
+            else {
+                ob_start();
 ?>
                 select
                     table_schema, table_name,
@@ -701,6 +708,9 @@ infer_limit_from_query: query didn't match regex.
         ) {
             $db_type = Config::$config['db_type'];
             #todo #fixme factor this with dup code in obj_editor/index.php
+            $get_columns_sql = DbUtil::get_columns_sql(
+                $table, $schemas_in_path
+            );
             if ($db_type == 'sqlite') {
                 $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
                 if (isset($minimal_fields_by_table[$table])) {
@@ -712,30 +722,6 @@ infer_limit_from_query: query didn't match regex.
             }
             else {
                 { # do query
-
-                    /*
-                    $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
-
-                    { ob_start();
-    ?>
-                        select
-                            table_schema, table_name,
-                            column_name
-                        from information_schema.columns
-                        where table_name='<?= $table ?>'
-    <?php
-                        if ($schemas_val_list) {
-    ?>
-                            and table_schema in (<?= $schemas_val_list ?>)
-    <?php
-                        }
-                        $get_columns_sql = ob_get_clean();
-                    }
-                    */
-                    #die($get_columns_sql);
-                    $get_columns_sql = DbUtil::get_columns_sql(
-                        $table, $schemas_in_path
-                    );
                     $fieldsRows = Db::sql($get_columns_sql);
                     if (count($fieldsRows) == 0) {
                         #die("Table $table doesn't exist");
