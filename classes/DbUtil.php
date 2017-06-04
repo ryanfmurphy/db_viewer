@@ -711,7 +711,26 @@ infer_limit_from_query: query didn't match regex.
             $get_columns_sql = DbUtil::get_columns_sql(
                 $table, $schemas_in_path
             );
+
+            # get fieldsRows
             if ($db_type == 'sqlite') {
+                $rawFieldsRows = Db::sql($get_columns_sql);
+                $fieldsRows = array();
+                foreach ($rawFieldsRows as $rawFieldsRow) {
+                    $row['table_schema'] = 'public';
+                    $row['column_name'] = $rawFieldsRow['name'];
+                    $fieldsRows[] = $row;
+                }
+            }
+            else {
+                $fieldsRows = Db::sql($get_columns_sql);
+            }
+
+            if (count($fieldsRows) == 0) {
+                return false;
+            }
+
+            /*if ($db_type == 'sqlite') {
                 $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
                 if (isset($minimal_fields_by_table[$table])) {
                     return $minimal_fields_by_table[$table];
@@ -720,17 +739,18 @@ infer_limit_from_query: query didn't match regex.
                     return array('name','txt','id','time');
                 }
             }
-            else {
-                { # do query
+            else {*/
+                /*{ # do query
                     $fieldsRows = Db::sql($get_columns_sql);
                     if (count($fieldsRows) == 0) {
                         #die("Table $table doesn't exist");
                         return false;
                     }
-                }
+                }*/
 
                 { # group by schema
                     $fieldsRowsBySchema = array();
+                    #todo #fixme Warning: Invalid argument supplied for foreach()
                     foreach ($fieldsRows as $fieldsRow) {
                         $schema = $fieldsRow['table_schema'];
                         $fieldsRowsBySchema[$schema][] = $fieldsRow;
@@ -747,7 +767,6 @@ infer_limit_from_query: query didn't match regex.
                                 break;
                             }
                         }
-
                         if ($schema === null) {
                             die("Whoops!  Couldn't select a DB schema for table $table");
                         }
@@ -771,7 +790,7 @@ infer_limit_from_query: query didn't match regex.
                 */
 
                 return $fields;
-            }
+            #}
         }
 
         # if returns false, maybe table doesn't exist

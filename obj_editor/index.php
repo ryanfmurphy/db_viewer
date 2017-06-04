@@ -87,13 +87,17 @@
             $nonexistentTable = false;
             if ($table) { # get fields of table from db
 
+                #DbUtil::get_table_fields(
+                #    $table, $schemas_in_path
+                #);
+
                 #todo #fixme a lot of this is duplicate of DbUtil::get_table_fields
-                $get_columns_sql = DbUtil::get_columns_sql(
-                    $table, $schemas_in_path
-                );
+                #$get_columns_sql = DbUtil::get_columns_sql(
+                #    $table, $schemas_in_path
+                #);
                 if ($db_type == 'sqlite') {
                     $rawFieldsRows = Db::sql($get_columns_sql);
-                    $fieldRows = array();
+                    $fieldsRows = array();
                     foreach ($rawFieldsRows as $rawFieldsRow) {
                         $row['table_schema'] = 'public';
                         $row['column_name'] = $rawFieldsRow['name'];
@@ -106,7 +110,6 @@
 
                 if (count($fieldsRows) > 0) {
 
-                    $fieldsRowsBySchema = array();
                     /*
                     if ($db_type == 'sqlite') {
                         $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
@@ -117,8 +120,10 @@
                             $fields = array('name','txt','id','time');
                         }
                     }
-                    else*/ {
+                    else {*/
                         { # group by schema
+                            $fieldsRowsBySchema = array();
+
                             #todo #fixme Warning: Invalid argument supplied for foreach()
                             foreach ($fieldsRows as $fieldsRow) {
                                 $schema = $fieldsRow['table_schema'];
@@ -149,7 +154,7 @@
                                 $fieldsRowsBySchema[$schema]
                             );
                         }
-                    }
+                    #}
 
                     { # so we can give a warning/notice about it later
                         $multipleTablesFoundInDifferentSchemas =
