@@ -842,8 +842,16 @@ infer_limit_from_query: query didn't match regex.
             }
         }
 
-        #todo #fixme duplicate of sql_tables()
+        # same as sql_tables() except a value array
+        # instead of keyed by table
         public static function get_tables_array() {
+            $keyed_array = self::sql_tables();
+            $results = array();
+            foreach ($keyed_array as $table => $throwaway) {
+                $results[] = $table;
+            }
+            return $results;
+            /*
             {   ob_start();
 ?>
                     select table_schema, table_name
@@ -864,6 +872,7 @@ infer_limit_from_query: query didn't match regex.
                 $tables[] = $table_name;
             }  
             return $tables;
+            */
         }
 
     }
