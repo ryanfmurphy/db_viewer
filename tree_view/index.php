@@ -352,7 +352,13 @@ function createTree() {
     if (!$start_w_tree_fully_expanded) {
 ?>
             root.children.forEach(collapse);
+<?php
+    }
+?>
             updateTree(root);
+<?php
+    if (!$start_w_tree_fully_expanded) {
+?>
             setTimeout(function(){
                 expandRootNodes();
             }, 500);
