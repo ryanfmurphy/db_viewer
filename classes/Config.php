@@ -185,6 +185,8 @@ class Config {
             # obj_editor
             'include_create_child_button',
             'obj_editor_default_tablename',
+
+            'recognize_numbered_id_fields',
         );
 
         $config = compact($config_vars);
@@ -403,6 +405,8 @@ class Config {
             # obj_editor
             'include_create_child_button' => false,
             'obj_editor_default_tablename' => 'note',
+
+            'recognize_numbered_id_fields' => true,
         );
 
         return $default_values;

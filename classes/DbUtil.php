@@ -219,6 +219,13 @@ if (!class_exists('DbUtil')) {
             self::log("\ntop of choose_table_and_field(field_name = '$field_name')\n");
             $id_mode = Config::$config['id_mode'];
             $pluralize_table_names = Config::$config['pluralize_table_names'];
+            $recognize_numbered_id_fields = Config::$config['recognize_numbered_id_fields'];
+
+            if ($recognize_numbered_id_fields
+                && preg_match('/(.*)[0-9]+$/', $field_name, $matches)
+            ) {
+                $field_name = $matches[1];
+            }
 
             $suffix = self::has_valid_join_field_suffix($field_name);
             self::log(" has_valid_join_field_suffix(field_name=$field_name)?\n");
