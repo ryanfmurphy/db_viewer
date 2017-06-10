@@ -108,53 +108,41 @@
                     $fieldsRows = Db::sql($get_columns_sql);
                 }
 
+                #todo #fixme can still #factor more of this (use exising code in DbUtil)
                 if (count($fieldsRows) > 0) {
+                    { # group by schema
+                        $fieldsRowsBySchema = array();
 
-                    /*
-                    if ($db_type == 'sqlite') {
-                        $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
-                        if (isset($minimal_fields_by_table[$table])) {
-                            $fields = $minimal_fields_by_table[$table];
-                        }
-                        else {
-                            $fields = array('name','txt','id','time');
+                        #todo #fixme Warning: Invalid argument supplied for foreach()
+                        foreach ($fieldsRows as $fieldsRow) {
+                            $schema = $fieldsRow['table_schema'];
+                            $fieldsRowsBySchema[$schema][] = $fieldsRow;
                         }
                     }
-                    else {*/
-                        { # group by schema
-                            $fieldsRowsBySchema = array();
 
-                            #todo #fixme Warning: Invalid argument supplied for foreach()
-                            foreach ($fieldsRows as $fieldsRow) {
-                                $schema = $fieldsRow['table_schema'];
-                                $fieldsRowsBySchema[$schema][] = $fieldsRow;
-                            }
-                        }
-
-                        { # choose 1st schema that applies
-                            if ($schemas_in_path) {
-                                $schema = null;
-                                foreach ($schemas_in_path as $schema_in_path) {
-                                    if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                                        $schema = $schema_in_path;
-                                        break;
-                                    }
-                                }
-                                if ($schema === null) {
-                                    die("Whoops!  Couldn't select a DB schema for table $table");
+                    { # choose 1st schema that applies
+                        if ($schemas_in_path) {
+                            $schema = null;
+                            foreach ($schemas_in_path as $schema_in_path) {
+                                if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                    $schema = $schema_in_path;
+                                    break;
                                 }
                             }
+                            if ($schema === null) {
+                                die("Whoops!  Couldn't select a DB schema for table $table");
+                            }
                         }
+                    }
 
-                        { # get just the column_names
-                            $fields = array_map(
-                                function($x) {
-                                    return $x['column_name'];
-                                },
-                                $fieldsRowsBySchema[$schema]
-                            );
-                        }
-                    #}
+                    { # get just the column_names
+                        $fields = array_map(
+                            function($x) {
+                                return $x['column_name'];
+                            },
+                            $fieldsRowsBySchema[$schema]
+                        );
+                    }
 
                     { # so we can give a warning/notice about it later
                         $multipleTablesFoundInDifferentSchemas =
