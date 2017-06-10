@@ -322,9 +322,11 @@
             var stored_rows = getStoredRowsLocal();
             var cursor = scope.stored_row_cursor;
             var row_wrapper;
-            if (cursor
-                && cursor.array == 'new'
-            ) {
+
+            var editing_existing = (cursor
+                && cursor.array == 'new' // one of the stored_rows, not old_stored_rows
+            );
+            if (editing_existing) {
                 // if you're visiting a previous row, and save,
                 // whatever fields you've changed/added get applied
                 // over the existing row object
@@ -346,8 +348,13 @@
             }
 
             saveStoredRowsLocal(stored_rows); // locally
-            alert('Row stored locally');
-            clearAllFields();
+            if (editing_existing) {
+                alert('Row updated locally');
+            }
+            else {
+                alert('Row stored locally');
+                clearAllFields();
+            }
             return false;
         }
 
@@ -485,10 +492,6 @@
     // save JSON dump of stored_rows in case something went wrong
     function saveJsonDumpOfStoredRows() {
         var data = getStoredRowsLocal();
-        /*{
-            'stored_rows': getStoredRowsLocal(),
-            'old_stored_rows': getOldStoredRowsLocal()
-        };*/
         var json_dump = JSON.stringify(data);
 
         // do the ajax
@@ -944,7 +947,9 @@
 
     window.onload = function() {
 
-<?php
+<?php   # #todo #cleanup - move this PHP code out of the JS
+        # so the syntax highlighter doesn't get so confused
+
         # focus selectTable input if no table selected
         if (!$table) {
 ?>
