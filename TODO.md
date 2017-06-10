@@ -1,6 +1,9 @@
 To-Do List
 ==========
 
+* Within joins, use the `val_html()` function to e.g. avoid allowing HTML to render
+  within dynamically joined-in data cells
+
 * Allow many-to-1 joining based on array fields
     * both authentic Postgres array joining
       and pseudo array using CSV text data
