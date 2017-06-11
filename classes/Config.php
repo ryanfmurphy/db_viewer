@@ -188,7 +188,7 @@ class Config {
             'save_json_dump_of_stored_rows',
 
             # obj_editor
-            'include_create_child_button',
+            'include_tree_buttons',
             'obj_editor_default_tablename',
 
             'recognize_numbered_id_fields',
@@ -413,7 +413,7 @@ class Config {
             'save_json_dump_of_stored_rows' => false,
 
             # obj_editor
-            'include_create_child_button' => false,
+            'include_tree_buttons' => false,
             'obj_editor_default_tablename' => 'note',
 
             'recognize_numbered_id_fields' => true,

@@ -491,11 +491,26 @@
                 </nobr>
 <?php
             }
-            if (Config::$config['include_create_child_button']) {
+            if (Config::$config['include_tree_buttons']) {
 ?>
                 <span class="link" onclick="changeToCreateChildForm()">
                     create child
                 </span>
+                <a  class="link"
+                    href="<?= $tree_view_uri."?root_table=entity_view"
+                                            ."&root_cond=id = '$primary_key'"
+                                            ."&parent_relationships[0][child_table]=entity_view"
+                                            ."&parent_relationships[0][parent_table]=entity_view"
+                                            ."&parent_relationships[0][parent_field]=parent_id"
+                                            ."&parent_relationships[0][matching_field_on_parent]=id"
+                                            ."&parent_relationships[0][condition]="
+                                            ."&order_by_limit=order+by+time_added+desc"
+                                            ."&name_cutoff=50"
+                                            ."&root_nodes_w_child_only="
+                                            ."&use_stars_for_node_size=0"
+                                            ."&vary_node_colors=1" ?>">
+                    tree
+                </a>
 <?php
             }
             #todo #fixme this trello link should be a plugin, not part of the code code
