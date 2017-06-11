@@ -614,10 +614,13 @@
             return $ret;
         }
 
-        public static function quot_str_for_js($string) {
+        public static function esc_str_for_js($string) {
             $string = str_replace("'", "\\'", $string);
-            $string = str_replace("\n", '\n', $string);
-            return "'$string'";
+            return    str_replace("\n", '\n', $string);
+        }
+
+        public static function quot_str_for_js($string) {
+            return "'" . self::esc_str_for_js($string) . "'";
         }
 
         public static function query_is_order_by_field($query, $field) {
