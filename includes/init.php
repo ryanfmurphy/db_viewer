@@ -81,11 +81,7 @@
                 $need_alt_for_no_reload = false;
                 $minimal = true;
                 Config::$config['minimal_fields'] =
-                    array(
-                        "name",
-                        "txt",
-                        "tags",
-                    );
+                    EditorBackend::$default_minimal_fields;
                 $minimal_fields = Config::$config['minimal_fields'];
             }
         }
@@ -106,10 +102,8 @@
 
                 if ($minimal) {
                     if (!isset($minimal_fields)) {
-                        $minimal_fields = array(
-                            "name",
-                            "txt",
-                        );
+                        $minimal_fields =
+                            EditorBackground::$default_minimal_fields;
                     }
                     $only_include_these_fields = $minimal_fields;
                 }

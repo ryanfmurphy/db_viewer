@@ -599,7 +599,7 @@
                         ? $minimal_fields_by_table[$tablename_no_quotes]
                         : (isset($minimal_fields)
                             ? $minimal_fields
-                            : array('name','txt','tags')));
+                            : EditorBackend::$default_minimal_fields));
 
             if ($minimal_field_inheritance
                 && is_array($minimal_fields)
