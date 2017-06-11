@@ -192,6 +192,8 @@ class Config {
             'obj_editor_default_tablename',
 
             'recognize_numbered_id_fields',
+
+            'edit_in_place',
         );
 
         $config = compact($config_vars);
@@ -417,6 +419,8 @@ class Config {
             'obj_editor_default_tablename' => 'note',
 
             'recognize_numbered_id_fields' => true,
+
+            'edit_in_place' => false,
         );
 
         return $default_values;

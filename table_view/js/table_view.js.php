@@ -671,7 +671,9 @@
         <?= $custom_td_click_handler ?>(e);
 <?php
     }
+
 ?>
+        var edit_in_place = <?= $edit_in_place ? 'true' : 'false' ?>;
 
         if (show_hide_mode) {
             // alt to fold/unfold row
@@ -695,6 +697,9 @@
                     hideCol(colN);
                 }
             }
+        }
+        else if (edit_in_place) {
+            alert('edit in place');
         }
 
     };
