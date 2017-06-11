@@ -699,7 +699,52 @@
             }
         }
         else if (edit_in_place) {
-            alert('edit in place');
+            console.log(elem);
+
+            if (elem.tagName != 'INPUT') {
+
+                var td = elem;
+                while (td && td.tagName != 'TD') {
+                    td = td.parentNode;
+                }
+                var tr = td.parentNode;
+
+                var val = 'value'; // #todo #fixme
+                var table = 'book'; // #todo #fixme
+                var field2edit = 'context'; // #todo #fixme
+                var action = 'update_'+table;
+                var primary_key = 'snoodlydoo'; // #todo #fixme
+                var id_field = 'id'; // #todo #fixme
+                var crud_api_uri = <?=
+                    TableView::quot_str_for_js(
+                        Config::$config['crud_api_uri']
+                    )
+                ?>;
+                var input_html = '\
+            <form   method="POST"\
+                    action="' + crud_api_uri + '"\
+                    target="_blank"\
+            >\
+                <input name="' + field2edit + '"\
+                       value="' + val + '"\
+                >\
+                <input name="where_clauses[' + id_field + ']"\
+                       type="hidden"\
+                       value="' + primary_key + '"\
+                >\
+                <input name="action"\
+                       type="hidden"\
+                       value="' + action + '"\
+                >\
+                <input class="hidden_submit"\
+                       type="submit"\
+                >\
+            </form>\
+                '
+                ;
+                console.log('input_html', input_html);
+                td.innerHTML = input_html;
+            }
         }
 
     };
