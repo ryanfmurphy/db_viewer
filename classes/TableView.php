@@ -595,12 +595,11 @@
             $minimal_fields = Config::$config['minimal_fields'];
             $minimal_field_inheritance = Config::$config['minimal_field_inheritance'];
 
-            $ret =
-                (isset($minimal_fields_by_table[$tablename_no_quotes])
-                    ? $minimal_fields_by_table[$tablename_no_quotes]
-                    : (isset($minimal_fields)
-                        ? $minimal_fields
-                        : array('name','txt')));
+            $ret = (isset($minimal_fields_by_table[$tablename_no_quotes])
+                        ? $minimal_fields_by_table[$tablename_no_quotes]
+                        : (isset($minimal_fields)
+                            ? $minimal_fields
+                            : array('name','txt','tags')));
 
             if ($minimal_field_inheritance
                 && is_array($minimal_fields)

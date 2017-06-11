@@ -84,6 +84,7 @@
                     array(
                         "name",
                         "txt",
+                        "tags",
                     );
                 $minimal_fields = Config::$config['minimal_fields'];
             }
