@@ -12,8 +12,11 @@
     function my_debug($category, $msg) {
         if (DEBUG_ALL
             || in_array($category, array(
-                                    'arrays', 'sql', 'rel', 'overview',
-                                        #'fields'
+                                    #'arrays',
+                                    'sql',
+                                    'rel',
+                                    'overview',
+                                    #'fields'
                                    ))
         ) {
             tree_log($msg);
