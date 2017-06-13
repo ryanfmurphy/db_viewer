@@ -18,14 +18,18 @@
 
     $parent_relationships = isset($requestVars['parent_relationships'])
                                 ? $requestVars['parent_relationships']
-                                : array(
-                                    array(
-                                        'child_table' => $root_table,
-                                        'parent_table' => $root_table,
-                                        'parent_field' => $default_parent_field,
-                                        'matching_field_on_parent' => '{{USE PRIMARY KEY}}',
-                                        'condition' => '',
-                                    )
+                                : ($assume_default_tree_relationship
+                                    ? array(
+                                            'child_table' => $root_table,
+                                            'parent_table' => $root_table,
+                                            'parent_field' => $default_parent_field,
+                                            'matching_field_on_parent' => '{{USE PRIMARY KEY}}',
+                                            # optional fields
+                                            'condition' => null,
+                                            'parent_filter_field' => null,
+                                            'parent_filter_field_val' => null,
+                                      )
+                                    : array()
                                   );
 
     $name_cutoff = isset($requestVars['name_cutoff'])

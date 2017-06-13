@@ -177,6 +177,8 @@ class Config {
             'name_field_filter_fn_by_table',
             # exceptions to your id_mode primary_key scheme go here:
             'primary_key_fields_by_table',
+            # what to do if you specify 0 relationships? leave empty or assume
+            'assume_default_tree_relationship',
 
             # UNDER CONSTRUCTION
             # mobile_travel_mode: when you save your locally-saved rows
@@ -406,6 +408,8 @@ class Config {
             'name_field_filter_fn_by_table' => array(),
             # exceptions to your id_mode primary_key scheme go here:
             'primary_key_fields_by_table' => array(),
+            # what to do if you specify 0 relationships? leave empty or assume
+            'assume_default_tree_relationship' => false,
 
             # mobile_travel_mode: when you save your locally-saved rows
             # also save a JSON file on the server of the rows,
