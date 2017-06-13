@@ -21,6 +21,7 @@
                                     #'fields',
                                     'parent_filter',
                                     'loop_child_rows',
+                                    'relationship_lists',
                                    ))
         ) {
             tree_log($msg);
@@ -111,22 +112,24 @@
         my_debug(NULL, "  { get_field_values_for_matching\n");
 
         $vals = array();
-        foreach ($parent_nodes as $node) {
-            my_debug(NULL, "here's the node, we're looking for"
-                    ." '$matching_field_on_parent' field: ".print_r($node,1));
-            $field_val = $node->{$matching_field_on_parent};
-            if ($field_val) {
-                # check if the field on the parent is an array
-                # if so, all of these values should go the val_list
-                # #todo #fixme get this array part working
-                if (field_is_array($matching_field_on_parent)) {
-                    $arr = DbUtil::pg_array2array($field_val);
-                    foreach ($arr as $val) {
-                        $vals[] = $val;
+        foreach ($parent_nodes as $key => $nodes) {
+            foreach ($nodes as $node) {
+                my_debug(NULL, "here's the node, we're looking for"
+                        ." '$matching_field_on_parent' field: ".print_r($node,1));
+                $field_val = $node->{$matching_field_on_parent};
+                if ($field_val) {
+                    # check if the field on the parent is an array
+                    # if so, all of these values should go the val_list
+                    # #todo #fixme get this array part working
+                    if (field_is_array($matching_field_on_parent)) {
+                        $arr = DbUtil::pg_array2array($field_val);
+                        foreach ($arr as $val) {
+                            $vals[] = $val;
+                        }
                     }
-                }
-                else {
-                    $vals[] = $field_val;
+                    else {
+                        $vals[] = $field_val;
+                    }
                 }
             }
         }
@@ -163,64 +166,80 @@
         return $rows;
     }
 
+
+    # add_node_to_relationship_lists()
+    # --------------------------------
     # this is to build up the matching list that goes in the SQL query
     # to look for all children that have {parent_field} within that list
     # (build up the parent val list to select against)
+
+    # $all_parents_by_relationship is an array
+    # w numeric keys corresponding to the $parent_relationships
+    # the value within each key is a stdClass obj with
+    # properties corresponding to each possible value to join children onto
+    # and the value of each property is an array of the parent nodes that 
+    # meet that description
     function add_node_to_relationship_lists(
-        $row, $parent, $parent_relationships,
-        &$all_parents_by_relationship, $table
+        $row, $parent, $parent_relationships, &$all_parents_by_relationship, $table
     ) {
         my_debug('arrays', "top of add_node_to_relationship_lists...\n");
         # add val to each applicable relationship
         foreach ($parent_relationships as $rel_no => $parent_relationship) {
 
-                $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
-                                                                         $table);
+            $matching_field_on_parent = get_matching_field_on_parent($parent_relationship,
+                                                                     $table);
 
-                # only add this child to the relationships w the same table
-                if ($parent_relationship['parent_table'] == $table) {
-                    #$parent_field = $parent_relationship['parent_field'];
-                    $parent_match_val = $row[$matching_field_on_parent];
+            # only add this child to the relationships w the same table
+            if ($parent_relationship['parent_table'] == $table) {
+                #$parent_field = $parent_relationship['parent_field'];
+                $parent_match_val = $row[$matching_field_on_parent];
 
-                    # we have a parent_match_val so we can actually put it in the array
-                    if ($parent_match_val) {
-                        #my_debug(NULL, "adding $row[name] to children_this_rel->'$parent_match_val',"
-                        #        ." relationship_no = $rel_no\n");
+                # we have a parent_match_val so we can actually put it in the array
+                #$row_name = DbUtil::get_name_val($table, $row); # is this the right table?
+                if ($parent_match_val) {
+                    #my_debug('relationship_lists',
+                    #    "adding $row_name to children_this_rel->'$parent_match_val',"
+                    #    ." relationship_no = $rel_no\n");
 
-                        # detructively modify $add_children_by_relationship
-                        if (!isset($all_parents_by_relationship[$rel_no])) {
-                            $all_parents_by_relationship[$rel_no] = new stdClass();
-                        }
+                    # detructively modify $add_children_by_relationship
+                    if (!isset($all_parents_by_relationship[$rel_no])) {
+                        $all_parents_by_relationship[$rel_no] = new stdClass();
+                    }
 
-                        # If that the child is going to try to match to this node
-                        # is an array, then we break up our array right now and
-                        # put the node in under all the different values as keys.
-                        # That way, matching any of them will be fine.
-                        my_debug('arrays', "in add_node_to_relationship_lists... rel_no = $rel_no\n");
-                        my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
-                        if (field_is_array($matching_field_on_parent)) {
-                            my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
-                            $arr = DbUtil::pg_array2array($parent_match_val);
-                            foreach ($arr as $val) {
-                                my_debug('arrays', "    val = $val\n");
-                                if ($val) {
-                                    $all_parents_by_relationship[$rel_no]->{$val} = $parent;
-                                }
-                                else {
-                                    my_debug('not truthy, skipping', "    val = $val\n");
-                                }
+                    # If that the child is going to try to match to this node
+                    # is an array, then we break up our array right now and
+                    # put the node in under all the different values as keys.
+                    # That way, matching any of them will be fine.
+                    my_debug('arrays', "in add_node_to_relationship_lists... rel_no = $rel_no\n");
+                    my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
+                    if (field_is_array($matching_field_on_parent)) {
+                        my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
+                        $arr = DbUtil::pg_array2array($parent_match_val);
+                        foreach ($arr as $val) {
+                            my_debug('arrays', "    val = $val\n");
+                            if ($val) {
+                                # add this parent in the proper bucket
+                                # (PHP will create an array if none exist)
+                                $all_parents_by_relationship[$rel_no]->{$val}[] = $parent;
                             }
-                        }
-                        else {
-                            my_debug('arrays', "  it is not, adding it normally\n");
-                            $all_parents_by_relationship[$rel_no]->{$parent_match_val} = $parent;
+                            else {
+                                my_debug('not truthy, skipping', "    val = $val\n");
+                            }
                         }
                     }
                     else {
-                        #my_debug(NULL, "no parent_match_val, not adding $row[name] to"
-                        #    ." children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
+                        my_debug('arrays', "  it is not, adding it normally\n");
+                        # add this parent in the proper bucket
+                        # (PHP will create an array if none exist)
+                        $all_parents_by_relationship[$rel_no]->{$parent_match_val}[] = $parent;
                     }
                 }
+                else {
+                    #my_debug('relationship_lists',
+                    #    "no parent_match_val, not adding $row_name to"
+                    #    ." children_this_rel->'$parent_match_val', relationship_no = $rel_no\n");
+                }
+            }
         }
     }
 
@@ -481,24 +500,28 @@
                     $child = get_or_create_node($row, $child_table, $id,
                                            /*&*/$all_nodes);
 
-                    # parent SHOULD exist...
-                    if (isset($parent_nodes->{$this_parent_id})) {
-                        $parent = $parent_nodes->{$this_parent_id};
+                    # at least 1 parent SHOULD exist...
+                    if (isset($parent_nodes->{$this_parent_id})
+                        && count($parent_nodes->{$this_parent_id})
+                    ) {
+                        $parents = $parent_nodes->{$this_parent_id};
 
-                        if (parent_meets_filter_criteria($parent, $parent_relationship)) {
+                        foreach ($parents as $parent) {
+                            if (parent_meets_filter_criteria($parent, $parent_relationship)) {
 
-                            add_child_to_tree($child, $parent,
-                                              #$parent_match_val,
-                                              $parent_table,
-                                              $child_table);
+                                add_child_to_tree($child, $parent,
+                                                  #$parent_match_val,
+                                                  $parent_table,
+                                                  $child_table);
 
-                            add_node_to_relationship_lists(
-                                $row, $child, $parent_relationships,
-                                /*&*/$all_children_by_relationship,
-                                $child_table
-                            );
+                                add_node_to_relationship_lists(
+                                    $row, $child, $parent_relationships,
+                                    /*&*/$all_children_by_relationship,
+                                    $child_table
+                                );
 
-                            $more_children_to_look_for = true;
+                                $more_children_to_look_for = true;
+                            }
                         }
                     }
                     else {
