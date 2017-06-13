@@ -374,6 +374,39 @@
         return $root_nodes;
     }
 
+
+    # for filtering using the relationship's optional
+    # parent_filter_field and parent_filter_field_val.
+    # $parent is a stdObject, $parent_relationship is an array
+    function parent_meets_filter_criteria($parent, $parent_relationship) {
+        if (isset($parent_relationship['parent_filter_field'])
+            && $parent_relationship['parent_filter_field']
+            && isset($parent_relationship['parent_filter_field_val'])
+        ) {
+            $parent_filter_field = $parent_relationship['parent_filter_field'];
+            $parent_filter_field_val = $parent_relationship['parent_filter_field_val'];
+            my_debug('parent_filter',
+                "parent_relationship needs field `$parent_filter_field` = '$parent_filter_field_val'. "
+                ."testing parent...\n");
+            if (property_exists($parent, $parent_filter_field)
+                && $parent->{$parent_filter_field} == $parent_filter_field_val
+            ) {
+                my_debug('parent_filter', "  MATCH\n");
+                return true;
+            }
+            else {
+                my_debug('parent_filter', "  NO MATCH\n");
+                return false;
+            }
+        }
+        else {
+            my_debug('parent_filter',
+                "parent_relationship has no parent filter information. "
+                ."accepting parent automatically.\n");
+            return true;
+        }
+    }
+
     # add a new level to the tree:
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
@@ -436,6 +469,8 @@
                 my_debug('tables_n_fields', "matching_field_on_parent = "
                                             ."$matching_field_on_parent\n");
                 foreach ($rows as $row) {
+                    my_debug('loop_child_rows', "looping thru child rows, child = "
+                                                .print_r($row,1)."\n");
                     $this_parent_id = $row[$parent_field];
                     $id_field = DbUtil::get_primary_key_field(
                         $id_mode, $child_table
@@ -454,15 +489,28 @@
                         # parent SHOULD exist...
                         if (isset($parent_nodes->{$this_parent_id})) {
                             $parent = $parent_nodes->{$this_parent_id};
-                            add_child_to_tree($child, $parent,
-                                              #$parent_match_val,
-                                              $parent_table,
-                                              $child_table);
+
+                            if (parent_meets_filter_criteria($parent, $parent_relationship)) {
+
+                                add_child_to_tree($child, $parent,
+                                                  #$parent_match_val,
+                                                  $parent_table,
+                                                  $child_table);
+
+                                add_node_to_relationship_lists(
+                                    $row, $child, $parent_relationships,
+                                    /*&*/$all_children_by_relationship,
+                                    $child_table
+                                );
+
+                                $more_children_to_look_for = true;
+                            }
                         }
                         else {
                             my_debug(NULL, "WARNING don't actually have the parent $this_parent_id"
                                     ." at all, let alone a children container\n");
                             my_debug(NULL, "skipping this node\n");
+                            break;
                         }
                     #}
                     #else {
@@ -470,14 +518,6 @@
                     #            ." to connect the child to the parent\n");
                     #    my_debug(NULL, "skipping this node\n");
                     #}
-
-                    add_node_to_relationship_lists(
-                        $row, $child, $parent_relationships,
-                        /*&*/$all_children_by_relationship,
-                        $child_table
-                    );
-
-                    $more_children_to_look_for = true;
                 }
                 my_debug(NULL, "  }\n");
             }
