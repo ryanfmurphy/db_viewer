@@ -52,6 +52,10 @@
             $parent_relationships[$no]['matching_field_on_parent'] = null;
         if (!isset($parent_relationships[$no]['condition']))
             $parent_relationships[$no]['condition'] = null;
+        if (!isset($parent_relationships[$no]['parent_filter_field']))
+            $parent_relationships[$no]['parent_filter_field'] = null;
+        if (!isset($parent_relationships[$no]['parent_filter_field_val']))
+            $parent_relationships[$no]['parent_filter_field_val'] = null;
 
         /*
         if (!isset($relationship['child_table'])

@@ -75,6 +75,23 @@
             vertical-align: baseline;
             font-size: 90%;
         }
+
+        .relationship_header {
+            text-align: center;
+            font-size: 80%;
+            color: blue;
+            cursor: pointer;
+            margin-top: 2em;
+        }
+        .relationship_header.has_data {
+            background: yellow;
+        }
+        .optional_fields {
+            display: none;
+        }
+        .optional_fields.open {
+            display: block;
+        }
         </style>
     </head>
     <body>
@@ -96,6 +113,41 @@
             </div>
 
 <?php
+    #todo move to e.g. Utility
+    function contains_nonempty_item($array) {
+        if (!is_array($array)) {
+            return false;
+        }
+        foreach ($array as $key => $value) {
+            if ($value) {
+                return true;
+            }
+        }
+    }
+
+    #todo move to e.g. Utility
+    function filter_to_keys($array, $keys) {
+        $result = array();
+        foreach ($array as $key => $value) {
+            if (in_array($key, $keys)) {
+                $result[$key] = $value;
+            }
+        }
+        return $result;
+    }
+
+    function get_optional_fields($relationship) {
+        if (is_array($relationship)) {
+            return filter_to_keys(
+                $relationship,
+                array('condition', 'parent_filter_field', 'parent_filter_field_val')
+            );
+        }
+        else {
+            return array();
+        }
+    }
+
     function render_relationship_form($relationship, $rel_no) {
         $is_template = ($relationship === null);
         if ($is_template) {
@@ -104,7 +156,10 @@
                 'parent_table' => null,
                 'parent_field' => null,
                 'matching_field_on_parent' => null,
+                # optional fields
                 'condition' => null,
+                'parent_filter_field' => null,
+                'parent_filter_field_val' => null,
             );
         }
 ?>
@@ -138,11 +193,34 @@
                             value="<?= $relationship['matching_field_on_parent'] ?>"
                             type="text">
                 </div>
-                <div>
-                    <label>optional Filter Condition:</label>
-                    <input  name="parent_relationships[<?= $rel_no ?>][condition]"
-                            value="<?= $relationship['condition'] ?>"
-                            type="text">
+                <div class="relationship_header"
+                     onclick="showOptionalFields(this)">
+                    Optional Filters
+                </div>
+<?php
+        $optional_fields = get_optional_fields($relationship);
+        $is_open = contains_nonempty_item($optional_fields);
+        $maybe_open = ($is_open ? 'open' : '');
+?>
+                <div class="optional_fields <?= $maybe_open ?>">
+                    <div>
+                        <label>Filter Condition:</label>
+                        <input  name="parent_relationships[<?= $rel_no ?>][condition]"
+                                value="<?= $relationship['condition'] ?>"
+                                type="text">
+                    </div>
+                    <div>
+                        <label>Parent Filter Field:</label>
+                        <input  name="parent_relationships[<?= $rel_no ?>][parent_filter_field]"
+                                value="<?= $relationship['parent_filter_field'] ?>"
+                                type="text">
+                    </div>
+                    <div>
+                        <label>Parent Filter Field Value:</label>
+                        <input  name="parent_relationships[<?= $rel_no ?>][parent_filter_field_val]"
+                                value="<?= $relationship['parent_filter_field_val'] ?>"
+                                type="text">
+                    </div>
                 </div>
             </div>
 <?php
@@ -171,6 +249,35 @@
                 var add_rel_link = document.getElementById('add_relationship_link');
                 form.insertBefore(new_elem, add_rel_link);
             }
+
+            function getOptionalFieldsElem(header_elem) {
+                console.log('header_elem', header_elem);
+                var parent = header_elem.parentNode;
+                console.log('parent', parent);
+                var fields = parent.getElementsByClassName('optional_fields')[0];
+                console.log('fields', fields);
+                return fields;
+            }
+
+            function fieldsHasData(fields) {
+                // #todo prevent people from accidentally
+                // forgetting about their optional fields
+                return false;
+            }
+
+            function showOptionalFields(header_elem) {
+                var fields = getOptionalFieldsElem(header_elem);
+                if (fields.classList.contains('open')) {
+                    fields.classList.remove("open");
+                    if (fieldsHasData(fields)) {
+                        header_elem.classList.add("has_data");
+                    }
+                }
+                else {
+                    fields.classList.add("open");
+                }
+            }
+
             </script>
 
             <div id="add_relationship_link" onclick="addRelationshipForm()">

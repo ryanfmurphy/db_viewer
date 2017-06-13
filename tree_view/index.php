@@ -308,17 +308,21 @@ function treeDataUrl() {
                 +"&use_stars_for_node_size=<?= urlencode($use_stars_for_node_size) ?>"
 <?php
     foreach ($parent_relationships as $i => $parent_relationship) {
-        $parent_field = urlencode($parent_relationship['parent_field']);
-        $matching_field_on_parent = urlencode($parent_relationship['matching_field_on_parent']);
-        $child_table = urlencode($parent_relationship['child_table']);
-        $parent_table = urlencode($parent_relationship['parent_table']);
-        $condition = urlencode($parent_relationship['condition']);
+        $parent_field               = urlencode($parent_relationship['parent_field']);
+        $matching_field_on_parent   = urlencode($parent_relationship['matching_field_on_parent']);
+        $child_table                = urlencode($parent_relationship['child_table']);
+        $parent_table               = urlencode($parent_relationship['parent_table']);
+        $condition                  = urlencode($parent_relationship['condition']);
+        $parent_filter_field        = urlencode($parent_relationship['parent_filter_field']);
+        $parent_filter_field_val    = urlencode($parent_relationship['parent_filter_field_val']);
 ?>
                 +"&parent_relationships[<?= $i ?>][parent_field]=<?= $parent_field ?>"
                 +"&parent_relationships[<?= $i ?>][matching_field_on_parent]=<?= $matching_field_on_parent ?>"
                 +"&parent_relationships[<?= $i ?>][child_table]=<?= $child_table ?>"
                 +"&parent_relationships[<?= $i ?>][parent_table]=<?= $parent_table ?>"
                 +"&parent_relationships[<?= $i ?>][condition]=<?= $condition ?>"
+                +"&parent_relationships[<?= $i ?>][parent_filter_field]=<?= $parent_filter_field ?>"
+                +"&parent_relationships[<?= $i ?>][parent_filter_field_val]=<?= $parent_filter_field_val ?>"
 <?php
     }
 ?>
