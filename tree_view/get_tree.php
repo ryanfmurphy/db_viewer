@@ -55,7 +55,8 @@
         }
     }
 
-    function field_list($parent_relationships, $table) {
+    # if $is_root_level, then don't need the parent field that would be used to match to a parent level
+    function field_list($parent_relationships, $table, $is_root_level=false) {
         my_debug('fields', "  { field_list\n");
         $id_mode = Config::$config['id_mode'];
         $id_field = DbUtil::get_primary_key_field($id_mode, $table);
@@ -78,7 +79,9 @@
         foreach ($parent_relationships as $relationship) {
             # we only want fields that make sense for this table
             my_debug('fields', "checking relationship: ".json_encode($relationship,1)."\n");
-            if ($relationship['child_table'] == $table) {
+            if (!$is_root_level
+                && $relationship['child_table'] == $table
+            ) {
                 $parent_field = $relationship['parent_field'];
                 my_debug('fields', "adding parent_field $parent_field because child_table"
                                     ." $relationship[child_table] matches table $table\n");
@@ -288,7 +291,7 @@
 
         { # do sql query
             $id_mode = Config::$config['id_mode'];
-            $fields = field_list($parent_relationships, $root_table);
+            $fields = field_list($parent_relationships, $root_table, true);
             $sql = "
                 select $fields
                 from $root_table
