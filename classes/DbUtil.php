@@ -666,7 +666,18 @@ infer_limit_from_query: query didn't match regex.
                 $name_val = $fn($name_val);
             }
             if (!$name_val) {
-                $name_val = '[untitled]';
+                if ($name_val === 0 || $name_val === '0') {
+                    return '0';
+                }
+                elseif ($name_val === false) {
+                    return 'false';
+                }
+                elseif ($name_val === null) {
+                    return 'null';
+                }
+                else {
+                    return '[untitled]';
+                }
             }
             return $name_val;
         }
