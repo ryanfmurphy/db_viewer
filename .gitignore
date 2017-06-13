@@ -8,4 +8,5 @@ custom_css.php
 /doc_template/views/*
 /rec
 /asciinema
-/log/*
+/log/error_log
+/log/tree_log
