@@ -17,8 +17,10 @@
                                     'sql',
                                     'rel',
                                     'overview',
-                                    'tables_n_fields'
-                                    #'fields'
+                                    'tables_n_fields',
+                                    #'fields',
+                                    'parent_filter',
+                                    'loop_child_rows',
                                    ))
         ) {
             tree_log($msg);
@@ -152,7 +154,12 @@
         ";
         my_debug('sql',"sql = {'$sql'}\n");
         $rows = Db::sql($sql);
-        my_debug('sql',"  # rows = ".count($rows)."\n\n");
+        if (is_array($rows)) {
+            my_debug('sql',"  # rows = ".count($rows)."\n\n");
+        }
+        else {
+            my_debug('sql',"  SQL ERROR!\n\n");
+        }
         return $rows;
     }
 
