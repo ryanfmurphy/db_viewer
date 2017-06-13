@@ -217,7 +217,7 @@
         }
     }
 
-    function add_child_to_tree($child, $parent, $parent_match_val, $parent_table, $child_table) {
+    function add_child_to_tree($child, $parent, /*$parent_match_val,*/ $parent_table, $child_table) {
         my_debug(NULL, " {add_child_to_tree: parent_table = $parent_table, child_table = $child_table\n");
         my_debug(NULL, "  child = ".print_r($child,1));
         my_debug(NULL, "  parent = ".print_r($parent,1));
@@ -434,20 +434,21 @@
                         $id_mode, $child_table
                     );
                     $id = $row[$id_field];
-                    $parent_match_val = isset($row[$matching_field_on_parent])
-                                            ? $row[$matching_field_on_parent]
-                                            : null;
+                    #todo #fixme why are we looking for this field on the CHILD?
+                    #$parent_match_val = isset($row[$matching_field_on_parent])
+                    #                        ? $row[$matching_field_on_parent]
+                    #                        : null;
 
                     add_node_metadata_to_row(/*&*/$row, $child_table);
                     $child = get_or_create_node($row, $child_table, $id,
                                            /*&*/$all_nodes);
 
-                    if ($parent_match_val) {
+                    #if ($parent_match_val) {
                         # parent SHOULD exist...
                         if (isset($parent_nodes->{$this_parent_id})) {
                             $parent = $parent_nodes->{$this_parent_id};
                             add_child_to_tree($child, $parent,
-                                              $parent_match_val,
+                                              #$parent_match_val,
                                               $parent_table,
                                               $child_table);
                         }
@@ -456,12 +457,12 @@
                                     ." at all, let alone a children container\n");
                             my_debug(NULL, "skipping this node\n");
                         }
-                    }
-                    else {
-                        my_debug(NULL, "WARNING don't have parent_match_val on the parent"
-                                ." to connect the child to the parent\n");
-                        my_debug(NULL, "skipping this node\n");
-                    }
+                    #}
+                    #else {
+                    #    my_debug(NULL, "WARNING don't have parent_match_val on the parent"
+                    #            ." to connect the child to the parent\n");
+                    #    my_debug(NULL, "skipping this node\n");
+                    #}
 
                     add_node_to_relationship_lists(
                         $row, $child, $parent_relationships,
