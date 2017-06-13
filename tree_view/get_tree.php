@@ -476,50 +476,39 @@
                         $id_mode, $child_table
                     );
                     $id = $row[$id_field];
-                    #todo #fixme why are we looking for this field on the CHILD?
-                    #$parent_match_val = isset($row[$matching_field_on_parent])
-                    #                        ? $row[$matching_field_on_parent]
-                    #                        : null;
 
                     add_node_metadata_to_row(/*&*/$row, $child_table);
                     $child = get_or_create_node($row, $child_table, $id,
                                            /*&*/$all_nodes);
 
-                    #if ($parent_match_val) {
-                        # parent SHOULD exist...
-                        if (isset($parent_nodes->{$this_parent_id})) {
-                            $parent = $parent_nodes->{$this_parent_id};
+                    # parent SHOULD exist...
+                    if (isset($parent_nodes->{$this_parent_id})) {
+                        $parent = $parent_nodes->{$this_parent_id};
 
-                            if (parent_meets_filter_criteria($parent, $parent_relationship)) {
+                        if (parent_meets_filter_criteria($parent, $parent_relationship)) {
 
-                                add_child_to_tree($child, $parent,
-                                                  #$parent_match_val,
-                                                  $parent_table,
-                                                  $child_table);
+                            add_child_to_tree($child, $parent,
+                                              #$parent_match_val,
+                                              $parent_table,
+                                              $child_table);
 
-                                add_node_to_relationship_lists(
-                                    $row, $child, $parent_relationships,
-                                    /*&*/$all_children_by_relationship,
-                                    $child_table
-                                );
+                            add_node_to_relationship_lists(
+                                $row, $child, $parent_relationships,
+                                /*&*/$all_children_by_relationship,
+                                $child_table
+                            );
 
-                                $more_children_to_look_for = true;
-                            }
+                            $more_children_to_look_for = true;
                         }
-                        else {
-                            my_debug(NULL, "WARNING don't actually have the parent $this_parent_id"
-                                    ." at all, let alone a children container\n");
-                            my_debug(NULL, "skipping this node\n");
-                            break;
-                        }
-                    #}
-                    #else {
-                    #    my_debug(NULL, "WARNING don't have parent_match_val on the parent"
-                    #            ." to connect the child to the parent\n");
-                    #    my_debug(NULL, "skipping this node\n");
-                    #}
+                    }
+                    else {
+                        my_debug(NULL, "WARNING don't actually have the parent $this_parent_id"
+                                ." at all, let alone a children container\n");
+                        my_debug(NULL, "skipping this node\n");
+                        break;
+                    }
                 }
-                my_debug(NULL, "  }\n");
+                my_debug(true, "  }\n");
             }
             my_debug('overview', "}\n");
         }
