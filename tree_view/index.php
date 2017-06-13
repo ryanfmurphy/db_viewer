@@ -25,7 +25,7 @@
 
         <body>
 <?php
-    { # Edit Tree Variables link
+    { # Configure Tree link
         $vars_for_edit_link = $requestVars;
         $vars_for_edit_link['edit_vars'] = 1;
 ?>
@@ -33,7 +33,7 @@
             <a id="edit_vars_link"
                href="<?= "?".http_build_query($vars_for_edit_link) ?>"
                target="_blank">
-                Edit Tree Variables / Relationships
+                Configure Tree
             </a>
 <?php
     }
