@@ -11,11 +11,13 @@
 
     function my_debug($category, $msg) {
         if (DEBUG_ALL
+            || $category === true
             || in_array($category, array(
                                     #'arrays',
                                     'sql',
                                     'rel',
                                     'overview',
+                                    'tables_n_fields'
                                     #'fields'
                                    ))
         ) {
@@ -111,6 +113,7 @@
             if ($field_val) {
                 # check if the field on the parent is an array
                 # if so, all of these values should go the val_list
+                # #todo #fixme get this array part working
                 if (field_is_array($matching_field_on_parent)) {
                     $arr = DbUtil::pg_array2array($field_val);
                     foreach ($arr as $val) {
@@ -361,6 +364,7 @@
         return $root_nodes;
     }
 
+    # add a new level to the tree:
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
     function add_tree_lev_by_lev(
@@ -409,11 +413,16 @@
                     $parent_vals, $fields, $parent_field,
                     $child_table, $order_by_limit, $where_cond
                 );
+                # NOTE:
+                # all these $rows are POTENTIAL children,
+                # but relationship COULD have a parent_filter_field
+                # in which case the row's parent_filter_field
+                # must match parent_filter_field_val
 
                 # the parent_node already has the children
                 # (which are about to be parents)
                 # that are in the parent_id_list
-                my_debug(NULL, "  starting loop thru rows, {\n");
+                my_debug(true, "  starting loop thru rows, {\n");
                 my_debug('tables_n_fields', "matching_field_on_parent = "
                                             ."$matching_field_on_parent\n");
                 foreach ($rows as $row) {
