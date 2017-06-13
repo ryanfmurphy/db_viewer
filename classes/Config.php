@@ -100,9 +100,14 @@ class Config {
 
             'table_field_spaces_to_underscores',
 
-            'automatic_curly_braces_for_arrays',
-
+            # array fields
             'fields_w_array_type',
+            'automatic_curly_braces_for_arrays',
+            # MTM stands for Mobile Travel Mode
+            # an array of fields that should not require commas
+            # between array items, unless you provide a leading space
+            'MTM_array_fields_to_not_require_commas',
+
             'fields_that_render_html',
             'fields_that_render_html_by_table',
 
@@ -183,7 +188,7 @@ class Config {
             'save_json_dump_of_stored_rows',
 
             # obj_editor
-            'include_create_child_button',
+            'include_tree_buttons',
             'obj_editor_default_tablename',
 
             'recognize_numbered_id_fields',
@@ -331,8 +336,13 @@ class Config {
 
             'table_field_spaces_to_underscores' => true, #todo maybe not be default?
 
-            'automatic_curly_braces_for_arrays' => false,
+            # array fields
             'fields_w_array_type' => null,
+            'automatic_curly_braces_for_arrays' => false,
+            # MTM stands for Mobile Travel Mode
+            # an array of fields that should not require commas
+            # between array items, unless you provide a leading space
+            'MTM_array_fields_to_not_require_commas' => null,
 
             'fields_that_render_html' => array(),
             'fields_that_render_html_by_table' => array(),
@@ -403,7 +413,7 @@ class Config {
             'save_json_dump_of_stored_rows' => false,
 
             # obj_editor
-            'include_create_child_button' => false,
+            'include_tree_buttons' => false,
             'obj_editor_default_tablename' => 'note',
 
             'recognize_numbered_id_fields' => true,

@@ -39,11 +39,31 @@
             $table = $vars['table'];
         }
 
-        $automatic_curly_braces_for_arrays =
-            Config::$config['automatic_curly_braces_for_arrays'];
-        $fields_w_array_type =
-            Config::$config['fields_w_array_type'];
+        $fields_w_array_type                    = Config::$config['fields_w_array_type'];
+        $automatic_curly_braces_for_arrays      = Config::$config['automatic_curly_braces_for_arrays'];
+        $MTM_array_fields_to_not_require_commas = Config::$config['MTM_array_fields_to_not_require_commas'];
 
+        #todo #factor into a fn
+        # MTM stands for Mobile Travel Mode
+        # fields in this array don't require commas between array items,
+        # unless you provide a leading space
+        if (is_array($MTM_array_fields_to_not_require_commas)) {
+            foreach ($vars as $field_name => $field_val) {
+                $do_add_commas_this_field = (
+                    in_array($field_name,
+                             $MTM_array_fields_to_not_require_commas)
+                    && strlen($field_val) > 0
+                    && strpos($field_val, ',') === false
+                    && $field_val[0] != ' '
+                );
+
+                if ($do_add_commas_this_field) {
+                    $vars[$field_name] = preg_replace('/\s+/',', ',$field_val);
+                }
+            }
+        }
+
+        #todo #factor into a fn
         # automatically add curly braces for arrays
         # (if enabled)
         if ($automatic_curly_braces_for_arrays) {

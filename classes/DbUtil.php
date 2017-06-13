@@ -1,5 +1,5 @@
 <?php
-#todo move this function elsewhere and rename it
+#todo move this function / class elsewhere
 if (!class_exists('Utility')) {
 
     class Utility {
@@ -10,13 +10,6 @@ if (!class_exists('Utility')) {
             return substr($haystack, $LEN - $len) == $needle;
         }
 
-        /*
-        public static function quote($val) {
-            global $db; #todo do we even need this fn anymore?
-            #todo #fixme might not work for nulls?
-            return $db->quote($val);
-        }
-        */
     }
 
 }
