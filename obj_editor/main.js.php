@@ -704,7 +704,8 @@
     }
 
     function changeToCreateChildForm() {
-        var id = getFormVal('id');
+        var id_field = '<?= DbUtil::get_primary_key_field(null, $table) ?>';
+        var id = getFormVal(id_field);
         console.log(id);
         resetToCreateTable(null, true);
         setFormVal('parent_id', id);
