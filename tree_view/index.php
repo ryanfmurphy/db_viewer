@@ -815,17 +815,24 @@ function clickLabel(d) {
                     for (var i = 0; i < selected_nodes.length; i++) {
                         var node_to_move = selected_nodes[i]; // #todo #fixme
                         console.log('loop, i', i, 'node_to_move', node_to_move);
+
+                        var primary_key_field = '<?= DbUtil::get_primary_key_field(null, $table) ?>';
                         var primary_key = node_to_move[id_field];
                         var parent_id_field = 'parent_id'; // #todo #fixme variablize
+                        var table_name = '<?= $table ?>';
 
                         var url = "<?= $crud_api_uri ?>";
+
+                        // build up the AJAX data to update the node
+                        var where_clauses = {};
+                        where_clauses[primary_key_field] = primary_key
+
                         var data = {
-                            action: 'update_entity',
-                            where_clauses: {
-                                id: primary_key
-                            },
+                            action: 'update_' + table_name,
+                            where_clauses: where_clauses
                         };
                         data[parent_id_field] = new_parent[id_field];
+
                         var success = (function(node_to_move, parent_id_field) {
                             return function(xhttp) {
                                 var r = xhttp.responseText;
