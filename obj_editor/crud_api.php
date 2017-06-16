@@ -29,7 +29,9 @@
             && $vars['___settings']['no_js']
         ) {
             foreach ($vars as $key => $val) {
-                if ($val === '') {
+                if ($val === ''
+                    || $val === Config::$config['custom_select_magic_value']
+                ) {
                     unset($vars[$key]);
                 }
             }
