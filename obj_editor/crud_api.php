@@ -12,12 +12,30 @@
     $vars = array_merge($_GET,$_POST);
 }
 
+#todo #cleanup - action should be just view|create|update|delete
+#                and table should be filled out
 { # get action
     if (!isset($vars['action'])) {
         die('no action');
     }
     $action = $vars['action'];
     unset($vars['action']);
+}
+
+{ # handle ___settings
+    { # no_js: don't send empty fields
+        if (isset($vars['___settings'])
+            && isset($vars['___settings']['no_js'])
+            && $vars['___settings']['no_js']
+        ) {
+            foreach ($vars as $key => $val) {
+                if ($val === '') {
+                    unset($vars[$key]);
+                }
+            }
+        }
+    }
+    unset($vars['___settings']);
 }
 
 {

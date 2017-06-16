@@ -371,6 +371,14 @@
 
             return false;
         }
+
+        function createRowUrlNoJs($table_name) {
+            $crud_api_uri = Config::$config['crud_api_uri'];
+            return "$crud_api_uri"
+                ."?action=create_${table_name}"
+                ."&___settings[no_js]=1";
+        }
+
     }
 
 }
@@ -404,16 +412,21 @@
     <body>
 <?php
     { # HTML for header stuff: table header/input etc
+        $is_lynx = (strpos($_SERVER['HTTP_USER_AGENT'], 'Lynx') !== false);
+        if (!$is_lynx) {
 ?>
         <datalist id="tableList">
 <?php
-        foreach (DbUtil::get_tables_array() as $table_name) {
+            foreach (DbUtil::get_tables_array() as $table_name) {
 ?>
             <option value="<?= $table_name ?>">
 <?php
-        }
+            }
 ?>
         </datalist>
+<?php
+        }
+?>
 
         <p id="whoami">
             <a id="choose_table_link" href="<?= $obj_editor_uri ?>">
@@ -556,7 +569,11 @@
 
             { # the form
 ?>
-        <form id="mainForm" target="_blank">
+        <form   id="mainForm"
+                target="_blank"
+                action="<?= createRowUrlNoJs($table) ?>"
+                method="POST"
+        >
 <?php
                 { # create form fields
                     $fields = TableView::prep_fields($fields);
