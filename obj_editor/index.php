@@ -179,7 +179,14 @@
 ?>
             <div class="formInput" remove="true">
                 <label for="<?= $name ?>"
+<?php
+                $non_removable_form_fields = Config::$config['non_removable_form_fields'];
+                if (!in_array($name, $non_removable_form_fields)) {
+?>
                        onclick="removeFormField(getFormRow(this))"
+<?php
+                }
+?>
                 >
                     <?= $name ?> 
                 </label>

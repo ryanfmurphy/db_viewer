@@ -192,6 +192,7 @@ class Config {
             # obj_editor
             'include_tree_buttons',
             'obj_editor_default_tablename',
+            'non_removable_form_fields',
 
             'recognize_numbered_id_fields',
 
@@ -421,6 +422,7 @@ class Config {
             # obj_editor
             'include_tree_buttons' => false,
             'obj_editor_default_tablename' => 'note',
+            'non_removable_form_fields' => array(),
 
             'recognize_numbered_id_fields' => true,
 
