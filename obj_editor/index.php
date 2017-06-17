@@ -339,14 +339,33 @@
         }
 
         function echoSelectTableInputHtml() {
+            { ob_start();
 ?>
                 <input  id="selectTable"
                         list="tableList"
                         placeholder="select table"
                         onkeypress="selectTableOnEnter(event)"
                         autocapitalize="none"
+                        name="table"
                 />
 <?php
+                $input = ob_get_clean();
+            }
+
+            $is_lynx = (strpos($_SERVER['HTTP_USER_AGENT'], 'Lynx') !== false);
+            if ($is_lynx) { # lynx needs a real <form> to submit
+?>
+            <form>
+                <?= $input ?>
+                <input type="submit">
+            </form>
+<?php
+            }
+            else {
+?>
+                <?= $input ?>
+<?php
+            }
         }
 
         function echoSelectTableInputHtml_JsFormat() {
@@ -413,7 +432,7 @@
 <?php
     { # HTML for header stuff: table header/input etc
         $is_lynx = (strpos($_SERVER['HTTP_USER_AGENT'], 'Lynx') !== false);
-        if (!$is_lynx) {
+        if (!$is_lynx) { # lynx can't stand an <option> not within a <select>
 ?>
         <datalist id="tableList">
 <?php
