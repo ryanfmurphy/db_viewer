@@ -13,6 +13,8 @@
         die();
     }
 
+    $omit_root_node = ($backend == 'db');
+
     #todo #fixme do I need this header? #security
     header("Access-Control-Allow-Origin: <origin> | *");
 ?>
@@ -70,7 +72,18 @@
             <h1>
                 🌳 Tree View:
                 <span id="summary">
+<?php
+    if ($backend == 'db') {
+?>
                     <?= tree_view_summary_txt($root_table, $parent_relationships) ?>
+<?php
+    }
+    else {
+?>
+                    filesystem
+<?php
+    }
+?>
                 </span>
             </h1>
 <?php
@@ -117,8 +130,11 @@ function setupTree(new_width, new_height, level_width) {
     if (new_height === undefined) new_height = defaults.height;
     if (level_width === undefined) level_width = defaults.level_width;
 
+    var left_margin = <?= ($omit_root_node
+                                ? 120
+                                : 250) ?>;
     var margin = svg_tree.margin =
-        {top: 20, right: 120, bottom: 20, left: 120};
+        {top: 20, right: 120, bottom: 20, left: left_margin};
     var width = svg_tree.width =
         new_width - margin.right - margin.left;
     var height = svg_tree.height =
@@ -300,7 +316,8 @@ function setupTreeWithSize(root) {
 ?>
 function treeDataUrl() {
     return "<?= $get_tree_uri ?>"
-                +"?root_table=<?= urlencode($root_table) ?>"
+                +"?backend=<?= urlencode($backend) ?>"
+                +"&root_table=<?= urlencode($root_table) ?>"
                 +"&root_cond=<?= urlencode($root_cond) ?>"
                 +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
                 +"&root_nodes_w_child_only=<?= urlencode($root_nodes_w_child_only) ?>"
@@ -370,7 +387,13 @@ function createTree() {
     }
 ?>
 
+<?php
+    if ($omit_root_node) {
+?>
             ghostRootNode();
+<?php
+    }
+?>
         }
     );
 
@@ -446,7 +469,6 @@ function updateTree(source) {
                                 return "translate(" + source.y0 + "," + source.x0 + ")";
                             }
                         );
-                        //.on("click", clickLabel);
 
     nodeEnter.append("circle")
             .attr("r", 1e-6)
@@ -773,6 +795,9 @@ function addChildToNode(node, child, doUpdateTree) {
     }
 }
 
+<?php
+    if ($backend == 'db') {
+?>
 // <script>
 // clicking the Label takes you to that object in db_viewer
 function clickLabel(d) {
@@ -879,6 +904,19 @@ function clickLabel(d) {
         }
     }
 }
+<?php
+    }
+    elseif ($backend == 'fs') {
+?>
+function clickLabel(d) {
+    console.log('clickLabel');
+}
+<?php
+    }
+    else {
+        die("unknown backend '$backend'");
+    }
+?>
 
         </script>
     </body>

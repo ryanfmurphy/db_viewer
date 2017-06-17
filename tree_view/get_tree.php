@@ -9,6 +9,8 @@
     const DEBUG_PRE_UNKEYED = DEBUG_ECHO;
     const DEBUG_RESULT = false;
 
+    include_once('fs_get_tree.php');
+
     function my_debug($category, $msg) {
         if (DEBUG_ALL
             || $category === true
@@ -309,7 +311,7 @@
     #   the $parent_relationships hash.
     # * Call add_tree_lev_by_lev() to add the next level
     #   and keep recursively adding the remaining levels.
-    function get_tree(
+    function db_get_tree(
         $root_table, $root_cond, $parent_relationships,
         $order_by_limit=null, $root_nodes_w_child_only=false
     ) {
@@ -372,7 +374,7 @@
         # recursive call
         #my_debug(NULL, "about to send parent_vals_next_lev_by_relationship: ".print_r($parent_vals_next_lev_by_relationship,1));
         if ($more_children_to_look_for) {
-            add_tree_lev_by_lev(
+            db_add_tree_lev_by_lev(
                 $all_nodes,
                 $parent_nodes_by_relationship,
                 $parent_relationships,
@@ -429,7 +431,7 @@
     # add a new level to the tree:
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
-    function add_tree_lev_by_lev(
+    function db_add_tree_lev_by_lev(
         $all_nodes,
         $parent_nodes_by_relationship,
         $parent_relationships,
@@ -538,7 +540,7 @@
 
         my_debug('overview', "} add_tree_lev_by_lev level $level (except for kick off next level)\n");
         if ($more_children_to_look_for) {
-            add_tree_lev_by_lev(
+            db_add_tree_lev_by_lev(
                 $all_nodes,
                 $all_children_by_relationship,
                 $parent_relationships,
@@ -611,22 +613,35 @@
     { # service the API call
         my_debug(NULL, "parent_relationships: " . print_r($parent_relationships,1));
 
-        $tree = get_tree(
-            $root_table, $root_cond, $parent_relationships,
-            $order_by_limit, $root_nodes_w_child_only
-        );
-        if (DEBUG_PRE_UNKEYED) {
-            die(print_r($tree,1));
+        if ($backend == 'db') {
+            $tree = db_get_tree(
+                $root_table, $root_cond, $parent_relationships,
+                $order_by_limit, $root_nodes_w_child_only
+            );
+            if (DEBUG_PRE_UNKEYED) {
+                die(print_r($tree,1));
+            }
+            $tree = unkey_tree($tree);
+
+            $result = array(
+                '_node_name' => '',
+                'children' => $tree,
+            );
         }
-        $tree = unkey_tree($tree);
+        elseif ($backend == 'fs') {
+            $root_dir = Config::$config['fs_tree_default_root_dir'];;
+            if (!$root_dir) {
+                die("Can't do filesystem-based tree without defining 'fs_tree_default_root_dir' in db_config");
+            }
+            $tree = fs_get_tree($root_dir);
+            $result = fs_prep_data_for_json($tree, $root_dir);
+        }
+        else {
+            die("unknown backend $backend");
+        }
 
         die(
-            encode_response(
-                array(
-                    '_node_name' => '',
-                    'children' => $tree,
-                )
-            )
+            encode_response($result)
         );
     }
 

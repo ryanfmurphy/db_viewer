@@ -180,6 +180,9 @@ class Config {
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship',
 
+            # filesystem-based tree (even more experimental/unstable)
+            'fs_tree_default_root_dir',
+
             # UNDER CONSTRUCTION
             # mobile_travel_mode: when you save your locally-saved rows
             # also save a JSON file on the server of the rows,
@@ -411,6 +414,9 @@ class Config {
             'primary_key_fields_by_table' => array(),
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship' => false,
+
+            # filesystem-based tree (even more experimental/unstable)
+            'fs_tree_default_root_dir' => null,
 
             # mobile_travel_mode: when you save your locally-saved rows
             # also save a JSON file on the server of the rows,

@@ -1,4 +1,8 @@
 <?php
+    $backend = isset($requestVars['backend'])
+                    ? $requestVars['backend']
+                    : 'db';
+
     $root_table = isset($requestVars['root_table'])
                     ? $requestVars['root_table']
                     : null;
