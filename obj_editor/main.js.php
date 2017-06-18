@@ -360,7 +360,7 @@
 
         // <script>
         // actually save to DB
-        function saveStoredRowsClickHandler(
+        function saveStoredRowsToDb_clickHandler(
             crud_api_uri, event
         ) {
             cursorReset();

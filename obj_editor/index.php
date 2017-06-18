@@ -628,18 +628,36 @@
 <?php
                     if ($mobile_travel_mode) {
 ?>
-                <input onclick="return saveLocallyButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
-                    value="Save Locally" type="submit" id="save_locally_button"
+                <input  onclick="return saveLocallyButtonClickHandler(
+                                    '<?= $crud_api_uri ?>',
+                                    scope.table_name,
+                                    event
+                                 )"
+                        value="Save Locally"
+                        type="submit"
+                        id="save_locally_button"
                 />
-                <input onclick="return saveStoredRowsClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
-                    value="Save Stored Rows to DB" type="submit" id="save_locally_button"
+                <input  onclick="return saveStoredRowsToDb_clickHandler(
+                                    '<?= $crud_api_uri ?>',
+                                    scope.table_name,
+                                    event
+                                 )"
+                        value="Save Stored Rows to DB"
+                        type="submit"
+                        id="save_rows_to_db_button"
                 />
                 <!-- #todo check if there's old stored rows and show / hide this -->
-                <input onclick="return recoverOldStoredRowsClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
-                    value="Recover Old Stored Rows" type="submit" id="recover_old_rows_button"
+                <input  onclick="return recoverOldStoredRowsClickHandler(
+                                    '<?= $crud_api_uri ?>',
+                                    scope.table_name,
+                                    event
+                                 )"
+                        value="Recover Old Stored Rows"
+                        type="submit"
+                        id="recover_old_rows_button"
                 />
                 <!-- #todo check if there's stored rows / old stored rows and show / hide this -->
-                <input onclick="return clearStoredRowsClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
+                <input onclick="return clearStoredRowsClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)"
                     value="Clear Stored Rows" type="submit" id="clear_stored_rows_button"
                 />
 <?php
