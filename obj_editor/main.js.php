@@ -396,11 +396,19 @@
 
                     // do we have all the responses? show them
                     if (responses.length >= stored_rows.length) {
-                        alert( responses.join('\n\n') );
+                        var overall_response = responses.join('\n\n');
+                        alert( overall_response );
+<?php
+    if (Config::$config['save_json_dump_of_stored_rows']) {
+?>
+                        saveDumpOfOverallResponse(overall_response);
+<?php
+    }
+?>
                     }
                 }
 
-                for (var i=0; i<stored_rows.length; i++) {
+                for (var i=0; i < stored_rows.length; i++) {
                     stored_row = stored_rows[i];
                     var table_name = stored_row.table_name;
                     var data = stored_row.data;
@@ -489,19 +497,44 @@
 
     }
 
+    function saveFile(filename, data, description, ext) {
+        if (ext === undefined) ext = '';
+        console.log(
+            'saveFile, filename=', filename,
+            'data=', data
+        );
+        // do the ajax
+        var url = '<?= $save_json_dump_uri ?>';
+        doAjax('POST', url,
+            {
+                data: data,
+                filename: filename,
+                ext: ext
+            },
+            Function.prototype, // noop
+            function() {
+                alert('Could not save '+description+'.');
+            }
+        );
+    }
+
     // save JSON dump of stored_rows in case something went wrong
     function saveJsonDumpOfStoredRows() {
         var data = getStoredRowsLocal();
         var json_dump = JSON.stringify(data);
+        saveFile(
+            'stored_rows_dump',
+            json_dump,
+            'JSON dump of stored rows',
+            '.json'
+        );
+    }
 
-        // do the ajax
-        var url = '<?= $save_json_dump_uri ?>';
-        console.log('saving JSON dump', json_dump);
-        doAjax('POST', url, {json_dump: json_dump},
-            Function.prototype, // noop
-            function() {
-                alert('Could not save JSON dump of stored rows.');
-            }
+    function saveDumpOfOverallResponse(overall_response) {
+        saveFile(
+            'stored_rows_response',
+            overall_response,
+            'dump of overall response'
         );
     }
 
