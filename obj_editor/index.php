@@ -201,12 +201,13 @@
                 if (doSelectForInput($name)) {
                     #todo check quoting on table/field
                     list($join_table, $join_field) = DbUtil::choose_table_and_field($name);
-                    $objs = Db::sql("
+                    $select_option_sql = "
     select
         name,
         $join_field as value
     from $join_table
-                    ");
+                    ";
+                    $objs = Db::sql($select_option_sql);
 ?>
                 <div class="select_from_options">
 <?php
