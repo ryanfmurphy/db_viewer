@@ -503,7 +503,7 @@
         public static function select_by_pk_sql($table, $primary_key_field, $primary_key) {
             $primary_key__esc = Db::sql_literal($primary_key); # escape as sql literal
             $sql = "
-                select * from ".DbUtil::quote_tablename($table)."
+                select * from ".DbUtil::quote_ident($table)."
                 where $primary_key_field = $primary_key__esc
             ";
             return $sql;

@@ -87,7 +87,7 @@
                         $tablename = $sql;
 
                         $sql = "select * from "
-                                        .DbUtil::quote_tablename($sql)
+                                        .DbUtil::quote_ident($sql)
                                         ." limit 100";
 
                         # and order by time field if there is one

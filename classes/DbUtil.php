@@ -832,7 +832,7 @@ infer_limit_from_query: query didn't match regex.
             }
         }
 
-        public static function quote_tablename($table) {
+        public static function quote_ident($table) {
             $db_type = Config::$config['db_type'];
 
             $quote_char = self::quote_char();

@@ -113,7 +113,7 @@ if (!class_exists('Db')) {
                 $keys = array_keys($vars);
                 $quotedKeys = array();
                 foreach ($keys as $key) {
-                    $quotedKeys[] = DbUtil::quote_tablename($key); #todo give fn a better name
+                    $quotedKeys[] = DbUtil::quote_ident($key); #todo give fn a better name
                 }
                 $varNameList = implode(', ', $quotedKeys);
             }
@@ -245,7 +245,7 @@ if (!class_exists('Db')) {
             list($varNameList, $varValList)
                 = Db::sql_fields_and_vals_from_array($rowVars);
 
-            $tableNameQuoted = DbUtil::quote_tablename($tableName);
+            $tableNameQuoted = DbUtil::quote_ident($tableName);
             $sql = "
                 insert into $tableNameQuoted ($varNameList)
                 values ($varValList);
@@ -323,7 +323,7 @@ if (!class_exists('Db')) {
                 $select_fields = implode(',', $select_fields);
             }
 
-            $table_name_quoted = DbUtil::quote_tablename($table_name);
+            $table_name_quoted = DbUtil::quote_ident($table_name);
             $sql = "select $select_fields from $table_name_quoted ";
             $sql .= self::build_where_clause($wheres);
             $sql .= ";";
@@ -336,12 +336,13 @@ if (!class_exists('Db')) {
         ) {
 
             { # build sql
-                $table_name_quoted = DbUtil::quote_tablename($table_name);
+                $table_name_quoted = DbUtil::quote_ident($table_name);
                 $sql = "update $table_name_quoted set ";
 
                 $comma = false;
                 foreach ($setKeyVals as $key => $val) {
                     if ($comma) $sql .= ",";
+                    $key = DbUtil::quote_ident($key);
                     $val = Db::sql_literal($val);
                     $sql .= "\n$key = $val";
                     $comma = true;
@@ -359,7 +360,7 @@ if (!class_exists('Db')) {
         public static function build_delete_sql($table_name, $whereClauses) {
 
             { # build sql
-                $table_name_quoted = DbUtil::quote_tablename($table_name);
+                $table_name_quoted = DbUtil::quote_ident($table_name);
                 $sql = "delete from $table_name_quoted ";
 
                 $sql .= self::build_where_clause($whereClauses);
