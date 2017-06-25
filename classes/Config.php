@@ -25,6 +25,7 @@ class Config {
             'db_prompt_for_auth',
 
             'id_mode',
+            'primary_key_field',
             'id_fields_are_uuids',
             'search_path',
             'backgroundImages',
@@ -270,6 +271,7 @@ class Config {
             'special_ops' => array(),
 
             'id_mode' => 'id_only', #todo is this a good default?
+            'primary_key_field' => 'id',
 
             # obj view
             'multipleTablesFoundInDifferentSchemas' => false,
