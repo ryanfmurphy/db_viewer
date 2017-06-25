@@ -256,7 +256,8 @@ if (!class_exists('DbUtil')) {
                     self::log("  id_only mode?\n");
                     if ($id_mode == 'id_only') {
                         self::log("    yes.  trimming before suffix (#todo do this earlier in find_table_prefix fn)\n");
-                        $field_name = ltrim($suffix,'_'); #todo this seems dangerous! will this really work in all cases?
+                        #$field_name = ltrim($suffix,'_'); #todo this seems dangerous! will this really work in all cases?
+                        $field_name = self::get_primary_key_field();
                         self::log("    now trimmed field_name = '$field_name'\n");
                     }
                     #todo maybe error out if didn't match a table?
@@ -645,7 +646,7 @@ infer_limit_from_query: query didn't match regex.
                 return $pk_fields_by_table[$tablename_no_quotes];
             }
             elseif ($id_mode == 'id_only') {
-                $primary_key_field = 'id';
+                $primary_key_field = Config::$config['primary_key_field'];
             }
             else {
                 $primary_key_field = $tablename_no_quotes.'_id';
