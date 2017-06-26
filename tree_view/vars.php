@@ -25,6 +25,7 @@
         'root_nodes_w_child_only' => isset($requestVars['root_nodes_w_child_only'])
                                         ? $requestVars['root_nodes_w_child_only']
                                         : null,
+
         'parent_relationships' => isset($requestVars['parent_relationships'])
                                     ? $requestVars['parent_relationships']
                                     : ($assume_default_tree_relationship

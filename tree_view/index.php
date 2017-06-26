@@ -310,40 +310,13 @@ function setupTreeWithSize(root) {
 }
 
 <?php
-    #todo #fixme find a better way to build this query string
-    #            I have a pretty good pure-JS form -> query string fn
-    #            but it doesn't handle arrays (actually I think it does now!)
+    # build up a get_tree url to get the tree data as JSON
+    # send all the tree vars from vars.php as GET vars
+    $tree_vars = compact($tree_var_names);
+    $get_tree_query_string = http_build_query($tree_vars);
 ?>
 function treeDataUrl() {
-    return "<?= $get_tree_uri ?>"
-                +"?backend=<?= urlencode($backend) ?>"
-                +"&root_table=<?= urlencode($root_table) ?>"
-                +"&root_cond=<?= urlencode($root_cond) ?>"
-                +"&order_by_limit=<?= urlencode($order_by_limit) ?>"
-                +"&root_nodes_w_child_only=<?= urlencode($root_nodes_w_child_only) ?>"
-                +"&name_cutoff=<?= urlencode($name_cutoff) ?>"
-                +"&use_stars_for_node_size=<?= urlencode($use_stars_for_node_size) ?>"
-<?php
-    foreach ($parent_relationships as $i => $parent_relationship) {
-        $parent_field               = urlencode($parent_relationship['parent_field']);
-        $matching_field_on_parent   = urlencode($parent_relationship['matching_field_on_parent']);
-        $child_table                = urlencode($parent_relationship['child_table']);
-        $parent_table               = urlencode($parent_relationship['parent_table']);
-        $condition                  = urlencode($parent_relationship['condition']);
-        $parent_filter_field        = urlencode($parent_relationship['parent_filter_field']);
-        $parent_filter_field_val    = urlencode($parent_relationship['parent_filter_field_val']);
-?>
-                +"&parent_relationships[<?= $i ?>][parent_field]=<?= $parent_field ?>"
-                +"&parent_relationships[<?= $i ?>][matching_field_on_parent]=<?= $matching_field_on_parent ?>"
-                +"&parent_relationships[<?= $i ?>][child_table]=<?= $child_table ?>"
-                +"&parent_relationships[<?= $i ?>][parent_table]=<?= $parent_table ?>"
-                +"&parent_relationships[<?= $i ?>][condition]=<?= $condition ?>"
-                +"&parent_relationships[<?= $i ?>][parent_filter_field]=<?= $parent_filter_field ?>"
-                +"&parent_relationships[<?= $i ?>][parent_filter_field_val]=<?= $parent_filter_field_val ?>"
-<?php
-    }
-?>
-    ;        
+    return "<?= "$get_tree_uri?$get_tree_query_string" ?>";
 }
 
 function createTree() {
