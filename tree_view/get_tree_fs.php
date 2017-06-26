@@ -1,4 +1,7 @@
 <?php
+    # get_tree_fs: backend code for getting tree JSON from filesystem
+    # included from get_tree.php with some vars already defined
+
     function fs_get_tree($dir_path) {
         #echo "top of fs_get_tree, dir_path=$dir_path\n";
         {   $old_cwd = getcwd();

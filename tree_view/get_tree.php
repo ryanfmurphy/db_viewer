@@ -62,7 +62,7 @@
         my_debug(NULL, "parent_relationships: " . print_r($parent_relationships,1));
 
         if ($backend == 'db') {
-            include_once('db_get_tree.php');
+            include_once('get_tree_db.php');
 
             $tree = db_get_tree(
                 $root_table, $root_cond, $parent_relationships,
@@ -79,7 +79,7 @@
             );
         }
         elseif ($backend == 'fs') {
-            include_once('fs_get_tree.php');
+            include_once('get_tree_fs.php');
 
             $root_dir = Config::$config['fs_tree_default_root_dir'];;
             if (!$root_dir) {

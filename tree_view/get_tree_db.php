@@ -1,5 +1,5 @@
 <?php
-    # db_get_tree: backend code for getting tree JSON from SQL DB
+    # get_tree_db: backend code for getting tree JSON from SQL DB
     # included from get_tree.php with some vars already defined
 
     # if $is_root_level, then don't need the parent field that would be used to match to a parent level
