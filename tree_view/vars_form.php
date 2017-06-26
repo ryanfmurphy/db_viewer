@@ -1,98 +1,6 @@
 <html>
     <head>
-        <style>
-<?php
-    $gray = '#888';
-?>
-        form {
-            font-family: sans-serif;
-            margin-left: auto;
-            margin-right: auto;
-            width: 30rem;
-        }
-        form#vars_form label {
-            display: block;
-            color: <?= $gray ?>;
-        }
-        form#vars_form div {
-            margin: 1rem auto;
-        }
-        form#vars_form input[type=text] {
-            width: 100%;
-            font-size: 100%;
-        }
-        form#vars_form input[type=submit] {
-            margin: 1em auto;
-            /* HACK: for some reason centering wasn't happening */
-            margin-left: 7em;
-            font-size: 150%;
-        }
-
-        h1 {
-            text-align: center;
-        }
-        h2 {
-            font-weight: normal;
-            margin-top: 1.5em;
-        }
-        h3 {
-        }
-        #add_relationship_link {
-            cursor: pointer;
-            color: blue;
-            text-align: center;
-            width: 100%;
-        }
-        #add_relationship_link:hover {
-            text-decoration: underline;
-        }
-        #relationship_template {
-            display: none;
-        }
-        form#vars_form div#rel_order_comment {
-            font-size: 80%;
-            margin-top: -1em;
-            color: <?= $gray ?>;
-        }
-
-        form#vars_form .relationship {
-            background: #f3f3f3;
-            padding: .5em 1.2em;
-            margin: 1.5em auto;
-        }
-
-        form#vars_form .relationship label {
-            text-align: right;
-            display: inline-block;
-            width: 39%;
-            vertical-align: baseline;
-            font-size: 90%;
-            margin-left: 3em;
-        }
-        form#vars_form .relationship input {
-            display: inline-block;
-            width: 49%;
-            vertical-align: baseline;
-            font-size: 90%;
-        }
-
-        .relationship_header {
-            text-align: center;
-            font-size: 80%;
-            color: blue;
-            cursor: pointer;
-            margin-top: 2em;
-        }
-        .relationship_header.has_data {
-            background: yellow;
-        }
-        .optional_fields {
-            display: none;
-        }
-        .optional_fields.open {
-            display: block;
-        }
-        </style>
+        <?php include('vars_form.css.php') ?>
     </head>
     <body>
         <form id="vars_form" action="" target="_blank">
@@ -225,60 +133,12 @@
             </div>
 <?php
     }
-?>
 
-<?php
     foreach ($parent_relationships as $rel_no => $relationship) {
         render_relationship_form($relationship, $rel_no);
     }
 ?>
-
-            <script>
-            var max_rel_no = <?= count($parent_relationships)-1 ?>;
-
-            function addRelationshipForm() {
-                var relationship0_elem = document.getElementById('relationship_template');
-                var new_elem = document.createElement('div');
-                new_elem.classList.add('relationship');
-                max_rel_no++;
-                var new_html = relationship0_elem.innerHTML
-                                .replace(/0/g, max_rel_no.toString());
-                new_elem.innerHTML = new_html;
-
-                var form = document.getElementById('vars_form');
-                var add_rel_link = document.getElementById('add_relationship_link');
-                form.insertBefore(new_elem, add_rel_link);
-            }
-
-            function getOptionalFieldsElem(header_elem) {
-                console.log('header_elem', header_elem);
-                var parent = header_elem.parentNode;
-                console.log('parent', parent);
-                var fields = parent.getElementsByClassName('optional_fields')[0];
-                console.log('fields', fields);
-                return fields;
-            }
-
-            function fieldsHasData(fields) {
-                // #todo prevent people from accidentally
-                // forgetting about their optional fields
-                return false;
-            }
-
-            function showOptionalFields(header_elem) {
-                var fields = getOptionalFieldsElem(header_elem);
-                if (fields.classList.contains('open')) {
-                    fields.classList.remove("open");
-                    if (fieldsHasData(fields)) {
-                        header_elem.classList.add("has_data");
-                    }
-                }
-                else {
-                    fields.classList.add("open");
-                }
-            }
-
-            </script>
+            <?php include('vars_form.js.php') ?>
 
             <div id="add_relationship_link" onclick="addRelationshipForm()">
                 + Add Relationship
