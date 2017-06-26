@@ -482,13 +482,17 @@
                         foreach ($parent_ids as $this_parent_id)
                         { #todo could #factor into a function, since it's happening twice
                             # at least 1 parent SHOULD exist...
+                            my_debug('arrays', "      are there parent_nodes w id '$this_parent_id'?\n");
                             if (isset($parent_nodes->{$this_parent_id})
                                 && count($parent_nodes->{$this_parent_id})
                             ) {
+                                my_debug('arrays', "        yes\n");
                                 $parents = $parent_nodes->{$this_parent_id};
 
                                 foreach ($parents as $parent) {
+                                    my_debug('arrays', "      does parent meet filter criteria?\n");
                                     if (parent_meets_filter_criteria($parent, $parent_relationship)) {
+                                        my_debug('arrays', "        yes\n");
 
                                         add_child_to_tree($child, $parent,
                                                           #$parent_match_val,
@@ -503,13 +507,10 @@
 
                                         $more_children_to_look_for = true;
                                     }
+                                    else {
+                                        my_debug('arrays', "        no\n");
+                                    }
                                 }
-                            }
-                            else {
-                                my_debug(NULL, "WARNING don't actually have the parent $this_parent_id"
-                                        ." at all, let alone a children container\n");
-                                my_debug(NULL, "skipping this node\n");
-                                break;
                             }
                         }
                     }
