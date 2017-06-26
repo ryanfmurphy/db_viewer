@@ -14,6 +14,10 @@
                 <label>Root Condition</label>
                 <input name="root_cond" value="<?= $root_cond ?>" type="text">
             </div>
+            <div>
+                <label>Root Order By / Limit (include <code>order by</code> etc)</label>
+                <input name="order_by_limit" value="<?= $order_by_limit ?>" type="text">
+            </div>
 
             <h2>Define Relationships</h2>
             <div id="rel_order_comment">
@@ -145,10 +149,6 @@
             </div>
 
             <h2>More Settings</h2>
-            <div>
-                <label>Root Order By / Limit (include <code>order by</code> etc)</label>
-                <input name="order_by_limit" value="<?= $order_by_limit ?>" type="text">
-            </div>
             <div>
                 <label>Cutoff Names at Approximately X Characters</label>
                 <input name="name_cutoff" value="<?= $name_cutoff ?>" type="text">
