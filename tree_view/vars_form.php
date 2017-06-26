@@ -286,7 +286,7 @@
 
             <h2>More Settings</h2>
             <div>
-                <label>Order By / Limit (include <code>order by</code> etc)</label>
+                <label>Root Order By / Limit (include <code>order by</code> etc)</label>
                 <input name="order_by_limit" value="<?= $order_by_limit ?>" type="text">
             </div>
             <div>

@@ -378,7 +378,7 @@
                 $all_nodes,
                 $parent_nodes_by_relationship,
                 $parent_relationships,
-                $order_by_limit
+                null #$order_by_limit
             );
         }
 
