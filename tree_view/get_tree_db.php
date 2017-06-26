@@ -62,7 +62,6 @@
                         ." '$matching_field_on_parent' field: ".print_r($node,1));
                 $field_val = $node->{$matching_field_on_parent};
                 if ($field_val) {
-                    /*
                     # check if the field on the parent is an array
                     # if so, all of these values should go the val_list
                     # #todo #fixme get this array part working
@@ -72,10 +71,9 @@
                             $vals[] = $val;
                         }
                     }
-                    */
-                    #else {
+                    else {
                         $vals[] = $field_val;
-                    #}
+                    }
                 }
             }
         }
@@ -182,7 +180,7 @@
                     # put the node in under all the different values as keys.
                     # That way, matching any of them will be fine.
                     my_debug('arrays', "in add_node_to_relationship_lists... rel_no = $rel_no\n");
-                    /*my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
+                    my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
                     if (field_is_array($matching_field_on_parent)) {
                         my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
                         $arr = DbUtil::pg_array2array($parent_match_val);
@@ -199,12 +197,11 @@
                         }
                     }
                     else {
-                        #my_debug('arrays', "  it is not, adding it normally\n");
-                    */
+                        my_debug('arrays', "  it is not, adding it normally\n");
                         # add this parent in the proper bucket
                         # (PHP will create an array if none exist)
                         $all_parents_by_relationship[$rel_no]->{$parent_match_val}[] = $parent;
-                    #}
+                    }
                 }
                 else {
                     #my_debug('relationship_lists',
