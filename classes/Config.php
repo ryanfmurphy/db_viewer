@@ -6,12 +6,16 @@ class Config {
     # config is a regular PHP file
     # include it within the function scope and capture the $config vars
     # NOTE: file at $config_filepath must exist or there's an include warning
-    public static function load_config($config_filepath, $default_values=array()) {
+    public static function load_config(
+        $config_filepath, $default_values=array()
+    ) {
         $trunk = self::get_trunk();
         $requestVars = array_merge($_GET, $_POST);
         extract($default_values);
         include($config_filepath);
 
+        #todo #simplify why have these 2 places?
+        # maybe just get the keys from the default_values?
         $config_vars = array(
             'db_type',
             'requestVars',
@@ -30,6 +34,8 @@ class Config {
             'search_path',
             'backgroundImages',
             'background_image_settings',
+            'background_image_opacity',
+            'background_image_method',
             'background',
             'field_render_filters_by_table',
             'special_ops',
@@ -282,9 +288,6 @@ class Config {
 
             # both
             'pluralize_table_names' => false,
-            'backgroundImages' => array(),
-            'background_image_settings' => array(),
-            'background' => 'light',
             'links_minimal_by_default' => false,
             'minimal_fields_by_table' => null,
             'minimal_field_inheritance' => true,
@@ -294,6 +297,15 @@ class Config {
             'minimal' => isset($requestVars['minimal'])
                             ? true : false,
             'minimal_fields' => null,
+
+            # background
+            'backgroundImages' => array(),
+            'background_image_settings' => array(),
+            'background' => 'light',
+            # opacity: only works with
+            # background_image_method = 'css3:after'
+            'background_image_opacity' => 1.0,
+            'background_image_method' => 'normal', # 'css3:after',
 
             # URI paths
             'uri_trunk' => $uri_trunk,
