@@ -220,6 +220,16 @@
         return fields;
     }
 
+    function formKeyExists(form_key) {
+        var form_keys = getFormKeys(getForm());
+        for (var i=0; i < form_keys.length; i++) {
+            if (form_keys[i] == form_key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     { // local row storage
 
         function getLocalStorageArray(key) {
@@ -676,7 +686,6 @@
         return newElem;
     }
 
-    // #todo #fixme don't need plusSignFormInputDiv, it's always the same
     function addNewInput(fieldName) {
         var plusSignFormInputDiv = document.getElementById('addNewFieldDiv');
         var mainForm = getForm();
@@ -685,6 +694,13 @@
         );
         console.log('newField', newField);
         mainForm.insertBefore(newField, plusSignFormInputDiv);
+    }
+
+    function addNewInputIfNotExists(fieldName) {
+        var needs_input = !formKeyExists(fieldName);
+        if (needs_input) {
+            addNewInput(fieldName);
+        }
     }
 
     function openAddNewField() {
@@ -741,6 +757,7 @@
         var id = getFormVal(id_field);
         console.log(id);
         resetToCreateTable(null, true);
+        addNewInputIfNotExists('parent_id');
         setFormVal('parent_id', id);
         focusFirstFormField();
     }
