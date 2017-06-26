@@ -658,18 +658,18 @@ function expandRootNodes() {
 
         $id_fields_by_table = array();
         $id_fields_by_table[$root_table] =
-            DbUtil::get_primary_key_field($id_mode, $root_table);
+            DbUtil::get_primary_key_field($root_table);
 
         foreach ($parent_relationships as $relationship) {
             $child_table = $relationship['child_table'];
             $parent_table = $relationship['parent_table'];
             if (!isset($id_fields_by_table[$child_table])) {
                 $id_fields_by_table[$child_table] =
-                    DbUtil::get_primary_key_field($id_mode, $child_table);
+                    DbUtil::get_primary_key_field($child_table);
             }
             if (!isset($id_fields_by_table[$parent_table])) {
                 $id_fields_by_table[$parent_table] =
-                    DbUtil::get_primary_key_field($id_mode, $parent_table);
+                    DbUtil::get_primary_key_field($parent_table);
             }
         }
     }
@@ -844,7 +844,7 @@ function clickLabel(d) {
     $new_parent_table = 'entity'; #todo #fixme - don't always assume a catchall entity table
                                   #              probably will need all this stuff in pure JS
 ?>
-                        var primary_key_field = '<?= DbUtil::get_primary_key_field(null, $new_parent_table) ?>';
+                        var primary_key_field = '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
                         var primary_key = node_to_move[id_field];
                         var parent_id_field = 'parent_id'; // #todo #fixme variablize
                         var table_name = '<?= $new_parent_table ?>';

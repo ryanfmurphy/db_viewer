@@ -259,7 +259,7 @@ if (!class_exists('DbUtil')) {
 
                         #todo #fixme - should be able to use get_primary_key_field for this whole block of code maybe?
                         #              it gets the field regardless of $id_mode
-                        $field_name = self::get_primary_key_field(null, $tablename_root);
+                        $field_name = self::get_primary_key_field($tablename_root);
                         #$field_name = ltrim($suffix,'_'); # weird way we used to do it
 
                         self::log("    now trimmed field_name = '$field_name'\n");
@@ -638,13 +638,13 @@ infer_limit_from_query: query didn't match regex.
 
         # get id field
         public static function get_primary_key_field(
-            $id_mode, $tablename_no_quotes
+            /*$id_mode,*/ $tablename_no_quotes
         ) {
             #todo #fixme - maybe don't even take this arg
             # we always just use the Config val
-            if ($id_mode === null) {
-                $id_mode = Config::$config['id_mode'];
-            }
+            #if ($id_mode === null) {
+            $id_mode = Config::$config['id_mode'];
+            #}
             $pk_fields_by_table = Config::$config['primary_key_fields_by_table'];
             if (isset($pk_fields_by_table[$tablename_no_quotes])) {
                 return $pk_fields_by_table[$tablename_no_quotes];

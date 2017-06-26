@@ -11,8 +11,7 @@ require_once('ContentModule.class.php');
 class ContentContainer {
 
     public static function getIdField() {
-        $id_mode = Config::$config['id_mode'];
-        return DbUtil::get_primary_key_field($id_mode, 'content_container');
+        return DbUtil::get_primary_key_field('content_container');
     }
 
     public function getId() {

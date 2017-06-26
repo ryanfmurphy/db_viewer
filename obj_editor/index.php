@@ -38,7 +38,7 @@
             if ($edit) {
                 if (isset($_GET['primary_key'])) {
 
-                    $primary_key_field = DbUtil::get_primary_key_field($id_mode, $table);
+                    $primary_key_field = DbUtil::get_primary_key_field($table);
                     $primary_key = $_GET['primary_key'];
 
                     $thisRow = TableView::select_by_pk($table, $primary_key_field, $primary_key);

@@ -63,8 +63,8 @@
     # if $is_root_level, then don't need the parent field that would be used to match to a parent level
     function field_list($parent_relationships, $table, $is_root_level=false) {
         my_debug('fields', "  { field_list\n");
-        $id_mode = Config::$config['id_mode'];
-        $id_field = DbUtil::get_primary_key_field($id_mode, $table);
+        $id_mode = Config::$config['id_mode']; #todo do we need id_mode anymore?
+        $id_field = DbUtil::get_primary_key_field($table);
         $name_field = DbUtil::get_name_field($table);
         $fields = array($id_field=>1, $name_field=>1);
 
@@ -249,11 +249,11 @@
         my_debug(NULL, " {add_child_to_tree: parent_table = $parent_table, child_table = $child_table\n");
         my_debug(NULL, "  child = ".print_r($child,1));
         my_debug(NULL, "  parent = ".print_r($parent,1));
-        $id_mode = Config::$config['id_mode'];
-        $parent_id_field = DbUtil::get_primary_key_field($id_mode, $parent_table);
+        $id_mode = Config::$config['id_mode']; #todo do we need id_mode anymore?
+        $parent_id_field = DbUtil::get_primary_key_field($parent_table);
         $parent_id = $parent->{$parent_id_field};
 
-        $child_id_field = DbUtil::get_primary_key_field($id_mode, $child_table);
+        $child_id_field = DbUtil::get_primary_key_field($child_table);
         $child_id = $child->{$child_id_field};
 
         # add children container if needed
@@ -318,7 +318,7 @@
         my_debug('overview', "top of get_tree...\n");
 
         { # do sql query
-            $id_mode = Config::$config['id_mode'];
+            $id_mode = Config::$config['id_mode']; #todo do we need id_mode anymore?
             $fields = field_list($parent_relationships, $root_table, true);
             $sql = "
                 select $fields
@@ -348,7 +348,7 @@
         # to make sure we stop when we are done
         $more_children_to_look_for = false;
 
-        $id_field = DbUtil::get_primary_key_field($id_mode, $root_table);
+        $id_field = DbUtil::get_primary_key_field($root_table);
 
         # loop thru rows and build up this level of tree
         foreach ($rows as $row) {
@@ -442,7 +442,7 @@
                             ." parent_nodes = ".print_r(
                                 $parent_nodes_by_relationship,1
                             ));
-        $id_mode = Config::$config['id_mode'];
+        $id_mode = Config::$config['id_mode']; #todo do we need id_mode anymore?
 
         $all_children_by_relationship = array();
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
@@ -493,9 +493,7 @@
                     my_debug('loop_child_rows', "looping thru child rows, child = "
                                                 .print_r($row,1)."\n");
                     $this_parent_id = $row[$parent_field];
-                    $id_field = DbUtil::get_primary_key_field(
-                        $id_mode, $child_table
-                    );
+                    $id_field = DbUtil::get_primary_key_field($child_table);
                     $id = $row[$id_field];
 
                     add_node_metadata_to_row(/*&*/$row, $child_table);
@@ -553,8 +551,8 @@
     function get_matching_field_on_parent($parent_relationship, $table) {
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
         if ($matching_field_on_parent == '{{USE PRIMARY KEY}}') {
-            $id_mode = Config::$config['id_mode'];
-            $id_field = DbUtil::get_primary_key_field($id_mode, $table);
+            $id_mode = Config::$config['id_mode']; # todo do we need id_mode anymore?
+            $id_field = DbUtil::get_primary_key_field($table);
             $matching_field_on_parent = $id_field;
         }
         return $matching_field_on_parent;

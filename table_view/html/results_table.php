@@ -82,9 +82,7 @@
 <table id="query_table">
 <?php
                     { # vars
-                        $primary_key_field = DbUtil::get_primary_key_field(
-                            $id_mode, $tablename_no_quotes
-                        );
+                        $primary_key_field = DbUtil::get_primary_key_field($tablename_no_quotes);
 
                         $current_row = current($rows);
                         $has_primary_key_field =
