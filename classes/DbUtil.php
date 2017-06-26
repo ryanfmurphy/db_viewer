@@ -256,8 +256,12 @@ if (!class_exists('DbUtil')) {
                     self::log("  id_only mode?\n");
                     if ($id_mode == 'id_only') {
                         self::log("    yes.  trimming before suffix (#todo do this earlier in find_table_prefix fn)\n");
-                        #$field_name = ltrim($suffix,'_'); #todo this seems dangerous! will this really work in all cases?
-                        $field_name = self::get_primary_key_field();
+
+                        #todo #fixme - should be able to use get_primary_key_field for this whole block of code maybe?
+                        #              it gets the field regardless of $id_mode
+                        $field_name = self::get_primary_key_field(null, $tablename_root);
+                        #$field_name = ltrim($suffix,'_'); # weird way we used to do it
+
                         self::log("    now trimmed field_name = '$field_name'\n");
                     }
                     #todo maybe error out if didn't match a table?
