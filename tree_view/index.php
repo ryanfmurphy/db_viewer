@@ -840,11 +840,14 @@ function clickLabel(d) {
                     for (var i = 0; i < selected_nodes.length; i++) {
                         var node_to_move = selected_nodes[i]; // #todo #fixme
                         console.log('loop, i', i, 'node_to_move', node_to_move);
-
-                        var primary_key_field = '<?= DbUtil::get_primary_key_field(null, $table) ?>';
+<?php
+    $new_parent_table = 'entity'; #todo #fixme - don't always assume a catchall entity table
+                                  #              probably will need all this stuff in pure JS
+?>
+                        var primary_key_field = '<?= DbUtil::get_primary_key_field(null, $new_parent_table) ?>';
                         var primary_key = node_to_move[id_field];
                         var parent_id_field = 'parent_id'; // #todo #fixme variablize
-                        var table_name = '<?= $table ?>';
+                        var table_name = '<?= $new_parent_table ?>';
 
                         var url = "<?= $crud_api_uri ?>";
 
