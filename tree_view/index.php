@@ -1,4 +1,7 @@
 <?php
+    # tree_view/index.php - front-end view code for Tree View
+    # the bulk of the real work is done in the JS: tree_view.js.php
+
     { # init: defines $db, TableView,
         # and Util (if not already present)
         $trunk = dirname(__DIR__);
