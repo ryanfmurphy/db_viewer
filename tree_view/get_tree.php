@@ -13,7 +13,7 @@
         if (DEBUG_ALL
             || $category === true
             || in_array($category, array(
-                                    #'arrays',
+                                    'arrays',
                                     'sql',
                                     'rel',
                                     'overview',

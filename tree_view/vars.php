@@ -1,4 +1,5 @@
 <?php
+
     # An associative array with keys that are var names
     # and values that are default values.
     # These vars will be used throughout Tree View
@@ -36,6 +37,7 @@
                                                 'matching_field_on_parent' => '{{USE PRIMARY KEY}}',
                                                 # optional fields
                                                 'condition' => null,
+                                                'order_by_limit' => null,
                                                 'parent_filter_field' => null,
                                                 'parent_filter_field_val' => null,
                                           )

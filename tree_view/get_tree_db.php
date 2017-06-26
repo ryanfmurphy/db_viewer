@@ -62,6 +62,7 @@
                         ." '$matching_field_on_parent' field: ".print_r($node,1));
                 $field_val = $node->{$matching_field_on_parent};
                 if ($field_val) {
+                    /*
                     # check if the field on the parent is an array
                     # if so, all of these values should go the val_list
                     # #todo #fixme get this array part working
@@ -71,9 +72,10 @@
                             $vals[] = $val;
                         }
                     }
-                    else {
+                    */
+                    #else {
                         $vals[] = $field_val;
-                    }
+                    #}
                 }
             }
         }
@@ -88,15 +90,40 @@
     ) {
         my_debug(NULL, "about to make val_list for query.".
                 "  parent_ids = ".print_r($parent_vals,1));
-        $parent_val_list = Db::make_val_list($parent_vals);
+
+        { # figure out $where_clauses (joined by AND)
+            $parent_field_quoted = DbUtil::quote_ident($parent_field);
+            # PostgreSQL: if child's field is an array, we use @>
+            if (Config::$config['db_type'] == 'pgsql'
+                && field_is_array($parent_field)
+            ) {
+                my_debug('arrays', "ahh, parent_field '$parent_field' is an array."
+                        ."preparing special where clauses\n");
+                $where_clauses = array();
+                foreach ($parent_vals as $parent_val) {
+                    $val_quoted = Db::sql_literal($parent_val);
+                    $where_clauses[] = "
+                        $val_quoted = ANY($parent_field_quoted)
+                    ";
+                }
+                $match_where_clause = '(' . implode(' or ', $where_clauses) . ')';
+            }
+            else { # simple IN
+                $parent_val_list = Db::make_val_list($parent_vals);
+                $match_where_clause = "
+                    $parent_field_quoted in $parent_val_list
+                ";
+            }
+        }
 
         $sql = "
             select $fields
             from $table
-            where $parent_field in $parent_val_list
-        " . ($where_cond
-                ? " and $where_cond "
-                : null) . "
+            where
+                $match_where_clause
+            " . ($where_cond
+                    ? " and $where_cond "
+                    : null) . "
             $order_by_limit
         ";
         my_debug('sql',"sql = {'$sql'}\n");
@@ -155,7 +182,7 @@
                     # put the node in under all the different values as keys.
                     # That way, matching any of them will be fine.
                     my_debug('arrays', "in add_node_to_relationship_lists... rel_no = $rel_no\n");
-                    my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
+                    /*my_debug('arrays', "checking if field '$matching_field_on_parent' is an array\n");
                     if (field_is_array($matching_field_on_parent)) {
                         my_debug('arrays', "  it is - deconstructing the array and adding each key\n");
                         $arr = DbUtil::pg_array2array($parent_match_val);
@@ -172,11 +199,12 @@
                         }
                     }
                     else {
-                        my_debug('arrays', "  it is not, adding it normally\n");
+                        #my_debug('arrays', "  it is not, adding it normally\n");
+                    */
                         # add this parent in the proper bucket
                         # (PHP will create an array if none exist)
                         $all_parents_by_relationship[$rel_no]->{$parent_match_val}[] = $parent;
-                    }
+                    #}
                 }
                 else {
                     #my_debug('relationship_lists',
@@ -433,43 +461,94 @@
                 foreach ($rows as $row) {
                     my_debug('loop_child_rows', "looping thru child rows, child = "
                                                 .print_r($row,1)."\n");
-                    $this_parent_id = $row[$parent_field];
+
                     $id_field = DbUtil::get_primary_key_field($child_table);
                     $id = $row[$id_field];
 
                     add_node_metadata_to_row(/*&*/$row, $child_table);
+
                     $child = get_or_create_node($row, $child_table, $id,
                                            /*&*/$all_nodes);
 
-                    # at least 1 parent SHOULD exist...
-                    if (isset($parent_nodes->{$this_parent_id})
-                        && count($parent_nodes->{$this_parent_id})
+                    # Array Match
+                    if (Config::$config['db_type'] == 'pgsql'
+                        && field_is_array($parent_field)
                     ) {
-                        $parents = $parent_nodes->{$this_parent_id};
+                        my_debug('arrays', "  parent_field '$parent_field' is an array\n");
+                        # if using a postgres array as the child's parent field
+                        # we have to loop thru each of the values and match to all of them
+                        $parent_ids = DbUtil::pg_array2array($row[$parent_field]);
+                        my_debug('arrays', "    parent_ids = ".print_r($parent_ids,1)."\n");
+                        foreach ($parent_ids as $this_parent_id)
+                        { #todo could #factor into a function, since it's happening twice
+                            # at least 1 parent SHOULD exist...
+                            if (isset($parent_nodes->{$this_parent_id})
+                                && count($parent_nodes->{$this_parent_id})
+                            ) {
+                                $parents = $parent_nodes->{$this_parent_id};
 
-                        foreach ($parents as $parent) {
-                            if (parent_meets_filter_criteria($parent, $parent_relationship)) {
+                                foreach ($parents as $parent) {
+                                    if (parent_meets_filter_criteria($parent, $parent_relationship)) {
 
-                                add_child_to_tree($child, $parent,
-                                                  #$parent_match_val,
-                                                  $parent_table,
-                                                  $child_table);
+                                        add_child_to_tree($child, $parent,
+                                                          #$parent_match_val,
+                                                          $parent_table,
+                                                          $child_table);
 
-                                add_node_to_relationship_lists(
-                                    $row, $child, $parent_relationships,
-                                    /*&*/$all_children_by_relationship,
-                                    $child_table
-                                );
+                                        add_node_to_relationship_lists(
+                                            $row, $child, $parent_relationships,
+                                            /*&*/$all_children_by_relationship,
+                                            $child_table
+                                        );
 
-                                $more_children_to_look_for = true;
+                                        $more_children_to_look_for = true;
+                                    }
+                                }
+                            }
+                            else {
+                                my_debug(NULL, "WARNING don't actually have the parent $this_parent_id"
+                                        ." at all, let alone a children container\n");
+                                my_debug(NULL, "skipping this node\n");
+                                break;
                             }
                         }
                     }
+                    # regular simple match
                     else {
-                        my_debug(NULL, "WARNING don't actually have the parent $this_parent_id"
-                                ." at all, let alone a children container\n");
-                        my_debug(NULL, "skipping this node\n");
-                        break;
+                        $this_parent_id = $row[$parent_field];
+
+                        { #todo could #factor into a function, since it's happening twice
+                            # at least 1 parent SHOULD exist...
+                            if (isset($parent_nodes->{$this_parent_id})
+                                && count($parent_nodes->{$this_parent_id})
+                            ) {
+                                $parents = $parent_nodes->{$this_parent_id};
+
+                                foreach ($parents as $parent) {
+                                    if (parent_meets_filter_criteria($parent, $parent_relationship)) {
+
+                                        add_child_to_tree($child, $parent,
+                                                          #$parent_match_val,
+                                                          $parent_table,
+                                                          $child_table);
+
+                                        add_node_to_relationship_lists(
+                                            $row, $child, $parent_relationships,
+                                            /*&*/$all_children_by_relationship,
+                                            $child_table
+                                        );
+
+                                        $more_children_to_look_for = true;
+                                    }
+                                }
+                            }
+                            else {
+                                my_debug(NULL, "WARNING don't actually have the parent $this_parent_id"
+                                        ." at all, let alone a children container\n");
+                                my_debug(NULL, "skipping this node\n");
+                                break;
+                            }
+                        }
                     }
                 }
                 my_debug(true, "  }\n");
