@@ -122,6 +122,12 @@
                                 type="text">
                     </div>
                     <div>
+                        <label>Order By / Limit:</label>
+                        <input  name="parent_relationships[<?= $rel_no ?>][order_by_limit]"
+                                value="<?= $relationship['order_by_limit'] ?>"
+                                type="text">
+                    </div>
+                    <div>
                         <label>Parent Filter Field:</label>
                         <input  name="parent_relationships[<?= $rel_no ?>][parent_filter_field]"
                                 value="<?= $relationship['parent_filter_field'] ?>"

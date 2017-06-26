@@ -82,8 +82,11 @@
             $parent_relationships[$no]['parent_field'] = null;
         if (!isset($parent_relationships[$no]['matching_field_on_parent']))
             $parent_relationships[$no]['matching_field_on_parent'] = null;
+        # optional fields
         if (!isset($parent_relationships[$no]['condition']))
             $parent_relationships[$no]['condition'] = null;
+        if (!isset($parent_relationships[$no]['order_by_limit']))
+            $parent_relationships[$no]['order_by_limit'] = null;
         if (!isset($parent_relationships[$no]['parent_filter_field']))
             $parent_relationships[$no]['parent_filter_field'] = null;
         if (!isset($parent_relationships[$no]['parent_filter_field_val']))

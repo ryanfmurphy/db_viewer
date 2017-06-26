@@ -319,8 +319,7 @@
             db_add_tree_lev_by_lev(
                 $all_nodes,
                 $parent_nodes_by_relationship,
-                $parent_relationships,
-                null #$order_by_limit
+                $parent_relationships
             );
         }
 
@@ -377,7 +376,6 @@
         $all_nodes,
         $parent_nodes_by_relationship,
         $parent_relationships,
-        $order_by_limit=null,
         $level = 0
     ) {
         my_debug('overview', "{ top of add_tree_lev_by_lev: level $level,"
@@ -415,6 +413,7 @@
 
             if (count($parent_vals) > 0) {
                 $where_cond = $parent_relationship['condition'];
+                $order_by_limit = $parent_relationship['order_by_limit'];
                 $rows = get_next_level_of_children(
                     $parent_vals, $fields, $parent_field,
                     $child_table, $order_by_limit, $where_cond
@@ -484,7 +483,6 @@
                 $all_nodes,
                 $all_children_by_relationship,
                 $parent_relationships,
-                $order_by_limit,
                 $level + 1
             );
         }
