@@ -58,13 +58,12 @@
         }
     }
 
-    include_once('fs_get_tree.php');
-    include_once('db_get_tree.php');
-
     { # service the API call
         my_debug(NULL, "parent_relationships: " . print_r($parent_relationships,1));
 
         if ($backend == 'db') {
+            include_once('db_get_tree.php');
+
             $tree = db_get_tree(
                 $root_table, $root_cond, $parent_relationships,
                 $order_by_limit, $root_nodes_w_child_only
@@ -80,6 +79,8 @@
             );
         }
         elseif ($backend == 'fs') {
+            include_once('fs_get_tree.php');
+
             $root_dir = Config::$config['fs_tree_default_root_dir'];;
             if (!$root_dir) {
                 die("Can't do filesystem-based tree without defining 'fs_tree_default_root_dir' in db_config");
