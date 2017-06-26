@@ -202,7 +202,7 @@ body {
         margin-right: auto;
     }
 
-    #whoami, #view_all_link {
+    #whoami { /*, #view_all_link {*/
         display: none;
     }
 

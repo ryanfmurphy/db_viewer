@@ -486,24 +486,6 @@
                 </h1>
 <?php
         if ($table) {
-            $maybe_minimal = $links_minimal_by_default
-                                ? '&minimal'
-                                : '';
-?>
-                <a  id="view_all_link" class="link" target="_blank"
-                    href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
-                    view all
-                </a>
-<?php
-            if (!$mobile_travel_mode) {
-?>
-                <span   id="clear_fields_link" class="link" target="_blank"
-                        onclick="clearAllFields()">
-                    clear <span class="details">all fields</span>
-                </span>
-
-<?php
-            }
             if ($mobile_travel_mode) {
                 #todo #fixme why are these target blank?
 ?>
@@ -531,11 +513,35 @@
                 </nobr>
 <?php
             }
+            else {
+                $maybe_minimal = $links_minimal_by_default
+                                    ? '&minimal'
+                                    : '';
+?>
+                <a  id="view_all_link" class="link" target="_blank"
+                    href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
+                    view all
+                </a>
+<?php
+?>
+                <span   id="clear_fields_link" class="link" target="_blank"
+                        onclick="clearAllFields()">
+                    clear <span class="details">all fields</span>
+                </span>
+
+<?php
+            }
+
             if (Config::$config['include_tree_buttons']) {
 ?>
                 <span class="link" onclick="changeToCreateChildForm()">
                     create child
                 </span>
+<?php
+                if (isset($primary_key)
+                    && $primary_key
+                ) {
+?>
                 <a  class="link"
                     href="<?= $tree_view_uri."?root_table=entity_view"
                                             ."&root_cond=id = '$primary_key'"
@@ -552,6 +558,7 @@
                     tree
                 </a>
 <?php
+                }
             }
             #todo #fixme this trello link should be a plugin, not part of the code code
             if (in_array('trello_card_url', $fields)
