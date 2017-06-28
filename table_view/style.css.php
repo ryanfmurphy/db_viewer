@@ -232,8 +232,9 @@
                 if (file_exists('custom_css.php')) {
                     include('custom_css.php');
                 }
-?>
 
+                #include("$trunk/css/background_image.css.php");
+?>
     </style>
 <?php
             }
@@ -242,8 +243,6 @@
 ?>
     <style>
     body {
-        /*background-color: black;
-        color: white;*/
         background-image: url(<?= $background_image_url ?>);
         background-position: center;
         background-repeat: repeat;
@@ -279,7 +278,6 @@
 ?>
     }
     a {
-        /*color: #88f;*/
         color: 00f;
     }
 
