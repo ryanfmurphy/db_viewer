@@ -47,7 +47,8 @@
         Db::conn();
     }
 
-    { # vars adjustments after includes
+    # vars adjustments after includes
+    if ($cur_view != 'auth') {
         { # search_path
             if (!isset($search_path)) {
                 $search_path =
