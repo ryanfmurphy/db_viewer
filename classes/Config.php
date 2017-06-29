@@ -459,15 +459,15 @@ class Config {
     # try to figure out where db_viewer is installed URI-wise
     # so that we can make our asset links robust and flexible
     public static function guess_uri_trunk($current_view_uri) {
-        $uri = $_SERVER['REQUEST_URI'];
-        $regex = "#(.*)$current_view_uri(\?.*)?$#";
-        do_log("regex = '$regex'\n");
-        if (preg_match($regex, $uri, $matches)) {
-            return $matches[1];
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $uri = $_SERVER['REQUEST_URI'];
+            $regex = "#(.*)$current_view_uri(\?.*)?$#";
+            do_log("regex = '$regex'\n");
+            if (preg_match($regex, $uri, $matches)) {
+                return $matches[1];
+            }
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
 }
