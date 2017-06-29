@@ -362,7 +362,7 @@ class Config {
             'table_field_spaces_to_underscores' => true, #todo maybe not be default?
 
             # array fields
-            'fields_w_array_type' => null,
+            'fields_w_array_type' => array(),
             'automatic_curly_braces_for_arrays' => false,
             # MTM stands for Mobile Travel Mode
             # an array of fields that should not require commas
