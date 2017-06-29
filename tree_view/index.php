@@ -11,7 +11,9 @@
         require("$trunk/tree_view/vars.php");
     }
 
-    if (!$root_table || $edit_vars) {
+    if ((!$root_table && !$backend)
+        || $edit_vars
+    ) {
         require("$trunk/tree_view/vars_form.php");
         die();
     }
