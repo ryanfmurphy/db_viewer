@@ -172,6 +172,7 @@ class Config {
             'start_w_tree_fully_expanded',
             'vary_node_colors',
             'do_tree_transitions',
+            'default_root_table_for_tree_view',
             # may be a bool or a list of tables
             'use_relname_for_tree_node_table',
             # stars field can made node text bigger or smaller
@@ -414,8 +415,9 @@ class Config {
             'default_parent_field' => 'parent_id',
             'load_d3_via_cdn' => false,
             'start_w_tree_fully_expanded' => false,
-            'vary_node_colors' => true,
+            'vary_node_colors' => false,
             'do_tree_transitions' => true,
+            'default_root_table_for_tree_view' => 'entity',
             # may be a bool or a list of tables
             'use_relname_for_tree_node_table' => false,
             # stars field can made node text bigger or smaller

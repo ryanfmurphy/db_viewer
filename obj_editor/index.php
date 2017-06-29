@@ -543,10 +543,10 @@
                 ) {
 ?>
                 <a  class="link"
-                    href="<?= $tree_view_uri."?root_table=entity_view"
+                    href="<?= $tree_view_uri."?root_table=$default_root_table_for_tree_view"
                                             ."&root_cond=id = '$primary_key'"
-                                            ."&parent_relationships[0][child_table]=entity_view"
-                                            ."&parent_relationships[0][parent_table]=entity_view"
+                                            ."&parent_relationships[0][child_table]=$default_root_table_for_tree_view"
+                                            ."&parent_relationships[0][parent_table]=$default_root_table_for_tree_view"
                                             ."&parent_relationships[0][parent_field]=parent_id"
                                             ."&parent_relationships[0][matching_field_on_parent]=id"
                                             ."&parent_relationships[0][condition]="
