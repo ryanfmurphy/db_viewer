@@ -1,5 +1,5 @@
 <?php
-            { # form
+    { # form
 ?>
 	<form
         id="query_form"
@@ -26,5 +26,25 @@
 		<input type="submit" value="Submit">
 	</form>
 <?php
+        if (is_array($custom_query_links)) {
+?>
+    <div>
+        <h3>Suggestions</h3>
+        <ul>
+<?php
+            foreach ($custom_query_links as $name => $url) {
+?>
+            <li>
+                <a href="<?= $url ?>">
+                    <?= $name ?>
+                </a>
+            </li>
+<?php
             }
+?>
+        </ul>
+    </div>
+<?php
+        }
+    }
 ?>

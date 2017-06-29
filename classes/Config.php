@@ -207,6 +207,8 @@ class Config {
             'recognize_numbered_id_fields',
 
             'edit_in_place',
+
+            'custom_query_links',
         );
 
         $config = compact($config_vars);
@@ -447,6 +449,8 @@ class Config {
             'recognize_numbered_id_fields' => true,
 
             'edit_in_place' => false,
+
+            'custom_query_links' => null,
         );
 
         return $default_values;
