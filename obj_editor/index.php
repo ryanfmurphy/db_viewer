@@ -554,7 +554,7 @@
                                             ."&name_cutoff=50"
                                             ."&root_nodes_w_child_only="
                                             ."&use_stars_for_node_size=0"
-                                            ."&vary_node_colors=1" ?>">
+                                            ."&vary_node_colors=".(int)$vary_node_colors ?>">
                     tree
                 </a>
 <?php
