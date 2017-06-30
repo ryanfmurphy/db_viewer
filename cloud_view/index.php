@@ -224,10 +224,10 @@ for (var i=0; i < word_elems.length; i++) {
         var elem = e.target;
         var word = elem.textContent;
         var table_quoted = '<?= DbUtil::quote_ident($table) ?>'; // #todo #fixme js tpl
-        var url = '/db_viewer/table_view/index.php?sql=select * from '+table_quoted
-                                                    +' where tags @> $${'+word+'}$$'
-                                                    +' order by time_added desc'
-                                                    +' limit 100';
+        var url = '<?= $table_view_uri ?>?sql=select * from '+table_quoted
+                                                +' where tags @> $${'+word+'}$$'
+                                                +' order by time_added desc'
+                                                +' limit 100';
         window.open(url);
     });
 }
@@ -242,9 +242,7 @@ for (var i=0; i < word_elems.length; i++) {
         $query = http_build_query($query_vars);
 ?>
 setTimeout(function(){
-    document.location = '/d3-cloud/cloud.php'
-                            +'?<?= $query ?>'
-                            +'&ago=<?= $ago - 1 ?>';
+    document.location = '?<?= $query ?>&ago=<?= $ago - 1 ?>';
 }, <?= $play ?> * 1000);
 <?php
     }
