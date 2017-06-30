@@ -151,7 +151,7 @@
         </style>
     </head>
     <body>
-        <script src="/d3/d3.js"></script>
+        <script src="../js/d3.js"></script>
         <script src="d3-cloud/d3.layout.cloud.js"></script>
         <script>
 
