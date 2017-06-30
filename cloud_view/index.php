@@ -142,6 +142,15 @@
 <html>
     <head>
         <style>
+<?php
+    if ($background == 'dark') {
+?>
+            body {
+                background: black;
+            }
+<?php
+    }
+?>
             text {
                 cursor: pointer;
             }
