@@ -1,5 +1,5 @@
 <?php
-    $cur_view = 'cloud';
+    $cur_view = 'cloud_view';
     include('../includes/init.php');
 
     function words_sql(
