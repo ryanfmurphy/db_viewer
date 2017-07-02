@@ -318,7 +318,7 @@ class Config {
             'tree_view_uri' => "$uri_trunk/tree_view/index.php",
             'get_tree_uri' => "$uri_trunk/tree_view/get_tree.php",
             'prompt_for_auth_uri' => "$uri_trunk/auth.php",
-            'd3_js_uri' => "$uri_trunk/tree_view/d3.js",
+            'd3_js_uri' => "$uri_trunk/js/d3.js",
             'js_path' => "$uri_trunk/table_view/js",
             'save_json_dump_uri' => "$uri_trunk/obj_editor/save_json_dump.php",
             'popr_js_path' => '',
