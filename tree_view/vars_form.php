@@ -63,7 +63,7 @@
     function render_relationship_form($relationship, $rel_no) {
         $is_template = ($relationship === null);
         if ($is_template) {
-            $relationship = array(
+            $relationship = null_relationship(); /*array(
                 'child_table' => null,
                 'parent_table' => null,
                 'parent_field' => null,
@@ -72,7 +72,7 @@
                 'condition' => null,
                 'parent_filter_field' => null,
                 'parent_filter_field_val' => null,
-            );
+            );*/
         }
 ?>
             <div class="relationship" data-rel_no=<?= $rel_no ?>
