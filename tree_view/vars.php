@@ -1,4 +1,19 @@
 <?php
+    # vars.php - create vars needed for tree_view
+    #            used for both frontend (index.php) and backend (get_tree*.php)
+
+    function null_relationship() {
+        return array(
+            'child_table' => null,
+            'parent_table' => null,
+            'parent_field' => null,
+            'matching_field_on_parent' => null,
+            'condition' => null,
+            'order_by_limit' => null,
+            'parent_filter_field' => null,
+            'parent_filter_field_val' => null,
+        );
+    }
 
     # An associative array with keys that are var names
     # and values that are default values.
@@ -31,6 +46,16 @@
                                     ? $requestVars['parent_relationships']
                                     : ($assume_default_tree_relationship
                                         ? array(
+                                            array_merge(
+                                                null_relationship(),
+                                                array(
+                                                    'child_table' => $root_table,
+                                                    'parent_table' => $root_table,
+                                                    'parent_field' => $default_parent_field,
+                                                    'matching_field_on_parent' => '{{USE PRIMARY KEY}}',
+                                                )
+                                            )
+                                            /*array(
                                                 'child_table' => $root_table,
                                                 'parent_table' => $root_table,
                                                 'parent_field' => $default_parent_field,
@@ -40,6 +65,7 @@
                                                 'order_by_limit' => null,
                                                 'parent_filter_field' => null,
                                                 'parent_filter_field_val' => null,
+                                            )*/
                                           )
                                         : array()
                                       ),
