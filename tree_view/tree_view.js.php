@@ -189,8 +189,9 @@ function setupTreeWithSize(root) {
     */
     var num_nodes_updown = treeHeightFactor(root);
     console.log('num_nodes_updown', num_nodes_updown);
+    var height_factor_config = <?= Config::$config['tree_height_factor'] ?>;
     var height = Math.max(
-        num_nodes_updown * 65,
+        num_nodes_updown * 65 * height_factor_config,
         defaults.height
     );
     var width = undefined; // 2000;
