@@ -277,6 +277,7 @@ function createTree() {
         .style("height", "800px"); // #todo #fixme hard-coded height
 }
 
+// <script>
 // the root node is the one the furthest to the left
 // the one with the lowest X coordinate
 function getRootNode() {
@@ -289,7 +290,7 @@ function getRootNode() {
         //console.log('node =',node);
         var rect = node.getBoundingClientRect();
         //console.log('rect =',rect);
-        var new_x = rect.x;
+        var new_x = rect.left; //rect.x;
         //console.log('new_x =', new_x);
         if (min_x === undefined
             || new_x < min_x
@@ -300,6 +301,7 @@ function getRootNode() {
             min_x = new_x;
         }
     }
+    console.log('root_node', root_node);
     return root_node;
 }
 
