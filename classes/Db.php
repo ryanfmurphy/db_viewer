@@ -82,6 +82,12 @@ if (!class_exists('Db')) {
             return $result;
         }
 
+        public static function result_is_success($result) {
+            return (is_array($result)
+                    && (!isset($result['success'])
+                        || $result['success']));
+        }
+
         public static function sql_literal($val) {
             $magic_null_value = Config::$config['magic_null_value'];
 
@@ -265,12 +271,14 @@ if (!class_exists('Db')) {
 
         public static function update_rows(
             $table_name, $rowVars,
-            $allowEmptyWheres = false
+            $allowEmptyWheres = false # anti-footgun
         ) {
             if (isset($rowVars['where_clauses'])) {
                 $whereClauses = $rowVars['where_clauses'];
                 unset($rowVars['where_clauses']);
-                if (count($whereClauses) > 0 || $allowEmptyWheres) {
+                if (count($whereClauses) > 0
+                    || $allowEmptyWheres
+                ) {
 
                     $sql = self::build_update_sql(
                         $table_name, $rowVars,
