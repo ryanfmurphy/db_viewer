@@ -459,6 +459,27 @@ if (!class_exists('Db')) {
             return $val_list;
         }
 
+        # append val_to_add to the row
+        public static function add_to_array($table, $primary_key, $field_name, $val_to_add) {
+            $primary_key_field = DbUtil::get_primary_key_field($table);
+
+            # quote identifiers
+            $table_q = DbUtil::quote_ident($table);
+            $field_name_q = DbUtil::quote_ident($field_name);
+            $primary_key_field_q = DbUtil::quote_ident($primary_key_field);
+
+            # quote vals
+            $primary_key = Db::sql_literal($primary_key);
+            $val_to_add_q = Db::sql_literal($val_to_add);
+
+            $sql = "
+                update $table_q
+                set $field_name_q = array_append($field_name_q, $val_to_add_q)
+                where $primary_key_field_q = $primary_key
+            ";
+            return Db::sql($sql);
+        }
+
     }
 
 }

@@ -10,16 +10,14 @@
 
     #todo #fixme is this redundant?
     $vars = array_merge($_GET,$_POST);
-}
 
-#todo #cleanup - action should be just view|create|update|delete
-#                and table should be filled out
-{ # get action
-    if (!isset($vars['action'])) {
-        die('no action');
+    { # get action
+        if (!isset($vars['action'])) {
+            die('no action');
+        }
+        $action = $vars['action'];
+        unset($vars['action']);
     }
-    $action = $vars['action'];
-    unset($vars['action']);
 }
 
 { # handle ___settings
@@ -47,6 +45,8 @@
             view|create|update|delete
         )
         _(?<table>\w+)
+        |
+        add_to_array
         |
         special_op
     $@x", $action, $matches);
@@ -104,6 +104,9 @@
 
         switch ($action) {
 
+            #todo #cleanup - action should be just view|create|update|delete
+            #                and table should be filled out
+
             case "view_$table":
 
                 if (isset($vars['select_fields'])) {
@@ -137,6 +140,24 @@
             case "delete_$table":
                 die(json_encode(
                     Db::delete_rows($table, $vars)
+                ));
+
+            case "add_to_array":
+                #todo pull this $table out so it applies to all actions
+                $table = (isset($vars['table'])
+                            ? $vars['table']
+                            : die('ERROR: no table supplied'));
+                $primary_key = (isset($vars['primary_key'])
+                                ? $vars['primary_key']
+                                : die('ERROR: no primary_key supplied'));
+                $field_name = (isset($vars['field_name'])
+                                ? $vars['field_name']
+                                : die('ERROR: no field_name supplied'));
+                $val_to_add = (isset($vars['val_to_add'])
+                                ? $vars['val_to_add']
+                                : die('ERROR: no val_to_add supplied'));
+                die(json_encode(
+                    Db::add_to_array($table, $primary_key, $field_name, $val_to_add)
                 ));
 
             case "special_op":
