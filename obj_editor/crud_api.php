@@ -89,9 +89,7 @@
         # (if enabled)
         if ($automatic_curly_braces_for_arrays) {
             foreach ($vars as $field_name => $field_val) {
-                if (is_array($fields_w_array_type)
-                    && in_array($field_name, $fields_w_array_type)
-                ) {
+                if (DbUtil::field_is_array($field_name)) {
                     # check if {} is already present and if so don't add them
                     $field_val = trim($field_val);
                     if ($field_val[0] != '{'

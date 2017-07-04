@@ -189,8 +189,9 @@ function setupTreeWithSize(root) {
     */
     var num_nodes_updown = treeHeightFactor(root);
     console.log('num_nodes_updown', num_nodes_updown);
+    var height_factor_config = <?= Config::$config['tree_height_factor'] ?>;
     var height = Math.max(
-        num_nodes_updown * 65,
+        num_nodes_updown * 65 * height_factor_config,
         defaults.height
     );
     var width = undefined; // 2000;
@@ -277,6 +278,7 @@ function createTree() {
         .style("height", "800px"); // #todo #fixme hard-coded height
 }
 
+// <script>
 // the root node is the one the furthest to the left
 // the one with the lowest X coordinate
 function getRootNode() {
@@ -289,7 +291,7 @@ function getRootNode() {
         //console.log('node =',node);
         var rect = node.getBoundingClientRect();
         //console.log('rect =',rect);
-        var new_x = rect.x;
+        var new_x = rect.left; //rect.x;
         //console.log('new_x =', new_x);
         if (min_x === undefined
             || new_x < min_x
@@ -300,6 +302,7 @@ function getRootNode() {
             min_x = new_x;
         }
     }
+    console.log('root_node', root_node);
     return root_node;
 }
 
@@ -551,6 +554,7 @@ function expandRootNodes() {
     }
 ?>
 
+// <script>
 var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
 // Nest Mode - some crude UI to help easily nest nodes under other nodes
@@ -722,7 +726,8 @@ function clickLabel(d) {
 ?>
                         var primary_key_field = '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
                         var primary_key = node_to_move[id_field];
-                        var parent_id_field = 'parent_id'; // #todo #fixme variablize
+                        var parent_id_field = '<?= Config::$config['default_parent_field'] ?>';
+
                         var table_name = '<?= $new_parent_table ?>';
 
                         var url = "<?= $crud_api_uri ?>";
@@ -735,7 +740,16 @@ function clickLabel(d) {
                             action: 'update_' + table_name,
                             where_clauses: where_clauses
                         };
-                        data[parent_id_field] = new_parent[id_field];
+
+                        // #todo maybe #factor common code
+                        // for parent_id_field stuff
+                        var parent_field_is_array = <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
+                        var parent_id = new_parent[id_field];
+                        var parent_field_val = (parent_field_is_array
+                                                    ? '{'+parent_id+'}'
+                                                    : parent_id);
+
+                        data[parent_id_field] = parent_field_val;
 
                         var success = (function(node_to_move, parent_id_field) {
                             return function(xhttp) {

@@ -898,6 +898,15 @@ infer_limit_from_query: query didn't match regex.
             */
         }
 
+        public static function field_is_array($field_name) {
+            $fields_w_array_type =
+                Config::$config['fields_w_array_type'];
+            return (is_array($fields_w_array_type)
+                    && in_array($field_name,
+                            $fields_w_array_type)
+            );
+        }
+
     }
 
 }

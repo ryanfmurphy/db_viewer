@@ -753,13 +753,26 @@
         }
     }
 
+<?php
+    $default_parent_field = Config::$config['default_parent_field'];
+?>
+
     function changeToCreateChildForm() {
         var id_field = '<?= DbUtil::get_primary_key_field($table) ?>';
+        var parent_id_field = '<?= $default_parent_field ?>';
         var id = getFormVal(id_field);
         console.log(id);
         resetToCreateTable(null, true);
-        addNewInputIfNotExists('parent_id');
-        setFormVal('parent_id', id);
+        addNewInputIfNotExists(parent_id_field);
+
+        // #todo maybe #factor common code
+        // for parent_id_field stuff
+        var parent_field_is_array = <?= (int)DbUtil::field_is_array($default_parent_field); ?>;
+        var parent_field_val = (parent_field_is_array
+                                    ? '{'+id+'}'
+                                    : id);
+
+        setFormVal(parent_id_field, parent_field_val);
         focusFirstFormField();
     }
 
