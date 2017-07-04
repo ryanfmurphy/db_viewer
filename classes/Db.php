@@ -461,7 +461,9 @@ if (!class_exists('Db')) {
 
         # append val_to_add to the row
         # if $val_to_replace is passed, remove that from the array before adding $val_to_add
-        public static function add_to_array($table, $primary_key, $field_name, $val_to_add, $val_to_replace=null) {
+        public static function add_to_array(
+            $table, $primary_key, $field_name, $val_to_add, $val_to_replace=null
+        ) {
             $primary_key_field = DbUtil::get_primary_key_field($table);
 
             # quote identifiers
@@ -470,7 +472,7 @@ if (!class_exists('Db')) {
             $primary_key_field_q = DbUtil::quote_ident($primary_key_field);
 
             # quote vals
-            $primary_key = Db::sql_literal($primary_key);
+            $primary_key_q = Db::sql_literal($primary_key);
             $val_to_add_q = Db::sql_literal($val_to_add);
 
             if ($val_to_replace === null) {
@@ -489,7 +491,31 @@ if (!class_exists('Db')) {
             $sql = "
                 update $table_q
                 set $field_name_q = $new_val_expr
-                where $primary_key_field_q = $primary_key
+                where $primary_key_field_q = $primary_key_q
+            ";
+            return Db::sql($sql);
+        }
+
+        # remove val_to_add to the row
+        # if $val_to_replace is passed, remove that from the array before adding $val_to_add
+        public static function remove_from_array(
+            $table, $primary_key, $field_name, $val_to_remove
+        ) {
+            $primary_key_field = DbUtil::get_primary_key_field($table);
+
+            # quote identifiers
+            $table_q = DbUtil::quote_ident($table);
+            $field_name_q = DbUtil::quote_ident($field_name);
+            $primary_key_field_q = DbUtil::quote_ident($primary_key_field);
+
+            # quote vals
+            $primary_key_q = Db::sql_literal($primary_key);
+            $val_to_remove_q = Db::sql_literal($val_to_remove);
+
+            $sql = "
+                update $table_q
+                set $field_name_q = array_remove($field_name_q, $val_to_remove_q)
+                where $primary_key_field_q = $primary_key_q
             ";
             return Db::sql($sql);
         }
