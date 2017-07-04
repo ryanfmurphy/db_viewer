@@ -460,7 +460,8 @@ if (!class_exists('Db')) {
         }
 
         # append val_to_add to the row
-        public static function add_to_array($table, $primary_key, $field_name, $val_to_add) {
+        # if $val_to_replace is passed, remove that from the array before adding $val_to_add
+        public static function add_to_array($table, $primary_key, $field_name, $val_to_add, $val_to_replace=null) {
             $primary_key_field = DbUtil::get_primary_key_field($table);
 
             # quote identifiers
@@ -472,9 +473,22 @@ if (!class_exists('Db')) {
             $primary_key = Db::sql_literal($primary_key);
             $val_to_add_q = Db::sql_literal($val_to_add);
 
+            if ($val_to_replace === null) {
+                $new_val_expr = "array_append($field_name_q, $val_to_add_q)";
+            }
+            else {
+                $val_to_replace_q = Db::sql_literal($val_to_replace);
+                $new_val_expr = "
+                    array_append(
+                        array_remove($field_name_q, $val_to_replace_q),
+                        $val_to_add_q
+                    )
+                ";
+            }
+
             $sql = "
                 update $table_q
-                set $field_name_q = array_append($field_name_q, $val_to_add_q)
+                set $field_name_q = $new_val_expr
                 where $primary_key_field_q = $primary_key
             ";
             return Db::sql($sql);
