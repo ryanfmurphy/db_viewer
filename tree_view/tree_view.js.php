@@ -557,11 +557,11 @@ function expandRootNodes() {
 // <script>
 var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
+
 // Nest Mode - some crude UI to help easily nest nodes under other nodes
 
 var nest_mode = false;
-//var node_to_nest_under = null;
-//var id_to_nest_under = null;
+var add_parent_instead_of_move = null; // shift-N to add parent, n to move parent
 var selected_nodes = [];
 
 function get_alert_elem() {
@@ -577,11 +577,17 @@ function do_alert(msg, color) {
 
 function doNestModeAlert(mode) {
     if (nest_mode === 'click_selected_nodes') {
-        do_alert('Nest mode: click a node to move, or N to stop', 'orange');
+        var action = (add_parent_instead_of_move
+                        ? 'add a new parent to'
+                        : 'move');
+        do_alert('Nest mode: click a node to ' + action + ', or N to stop', 'orange');
     }
     else if (nest_mode === 'click_new_parent_or_select_more') {
+        var action = (add_parent_instead_of_move
+                        ? 'add'
+                        : 'move');
         do_alert(
-            'Click another node to move selected node(s) there,<br>\
+            'Click another node to ' + action + ' selected node(s) there,<br>\
             shift-click more nodes to select them them too, or N to cancel',
             'purple'
         );
@@ -609,14 +615,19 @@ function doNestModeAlert(mode) {
 }
 
 document.addEventListener('keypress', function(event){
-    var N_code = 110;
-    if (event.which == N_code) {
+    console.log(event);
+    var n_code = 110;
+    var N_code = 78;
+    if (event.which == n_code
+        || event.which == N_code
+    ) {
         if (nest_mode) {
             nest_mode = false;
             doNestModeAlert(nest_mode);
         }
         else if (!nest_mode) {
             nest_mode = 'click_selected_nodes';
+            add_parent_instead_of_move = (event.which == N_code); // #todo only allow if parent_field is an array
             doNestModeAlert(nest_mode);
         }
     }
@@ -718,8 +729,9 @@ function clickLabel(d) {
                     var new_parent = d;
                     var num_succeeded = 0;
                     for (var i = 0; i < selected_nodes.length; i++) {
+                        // #note could be adding a parent instead of moving
                         var node_to_move = selected_nodes[i]; // #todo #fixme
-                        console.log('loop, i', i, 'node_to_move', node_to_move);
+                        console.log('loop, i', i, 'node_to_move (or add to parent)', node_to_move);
 <?php
     $new_parent_table = 'entity'; #todo #fixme - don't always assume a catchall entity table
                                   #              probably will need all this stuff in pure JS
@@ -732,15 +744,6 @@ function clickLabel(d) {
 
                         var url = "<?= $crud_api_uri ?>";
 
-                        // build up the AJAX data to update the node
-                        var where_clauses = {};
-                        where_clauses[primary_key_field] = primary_key
-
-                        var data = {
-                            action: 'update_' + table_name,
-                            where_clauses: where_clauses
-                        };
-
                         // #todo maybe #factor common code
                         // for parent_id_field stuff
                         var parent_field_is_array = <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
@@ -749,31 +752,76 @@ function clickLabel(d) {
                                                     ? '{'+parent_id+'}'
                                                     : parent_id);
 
-                        data[parent_id_field] = parent_field_val;
+                        // build up the AJAX data to update the node
+                        var success_callback = null;
+                        var data = null;
 
-                        var success = (function(node_to_move, parent_id_field) {
-                            return function(xhttp) {
-                                var r = xhttp.responseText;
-                                nest_mode = 'success';
-                                doNestModeAlert(nest_mode);
-                                console.log('removing child');
+                        // add addl parent: use "add_to_array" action
+                        if (add_parent_instead_of_move) {
 
-                                removeChildFromNode(node_to_move.parent, node_to_move, false);
-                                addChildToNode(new_parent, node_to_move, false);
+                            data = {
+                                action: 'add_to_array',
+                                table: table_name,
+                                primary_key: primary_key,
+                                field_name: parent_id_field,
+                                val_to_add: parent_field_val
+                            };
 
-                                num_succeeded++;
-                                if (num_succeeded == selected_nodes.length) {
-                                    // #todo #performance - could find the leafiest common node to update at
-                                    updateTree(svg_tree.root);
+                            success_callback = (function(node_to_copy, parent_id_field) {
+                                return function(xhttp) {
+                                    var r = xhttp.responseText;
+                                    nest_mode = 'success';
+                                    doNestModeAlert(nest_mode);
+                                    console.log('not removing child');
+                                    //removeChildFromNode(node_to_move.parent, node_to_move, false);
+                                    addChildToNode(new_parent, node_to_copy, false);
+
+                                    num_succeeded++;
+                                    if (num_succeeded == selected_nodes.length) {
+                                        // #todo #performance - could find the leafiest common node to update at
+                                        updateTree(svg_tree.root);
+                                    }
                                 }
-                            }
-                        })(node_to_move, parent_id_field);
-                        var error = function(xhttp) {
+                            })(node_to_move, parent_id_field);
+                        }
+                        // move to new parent (just update parent field)
+                        else {
+                            var where_clauses = {};
+                            where_clauses[primary_key_field] = primary_key
+
+                            data = {
+                                action: 'update_' + table_name,
+                                where_clauses: where_clauses
+                            };
+
+                            data[parent_id_field] = parent_field_val;
+
+                            success_callback = (function(node_to_move, parent_id_field) {
+                                return function(xhttp) {
+                                    var r = xhttp.responseText;
+                                    nest_mode = 'success';
+                                    doNestModeAlert(nest_mode);
+                                    console.log('removing child');
+
+                                    removeChildFromNode(node_to_move.parent, node_to_move, false);
+                                    addChildToNode(new_parent, node_to_move, false);
+
+                                    num_succeeded++;
+                                    if (num_succeeded == selected_nodes.length) {
+                                        // #todo #performance - could find the leafiest common node to update at
+                                        updateTree(svg_tree.root);
+                                    }
+                                }
+                            })(node_to_move, parent_id_field);
+                        }
+
+                        var error_callback = function(xhttp) {
                             var r = xhttp.responseText;
                             nest_mode = 'error'
                             doNestModeAlert(nest_mode);
                         }
-                        doAjax("POST", url, data, success, error);
+
+                        doAjax("POST", url, data, success_callback, error_callback);
                     }
                 }
                 else if (sub_mode == 'select_more') {
