@@ -2,6 +2,8 @@
 
 # crud_api.php - process simple CRUD actions
 
+#todo move this out of obj_editor
+
 { # vars / includes / setup
     $trunk = dirname(__DIR__);
     $cur_view = 'obj_editor';
@@ -156,8 +158,14 @@
                 $val_to_add = (isset($vars['val_to_add'])
                                 ? $vars['val_to_add']
                                 : die('ERROR: no val_to_add supplied'));
+                $val_to_replace = (isset($vars['val_to_replace'])
+                                ? $vars['val_to_replace']
+                                : null);
                 die(json_encode(
-                    Db::add_to_array($table, $primary_key, $field_name, $val_to_add)
+                    Db::add_to_array(
+                        $table, $primary_key, $field_name, $val_to_add,
+                        $val_to_replace # optional
+                    )
                 ));
 
             case "special_op":
