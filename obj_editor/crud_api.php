@@ -50,6 +50,8 @@
         |
         add_to_array
         |
+        remove_from_array
+        |
         special_op
     $@x", $action, $matches);
 
@@ -165,6 +167,26 @@
                     Db::add_to_array(
                         $table, $primary_key, $field_name, $val_to_add,
                         $val_to_replace # optional
+                    )
+                ));
+
+            case "remove_from_array":
+                #todo pull this $table out so it applies to all actions
+                $table = (isset($vars['table'])
+                            ? $vars['table']
+                            : die('ERROR: no table supplied'));
+                $primary_key = (isset($vars['primary_key'])
+                                ? $vars['primary_key']
+                                : die('ERROR: no primary_key supplied'));
+                $field_name = (isset($vars['field_name'])
+                                ? $vars['field_name']
+                                : die('ERROR: no field_name supplied'));
+                $val_to_remove = (isset($vars['val_to_remove'])
+                                ? $vars['val_to_remove']
+                                : die('ERROR: no val_to_remove supplied'));
+                die(json_encode(
+                    Db::remove_from_array(
+                        $table, $primary_key, $field_name, $val_to_remove
                     )
                 ));
 
