@@ -407,7 +407,6 @@
                     // do we have all the responses? show them
                     if (responses.length >= stored_rows.length) {
                         var overall_response = responses.join('\n\n');
-                        alert( overall_response );
 <?php
     if (Config::$config['save_json_dump_of_stored_rows']) {
 ?>
@@ -415,6 +414,7 @@
 <?php
     }
 ?>
+                        alert( overall_response );
                     }
                 }
 
@@ -541,6 +541,7 @@
     }
 
     function saveDumpOfOverallResponse(overall_response) {
+        console.log('saveDumpOfOverallResponse:', overall_response);
         saveFile(
             'stored_rows_response',
             overall_response,
