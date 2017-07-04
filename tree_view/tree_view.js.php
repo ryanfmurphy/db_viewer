@@ -588,7 +588,8 @@ function doNestModeAlert(mode) {
                         : 'move');
         do_alert(
             'Click another node to ' + action + ' selected node(s) there,<br>\
-            shift-click more nodes to select them them too, or N to cancel',
+            shift-click more nodes to select them them too,<br>\
+            D to delete, or N to cancel<br>',
             'purple'
         );
     }
@@ -606,6 +607,13 @@ function doNestModeAlert(mode) {
             doNestModeAlert(nest_mode);
         }, 1500);
     }
+    else if (nest_mode === 'deleted') {
+        do_alert('Node(s) deleted', 'darkred');
+        nest_mode = false;
+        setTimeout(function() {
+            get_alert_elem().style.display = 'none';
+        }, 1500);
+    }
     else if (nest_mode === false) {
         do_alert('Nest mode disabled', 'blue');
         setTimeout(function() {
@@ -618,6 +626,7 @@ document.addEventListener('keypress', function(event){
     console.log(event);
     var n_code = 110;
     var N_code = 78;
+    var d_code = 100; // wanted delete but some browsers have DEL go back a page??
     if (event.which == n_code
         || event.which == N_code
     ) {
@@ -630,6 +639,15 @@ document.addEventListener('keypress', function(event){
             add_parent_instead_of_move = (event.which == N_code); // #todo only allow if parent_field is an array
             doNestModeAlert(nest_mode);
         }
+    }
+    // delete selected node
+    else if (event.which == d_code
+            && nest_mode
+    ) {
+        alert("Can't delete yet (not implemented)");
+        nest_mode = 'deleted';
+        doNestModeAlert(nest_mode);
+        deleteSelectedNodes();
     }
 });
 
@@ -691,6 +709,7 @@ function addChildToNode(node, child, doUpdateTree) {
 ?>
 // <script>
 // clicking the Label takes you to that object in db_viewer
+// #todo #fixme #todo split up this huge function
 function clickLabel(d) {
     console.log(d3.event.shiftKey);
     var table = ('_node_table' in d
@@ -710,6 +729,7 @@ function clickLabel(d) {
 
     if (table && conn_table) {
         var id_field = id_fields_by_table[conn_table];
+        // #todo #factor - handleNestModeClick()
         if (nest_mode) {
             if (nest_mode == 'click_selected_nodes') {
                 console.log('click_selected_nodes');
@@ -736,9 +756,11 @@ function clickLabel(d) {
     $new_parent_table = 'entity'; #todo #fixme - don't always assume a catchall entity table
                                   #              probably will need all this stuff in pure JS
 ?>
-                        var primary_key_field = '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
+                        var primary_key_field =
+                            '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
                         var primary_key = node_to_move[id_field];
-                        var parent_id_field = '<?= Config::$config['default_parent_field'] ?>';
+                        var parent_id_field =
+                            '<?= Config::$config['default_parent_field'] ?>';
 
                         var table_name = '<?= $new_parent_table ?>';
 
@@ -746,7 +768,8 @@ function clickLabel(d) {
 
                         // #todo maybe #factor common code
                         // for parent_id_field stuff
-                        var parent_field_is_array = <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
+                        var parent_field_is_array =
+                            <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
                         var parent_id = new_parent[id_field];
                         /*var parent_field_val = (parent_field_is_array
                                                     ? '{'+parent_id+'}'
@@ -759,8 +782,8 @@ function clickLabel(d) {
                         if (parent_field_is_array) {
                             // array field:
                             // if pressed shift-N, then add addl parent: use "add_to_array" action
-                            //      else move parent by removing JUST the one existing parent and adding the new one
-                            //      (allow other existing parents to remain)
+                            //      else move parent by removing JUST the one existing parent
+                            //      and adding the new one (allow other existing parents to remain)
 
                             var remove_child = !add_parent_instead_of_move;
 
