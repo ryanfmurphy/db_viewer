@@ -748,33 +748,52 @@ function clickLabel(d) {
                         // for parent_id_field stuff
                         var parent_field_is_array = <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
                         var parent_id = new_parent[id_field];
-                        var parent_field_val = (parent_field_is_array
+                        /*var parent_field_val = (parent_field_is_array
                                                     ? '{'+parent_id+'}'
-                                                    : parent_id);
+                                                    : parent_id);*/
 
                         // build up the AJAX data to update the node
                         var success_callback = null;
                         var data = null;
 
-                        // add addl parent: use "add_to_array" action
-                        if (add_parent_instead_of_move) {
+                        if (parent_field_is_array) {
+                            // array field:
+                            // if pressed shift-N, then add addl parent: use "add_to_array" action
+                            //      else move parent by removing JUST the one existing parent and adding the new one
+                            //      (allow other existing parents to remain)
+
+                            var remove_child = !add_parent_instead_of_move;
 
                             data = {
                                 action: 'add_to_array',
                                 table: table_name,
                                 primary_key: primary_key,
                                 field_name: parent_id_field,
-                                val_to_add: parent_field_val
+                                val_to_add: parent_id
                             };
 
-                            success_callback = (function(node_to_copy, parent_id_field) {
+                            // if we're moving the node, replace the existing id
+                            if (remove_child) {
+                                // #todo #fixme can we always depend on the key being 'id'
+                                var existing_parent_id = node_to_move.parent.id;
+                                data['val_to_replace'] = existing_parent_id;
+                            }
+
+                            // #todo could #factor success_callback back in between the 2 cases
+                            success_callback = (function(node_to_move, parent_id_field) {
                                 return function(xhttp) {
                                     var r = xhttp.responseText;
                                     nest_mode = 'success';
                                     doNestModeAlert(nest_mode);
-                                    console.log('not removing child');
-                                    //removeChildFromNode(node_to_move.parent, node_to_move, false);
-                                    addChildToNode(new_parent, node_to_copy, false);
+                                    
+                                    if (remove_child) {
+                                        console.log('removing child');
+                                        removeChildFromNode(node_to_move.parent, node_to_move, false);
+                                    }
+                                    else {
+                                        console.log('not removing child');
+                                    }
+                                    addChildToNode(new_parent, node_to_move, false);
 
                                     num_succeeded++;
                                     if (num_succeeded == selected_nodes.length) {
@@ -784,7 +803,8 @@ function clickLabel(d) {
                                 }
                             })(node_to_move, parent_id_field);
                         }
-                        // move to new parent (just update parent field)
+                        // non-array field, simple update of parent field
+                        // #todo make sure non-array parent field still works right
                         else {
                             var where_clauses = {};
                             where_clauses[primary_key_field] = primary_key
@@ -794,7 +814,7 @@ function clickLabel(d) {
                                 where_clauses: where_clauses
                             };
 
-                            data[parent_id_field] = parent_field_val;
+                            data[parent_id_field] = parent_id;
 
                             success_callback = (function(node_to_move, parent_id_field) {
                                 return function(xhttp) {
