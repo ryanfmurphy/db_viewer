@@ -13,6 +13,9 @@
     #todo #fixme is this redundant?
     $vars = array_merge($_GET,$_POST);
 
+    #todo #fixme this can clash if we have a field named 'action'
+    #            create a mode where all the fields are stored
+    #            in a nested array called 'fields'
     { # get action
         if (!isset($vars['action'])) {
             die('no action');
@@ -78,7 +81,7 @@
                              $MTM_array_fields_to_not_require_commas)
                     && strlen($field_val) > 0
                     && strpos($field_val, ',') === false
-                    && $field_val[0] != '{' #todo check end } too?
+                    && $field_val[0] != '{' #todo check end brace too?
                     && $field_val[0] != ' '
                 );
 
