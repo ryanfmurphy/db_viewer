@@ -304,6 +304,8 @@
                     : '';
         }
 
+        // #todo make interface consistent w other click handlers
+        // swap event and table_name
         function viewButtonClickHandler(
             crud_api_uri, keyEvent, table_name
         ) {
