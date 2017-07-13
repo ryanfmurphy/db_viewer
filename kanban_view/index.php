@@ -2,19 +2,21 @@
     $cur_view = 'kanban_view';
     include('../includes/init.php');
 
+    $table = 'todo';
+    $list_field = 'kanban_list';
+
+    $primary_key_field = DbUtil::get_primary_key_field($table);
+
     #todo #fixme put in a class
-    function get_lists_and_items() {
+    function get_lists_and_items($table, $list_field, $include_nulls = true, $null_list_name='Inbox') {
 
         #todo turn this into DbUtil::get_rows_split_by_field
         { # get data from DB
-            $list_field = 'kanban_list';
-            $include_nulls = true;
-            $null_list_name = 'Inbox';
-
+            $table_q = DbUtil::quote_ident($table);
             $list_field_q = DbUtil::quote_ident($list_field);
 
             $rows = Db::sql("
-                select * from todo
+                select * from $table_q
                 " . ($include_nulls
                         ? ""
                         : " where $list_field_q is not null ")
@@ -52,7 +54,8 @@
         return $lists;
     }
 
-    $lists = get_lists_and_items();
+    $lists = get_lists_and_items($table, $list_field);
+
 ?>
 <html>
     <head>
@@ -83,7 +86,6 @@
                 display: inline-block;
                 vertical-align: top;
                 width: <?= $list_width ?>rem;
-                /*height: <?= $list_height ?>vh;*/
                 height: <?= $list_height ?>vh;
                 background: <?= $list_color ?>;
                 margin: <?= $list_margin ?>rem;
@@ -125,6 +127,11 @@
         </style>
 
         <script>
+
+<?php
+    require_once("../js/ajax.js");
+?>
+
         var scope = {
             item_being_dragged: null
         };
@@ -146,6 +153,7 @@
                 scope.item_being_dragged = item;
             },
 
+            // when you release an item an drop it into a new place
             drop: function(ev) {
                 console.log('drop',ev);
                 var data = ev.dataTransfer.getData("Text");
@@ -211,8 +219,9 @@
                 return relative_Y;
             }
 
-        }
+        };
 
+        // <script>
         var lists = {
 
             listItems: function(list_items_area) {
@@ -232,6 +241,9 @@
             },
 
             insertItem: function(item, list_items_area, place) {
+                var list_name = list_items_area.getAttribute('data-list_name');
+                updateData.moveToList(item, list_name);
+
                 var node_to_insert_before = lists.nthItem(place, list_items_area);
                 console.log('node_to_insert_before', node_to_insert_before);
                 list_items_area.insertBefore(item, node_to_insert_before);
@@ -273,7 +285,49 @@
                 }
             }
 
-        }
+        };
+
+        // <script>
+        var updateData = {
+
+            table: '<?= $table ?>',
+            primary_key_field: '<?= $primary_key_field ?>',
+            list_field: '<?= $list_field ?>',
+            crud_api_uri: '<?= $crud_api_uri ?>',
+            
+            moveToList: function(item, list_name) {
+
+                var table = updateData.table;
+                var primary_key_field = updateData.primary_key_field;
+                var list_field = updateData.list_field;
+                var crud_api_uri = updateData.crud_api_uri;
+
+                var primary_key = item.getAttribute('data-primary_key');
+
+                var where_clauses = {};
+                where_clauses[primary_key_field] = primary_key;
+
+                var data = {
+                    action: 'update_' + table,
+                    where_clauses: where_clauses
+                };
+                data[list_field] = list_name;
+
+                doAjax(
+                    "POST", crud_api_uri, data,   
+                    function(xhttp) {
+                        var r = xhttp.responseText;
+                        alert('Success');
+                    },
+                    function(xhttp) {
+                        var r = xhttp.responseText;
+                        alert('Something went wrong');
+                    }
+                );
+
+            }
+
+        };
 
         </script>
 
@@ -290,13 +344,16 @@
                 <div class="list_items"
                      ondrop="dragging.drop(event)"
                      ondragover="dragging.allowDrop(event)"
+                     data-list_name="<?= $list_name #todo #fixme what about the "null" list? ?>"
                 >
 <?php
         foreach ($list as $item) {
+            $primary_key = $item[$primary_key_field];
 ?>
                     <div class="item"
                          draggable="true"
                          ondragstart="dragging.drag(event)"
+                         data-primary_key="<?= $primary_key ?>"
                     >
                         <div class="txt">
                             <?= $item['name'] ?>
