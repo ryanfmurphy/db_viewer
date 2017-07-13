@@ -8,11 +8,11 @@
     $list_width = 15;
     $list_height = 80;
     $list_margin = .7;
-    $list_color = '#977';
+    $list_color = '#779';
 
     $item_height = 5;
     $item_margin = 1.5;
-    $item_color = '#fdd';
+    $item_color = '#ddf';
 ?>
             .list {
                 display: inline-block;
@@ -90,49 +90,47 @@
 
     </head>
     <body>
+<?php
+    $lists = array(
+        array(
+            array('name' => 'This'),
+            array('name' => 'is'),
+            array('name' => 'Draggable'),
+        ),
+        array(
+            array('name' => 'These'),
+            array('name' => 'too'),
+        ),
+        array(
+            array('name' => 'These'),
+            array('name' => 'are'),
+            array('name' => 'so'),
+            array('name' => 'Draggable'),
+        ),
+        array(
+            array('name' => 'These'),
+            array('name' => 'as'),
+            array('name' => 'well'),
+        ),
+    );
+
+    foreach ($lists as $list) {
+?>
         <div class="list" ondrop="drop(event)" ondragover="allowDrop(event)">
+<?php
+        foreach ($list as $item) {
+?>
             <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
+                <div class="txt">
+                    <?= $item['name'] ?>
+                </div>
             </div>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
+<?php
+        }
+?>
         </div>
-        <div class="list" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-        </div>
-        <div class="list" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-        </div>
-        <div class="list" ondrop="drop(event)" ondragover="allowDrop(event)">
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">Draggable</div>
-            </div>
-        </div>
+<?php
+    }
+?>
     </body>
 </html>
