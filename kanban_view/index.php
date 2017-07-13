@@ -169,21 +169,46 @@
 
             // decide where in the list to drop item
             decidePlaceInList: function(event, list_items_area) {
-                var rel_y = dragging.getRelativeY(event, list_items_area);
-                console.log('rel_y',rel_y);
+                console.log('decidePlaceInList, list_items_area = ', list_items_area);
+
+                //var rel_y = dragging.getRelativeY(event, list_items_area);
+                //console.log('  rel_y',rel_y);
+                var our_y = event.pageY;
+
+                var list_items = list_items_area.getElementsByClassName('item');
+                console.log('  list_items:', list_items);
+                console.log('  looping thru ' + list_items.length + ' items');
+                console.log('  to compare with our_y: ' + our_y);
+
+                var this_y, last_y;
+                for (var i=0; i < list_items.length; i++) {
+                    var item = list_items[i];
+                    console.log('    <item ' + i + '>.y ', item.offsetTop);
+                    this_y = item.offsetTop;
+                    if (our_y > last_y  &&  our_y < this_y) {
+                        console.log('  found place to insert item:', i);
+                        return i;
+                    }
+
+                    last_y = this_y;
+                }
+                console.log('  at the end, place =', i);
+                return list_items.length;
             },
 
             // get y relative to drop area (.list_items)
+            /*
             getRelativeY: function(event, drop_area_elem) {
                 console.log('getRelativeY, event=',event,'drop_area_elem=',drop_area_elem);
                 var area_top_Y = drop_area_elem.offsetTop;
-                console.log('area_top_Y', area_top_Y);
+                console.log('  area_top_Y', area_top_Y);
                 var our_Y = event.pageY;
-                console.log('our_Y', our_Y);
+                console.log('  our_Y', our_Y);
                 var relative_Y = our_Y - area_top_Y;
-                console.log('relative_Y', relative_Y);
+                console.log('  relative_Y', relative_Y);
                 return relative_Y;
             }
+            */
 
         }
 
