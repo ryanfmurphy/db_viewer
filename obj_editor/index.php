@@ -639,7 +639,7 @@
 ?>
                 <input  onclick="return saveLocallyButtonClickHandler(
                                     '<?= $crud_api_uri ?>',
-                                    scope.table_name,
+                                    window.scope.table_name,
                                     event
                                  )"
                         value="Save Locally"
@@ -648,7 +648,7 @@
                 />
                 <input  onclick="return saveStoredRowsToDb_clickHandler(
                                     '<?= $crud_api_uri ?>',
-                                    scope.table_name,
+                                    window.scope.table_name,
                                     event
                                  )"
                         value="Save Stored Rows to DB"
@@ -658,7 +658,7 @@
                 <!-- #todo check if there's old stored rows and show / hide this -->
                 <input  onclick="return recoverOldStoredRowsClickHandler(
                                     '<?= $crud_api_uri ?>',
-                                    scope.table_name,
+                                    window.scope.table_name,
                                     event
                                  )"
                         value="Recover Old Stored Rows"
@@ -666,7 +666,7 @@
                         id="recover_old_rows_button"
                 />
                 <!-- #todo check if there's stored rows / old stored rows and show / hide this -->
-                <input onclick="return clearStoredRowsClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)"
+                <input onclick="return clearStoredRowsClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)"
                     value="Clear Stored Rows" type="submit" id="clear_stored_rows_button"
                 />
 <?php
@@ -674,20 +674,20 @@
 
                     if ($edit) {
 ?>
-                <input onclick="return updateButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # update ?>
+                <input onclick="return updateButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)" <?php # update ?>
                     value="Update" type="submit" id="update_button"
                 />
 <?php
                     }
                     else {
 ?>
-                <input onclick="return createButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)" <?php # create ?>
+                <input onclick="return createButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)" <?php # create ?>
                     value="Create" type="submit" id="create_button"
                 />
 <?php
                     }
 ?>
-                <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, scope.table_name)" <?php # view ?>
+                <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, window.scope.table_name)" <?php # view ?>
                     value="View" type="submit" id="view_button"
                 />
 <?php
@@ -697,7 +697,7 @@
                     ) {
                         #todo #fixme make archive_instead_of_delete affect this button
 ?>
-                <input onclick="return deleteButtonClickHandler('<?= $crud_api_uri ?>', scope.table_name, event)"
+                <input onclick="return deleteButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)"
                     value="Delete" type="submit" id="delete_button"
                 />
 <?php
