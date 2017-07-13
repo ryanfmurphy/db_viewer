@@ -317,7 +317,7 @@
                     "POST", crud_api_uri, data,   
                     function(xhttp) {
                         var r = xhttp.responseText;
-                        alert('Success');
+                        //alert('Success');
                     },
                     function(xhttp) {
                         var r = xhttp.responseText;
