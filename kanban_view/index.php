@@ -140,7 +140,7 @@
                 var txt = "Here is some text";
                 console.log('txt',txt);
                 ev.dataTransfer.setData("Text", txt);
-                var item = find.findItem(ev.target);
+                var item = lists.findItem(ev.target);
                 console.log('item',item);
                 scope.item_being_dragged = item;
             },
@@ -149,25 +149,53 @@
                 console.log('drop',ev);
                 var data = ev.dataTransfer.getData("Text");
                 console.log('data',data);
-                var list = find.findListItemsArea(ev.target);
-                if (list) {
-                    console.log('list', list);
+                var list_items_area = lists.findListItemsArea(ev.target);
+                if (list_items_area) {
+                    console.log('list_items_area', list_items_area);
                     var item = scope.item_being_dragged;
                     if (item) {
                         console.log('item',item);
-                        list.appendChild(item);
+                        var place_in_list = dragging.decidePlaceInList(ev, list_items_area);
+                        console.log('place_in_list',place_in_list);
+                        list_items_area.appendChild(item);
                         item = null;
                     }
                 }
                 else {
-                    console.log('no list to drop into');
+                    console.log('no list_items_area to drop into');
                 }
                 ev.preventDefault();
+            },
+
+            // decide where in the list to drop item
+            decidePlaceInList: function(event, list_items_area) {
+                var rel_y = dragging.getRelativeY(event, list_items_area);
+                console.log('rel_y',rel_y);
+            },
+
+            // get y relative to drop area (.list_items)
+            getRelativeY: function(event, drop_area_elem) {
+                console.log('getRelativeY, event=',event,'drop_area_elem=',drop_area_elem);
+                var area_top_Y = drop_area_elem.offsetTop;
+                console.log('area_top_Y', area_top_Y);
+                var our_Y = event.pageY;
+                console.log('our_Y', our_Y);
+                var relative_Y = our_Y - area_top_Y;
+                console.log('relative_Y', relative_Y);
+                return relative_Y;
             }
 
         }
 
-        var is = {
+        var lists = {
+
+            // search thru self and ancestors
+            findItem: function(elem) {
+                while (elem && !lists.isItem(elem)) {
+                    elem = elem.parentNode;
+                }
+                return elem;
+            },
 
             isItem: function(elem) {
                 if (!elem || !elem.classList) {
@@ -179,6 +207,14 @@
                 }
             },
 
+            // search thru self and ancestors
+            findListItemsArea: function(elem) {
+                while (elem && !lists.isListItemsArea(elem)) {
+                    elem = elem.parentNode;
+                }
+                return elem;
+            },
+
             isListItemsArea: function(elem) {
                 if (!elem || !elem.classList) {
                     console.log('isList called w strange elem:', elem);
@@ -187,25 +223,6 @@
                 else {
                     return elem.classList.contains('list_items');
                 }
-            }
-
-        }
-
-        // search thru self and ancestors
-        var find = {
-
-            findItem: function(elem) {
-                while (elem && !is.isItem(elem)) {
-                    elem = elem.parentNode;
-                }
-                return elem;
-            },
-
-            findListItemsArea: function(elem) {
-                while (elem && !is.isListItemsArea(elem)) {
-                    elem = elem.parentNode;
-                }
-                return elem;
             }
 
         }
