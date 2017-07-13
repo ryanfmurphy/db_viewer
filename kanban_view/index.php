@@ -50,18 +50,29 @@
         };
 
         function allowDrop(ev) {
-            console.log('allowDrop',ev);
+            //console.log('allowDrop',ev);
             ev.preventDefault();
         }
 
         function drag(ev) {
             console.log('drag',ev);
-            var txt = "Here is some text"; //ev.target.id;
+            var txt = "Here is some text";
             console.log('txt',txt);
             ev.dataTransfer.setData("Text", txt);
-            var item = ev.target;
+            var item = findItem(ev.target);
             console.log('item',item);
             scope.item_being_dragged = item;
+        }
+
+        function isItem(elem) {
+            return elem.classList.contains('item');
+        }
+
+        function findItem(elem) {
+            while (elem && !(isItem(elem))) {
+                elem = elem.parentNode;
+            }
+            return elem;
         }
 
         function isList(elem) {
