@@ -281,22 +281,22 @@
     <body style="position:relative">
         <div class="lists">
 <?php
-    #todo #fixme remove
-    function rand_color() {
-        return '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-    }
     foreach ($lists as $list_name => $list) {
 ?>
             <div class="list">
                 <div class="list_name">
                     <h3><?= $list_name ?></h3>
                 </div>
-                <div class="list_items" ondrop="dragging.drop(event)" ondragover="dragging.allowDrop(event)">
+                <div class="list_items"
+                     ondrop="dragging.drop(event)"
+                     ondragover="dragging.allowDrop(event)"
+                >
 <?php
         foreach ($list as $item) {
 ?>
-                    <div class="item" draggable="true" ondragstart="dragging.drag(event)"
-                        style="background: <?= rand_color() ?>"
+                    <div class="item"
+                         draggable="true"
+                         ondragstart="dragging.drag(event)"
                     >
                         <div class="txt">
                             <?= $item['name'] ?>
