@@ -4,15 +4,24 @@
 
     $table = 'todo';
     $list_field = 'kanban_list';
+    $sort_order_field = 'sort_order';
+    $include_nulls = true;
+    $null_list_name = 'Inbox';
+    $definite_sort_orders_only = true;
+    $root_level_nodes_only = true;
 
     $primary_key_field = DbUtil::get_primary_key_field($table);
 
     #todo #fixme put in a class
-    function get_lists_and_items($table, $list_field, $include_nulls = true, $null_list_name='Inbox') {
+    function get_lists_and_items(
+        $table, $list_field, $sort_order_field, $include_nulls, $null_list_name,
+        $definite_sort_orders_only, $root_level_nodes_only
+    ) {
 
         # add additional lists
         $additional_lists_to_include = array(
             'Inbox',
+            'Not Now',
             'On Deck',
             'On Deck Partially Completed',
             'Working On',
@@ -31,15 +40,33 @@
             $table_q = DbUtil::quote_ident($table);
             $list_field_q = DbUtil::quote_ident($list_field);
 
-            $rows = Db::sql("
+            { # build wheres
+                $wheres = array();
+                if (!$include_nulls) {
+                    $wheres[] = "$list_field_q is not null";
+                }
+                if ($root_level_nodes_only) {
+                    $default_parent_field = Config::$config['default_parent_field'];
+                    $default_parent_field_q = DbUtil::quote_ident($default_parent_field);
+                    $wheres[] = "$default_parent_field is null";
+                }
+                if ($definite_sort_orders_only) {
+                    $sort_order_field_q = DbUtil::quote_ident($sort_order_field);
+                    $wheres[] = "$sort_order_field_q is not null";
+                }
+            }
+
+            $sql = "
                 select * from $table_q
-                " . ($include_nulls
-                        ? ""
-                        : " where $list_field_q is not null ")
+                " . (count($wheres) > 0
+                        ? ' where '
+                            . implode(' and ', $wheres)
+                        : '')
                 . "
-                order by $list_field_q
+                order by $list_field_q, sort_order
                 nulls first
-            ");
+            ";
+            $rows = Db::sql($sql);
 
             # build lists
             foreach ($rows as $row) {
@@ -54,7 +81,10 @@
         return $lists;
     }
 
-    $lists = get_lists_and_items($table, $list_field);
+    $lists = get_lists_and_items(
+        $table, $list_field, $sort_order_field, $include_nulls, $null_list_name,
+        $definite_sort_orders_only, $root_level_nodes_only
+    );
 
 ?>
 <html>
@@ -229,6 +259,13 @@
                 return list_items_area.getElementsByClassName('item');
             },
 
+            getListName: function(list_items_area) {
+                var list_name = list_items_area.getAttribute('data-list_name');
+                return (list_name == '<?= $null_list_name ?>'
+                            ? null
+                            : list_name);
+            },
+
             nthItem: function(n, list_items_area) {
                 console.log('nthItem, n=',n);
                 list_items = lists.listItems(list_items_area);
@@ -241,7 +278,7 @@
             },
 
             insertItem: function(item, list_items_area, place) {
-                var list_name = list_items_area.getAttribute('data-list_name');
+                var list_name = lists.getListName(list_items_area);
                 updateData.moveToList(item, list_name);
 
                 var node_to_insert_before = lists.nthItem(place, list_items_area);
