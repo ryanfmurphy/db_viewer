@@ -4,7 +4,7 @@
 
     $table = 'todo';
     $list_field = 'kanban_list';
-    $sort_order_field = 'sort_order';
+    $sort_order_field = 'sort_order'; #assumption for now - sort_order is an integer field
     $include_nulls = true;
     $null_list_name = 'Inbox';
     $definite_sort_orders_only = true;
@@ -267,24 +267,73 @@
             },
 
             nthItem: function(n, list_items_area) {
-                console.log('nthItem, n=',n);
+                //console.log('nthItem, n=',n);
                 list_items = lists.listItems(list_items_area);
-                console.log('  list_items', list_items);
+                //console.log('  list_items', list_items);
                 var val = (list_items.length > n
                                 ? list_items[n]
                                 : null);
-                console.log('  return val:', val);
+                //console.log('  return val:', val);
                 return val;
             },
 
+            // place is the index of where in the list it goes (in the UI)
             insertItem: function(item, list_items_area, place) {
+                var sort_order = lists.findOkSortOrderFor(list_items_area, place);
                 var list_name = lists.getListName(list_items_area);
-                updateData.moveToList(item, list_name);
+                updateData.moveToList(item, list_name, sort_order);
 
+                if (sort_order !== undefined) {
+                    item.setAttribute('data-sort_order', sort_order);
+                }
+
+                // #todo #fixme maybe put this UI move into the success fn of the ajax
                 var node_to_insert_before = lists.nthItem(place, list_items_area);
                 console.log('node_to_insert_before', node_to_insert_before);
                 list_items_area.insertBefore(item, node_to_insert_before);
             },
+
+            // squawk if there's no good sort_order (have to move stuff around)
+            findOkSortOrderFor(list_items_area, place) {
+                console.log('findOkSortOrderFor()');
+                var node_to_insert_before = lists.nthItem(place, list_items_area);
+                console.log('  node_to_insert_before', node_to_insert_before);
+                var node_to_insert_after = (place > 0
+                                                ? lists.nthItem(place-1, list_items_area)
+                                                : null);
+                console.log('  node_to_insert_after', node_to_insert_after);
+
+                if (node_to_insert_before && node_to_insert_after) {
+                    var sort_order_A = items.getSortOrder(node_to_insert_after);
+                    var sort_order_B = items.getSortOrder(node_to_insert_before);
+                    var new_sort_order = Math.round((sort_order_A + sort_order_B) / 2);
+                    console.log('  sort_order_A',sort_order_A);
+                    console.log('  sort_order_B',sort_order_B);
+                    console.log('  new_sort_order',new_sort_order);
+                    if (new_sort_order == sort_order_A
+                        || new_sort_order == sort_order_B
+                    ) {
+                        alert("Warning - sort_orders are so close we might be losing information");
+                    }
+                    console.log('  found sort_order between ' + sort_order_A
+                        + ' and ' + sort_order_B + ': ' + new_sort_order);
+                    return new_sort_order;
+                }
+                else if (node_to_insert_before) {
+                    var new_sort_order = items.getSortOrder(node_to_insert_before) - 10;
+                    console.log("  at the beginning, so new_sort_order =", new_sort_order);
+                    return new_sort_order
+                }
+                else if (node_to_insert_after) {
+                    var new_sort_order = items.getSortOrder(node_to_insert_after) + 10;
+                    console.log("  at the end, so new_sort_order =", new_sort_order);
+                    return new_sort_order
+                }
+                else {
+                    return 0;
+                }
+            },
+
 
             // search thru self and ancestors
             findItem: function(elem) {
@@ -325,18 +374,29 @@
         };
 
         // <script>
+        var items = {
+            getSortOrder: function(item) {
+                return parseInt(
+                    item.getAttribute('data-sort_order')
+                );
+            }
+        };
+
+        // <script>
         var updateData = {
 
             table: '<?= $table ?>',
             primary_key_field: '<?= $primary_key_field ?>',
             list_field: '<?= $list_field ?>',
+            sort_order_field: '<?= $sort_order_field ?>',
             crud_api_uri: '<?= $crud_api_uri ?>',
             
-            moveToList: function(item, list_name) {
+            moveToList: function(item, list_name, sort_order) {
 
                 var table = updateData.table;
                 var primary_key_field = updateData.primary_key_field;
                 var list_field = updateData.list_field;
+                var sort_order_field = updateData.sort_order_field;
                 var crud_api_uri = updateData.crud_api_uri;
 
                 var primary_key = item.getAttribute('data-primary_key');
@@ -349,6 +409,9 @@
                     where_clauses: where_clauses
                 };
                 data[list_field] = list_name;
+                if (sort_order !== undefined) {
+                    data[sort_order_field] = sort_order;
+                }
 
                 doAjax(
                     "POST", crud_api_uri, data,   
