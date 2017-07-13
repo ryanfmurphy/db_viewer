@@ -211,6 +211,12 @@ class Config {
             'edit_in_place',
 
             'custom_query_links',
+
+            # kanban view
+            'kanban_default_lists',
+            'kanban_list_field',
+            'kanban_wheres',
+            'kanban_root_level_nodes_only',
         );
 
         $config = compact($config_vars);
@@ -455,6 +461,12 @@ class Config {
             'edit_in_place' => false,
 
             'custom_query_links' => null,
+
+            # kanban view
+            'kanban_default_lists' => array(),
+            'kanban_list_field' => 'kanban_list',
+            'kanban_wheres' => array(),
+            'kanban_root_level_nodes_only' => true,
         );
 
         return $default_values;

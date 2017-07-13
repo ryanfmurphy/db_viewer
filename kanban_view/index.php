@@ -3,31 +3,25 @@
     include('../includes/init.php');
 
     $table = 'todo';
-    $list_field = 'kanban_list';
+    $list_field = Config::$config['kanban_list_field'];
     $sort_order_field = 'sort_order'; #assumption for now - sort_order is an integer field
     $include_nulls = true;
     $null_list_name = 'Inbox';
     $definite_sort_orders_only = true;
-    $root_level_nodes_only = true;
+    $root_level_nodes_only = Config::$config['kanban_root_level_nodes_only'];
+    $additional_lists_to_include = Config::$config['kanban_default_lists'];
+    $wheres = Config::$config['kanban_wheres'];
 
     $primary_key_field = DbUtil::get_primary_key_field($table);
 
     #todo #fixme put in a class
     function get_lists_and_items(
-        $table, $list_field, $sort_order_field, $include_nulls, $null_list_name,
-        $definite_sort_orders_only, $root_level_nodes_only
+        $table, $list_field, $sort_order_field, $include_nulls,
+        $null_list_name, $definite_sort_orders_only, $root_level_nodes_only,
+        $additional_lists_to_include, $wheres
     ) {
 
         # add additional lists
-        $additional_lists_to_include = array(
-            'Inbox',
-            'Not Now',
-            'On Deck',
-            'On Deck Partially Completed',
-            'Working On',
-            'QA',
-            'Done',
-        );
         $lists = array();
         foreach ($additional_lists_to_include as $list_name) {
             if (!isset($lists[$list_name])) {
@@ -41,7 +35,6 @@
             $list_field_q = DbUtil::quote_ident($list_field);
 
             { # build wheres
-                $wheres = array();
                 if (!$include_nulls) {
                     $wheres[] = "$list_field_q is not null";
                 }
@@ -63,7 +56,7 @@
                             . implode(' and ', $wheres)
                         : '')
                 . "
-                order by $list_field_q, sort_order
+                order by $list_field_q, $sort_order_field_q
                 nulls first
             ";
             $rows = Db::sql($sql);
@@ -83,7 +76,8 @@
 
     $lists = get_lists_and_items(
         $table, $list_field, $sort_order_field, $include_nulls, $null_list_name,
-        $definite_sort_orders_only, $root_level_nodes_only
+        $definite_sort_orders_only, $root_level_nodes_only, $additional_lists_to_include,
+        $wheres
     );
 
 ?>
@@ -99,6 +93,7 @@
                 white-space: nowrap; /* allow lists to go off screen */
             }
 <?php
+    # style vars
     $list_width = 18;
     $list_height = 90; # vh
     $list_margin = .7;
