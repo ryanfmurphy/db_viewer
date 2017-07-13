@@ -109,6 +109,7 @@
                 overflow-x: hidden;
                 overflow-y: auto;
                 background: <?= $list_items_area_color ?>;
+                position: relative; /* make it an offsetParent */
             }
             .list_items .item {
                 width: <?= $list_width - $item_margin - .5 ?>rem;
@@ -157,7 +158,7 @@
                         console.log('item',item);
                         var place_in_list = dragging.decidePlaceInList(ev, list_items_area);
                         console.log('place_in_list',place_in_list);
-                        list_items_area.appendChild(item);
+                        lists.insertItem(item, list_items_area, place_in_list);
                         item = null;
                     }
                 }
@@ -173,9 +174,9 @@
 
                 //var rel_y = dragging.getRelativeY(event, list_items_area);
                 //console.log('  rel_y',rel_y);
-                var our_y = event.pageY;
+                var our_y = dragging.getRelativeY(event, list_items_area);
 
-                var list_items = list_items_area.getElementsByClassName('item');
+                var list_items = lists.listItems(list_items_area);
                 console.log('  list_items:', list_items);
                 console.log('  looping thru ' + list_items.length + ' items');
                 console.log('  to compare with our_y: ' + our_y);
@@ -183,9 +184,10 @@
                 var this_y, last_y;
                 for (var i=0; i < list_items.length; i++) {
                     var item = list_items[i];
-                    console.log('    <item ' + i + '>.y ', item.offsetTop);
-                    this_y = item.offsetTop;
-                    if (our_y > last_y  &&  our_y < this_y) {
+                    this_y = item.offsetTop + item.offsetHeight/2;
+                    console.log('    <item ' + i + '>.y ', this_y);
+                    console.log('      offsetParent = ', item.offsetParent);
+                    if (our_y < this_y) {
                         console.log('  found place to insert item:', i);
                         return i;
                     }
@@ -195,24 +197,45 @@
                 console.log('  at the end, place =', i);
                 return list_items.length;
             },
-
-            // get y relative to drop area (.list_items)
-            /*
-            getRelativeY: function(event, drop_area_elem) {
-                console.log('getRelativeY, event=',event,'drop_area_elem=',drop_area_elem);
-                var area_top_Y = drop_area_elem.offsetTop;
-                console.log('  area_top_Y', area_top_Y);
+ 
+            getRelativeY: function(event, list_items_area) {
+                console.log('  getRelativeY, event=',event,'list_items_area=',list_items_area);
+                var area_top_Y = list_items_area.offsetTop;
+                console.log('    area_top_Y', area_top_Y);
+                var scroll_Y = list_items_area.scrollTop;
+                console.log('    scroll_Y', scroll_Y);
                 var our_Y = event.pageY;
-                console.log('  our_Y', our_Y);
-                var relative_Y = our_Y - area_top_Y;
-                console.log('  relative_Y', relative_Y);
+                console.log('    our_Y', our_Y);
+                var relative_Y = our_Y - (area_top_Y - scroll_Y);
+                console.log('    relative_Y', relative_Y);
                 return relative_Y;
             }
-            */
 
         }
 
         var lists = {
+
+            listItems: function(list_items_area) {
+                //console.log('listItems() - list_items_area =', list_items_area);
+                return list_items_area.getElementsByClassName('item');
+            },
+
+            nthItem: function(n, list_items_area) {
+                console.log('nthItem, n=',n);
+                list_items = lists.listItems(list_items_area);
+                console.log('  list_items', list_items);
+                var val = (list_items.length > n
+                                ? list_items[n]
+                                : null);
+                console.log('  return val:', val);
+                return val;
+            },
+
+            insertItem: function(item, list_items_area, place) {
+                var node_to_insert_before = lists.nthItem(place, list_items_area);
+                console.log('node_to_insert_before', node_to_insert_before);
+                list_items_area.insertBefore(item, node_to_insert_before);
+            },
 
             // search thru self and ancestors
             findItem: function(elem) {
@@ -255,9 +278,13 @@
         </script>
 
     </head>
-    <body>
+    <body style="position:relative">
         <div class="lists">
 <?php
+    #todo #fixme remove
+    function rand_color() {
+        return '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+    }
     foreach ($lists as $list_name => $list) {
 ?>
             <div class="list">
@@ -268,7 +295,9 @@
 <?php
         foreach ($list as $item) {
 ?>
-                    <div class="item" draggable="true" ondragstart="dragging.drag(event)">
+                    <div class="item" draggable="true" ondragstart="dragging.drag(event)"
+                        style="background: <?= rand_color() ?>"
+                    >
                         <div class="txt">
                             <?= $item['name'] ?>
                         </div>
