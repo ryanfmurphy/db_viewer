@@ -61,7 +61,7 @@
                 var txt = "Here is some text";
                 console.log('txt',txt);
                 ev.dataTransfer.setData("Text", txt);
-                var item = findItem(ev.target);
+                var item = find.findItem(ev.target);
                 console.log('item',item);
                 scope.item_being_dragged = item;
             },
@@ -70,7 +70,7 @@
                 console.log('drop',ev);
                 var data = ev.dataTransfer.getData("Text");
                 console.log('data',data);
-                var list = findList(ev.target);
+                var list = find.findList(ev.target);
                 if (list) {
                     console.log('list', list);
                     var item = scope.item_being_dragged;
@@ -88,39 +88,47 @@
 
         }
 
-        function isItem(elem) {
-            if (!elem || !elem.classList) {
-                console.log('isItem called w strange elem:', elem);
-                return undefined;
-            }
-            else {
-                return elem.classList.contains('item');
-            }
-        }
+        var is = {
 
-        function findItem(elem) {
-            while (elem && !isItem(elem)) {
-                elem = elem.parentNode;
-            }
-            return elem;
-        }
+            isItem: function(elem) {
+                if (!elem || !elem.classList) {
+                    console.log('isItem called w strange elem:', elem);
+                    return undefined;
+                }
+                else {
+                    return elem.classList.contains('item');
+                }
+            },
 
-        function isList(elem) {
-            if (!elem || !elem.classList) {
-                console.log('isList called w strange elem:', elem);
-                return undefined;
+            isList: function(elem) {
+                if (!elem || !elem.classList) {
+                    console.log('isList called w strange elem:', elem);
+                    return undefined;
+                }
+                else {
+                    return elem.classList.contains('list');
+                }
             }
-            else {
-                return elem.classList.contains('list');
-            }
+
         }
 
         // search thru self and ancestors
-        function findList(elem) {
-            while (elem && !isList(elem)) {
-                elem = elem.parentNode;
+        var find = {
+
+            findItem: function(elem) {
+                while (elem && !is.isItem(elem)) {
+                    elem = elem.parentNode;
+                }
+                return elem;
+            },
+
+            findList: function(elem) {
+                while (elem && !is.isList(elem)) {
+                    elem = elem.parentNode;
+                }
+                return elem;
             }
-            return elem;
+
         }
 
         </script>
