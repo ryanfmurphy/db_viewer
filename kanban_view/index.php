@@ -10,6 +10,22 @@
     #todo #fixme put in a class
     function get_lists_and_items($table, $list_field, $include_nulls = true, $null_list_name='Inbox') {
 
+        # add additional lists
+        $additional_lists_to_include = array(
+            'Inbox',
+            'On Deck',
+            'On Deck Partially Completed',
+            'Working On',
+            'QA',
+            'Done',
+        );
+        $lists = array();
+        foreach ($additional_lists_to_include as $list_name) {
+            if (!isset($lists[$list_name])) {
+                $lists[$list_name] = array();
+            }
+        }
+
         #todo turn this into DbUtil::get_rows_split_by_field
         { # get data from DB
             $table_q = DbUtil::quote_ident($table);
@@ -26,28 +42,12 @@
             ");
 
             # build lists
-            $lists = array();
             foreach ($rows as $row) {
                 $list_val = $row[$list_field];
                 $list_key = ($list_val === null
                                 ? $null_list_name
                                 : $list_val);
                 $lists[$list_key][] = $row;
-            }
-        }
-
-        # add additional lists
-        $additional_lists_to_include = array(
-            'Inbox',
-            'On Deck',
-            'On Deck Partially Completed',
-            'Working On',
-            'QA',
-            'Done',
-        );
-        foreach ($additional_lists_to_include as $list_name) {
-            if (!isset($lists[$list_name])) {
-                $lists[$list_name] = array();
             }
         }
 
