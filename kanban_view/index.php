@@ -95,7 +95,7 @@
                 /* to prevent weird issue where you select a bunch of text
                    and then you drag and it looks like you're dragging all
                    the text */
-                /*-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;*/
+                -moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;
             }
             .list_name {
                 color: <?= $list_header_color ?>;
