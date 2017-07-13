@@ -1,3 +1,20 @@
+<?php
+    $cur_view = 'kanban_view';
+    include('../includes/init.php');
+
+    $list_field = 'context';
+    $list_field_q = DbUtil::quote_ident($list_field);
+    $rows = Db::sql("
+        select * from todo
+        where $list_field_q is not null
+        order by $list_field_q
+    ");
+    $lists = array();
+    foreach ($rows as $row) {
+        $list_val = $row[$list_field];
+        $lists[$list_val][] = $row;
+    }
+?>
 <html>
     <head>
         <style>
@@ -30,9 +47,13 @@
                 margin: <?= $list_margin ?>rem;
                 border-radius: <?= $list_border_radius ?>px;
             }
+            .list_name {
+                color: white;
+                font-size: 110%;
+            }
             .item {
                 width: <?= $list_width - $item_margin ?>rem;
-                height: <?= $item_height ?>rem;
+                min-height: <?= $item_height ?>rem;
                 background: <?= $item_color ?>;
                 margin: <?= $item_margin/2 ?>rem auto;
                 text-align: center;
@@ -135,36 +156,14 @@
 
     </head>
     <body>
-<?php
-    $lists = array(
-        array(
-            array('name' => 'This'),
-            array('name' => 'is'),
-            array('name' => 'Draggable'),
-        ),
-        array(
-            array('name' => 'These'),
-            array('name' => 'too'),
-        ),
-        array(
-            array('name' => 'These'),
-            array('name' => 'are'),
-            array('name' => 'so'),
-            array('name' => 'Draggable'),
-        ),
-        array(
-            array('name' => 'These'),
-            array('name' => 'as'),
-            array('name' => 'well'),
-        ),
-    );
-
-?>
         <div class="lists">
 <?php
-    foreach ($lists as $list) {
+    foreach ($lists as $list_name => $list) {
 ?>
             <div class="list" ondrop="dragging.drop(event)" ondragover="dragging.allowDrop(event)">
+                <div class="list_name">
+                    <h3><?= $list_name ?></h3>
+                </div>
 <?php
         foreach ($list as $item) {
 ?>
