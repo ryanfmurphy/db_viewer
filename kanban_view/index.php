@@ -386,11 +386,13 @@
 <?php
         foreach ($list as $item) {
             $primary_key = $item[$primary_key_field];
+            $sort_order = $item[$sort_order_field];
 ?>
                     <div class="item"
                          draggable="true"
                          ondragstart="dragging.drag(event)"
                          data-primary_key="<?= $primary_key ?>"
+                         data-sort_order="<?= $sort_order ?>"
                     >
                         <div class="txt">
                             <?= $item['name'] ?>
