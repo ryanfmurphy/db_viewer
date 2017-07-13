@@ -2,18 +2,29 @@
     $cur_view = 'kanban_view';
     include('../includes/init.php');
 
-    $list_field = 'context';
-    $list_field_q = DbUtil::quote_ident($list_field);
-    $rows = Db::sql("
-        select * from todo
-        where $list_field_q is not null
-        order by $list_field_q
-    ");
-    $lists = array();
-    foreach ($rows as $row) {
-        $list_val = $row[$list_field];
-        $lists[$list_val][] = $row;
+    #todo #fixme put in a class
+    function get_lists_and_items() {
+        $list_field = 'kanban_list';
+        $list_field_q = DbUtil::quote_ident($list_field);
+        $include_nulls = true;
+        $rows = Db::sql("
+            select * from todo
+            " . ($include_nulls
+                    ? ""
+                    : " where $list_field_q is not null ")
+            . "
+            order by $list_field_q
+            nulls first
+        ");
+        $lists = array();
+        foreach ($rows as $row) {
+            $list_val = $row[$list_field];
+            $lists[$list_val][] = $row;
+        }
+        return $lists;
     }
+
+    $lists = get_lists_and_items();
 ?>
 <html>
     <head>
@@ -159,6 +170,11 @@
         <div class="lists">
 <?php
     foreach ($lists as $list_name => $list) {
+        # if the DB gave NULL, it is converted to ''
+        # when used as an array key
+        if ($list_name === '') {
+            $list_name = '(Unassigned)';
+        }
 ?>
             <div class="list" ondrop="dragging.drop(event)" ondragover="dragging.allowDrop(event)">
                 <div class="list_name">
