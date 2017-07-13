@@ -35,6 +35,7 @@
             }
             .lists {
                 text-align: center; /* center columns */
+                white-space: nowrap; /* allow lists to go off screen */
             }
 <?php
     $list_width = 15;
@@ -57,6 +58,7 @@
                 background: <?= $list_color ?>;
                 margin: <?= $list_margin ?>rem;
                 border-radius: <?= $list_border_radius ?>px;
+                white-space: normal; /* undo nowrap in container */
             }
             .list_name {
                 color: white;
