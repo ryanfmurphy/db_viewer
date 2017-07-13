@@ -3,16 +3,22 @@
         <style>
             body {
                 font-family: sans-serif;
+                background: #322;
+            }
+            .lists {
+                text-align: center; /* center columns */
             }
 <?php
     $list_width = 15;
     $list_height = 80;
     $list_margin = .7;
     $list_color = '#779';
+    $list_border_radius = 16;
 
     $item_height = 5;
     $item_margin = 1.5;
     $item_color = '#ddf';
+    $item_border_radius = 8;
 ?>
             .list {
                 display: inline-block;
@@ -22,6 +28,7 @@
                 min-height: <?= $list_height ?>vh;
                 background: <?= $list_color ?>;
                 margin: <?= $list_margin ?>rem;
+                border-radius: <?= $list_border_radius ?>px;
             }
             .item {
                 width: <?= $list_width - $item_margin ?>rem;
@@ -29,6 +36,8 @@
                 background: <?= $item_color ?>;
                 margin: <?= $item_margin/2 ?>rem auto;
                 text-align: center;
+                border-radius: <?= $item_border_radius ?>px;
+                cursor: pointer;
             }
             .item .txt {
                 padding: 1rem;
@@ -114,23 +123,27 @@
         ),
     );
 
+?>
+        <div class="lists">
+<?php
     foreach ($lists as $list) {
 ?>
-        <div class="list" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="list" ondrop="drop(event)" ondragover="allowDrop(event)">
 <?php
         foreach ($list as $item) {
 ?>
-            <div class="item" draggable="true" ondragstart="drag(event)">
-                <div class="txt">
-                    <?= $item['name'] ?>
+                <div class="item" draggable="true" ondragstart="drag(event)">
+                    <div class="txt">
+                        <?= $item['name'] ?>
+                    </div>
                 </div>
-            </div>
 <?php
         }
 ?>
-        </div>
+            </div>
 <?php
     }
 ?>
+        </div>
     </body>
 </html>
