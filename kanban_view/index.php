@@ -157,11 +157,9 @@
     require_once("../js/ajax.js");
 ?>
 
-        var scope = {
-            item_being_dragged: null
-        };
-
         var dragging = {
+
+            item_being_dragged: null,
 
             allowDrop: function(ev) {
                 //console.log('allowDrop',ev);
@@ -175,7 +173,7 @@
                 ev.dataTransfer.setData("Text", txt);
                 var item = lists.findItem(ev.target);
                 console.log('item',item);
-                scope.item_being_dragged = item;
+                dragging.item_being_dragged = item;
             },
 
             // when you release an item an drop it into a new place
@@ -186,7 +184,7 @@
                 var list_items_area = lists.findListItemsArea(ev.target);
                 if (list_items_area) {
                     console.log('list_items_area', list_items_area);
-                    var item = scope.item_being_dragged;
+                    var item = dragging.item_being_dragged;
                     if (item) {
                         console.log('item',item);
                         var place_in_list = dragging.decidePlaceInList(ev, list_items_area);
