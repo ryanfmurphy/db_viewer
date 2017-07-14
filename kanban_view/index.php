@@ -4,7 +4,8 @@
 
     $table = 'todo';
     $list_field = Config::$config['kanban_list_field'];
-    $sort_order_field = 'sort_order'; #assumption for now - sort_order is an integer field
+    $sort_order_type = 'float'; # other options: int
+    $sort_order_field = 'sort_order';
     $include_nulls = true;
     $null_list_name = 'Inbox';
     $definite_sort_orders_only = true;
@@ -272,7 +273,7 @@
 
             // place is the index of where in the list it goes (in the UI)
             insertItem: function(item, list_items_area, place) {
-                var sort_order = lists.findOkSortOrderFor(list_items_area, place);
+                var sort_order = items.findOkSortOrderFor(list_items_area, place);
                 var list_name = lists.getListName(list_items_area);
                 updateData.moveToList(item, list_name, sort_order);
 
@@ -284,47 +285,6 @@
                 var node_to_insert_before = lists.nthItem(place, list_items_area);
                 console.log('node_to_insert_before', node_to_insert_before);
                 list_items_area.insertBefore(item, node_to_insert_before);
-            },
-
-            // squawk if there's no good sort_order (have to move stuff around)
-            findOkSortOrderFor(list_items_area, place) {
-                console.log('findOkSortOrderFor()');
-                var node_to_insert_before = lists.nthItem(place, list_items_area);
-                console.log('  node_to_insert_before', node_to_insert_before);
-                var node_to_insert_after = (place > 0
-                                                ? lists.nthItem(place-1, list_items_area)
-                                                : null);
-                console.log('  node_to_insert_after', node_to_insert_after);
-
-                if (node_to_insert_before && node_to_insert_after) {
-                    var sort_order_A = items.getSortOrder(node_to_insert_after);
-                    var sort_order_B = items.getSortOrder(node_to_insert_before);
-                    var new_sort_order = Math.round((sort_order_A + sort_order_B) / 2);
-                    console.log('  sort_order_A',sort_order_A);
-                    console.log('  sort_order_B',sort_order_B);
-                    console.log('  new_sort_order',new_sort_order);
-                    if (new_sort_order == sort_order_A
-                        || new_sort_order == sort_order_B
-                    ) {
-                        alert("Warning - sort_orders are so close we might be losing information");
-                    }
-                    console.log('  found sort_order between ' + sort_order_A
-                        + ' and ' + sort_order_B + ': ' + new_sort_order);
-                    return new_sort_order;
-                }
-                else if (node_to_insert_before) {
-                    var new_sort_order = items.getSortOrder(node_to_insert_before) - 10;
-                    console.log("  at the beginning, so new_sort_order =", new_sort_order);
-                    return new_sort_order
-                }
-                else if (node_to_insert_after) {
-                    var new_sort_order = items.getSortOrder(node_to_insert_after) + 10;
-                    console.log("  at the end, so new_sort_order =", new_sort_order);
-                    return new_sort_order
-                }
-                else {
-                    return 0;
-                }
             },
 
 
@@ -368,11 +328,66 @@
 
         // <script>
         var items = {
+
+            sort_order_type: '<?= $sort_order_type ?>',
+
             getSortOrder: function(item) {
-                return parseInt(
-                    item.getAttribute('data-sort_order')
-                );
-            }
+                var txt = item.getAttribute('data-sort_order');
+                var sort_order_type = items.sort_order_type;
+                switch (sort_order_type) {
+                    case 'float':   return parseFloat(txt);
+                    case 'int':     return parseInt(txt);
+                    default:        alert('invalid sort_order_type ' + sort_order_type
+                                        + ' - must be float or int');
+                }
+            },
+
+            findOkSortOrderFor(list_items_area, place) {
+                console.log('findOkSortOrderFor()');
+                var node_to_insert_before = lists.nthItem(place, list_items_area);
+                console.log('  node_to_insert_before', node_to_insert_before);
+                var node_to_insert_after = (place > 0
+                                                ? lists.nthItem(place-1, list_items_area)
+                                                : null);
+                console.log('  node_to_insert_after', node_to_insert_after);
+
+                if (node_to_insert_before && node_to_insert_after) {
+                    var sort_order_A = items.getSortOrder(node_to_insert_after);
+                    var sort_order_B = items.getSortOrder(node_to_insert_before);
+                    var new_sort_order = (sort_order_A + sort_order_B) / 2.0;
+                    if (items.sort_order_type == 'int') {
+                        new_sort_order = Math.round(new_sort_order);
+                    }
+                    console.log('  sort_order_A',sort_order_A);
+                    console.log('  sort_order_B',sort_order_B);
+                    console.log('  new_sort_order',new_sort_order);
+                    // squawk if there's no good sort_order (have to move stuff around)
+                    if (new_sort_order == sort_order_A
+                        || new_sort_order == sort_order_B
+                    ) {
+                        var warning_msg = "Warning - sort_orders are so close we might be losing information";
+                        console.log(warning_msg);
+                        alert(warning_msg);
+                    }
+                    console.log('  found sort_order between ' + sort_order_A
+                        + ' and ' + sort_order_B + ': ' + new_sort_order);
+                    return new_sort_order;
+                }
+                else if (node_to_insert_before) {
+                    var new_sort_order = items.getSortOrder(node_to_insert_before) - 10;
+                    console.log("  at the beginning, so new_sort_order =", new_sort_order);
+                    return new_sort_order
+                }
+                else if (node_to_insert_after) {
+                    var new_sort_order = items.getSortOrder(node_to_insert_after) + 10;
+                    console.log("  at the end, so new_sort_order =", new_sort_order);
+                    return new_sort_order
+                }
+                else {
+                    return 0;
+                }
+            },
+
         };
 
         // <script>
