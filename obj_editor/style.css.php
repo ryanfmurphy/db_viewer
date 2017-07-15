@@ -8,8 +8,9 @@ input, select, textarea {
 }
 
 <?php 
+        $input_opacity = .7;
         if ($background=='dark') {
-            $input_bg = 'rgba(0,0,0,.5)';
+            $input_bg = "rgba(0,0,0,$input_opacity)";
 ?>
 body {
     background: black;
@@ -43,7 +44,7 @@ a:hover, .link:hover {
 <?php
         }
         else {
-            $input_bg = 'rgba(255,255,255,.5)';
+            $input_bg = "rgba(255,255,255,$input_opacity)";
 ?>
 input, textarea {
     background: <?= $input_bg ?>;
