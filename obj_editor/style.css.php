@@ -1,5 +1,10 @@
 body {
     font-family: sans-serif;
+    <?php #box-sizing: border-box; /* e.g. makes the input and textarea exactly the same width */ ?>
+}
+input, select, textarea {
+    font-family: inherit;
+    font-size: 80%;
 }
 
 <?php 
@@ -76,12 +81,16 @@ form#mainForm label {
 }
 
 .formInput input,
-.formInput textarea
+.formInput textarea,
+.formInput select
 {
     width: 30rem;
     display: inline-block;
     vertical-align: middle;
     padding: .2em;
+}
+.formInput select {
+    width: 30.75rem; /* otherwise select is a little less wide for some reason */
 }
 .formInput textarea {
     padding: .4em;
