@@ -75,6 +75,20 @@
         return $lists;
     }
 
+    function get_stars_color($stars) {
+        return ($stars >= 6
+                    ? '#fbb'
+                    : ($stars >= 5
+                        ? '#fdd'
+                        : ($stars >= 4
+                            ? '#fed'
+                            : ($stars >= 3
+                                ? '#ffd'
+                                : ($stars >= 2
+                                    ? '#ffe'
+                                    : 'initial')))));
+    }
+
     $lists = get_lists_and_items(
         $table, $list_field, $sort_order_field, $include_nulls, $null_list_name,
         $definite_sort_orders_only, $root_level_nodes_only, $additional_lists_to_include,
@@ -463,6 +477,9 @@
         foreach ($list as $item) {
             $primary_key = $item[$primary_key_field];
             $sort_order = $item[$sort_order_field];
+            $stars = isset($item['stars'])
+                        ? $item['stars']
+                        : null;
 ?>
                     <div class="item"
                          draggable="true"
@@ -473,6 +490,7 @@
                         <div class="txt"
                              href="<?= TableView::obj_editor_url(null, $table, $primary_key) ?>"
                              onclick="window.open(this.getAttribute('href'))"
+                             style="background: <?= get_stars_color($stars) ?>"
                         >
                                 <?= $item['name'] ?>
                         </div>
