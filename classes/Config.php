@@ -48,7 +48,9 @@ class Config {
             'links_minimal_by_default',
             'default_values_by_table',
             'fields_to_make_selects',
+            #'fields_to_make_selects_by_table', #todo
             'fields_to_make_textarea',
+            'fields_to_make_textarea_by_table',
             'header_every',
             'multipleTablesFoundInDifferentSchemas',
             'edit',
@@ -294,7 +296,9 @@ class Config {
             'search_path' => null,
             'default_values_by_table' => array(),
             'fields_to_make_selects' => array(),
+            #'fields_to_make_selects_by_table', #todo
             'fields_to_make_textarea' => array(),
+            'fields_to_make_textarea_by_table' => array(),
 
             # both
             'pluralize_table_names' => false,

@@ -167,13 +167,32 @@
             );
         }
 
-        function echoFormFieldHtml($name, $defaultValues=array()) {
+        # decide if a field will be an <input> or <textarea>
+        function inputOrTextarea($name, $table=null) {
+
+            $fields_to_make_textarea = Config::$config['fields_to_make_textarea'];
+            $fields_to_make_textarea_by_table = Config::$config['fields_to_make_textarea_by_table'];
+
+            if (in_array($name, $fields_to_make_textarea)) {
+                return'textarea';
+            }
+            elseif ($table
+                    && isset($fields_to_make_textarea_by_table[$table])
+                    && in_array($name, $fields_to_make_textarea_by_table[$table])
+            ) {
+                return 'textarea';
+            }
+            else {
+                return 'input';
+            }
+
+        }
+
+        function echoFormFieldHtml($name, $defaultValues=array(), $table=null) {
             { # vars
                 $custom_select_magic_value = Config::$config['custom_select_magic_value'];
                 $magic_null_value = Config::$config['magic_null_value'];
-                $inputTag = (in_array($name, Config::$config['fields_to_make_textarea'])
-                                ? "textarea"
-                                : "input");
+                $inputTag = inputOrTextarea($name, $table);
             }
             { # html
 ?>
@@ -610,7 +629,7 @@
                         if (doSkipField($name, $only_include_these_fields)) {
                             continue;
                         }
-                        echoFormFieldHtml($name, $defaultValues);
+                        echoFormFieldHtml($name, $defaultValues, $table);
                     }
 ?>
                 <script>
