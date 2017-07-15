@@ -448,12 +448,12 @@
         }
 ?>
 
-        <p id="whoami">
-            <a id="choose_table_link" href="<?= $obj_editor_uri ?>">
-                choose table
-            </a>
-        </p>
         <div id="table_header">
+            <p id="whoami">
+                <a id="choose_table_link" href="<?= $obj_editor_uri ?>">
+                    choose table
+                </a>
+            </p>
 <?php
         if ($nonexistentTable) {
 ?>
