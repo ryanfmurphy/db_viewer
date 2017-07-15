@@ -8,7 +8,7 @@
     $sort_order_field = 'sort_order';
     $include_nulls = true;
     $null_list_name = 'Inbox';
-    $definite_sort_orders_only = true;
+    $definite_sort_orders_only = false;
     $root_level_nodes_only = Config::$config['kanban_root_level_nodes_only'];
     $additional_lists_to_include = Config::$config['kanban_default_lists'];
     $wheres = Config::$config['kanban_wheres'];
@@ -34,6 +34,7 @@
         { # get data from DB
             $table_q = DbUtil::quote_ident($table);
             $list_field_q = DbUtil::quote_ident($list_field);
+            $sort_order_field_q = DbUtil::quote_ident($sort_order_field);
 
             { # build wheres
                 if (!$include_nulls) {
@@ -45,7 +46,6 @@
                     $wheres[] = "$default_parent_field is null";
                 }
                 if ($definite_sort_orders_only) {
-                    $sort_order_field_q = DbUtil::quote_ident($sort_order_field);
                     $wheres[] = "$sort_order_field_q is not null";
                 }
             }
