@@ -448,32 +448,33 @@
         }
 ?>
 
-        <p id="whoami">
-            <a id="choose_table_link" href="<?= $obj_editor_uri ?>">
-                choose table
-            </a>
-        </p>
-        <div id="table_header">
+        <div id="main_container">
+            <div id="table_header">
+                <p id="whoami">
+                    <a id="choose_table_link" href="<?= $obj_editor_uri ?>">
+                        choose table
+                    </a>
+                </p>
 <?php
         if ($nonexistentTable) {
 ?>
-            <p id="nonexistent_table">
-                Table <code><?= $table ?></code> doesn't exist
-            </p>
+                <p id="nonexistent_table">
+                    Table <code><?= $table ?></code> doesn't exist
+                </p>
 <?php
             $table = null;
         }
 ?>
-            <div id="table_header_top">
-                <h1>
+                <div id="table_header_top">
+                    <h1>
 <?php
         if ($table) {
             #todo #fixme make this not get small when editing it in mobile_travel_mode
             #todo #fixme make this not lose its id when editing in mobile_travel_mode
 ?>
-                <code id="table_name" onclick="becomeSelectTableInput(this)">
-                    <?= $table ?>
-                </code>
+                    <code id="table_name" onclick="becomeSelectTableInput(this)">
+                        <?= $table ?>
+                    </code>
 <?php
         }
         else {
@@ -482,35 +483,35 @@
 <?php
         }
 ?>
-                    <span id="its_a_table">table</span>
-                </h1>
+                        <span id="its_a_table">table</span>
+                    </h1>
 <?php
         if ($table) {
             if ($mobile_travel_mode) {
                 #todo #fixme why are these target blank?
 ?>
-                <nobr id="prev_next_row_links">
-                    <span   id="first_row_link" class="link" target="_blank"
-                            onclick="goToFirstRow()">
-                        &lt;&lt;
-                    </span>
-                    <span   id="prev_row_link" class="link" target="_blank"
-                            onclick="goToPrevRow()">
-                        &lt;
-                    </span>
-                    <span   id="next_row_link" class="link" target="_blank"
-                            onclick="goToNextRow()">
-                        &gt;
-                    </span>
-                    <span   id="last_row_link" class="link" target="_blank"
-                            onclick="goToLastRow()">
-                        &gt;&gt;
-                    </span>
-                    <span   id="clear_fields_link" class="link" target="_blank"
-                            onclick="clearAllFields()">
-                        clear
-                    </span>
-                </nobr>
+                    <nobr id="prev_next_row_links">
+                        <span   id="first_row_link" class="link" target="_blank"
+                                onclick="goToFirstRow()">
+                            &lt;&lt;
+                        </span>
+                        <span   id="prev_row_link" class="link" target="_blank"
+                                onclick="goToPrevRow()">
+                            &lt;
+                        </span>
+                        <span   id="next_row_link" class="link" target="_blank"
+                                onclick="goToNextRow()">
+                            &gt;
+                        </span>
+                        <span   id="last_row_link" class="link" target="_blank"
+                                onclick="goToLastRow()">
+                            &gt;&gt;
+                        </span>
+                        <span   id="clear_fields_link" class="link" target="_blank"
+                                onclick="clearAllFields()">
+                            clear
+                        </span>
+                    </nobr>
 <?php
             }
             else {
@@ -518,46 +519,46 @@
                                     ? '&minimal'
                                     : '';
 ?>
-                <a  id="view_all_link" class="link" target="_blank"
-                    href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
-                    view all
-                </a>
+                    <a  id="view_all_link" class="link" target="_blank"
+                        href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
+                        view all
+                    </a>
 <?php
 ?>
-                <span   id="clear_fields_link" class="link" target="_blank"
-                        onclick="clearAllFields()">
-                    clear <span class="details">all fields</span>
-                </span>
+                    <span   id="clear_fields_link" class="link" target="_blank"
+                            onclick="clearAllFields()">
+                        clear <span class="details">all fields</span>
+                    </span>
 
 <?php
             }
 
             if (Config::$config['include_tree_buttons']) {
 ?>
-                <span class="link" onclick="changeToCreateChildForm()">
-                    create child
-                </span>
+                    <span class="link" onclick="changeToCreateChildForm()">
+                        create child
+                    </span>
 <?php
                 if (isset($primary_key)
                     && $primary_key
                 ) {
                     $primary_key_field = DbUtil::get_primary_key_field($default_root_table_for_tree_view);
 ?>
-                <a  class="link"
-                    href="<?= $tree_view_uri."?root_table=$default_root_table_for_tree_view"
-                                            ."&root_cond=id = '$primary_key'"
-                                            ."&parent_relationships[0][child_table]=$default_root_table_for_tree_view"
-                                            ."&parent_relationships[0][parent_table]=$default_root_table_for_tree_view"
-                                            ."&parent_relationships[0][parent_field]=$default_parent_field"
-                                            ."&parent_relationships[0][matching_field_on_parent]=$primary_key_field"
-                                            ."&parent_relationships[0][condition]="
-                                            ."&order_by_limit=order+by+time_added+desc"
-                                            ."&name_cutoff=50"
-                                            ."&root_nodes_w_child_only="
-                                            ."&use_stars_for_node_size=0"
-                                            ."&vary_node_colors=".(int)$vary_node_colors ?>">
-                    tree
-                </a>
+                    <a  class="link"
+                        href="<?= $tree_view_uri."?root_table=$default_root_table_for_tree_view"
+                                                ."&root_cond=id = '$primary_key'"
+                                                ."&parent_relationships[0][child_table]=$default_root_table_for_tree_view"
+                                                ."&parent_relationships[0][parent_table]=$default_root_table_for_tree_view"
+                                                ."&parent_relationships[0][parent_field]=$default_parent_field"
+                                                ."&parent_relationships[0][matching_field_on_parent]=$primary_key_field"
+                                                ."&parent_relationships[0][condition]="
+                                                ."&order_by_limit=order+by+time_added+desc"
+                                                ."&name_cutoff=50"
+                                                ."&root_nodes_w_child_only="
+                                                ."&use_stars_for_node_size=0"
+                                                ."&vary_node_colors=".(int)$vary_node_colors ?>">
+                        tree
+                    </a>
 <?php
                 }
             }
@@ -567,28 +568,28 @@
                 && $defaultValues['trello_card_url']
             ) {
 ?>
-                <a target="_blank" class="link" href="<?= $defaultValues['trello_card_url'] ?>">
-                    trello
-                </a>
+                    <a target="_blank" class="link" href="<?= $defaultValues['trello_card_url'] ?>">
+                        trello
+                    </a>
 <?php
             }
         }
 ?>
-            </div>
+                </div>
 <?php
         if ($multipleTablesFoundInDifferentSchemas) {
 ?>
-            <div id="multipleTablesWarning">
-                FYI: tables named
-                <code><?= $table ?></code>
-                were found in more than one schema.
+                <div id="multipleTablesWarning">
+                    FYI: tables named
+                    <code><?= $table ?></code>
+                    were found in more than one schema.
 
-                This one is <code><?= "$schema.$table" ?></code>.
-            </div>
+                    This one is <code><?= "$schema.$table" ?></code>.
+                </div>
 <?php
         }
 ?>
-        </div>
+            </div>
 <?php
     }
 
@@ -597,11 +598,11 @@
 
             { # the form
 ?>
-        <form   id="mainForm"
-                target="_blank"
-                action="<?= createRowUrlNoJs($table) ?>"
-                method="POST"
-        >
+            <form   id="mainForm"
+                    target="_blank"
+                    action="<?= createRowUrlNoJs($table) ?>"
+                    method="POST"
+            >
 <?php
                 { # create form fields
                     $fields = TableView::prep_fields($fields);
@@ -612,84 +613,84 @@
                         echoFormFieldHtml($name, $defaultValues);
                     }
 ?>
-            <script>
-                focusFirstFormField(); // doesn't seem to work on mobile :/ boohoo
-            </script>
+                <script>
+                    focusFirstFormField(); // doesn't seem to work on mobile :/ boohoo
+                </script>
 <?php
                 }
 
                 { # dynamically add a new field
 ?>
-            <div class="formInput" id="addNewFieldDiv">
-                <span id="addNewField"
-                      onclick="openAddNewField()"
-                >
-                    +
-                </span>
-            </div>
+                <div class="formInput" id="addNewFieldDiv">
+                    <span id="addNewField"
+                          onclick="openAddNewField()"
+                    >
+                        +
+                    </span>
+                </div>
 <?php
                 }
 
                 { # submit buttons
 ?>
 
-            <div id="submits">
+                <div id="submits">
 <?php
                     if ($mobile_travel_mode) {
 ?>
-                <input  onclick="return saveLocallyButtonClickHandler(
-                                    '<?= $crud_api_uri ?>',
-                                    window.scope.table_name,
-                                    event
-                                 )"
-                        value="Save Locally"
-                        type="submit"
-                        id="save_locally_button"
-                />
-                <input  onclick="return saveStoredRowsToDb_clickHandler(
-                                    '<?= $crud_api_uri ?>',
-                                    window.scope.table_name,
-                                    event
-                                 )"
-                        value="Save Stored Rows to DB"
-                        type="submit"
-                        id="save_rows_to_db_button"
-                />
-                <!-- #todo check if there's old stored rows and show / hide this -->
-                <input  onclick="return recoverOldStoredRowsClickHandler(
-                                    '<?= $crud_api_uri ?>',
-                                    window.scope.table_name,
-                                    event
-                                 )"
-                        value="Recover Old Stored Rows"
-                        type="submit"
-                        id="recover_old_rows_button"
-                />
-                <!-- #todo check if there's stored rows / old stored rows and show / hide this -->
-                <input onclick="return clearStoredRowsClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)"
-                    value="Clear Stored Rows" type="submit" id="clear_stored_rows_button"
-                />
+                    <input  onclick="return saveLocallyButtonClickHandler(
+                                        '<?= $crud_api_uri ?>',
+                                        window.scope.table_name,
+                                        event
+                                     )"
+                            value="Save Locally"
+                            type="submit"
+                            id="save_locally_button"
+                    />
+                    <input  onclick="return saveStoredRowsToDb_clickHandler(
+                                        '<?= $crud_api_uri ?>',
+                                        window.scope.table_name,
+                                        event
+                                     )"
+                            value="Save Stored Rows to DB"
+                            type="submit"
+                            id="save_rows_to_db_button"
+                    />
+                    <!-- #todo check if there's old stored rows and show / hide this -->
+                    <input  onclick="return recoverOldStoredRowsClickHandler(
+                                        '<?= $crud_api_uri ?>',
+                                        window.scope.table_name,
+                                        event
+                                     )"
+                            value="Recover Old Stored Rows"
+                            type="submit"
+                            id="recover_old_rows_button"
+                    />
+                    <!-- #todo check if there's stored rows / old stored rows and show / hide this -->
+                    <input onclick="return clearStoredRowsClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)"
+                        value="Clear Stored Rows" type="submit" id="clear_stored_rows_button"
+                    />
 <?php
                     }
 
                     if ($edit) {
 ?>
-                <input onclick="return updateButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)" <?php # update ?>
-                    value="Update" type="submit" id="update_button"
-                />
+                    <input onclick="return updateButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)" <?php # update ?>
+                        value="Update" type="submit" id="update_button"
+                    />
 <?php
                     }
                     else {
 ?>
-                <input onclick="return createButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)" <?php # create ?>
-                    value="Create" type="submit" id="create_button"
-                />
+                    <input onclick="return createButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)" <?php # create ?>
+                        value="Create" type="submit" id="create_button"
+                    />
 <?php
                     }
 ?>
-                <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, window.scope.table_name)" <?php # view ?>
-                    value="View" type="submit" id="view_button"
-                />
+                    <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, window.scope.table_name)" <?php # view ?>
+                        value="View" type="submit" id="view_button"
+                    />
 <?php
                     $disable_delete_button = Config::$config['disable_delete_button'];
                     if ($edit
@@ -697,17 +698,17 @@
                     ) {
                         #todo #fixme make archive_instead_of_delete affect this button
 ?>
-                <input onclick="return deleteButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)"
-                    value="Delete" type="submit" id="delete_button"
-                />
+                    <input onclick="return deleteButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)"
+                        value="Delete" type="submit" id="delete_button"
+                    />
 <?php
                     }
 ?>
-            </div>
+                </div>
 <?php
                 }
 ?>
-        </form>
+            </form>
 <?php
             }
         }
@@ -716,6 +717,7 @@
         }
     }
 ?>
+        </div>
     </body>
 </html>
 <?php
