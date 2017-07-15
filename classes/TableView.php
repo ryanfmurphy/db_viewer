@@ -232,7 +232,13 @@
             return "$uri_no_query";
         }
 
-        public static function obj_editor_url($obj_editor_uri, $tablename_no_quotes, $primary_key) {
+        #todo rm $obj_editor_uri arg
+        public static function obj_editor_url(
+            $obj_editor_uri, $tablename_no_quotes, $primary_key
+        ) {
+            if ($obj_editor_uri === null) {
+                $obj_editor_uri = Config::$config['obj_editor_uri'];
+            }
             return $obj_editor_uri
                         ."?edit=1"
                         ."&table=$tablename_no_quotes"
