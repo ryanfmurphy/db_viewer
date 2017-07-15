@@ -147,6 +147,11 @@
                 border-radius: <?= $item_border_radius ?>px;
                 cursor: pointer;
             }
+            .list_items a {
+                display: block;
+                text-decoration: none;
+                color: black;
+            }
             .item .txt {
                 padding: 1rem;
             }
@@ -465,8 +470,11 @@
                          data-primary_key="<?= $primary_key ?>"
                          data-sort_order="<?= $sort_order ?>"
                     >
-                        <div class="txt">
-                            <?= $item['name'] ?>
+                        <div class="txt"
+                             href="<?= TableView::obj_editor_url(null, $table, $primary_key) ?>"
+                             onclick="window.open(this.getAttribute('href'))"
+                        >
+                                <?= $item['name'] ?>
                         </div>
                     </div>
 <?php
