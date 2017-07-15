@@ -95,6 +95,15 @@ form#mainForm label {
     display: inline-block;
     vertical-align: middle;
     padding: .2em;
+    padding-top: .4em;
+<?php
+    // we have slightly bigger text that ends up slightly too high on FF
+    if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'firefox') === false) {
+?>
+    padding-bottom: .4em;
+<?php
+    }
+?>
 }
 .formInput select {
     width: 30.75rem; /* otherwise select is a little less wide for some reason */
