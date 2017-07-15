@@ -564,6 +564,7 @@
                     $primary_key_field = DbUtil::get_primary_key_field($default_root_table_for_tree_view);
 ?>
                     <a  class="link"
+                        target="_blank"
                         href="<?= $tree_view_uri."?root_table=$default_root_table_for_tree_view"
                                                 ."&root_cond=id = '$primary_key'"
                                                 ."&parent_relationships[0][child_table]=$default_root_table_for_tree_view"
