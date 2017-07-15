@@ -2,6 +2,12 @@ body {
     font-family: sans-serif;
     <?php #box-sizing: border-box; /* e.g. makes the input and textarea exactly the same width */ ?>
 }
+#main_container {
+    /* center the form */
+    width: 50rem;
+    margin-left: auto;
+    margin-right: auto;
+}
 input, select, textarea {
     font-family: inherit;
     font-size: 80%;
