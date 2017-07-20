@@ -215,6 +215,7 @@ class Config {
             'custom_query_links',
 
             # kanban view
+            'kanban_table',
             'kanban_default_lists',
             'kanban_list_field',
             'kanban_list_name_field',
@@ -468,6 +469,7 @@ class Config {
             'custom_query_links' => null,
 
             # kanban view
+            'kanban_table' => 'todo',
             'kanban_default_lists' => array(),
             'kanban_list_field' => 'kanban_list',
             'kanban_list_name_field' => null, # defaults to same as kanban_list_field

@@ -2,7 +2,7 @@
     $cur_view = 'kanban_view';
     include('../includes/init.php');
 
-    $table = 'todo';
+    $table = Config::$config['kanban_table'];
     $list_field = Config::$config['kanban_list_field'];
     $list_name_field = Config::$config['kanban_list_name_field'];
     $sort_order_type = 'float'; # other options: int
