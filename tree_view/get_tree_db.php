@@ -23,6 +23,7 @@
             $fields['stars'] = 1;
         }
 
+        # add all fields needed to connect nodes via the relationships
         foreach ($parent_relationships as $relationship) {
             # we only want fields that make sense for this table
             my_debug('fields', "checking relationship: ".json_encode($relationship,1)."\n");
@@ -41,8 +42,22 @@
                 $fields[ $matching_field_on_parent ] = 1;
             }
         }
+
+        # add any expressions, named as the appropriate field name
+        # #todo we want more than one expression per relationship
+        foreach ($parent_relationships as $relationship) {
+            if ($relationship['child_table'] == $table) {
+                $expression = $relationship['expression'];
+                $field_name = DbUtil::quote_ident($relationship['expression_name']);
+                if ($expression && $field_name) {
+                    $fields["$expression as $field_name"] = 1;
+                }
+            }
+        }
+
         my_debug('fields', "  } (finishing field_list)\n");
-        return implode(', ', array_keys($fields));
+        $result = implode(', ', array_keys($fields));
+        return $result;
     }
 
     function field_is_array($field) {
@@ -82,6 +97,7 @@
     }
 
     # SQL query to get children for next level
+    # #todo #fixme take a $parent_relationship?
     function get_next_level_of_children(
         $parent_vals, $fields, $parent_field,
         $table, $order_by_limit, $where_cond

@@ -12,6 +12,10 @@
             'order_by_limit' => null, #Config::$config['tree_view_relationship_order_by_limit'],
             'parent_filter_field' => null,
             'parent_filter_field_val' => null,
+
+            #todo #fixme should allow more than one expression per relationship
+            'expression_name' => null,
+            'expression' => null,
         );
     }
 
@@ -119,12 +123,17 @@
         if (!isset($parent_relationships[$no]['condition']))
             $parent_relationships[$no]['condition'] = null;
         if (!isset($parent_relationships[$no]['order_by_limit']))
-            $parent_relationships[$no]['order_by_limit'] =
-                Config::$config['tree_view_relationship_order_by_limit'];
+            $parent_relationships[$no]['order_by_limit'] = Config::$config['tree_view_relationship_order_by_limit'];
         if (!isset($parent_relationships[$no]['parent_filter_field']))
             $parent_relationships[$no]['parent_filter_field'] = null;
         if (!isset($parent_relationships[$no]['parent_filter_field_val']))
             $parent_relationships[$no]['parent_filter_field_val'] = null;
+
+        #todo expand out into multiple expressions per relationship
+        if (!isset($parent_relationships[$no]['expression_name']))
+            $parent_relationships[$no]['expression_name'] = Config::$config['tree_view_relationship_expression_name'];
+        if (!isset($parent_relationships[$no]['expression']))
+            $parent_relationships[$no]['expression'] = Config::$config['tree_view_relationship_expression'];
     }
 
     { # node color stuff

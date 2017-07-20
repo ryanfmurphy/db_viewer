@@ -192,6 +192,8 @@ class Config {
             'assume_default_tree_relationship',
             'tree_view_order_by_limit',
             'tree_view_relationship_order_by_limit',
+            'tree_view_relationship_expression_name',
+            'tree_view_relationship_expression',
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir',
@@ -453,6 +455,8 @@ class Config {
             'assume_default_tree_relationship' => false,
             'tree_view_order_by_limit' => 'order by time_added desc',
             'tree_view_relationship_order_by_limit' => null,
+            'tree_view_relationship_expression_name' => null,
+            'tree_view_relationship_expression' => null,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,
