@@ -217,6 +217,7 @@ class Config {
             # kanban view
             'kanban_default_lists',
             'kanban_list_field',
+            'kanban_list_name_field',
             'kanban_wheres',
             'kanban_root_level_nodes_only',
         );
@@ -469,6 +470,7 @@ class Config {
             # kanban view
             'kanban_default_lists' => array(),
             'kanban_list_field' => 'kanban_list',
+            'kanban_list_name_field' => null, # defaults to same as kanban_list_field
             'kanban_wheres' => array(),
             'kanban_root_level_nodes_only' => true,
         );
