@@ -190,6 +190,8 @@ class Config {
             'primary_key_fields_by_table',
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship',
+            'tree_view_order_by_limit',
+            'tree_view_relationship_order_by_limit',
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir',
@@ -445,6 +447,8 @@ class Config {
             'primary_key_fields_by_table' => array(),
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship' => false,
+            'tree_view_order_by_limit' => 'order by time_added desc',
+            'tree_view_relationship_order_by_limit' => null,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,

@@ -9,7 +9,7 @@
             'parent_field' => null,
             'matching_field_on_parent' => null,
             'condition' => null,
-            'order_by_limit' => null,
+            'order_by_limit' => null, #Config::$config['tree_view_relationship_order_by_limit'],
             'parent_filter_field' => null,
             'parent_filter_field_val' => null,
         );
@@ -36,7 +36,7 @@
 
         'order_by_limit' => isset($requestVars['order_by_limit'])
                                 ? $requestVars['order_by_limit']
-                                : null,
+                                : Config::$config['tree_view_order_by_limit'],
 
         'root_nodes_w_child_only' => isset($requestVars['root_nodes_w_child_only'])
                                         ? $requestVars['root_nodes_w_child_only']
@@ -114,7 +114,8 @@
         if (!isset($parent_relationships[$no]['condition']))
             $parent_relationships[$no]['condition'] = null;
         if (!isset($parent_relationships[$no]['order_by_limit']))
-            $parent_relationships[$no]['order_by_limit'] = null;
+            $parent_relationships[$no]['order_by_limit'] =
+                Config::$config['tree_view_relationship_order_by_limit'];
         if (!isset($parent_relationships[$no]['parent_filter_field']))
             $parent_relationships[$no]['parent_filter_field'] = null;
         if (!isset($parent_relationships[$no]['parent_filter_field_val']))
