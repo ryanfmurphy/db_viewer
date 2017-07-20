@@ -1,16 +1,22 @@
+<?php
+    $mobile_size = 420;
+?>
+
 body {
     font-family: sans-serif;
     <?php #box-sizing: border-box; /* e.g. makes the input and textarea exactly the same width */ ?>
 }
-#main_container {
-    /* center the form */
-    width: 50rem;
-    margin-left: auto;
-    margin-right: auto;
-}
-input, select, textarea {
-    font-family: inherit;
-    font-size: 80%;
+@media (min-width: <?= $mobile_size-1 ?>px) {
+    #main_container {
+        /* center the form */
+        width: 50rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    input, select, textarea {
+        font-family: inherit;
+        font-size: 80%;
+    }
 }
 
 <?php 
@@ -171,7 +177,7 @@ input#selectTable {
 
 <?php include("$trunk/css/background_image.css.php") ?>
 
-@media (max-width: 420px) {
+@media (max-width: <?= $mobile_size ?>px) {
 
     body {
 <?php
