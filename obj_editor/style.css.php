@@ -21,6 +21,7 @@ body {
 input, select, textarea {
     font-family: inherit;
     font-size: 80%;
+}
 @media (min-width: <?= $mobile_size-1 ?>px) {
     #main_container {
         /* center the form */
