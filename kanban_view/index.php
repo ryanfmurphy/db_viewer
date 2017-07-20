@@ -484,6 +484,7 @@
             $stars = isset($item['stars'])
                         ? $item['stars']
                         : null;
+            $content = TableView::val_html($item['name'], 'name', $table);
 ?>
                     <div class="item"
                          draggable="true"
@@ -496,7 +497,7 @@
                              onclick="window.open(this.getAttribute('href'))"
                              style="background: <?= get_stars_color($stars) ?>"
                         >
-                                <?= $item['name'] ?>
+                                <?= $content ?>
                         </div>
                     </div>
 <?php
