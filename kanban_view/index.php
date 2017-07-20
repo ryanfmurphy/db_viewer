@@ -2,7 +2,7 @@
     $cur_view = 'kanban_view';
     include('../includes/init.php');
 
-    $table = 'todo';
+    $table = Config::$config['kanban_table'];
     $list_field = Config::$config['kanban_list_field'];
     $list_name_field = Config::$config['kanban_list_name_field'];
     $sort_order_type = 'float'; # other options: int
@@ -11,6 +11,7 @@
     $null_list_name = 'Inbox';
     $definite_sort_orders_only = false;
     $root_level_nodes_only = Config::$config['kanban_root_level_nodes_only'];
+    $root_level_override_field = Config::$config['kanban_root_level_override_field'];
     $additional_lists_to_include = Config::$config['kanban_default_lists'];
     $wheres = Config::$config['kanban_wheres'];
 
@@ -20,7 +21,8 @@
     function get_lists_and_items(
         $table, $list_field, $sort_order_field, $include_nulls,
         $null_list_name, $definite_sort_orders_only, $root_level_nodes_only,
-        $additional_lists_to_include, $wheres, $list_name_field=null
+        $additional_lists_to_include, $wheres, $list_name_field=null,
+        $root_level_override_field=null
     ) {
         if (!$list_name_field) {
             $list_name_field = $list_field;
@@ -47,7 +49,15 @@
                 if ($root_level_nodes_only) {
                     $default_parent_field = Config::$config['default_parent_field'];
                     $default_parent_field_q = DbUtil::quote_ident($default_parent_field);
-                    $wheres[] = "$default_parent_field is null";
+                    $root_where = "$default_parent_field is null";
+                    if ($root_level_override_field) {
+                        $root_level_override_field_q = DbUtil::quote_ident($root_level_override_field);
+                        $root_where = "(
+                            $root_where
+                            or $root_level_override_field_q
+                        )";
+                    }
+                    $wheres[] = $root_where;
                 }
                 if ($definite_sort_orders_only) {
                     $wheres[] = "$sort_order_field_q is not null";
@@ -96,7 +106,8 @@
     $lists = get_lists_and_items(
         $table, $list_field, $sort_order_field, $include_nulls,
         $null_list_name, $definite_sort_orders_only, $root_level_nodes_only,
-        $additional_lists_to_include, $wheres, $list_name_field
+        $additional_lists_to_include, $wheres, $list_name_field,
+        $root_level_override_field
     );
 
 ?>
