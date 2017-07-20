@@ -221,6 +221,7 @@ class Config {
             'kanban_list_name_field',
             'kanban_wheres',
             'kanban_root_level_nodes_only',
+            'kanban_root_level_override_field',
         );
 
         $config = compact($config_vars);
@@ -475,6 +476,8 @@ class Config {
             'kanban_list_name_field' => null, # defaults to same as kanban_list_field
             'kanban_wheres' => array(),
             'kanban_root_level_nodes_only' => true,
+            # allows a node to be considered "root" enough to show up even though it has a parent
+            'kanban_root_level_override_field' => null,
         );
 
         return $default_values;
