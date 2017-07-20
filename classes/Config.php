@@ -216,6 +216,8 @@ class Config {
 
             'custom_query_links',
 
+            'obj_editor_show_image',
+
             # kanban view
             'kanban_default_lists',
             'kanban_list_field',
@@ -470,6 +472,8 @@ class Config {
             'edit_in_place' => false,
 
             'custom_query_links' => null,
+
+            'obj_editor_show_image' => false,
 
             # kanban view
             'kanban_default_lists' => array(),
