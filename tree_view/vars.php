@@ -88,6 +88,11 @@
                                 ? $requestVars['vary_node_colors']
                                 : Config::$config['vary_node_colors']),
 
+        'start_w_tree_fully_expanded' => (isset($requestVars['start_w_tree_fully_expanded'])
+                              && $requestVars['start_w_tree_fully_expanded'] !== ''
+                                ? $requestVars['start_w_tree_fully_expanded']
+                                : Config::$config['start_w_tree_fully_expanded']),
+
     );
 
     # create all the variables in the current scope
