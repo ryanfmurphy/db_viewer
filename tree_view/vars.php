@@ -2,6 +2,14 @@
     # vars.php - create vars needed for tree_view
     #            used for both frontend (index.php) and backend (get_tree*.php)
 
+
+    # temporarily override / adjust Config vars
+    if (isset($requestVars['tree_height_factor'])
+        && $requestVars['tree_height_factor'] !== ''
+    ) {
+        Config::$config['tree_height_factor'] = $requestVars['tree_height_factor'];
+    }
+
     function null_relationship() {
         return array(
             'child_table' => null,
@@ -96,6 +104,8 @@
                               && $requestVars['start_w_tree_fully_expanded'] !== ''
                                 ? $requestVars['start_w_tree_fully_expanded']
                                 : Config::$config['start_w_tree_fully_expanded']),
+
+        'tree_height_factor' => Config::$config['tree_height_factor'],
 
     );
 
