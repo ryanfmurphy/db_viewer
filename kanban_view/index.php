@@ -4,6 +4,7 @@
 
     $table = 'todo';
     $list_field = Config::$config['kanban_list_field'];
+    $list_name_field = Config::$config['kanban_list_name_field'];
     $sort_order_type = 'float'; # other options: int
     $sort_order_field = 'sort_order';
     $include_nulls = true;
@@ -19,8 +20,11 @@
     function get_lists_and_items(
         $table, $list_field, $sort_order_field, $include_nulls,
         $null_list_name, $definite_sort_orders_only, $root_level_nodes_only,
-        $additional_lists_to_include, $wheres
+        $additional_lists_to_include, $wheres, $list_name_field=null
     ) {
+        if (!$list_name_field) {
+            $list_name_field = $list_field;
+        }
 
         # add additional lists
         $lists = array();
@@ -64,7 +68,7 @@
 
             # build lists
             foreach ($rows as $row) {
-                $list_val = $row[$list_field];
+                $list_val = $row[$list_name_field];
                 $list_key = ($list_val === null
                                 ? $null_list_name
                                 : $list_val);
@@ -90,9 +94,9 @@
     }
 
     $lists = get_lists_and_items(
-        $table, $list_field, $sort_order_field, $include_nulls, $null_list_name,
-        $definite_sort_orders_only, $root_level_nodes_only, $additional_lists_to_include,
-        $wheres
+        $table, $list_field, $sort_order_field, $include_nulls,
+        $null_list_name, $definite_sort_orders_only, $root_level_nodes_only,
+        $additional_lists_to_include, $wheres, $list_name_field
     );
 
 ?>
