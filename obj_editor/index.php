@@ -613,6 +613,14 @@
 <?php
     }
 
+    if (Config::$config['obj_editor_show_image']
+        && isset($defaultValues['image_url']) #todo #fixme is this field generalized in config?
+    ) {
+?>
+            <img class="header_image" src="<?= $defaultValues['image_url'] ?>">
+<?php
+    }
+
     { # main HTML content
         if ($table) {
 
