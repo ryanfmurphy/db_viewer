@@ -12,16 +12,7 @@ body {
     margin-right: auto;
     max-height: 250px;
 }
-#main_container {
-    /* center the form */
-    width: 50rem;
-    margin-left: auto;
-    margin-right: auto;
-}
-input, select, textarea {
-    font-family: inherit;
-    font-size: 80%;
-}
+
 @media (min-width: <?= $mobile_size-1 ?>px) {
     #main_container {
         /* center the form */
