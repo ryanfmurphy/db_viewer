@@ -674,11 +674,11 @@ function removeChildFromNode(node, child, doUpdateTree) {
         if (key in node) {
             var children = node[key];
             for (var i = children.length - 1; i >= 0; i--) {
-                console.log('checking child',i);
+                //console.log('checking child',i);
                 var this_child = children[i];
-                console.log('child=',child);
+                //console.log('child=',child);
                 if (child === this_child) {
-                    console.log('deleting children['+i+']');
+                    //console.log('deleting children['+i+']');
                     children.splice(i,1);
                     return node;
                 }
@@ -884,7 +884,11 @@ function clickLabel(d) {
                             if (remove_child) {
                                 // #todo #fixme can we always depend on the key being 'id'
                                 var existing_parent_id = node_to_move.parent.id;
-                                data['val_to_replace'] = existing_parent_id;
+                                //console.log('parent',node_to_move.parent);
+                                //console.log('existing_parent_id',existing_parent_id);
+                                if (existing_parent_id) {
+                                    data['val_to_replace'] = existing_parent_id;
+                                }
                             }
 
                             // #todo could #factor success_callback back in between the 2 cases
