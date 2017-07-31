@@ -49,7 +49,12 @@
                 if ($root_level_nodes_only) {
                     $default_parent_field = Config::$config['default_parent_field'];
                     $default_parent_field_q = DbUtil::quote_ident($default_parent_field);
+
                     $root_where = "$default_parent_field is null";
+                    if (DbUtil::field_is_array($default_parent_field)) {
+                        $root_where .= " or $default_parent_field = '{}'";
+                    }
+
                     if ($root_level_override_field) {
                         $root_level_override_field_q = DbUtil::quote_ident($root_level_override_field);
                         $root_where = "(
