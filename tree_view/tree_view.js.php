@@ -349,8 +349,11 @@ function updateTree(source) {
                             }
                         );
 
+    // start very small
+    var start_radius = .000001; //1e-6
+    console.log('start_radius', start_radius);
     nodeEnter.append("circle")
-            .attr("r", 1e-6)
+            .attr("r", start_radius) //1e-6)
             .style("fill",  function(d) {
                                 return d._children
                                     ? "lightsteelblue"
@@ -420,8 +423,9 @@ function updateTree(source) {
                 }
             );
 
+    var radius = 6;
     nodeUpdate.select("circle")
-            .attr("r", 4.5)
+            .attr("r", radius)
             .style("fill",
                 function(d) {
                     return d._children
