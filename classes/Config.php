@@ -470,18 +470,9 @@ class Config {
             'edit_in_place' => false,
 
             'custom_query_links' => null,
-<<<<<<< HEAD
-=======
 
             'obj_editor_show_image' => false,
 
-            # kanban view
-            'kanban_default_lists' => array(),
-            'kanban_list_field' => 'kanban_list',
-            'kanban_list_name_field' => null, # defaults to same as kanban_list_field
-            'kanban_wheres' => array(),
-            'kanban_root_level_nodes_only' => true,
->>>>>>> 53c2834... obj_editor_show_image option
         );
 
         return $default_values;
