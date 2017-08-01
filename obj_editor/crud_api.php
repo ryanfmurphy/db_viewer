@@ -81,7 +81,7 @@
                              $MTM_array_fields_to_not_require_commas)
                     && strlen($field_val) > 0
                     && strpos($field_val, ',') === false
-                    && $field_val[0] != '{' #todo check end } too?
+                    && $field_val[0] != '{' #todo check end brace too?
                     && $field_val[0] != ' '
                 );
 
