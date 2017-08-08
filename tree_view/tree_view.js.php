@@ -204,7 +204,7 @@ function setupTreeWithSize(root) {
     );
 
     // guess how much space the name needs
-    var approx_max_node_width = max_node_strlen * 9; //5.2;
+    var approx_max_node_width = max_node_strlen * 9; //14
 
     var level_width = Math.max(
         approx_max_node_width, defaults.level_width
@@ -381,7 +381,7 @@ function updateTree(source) {
                     return ems.toString() + 'em';
                 }
                 else {
-                    return "1em";
+                    return "1em"; // "1.5em";
                 }
             })
             .attr("text-anchor", function(d) {
