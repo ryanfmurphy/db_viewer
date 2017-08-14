@@ -304,6 +304,8 @@
                     : '';
         }
 
+        // #todo make interface consistent w other click handlers
+        // swap event and table_name
         function viewButtonClickHandler(
             crud_api_uri, keyEvent, table_name
         ) {
@@ -443,7 +445,9 @@
                             // and all it does is call this but give it the name
                             generic_respond_callback(frozen_name, response_msg);
                         };
-                    })(data.name /* gets passed in as frozen name */);
+                    })(
+                        data.name // gets passed in as frozen name
+                    );
 
                     // save the row and queue up the response_msg in responses
                     submitForm(url, null, 'create', data, respond_callback);

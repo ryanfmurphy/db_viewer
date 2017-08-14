@@ -2,6 +2,14 @@
     # vars.php - create vars needed for tree_view
     #            used for both frontend (index.php) and backend (get_tree*.php)
 
+
+    # temporarily override / adjust Config vars
+    if (isset($requestVars['tree_height_factor'])
+        && $requestVars['tree_height_factor'] !== ''
+    ) {
+        Config::$config['tree_height_factor'] = $requestVars['tree_height_factor'];
+    }
+
     function null_relationship() {
         return array(
             'child_table' => null,
@@ -9,9 +17,13 @@
             'parent_field' => null,
             'matching_field_on_parent' => null,
             'condition' => null,
-            'order_by_limit' => null,
+            'order_by_limit' => null, #Config::$config['tree_view_relationship_order_by_limit'],
             'parent_filter_field' => null,
             'parent_filter_field_val' => null,
+
+            #todo #fixme should allow more than one expression per relationship
+            'expression_name' => null,
+            'expression' => null,
         );
     }
 
@@ -36,7 +48,7 @@
 
         'order_by_limit' => isset($requestVars['order_by_limit'])
                                 ? $requestVars['order_by_limit']
-                                : null,
+                                : Config::$config['tree_view_order_by_limit'],
 
         'root_nodes_w_child_only' => isset($requestVars['root_nodes_w_child_only'])
                                         ? $requestVars['root_nodes_w_child_only']
@@ -88,6 +100,13 @@
                                 ? $requestVars['vary_node_colors']
                                 : Config::$config['vary_node_colors']),
 
+        'start_w_tree_fully_expanded' => (isset($requestVars['start_w_tree_fully_expanded'])
+                              && $requestVars['start_w_tree_fully_expanded'] !== ''
+                                ? $requestVars['start_w_tree_fully_expanded']
+                                : Config::$config['start_w_tree_fully_expanded']),
+
+        'tree_height_factor' => Config::$config['tree_height_factor'],
+
     );
 
     # create all the variables in the current scope
@@ -114,11 +133,17 @@
         if (!isset($parent_relationships[$no]['condition']))
             $parent_relationships[$no]['condition'] = null;
         if (!isset($parent_relationships[$no]['order_by_limit']))
-            $parent_relationships[$no]['order_by_limit'] = null;
+            $parent_relationships[$no]['order_by_limit'] = Config::$config['tree_view_relationship_order_by_limit'];
         if (!isset($parent_relationships[$no]['parent_filter_field']))
             $parent_relationships[$no]['parent_filter_field'] = null;
         if (!isset($parent_relationships[$no]['parent_filter_field_val']))
             $parent_relationships[$no]['parent_filter_field_val'] = null;
+
+        #todo expand out into multiple expressions per relationship
+        if (!isset($parent_relationships[$no]['expression_name']))
+            $parent_relationships[$no]['expression_name'] = Config::$config['tree_view_relationship_expression_name'];
+        if (!isset($parent_relationships[$no]['expression']))
+            $parent_relationships[$no]['expression'] = Config::$config['tree_view_relationship_expression'];
     }
 
     { # node color stuff

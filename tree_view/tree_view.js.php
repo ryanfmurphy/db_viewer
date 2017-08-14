@@ -349,8 +349,11 @@ function updateTree(source) {
                             }
                         );
 
+    // start very small
+    var start_radius = .000001; //1e-6
+    console.log('start_radius', start_radius);
     nodeEnter.append("circle")
-            .attr("r", 1e-6)
+            .attr("r", start_radius) //1e-6)
             .style("fill",  function(d) {
                                 return d._children
                                     ? "lightsteelblue"
@@ -420,8 +423,9 @@ function updateTree(source) {
                 }
             );
 
+    var radius = 6;
     nodeUpdate.select("circle")
-            .attr("r", 4.5)
+            .attr("r", radius)
             .style("fill",
                 function(d) {
                     return d._children
@@ -586,10 +590,11 @@ function doNestModeAlert(mode) {
         var action = (add_parent_instead_of_move
                         ? 'add'
                         : 'move');
-        do_alert(
-            'Click another node to ' + action + ' selected node(s) there,<br>\
+        do_alert('\
+            Click another node to ' + action + ' selected node(s) there,<br>\
             shift-click more nodes to select them them too,<br>\
-            D to delete, or N to cancel<br>',
+            D to detach/delete, or N to cancel<br>\
+            ',
             'purple'
         );
     }
@@ -644,10 +649,18 @@ document.addEventListener('keypress', function(event){
     else if (event.which == d_code
             && nest_mode
     ) {
-        alert("Can't delete yet (not implemented)");
-        nest_mode = 'deleted';
+        if (selected_nodes.length > 0) {
+            for (var i=0; i < selected_nodes.length; i++) {
+                var node = selected_nodes[i];
+                detachNodeFromParent(node);
+            }
+            nest_mode = 'deleted';
+        }
+        else {
+            alert("You haven't selected any nodes to delete");
+            nest_mode = 'error';
+        }
         doNestModeAlert(nest_mode);
-        deleteSelectedNodes();
     }
 });
 
@@ -661,11 +674,11 @@ function removeChildFromNode(node, child, doUpdateTree) {
         if (key in node) {
             var children = node[key];
             for (var i = children.length - 1; i >= 0; i--) {
-                console.log('checking child',i);
+                //console.log('checking child',i);
                 var this_child = children[i];
-                console.log('child=',child);
+                //console.log('child=',child);
                 if (child === this_child) {
-                    console.log('deleting children['+i+']');
+                    //console.log('deleting children['+i+']');
                     children.splice(i,1);
                     return node;
                 }
@@ -675,6 +688,78 @@ function removeChildFromNode(node, child, doUpdateTree) {
     if (doUpdateTree) {
         updateTree(node);
     }
+}
+
+function detachNodeFromParent(node) {
+    console.log('detachNodeFromParent, node=', node);
+    var parent = node.parent;
+    console.log('  parent=', parent);
+    
+<?php
+    $table2update = 'entity';   #todo #fixme - don't always assume a catchall entity table
+                                #              probably will need all this stuff in pure JS
+    $parent_table = 'entity';
+?>
+    var primary_key_field = '<?= DbUtil::get_primary_key_field($table2update) ?>';
+    var primary_key = node[primary_key_field];
+    var parent_id_field = '<?= Config::$config['default_parent_field'] ?>';
+    var table_name = '<?= $table2update ?>';
+    var url = "<?= $crud_api_uri ?>";
+
+    // #todo maybe #factor common code
+    // for parent_id_field stuff
+    var parent_field_is_array =
+        <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
+    var parent_primary_key_field = '<?= DbUtil::get_primary_key_field($parent_table) ?>';
+    var parent_id = parent[parent_primary_key_field];
+
+    // build up the AJAX data to update the node
+    var data = null;
+
+    // array case: remove this one parent value from array
+    if (parent_field_is_array) {
+        data = {
+            action: 'remove_from_array',
+            table: table_name,
+            primary_key: primary_key,
+            field_name: parent_id_field,
+            val_to_remove: parent_id
+        };
+    }
+    // non-array field, simple update of parent field
+    // #todo make sure non-array parent field still works right
+    else {
+        var where_clauses = {};
+        where_clauses[primary_key_field] = primary_key
+
+        data = {
+            action: 'update_' + table_name,
+            where_clauses: where_clauses
+        };
+
+        data[parent_id_field] = null;
+    }
+
+    var success_callback = (function(node, parent_id_field) {
+        return function(xhttp) {
+            var r = xhttp.responseText;
+            nest_mode = 'success'; // #todo #fixme - 'deleted' ?
+            doNestModeAlert(nest_mode);
+            
+            console.log('removing child');
+            removeChildFromNode(node.parent, node, false);
+
+            updateTree(svg_tree.root);
+        }
+    })(node, parent_id_field);
+
+    var error_callback = function(xhttp) {
+        var r = xhttp.responseText;
+        nest_mode = 'error'
+        doNestModeAlert(nest_mode);
+    }
+
+    doAjax("POST", url, data, success_callback, error_callback);
 }
 
 function cloneSvgNode(obj) {
@@ -799,7 +884,11 @@ function clickLabel(d) {
                             if (remove_child) {
                                 // #todo #fixme can we always depend on the key being 'id'
                                 var existing_parent_id = node_to_move.parent.id;
-                                data['val_to_replace'] = existing_parent_id;
+                                //console.log('parent',node_to_move.parent);
+                                //console.log('existing_parent_id',existing_parent_id);
+                                if (existing_parent_id) {
+                                    data['val_to_replace'] = existing_parent_id;
+                                }
                             }
 
                             // #todo could #factor success_callback back in between the 2 cases

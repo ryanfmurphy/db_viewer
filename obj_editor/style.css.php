@@ -1,10 +1,35 @@
+<?php
+    $mobile_size = 420;
+?>
+
 body {
     font-family: sans-serif;
+    <?php #box-sizing: border-box; /* e.g. makes the input and textarea exactly the same width */ ?>
+}
+.header_image {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 250px;
+}
+
+@media (min-width: <?= $mobile_size-1 ?>px) {
+    #main_container {
+        /* center the form */
+        width: 50rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    input, select, textarea {
+        font-family: inherit;
+        font-size: 80%;
+    }
 }
 
 <?php 
+        $input_opacity = .7;
         if ($background=='dark') {
-            $input_bg = 'rgba(0,0,0,.5)';
+            $input_bg = "rgba(0,0,0,$input_opacity)";
 ?>
 body {
     background: black;
@@ -38,7 +63,7 @@ a:hover, .link:hover {
 <?php
         }
         else {
-            $input_bg = 'rgba(255,255,255,.5)';
+            $input_bg = "rgba(255,255,255,$input_opacity)";
 ?>
 input, textarea {
     background: <?= $input_bg ?>;
@@ -76,12 +101,25 @@ form#mainForm label {
 }
 
 .formInput input,
-.formInput textarea
+.formInput textarea,
+.formInput select
 {
     width: 30rem;
     display: inline-block;
     vertical-align: middle;
     padding: .2em;
+    padding-top: .4em;
+<?php
+    // we have slightly bigger text that ends up slightly too high on FF
+    if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'firefox') === false) {
+?>
+    padding-bottom: .4em;
+<?php
+    }
+?>
+}
+.formInput select {
+    width: 30.75rem; /* otherwise select is a little less wide for some reason */
 }
 .formInput textarea {
     padding: .4em;
@@ -146,7 +184,7 @@ input#selectTable {
 
 <?php include("$trunk/css/background_image.css.php") ?>
 
-@media (max-width: 420px) {
+@media (max-width: <?= $mobile_size ?>px) {
 
     body {
 <?php

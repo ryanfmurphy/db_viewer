@@ -48,7 +48,9 @@ class Config {
             'links_minimal_by_default',
             'default_values_by_table',
             'fields_to_make_selects',
+            #'fields_to_make_selects_by_table', #todo
             'fields_to_make_textarea',
+            'fields_to_make_textarea_by_table',
             'header_every',
             'multipleTablesFoundInDifferentSchemas',
             'edit',
@@ -188,6 +190,10 @@ class Config {
             'primary_key_fields_by_table',
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship',
+            'tree_view_order_by_limit',
+            'tree_view_relationship_order_by_limit',
+            'tree_view_relationship_expression_name',
+            'tree_view_relationship_expression',
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir',
@@ -211,6 +217,9 @@ class Config {
             'edit_in_place',
 
             'custom_query_links',
+
+            'obj_editor_show_image',
+
         );
 
         $config = compact($config_vars);
@@ -288,7 +297,9 @@ class Config {
             'search_path' => null,
             'default_values_by_table' => array(),
             'fields_to_make_selects' => array(),
+            #'fields_to_make_selects_by_table', #todo
             'fields_to_make_textarea' => array(),
+            'fields_to_make_textarea_by_table' => array(),
 
             # both
             'pluralize_table_names' => false,
@@ -434,6 +445,10 @@ class Config {
             'primary_key_fields_by_table' => array(),
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship' => false,
+            'tree_view_order_by_limit' => 'order by time_added desc',
+            'tree_view_relationship_order_by_limit' => null,
+            'tree_view_relationship_expression_name' => null,
+            'tree_view_relationship_expression' => null,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,
@@ -455,6 +470,9 @@ class Config {
             'edit_in_place' => false,
 
             'custom_query_links' => null,
+
+            'obj_editor_show_image' => false,
+
         );
 
         return $default_values;

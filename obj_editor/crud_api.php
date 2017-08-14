@@ -13,6 +13,9 @@
     #todo #fixme is this redundant?
     $vars = array_merge($_GET,$_POST);
 
+    #todo #fixme this can clash if we have a field named 'action'
+    #            create a mode where all the fields are stored
+    #            in a nested array called 'fields'
     { # get action
         if (!isset($vars['action'])) {
             die('no action');
@@ -78,7 +81,7 @@
                              $MTM_array_fields_to_not_require_commas)
                     && strlen($field_val) > 0
                     && strpos($field_val, ',') === false
-                    && $field_val[0] != '{' #todo check end } too?
+                    && $field_val[0] != '{' #todo check end brace too?
                     && $field_val[0] != ' '
                 );
 
@@ -96,8 +99,9 @@
                 if (DbUtil::field_is_array($field_name)) {
                     # check if {} is already present and if so don't add them
                     $field_val = trim($field_val);
-                    if ($field_val[0] != '{'
-                        || $field_val[strlen($field_val)-1] != '}'
+                    if (strlen($field_val) > 0
+                        && ($field_val[0] != '{'
+                            || $field_val[strlen($field_val)-1] != '}')
                     ) {
                         #todo #fixme use a more robust process that handles quotes
                         $vars[$field_name] = '{'.$field_val.'}';
