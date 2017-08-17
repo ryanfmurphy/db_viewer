@@ -565,18 +565,7 @@
 ?>
                     <a  class="link"
                         target="_blank"
-                        href="<?= $tree_view_uri."?root_table=$default_root_table_for_tree_view"
-                                                ."&root_cond=id = '$primary_key'"
-                                                ."&parent_relationships[0][child_table]=$default_root_table_for_tree_view"
-                                                ."&parent_relationships[0][parent_table]=$default_root_table_for_tree_view"
-                                                ."&parent_relationships[0][parent_field]=$default_parent_field"
-                                                ."&parent_relationships[0][matching_field_on_parent]=$primary_key_field"
-                                                ."&parent_relationships[0][condition]="
-                                                #."&order_by_limit=order+by+time_added+desc"
-                                                ."&name_cutoff=50"
-                                                ."&root_nodes_w_child_only="
-                                                ."&use_stars_for_node_size=0"
-                                                ."&vary_node_colors=".(int)$vary_node_colors ?>">
+                        href="<?= TableView::get_tree_url($primary_key) ?>">
                         tree
                     </a>
 <?php

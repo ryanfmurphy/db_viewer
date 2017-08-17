@@ -28,6 +28,8 @@
                 $currentRow = TableView::prep_row($row);
                 $has_delete_column = Config::$config['include_row_delete_button']
                                      && $has_edit_column;
+                $has_tree_column =  Config::$config['include_row_tree_button']
+                                    && $has_edit_column;
 ?>
     <tr data-row="<?= $rowN ?>">
 <?php
@@ -44,6 +46,14 @@
         <th class="action_cell"></th>
 <?php
                     }
+
+                    # delete button
+                    if ($has_tree_column) {
+?>
+        <th class="action_cell"></th>
+<?php
+                    }
+
                     for ($i=0; $i<$num_action_columns; $i++) {
 ?>
         <th class="action_cell"></th>
@@ -208,6 +218,13 @@
                                     # delete
                                     if ($include_row_delete_button) {
                                         TableView::echo_delete_button(
+                                            $obj_editor_uri, $tablename_no_quotes, $primary_key
+                                        );
+                                    }
+
+                                    # delete
+                                    if ($include_row_tree_button) {
+                                        TableView::echo_tree_button(
                                             $obj_editor_uri, $tablename_no_quotes, $primary_key
                                         );
                                     }

@@ -143,6 +143,7 @@ class Config {
             'db_viewer_macro_uri',
 
             'include_row_delete_button',
+            'include_row_tree_button',
 
             # useful for schemas that use table inheritance
             # (especially Postgres) - if the "relname" is in
@@ -398,6 +399,7 @@ class Config {
             'db_viewer_macro_uri' => "$uri_trunk/table_view/db_viewer_macro.php",
 
             'include_row_delete_button' => true,
+            'include_row_tree_button' => false,
 
             # useful for schemas that use table inheritance
             # (especially Postgres) - if the "relname" is in
