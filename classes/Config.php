@@ -117,6 +117,9 @@ class Config {
             # between array items, unless you provide a leading space
             'MTM_array_fields_to_not_require_commas',
 
+            # json fields
+            'fields_w_json_type',
+
             'fields_that_render_html',
             'fields_that_render_html_by_table',
 
@@ -383,6 +386,9 @@ class Config {
             # an array of fields that should not require commas
             # between array items, unless you provide a leading space
             'MTM_array_fields_to_not_require_commas' => null,
+
+            # json fields
+            'fields_w_json_type' => array(),
 
             'fields_that_render_html' => array(),
             'fields_that_render_html_by_table' => array(),

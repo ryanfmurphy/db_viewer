@@ -898,12 +898,25 @@ infer_limit_from_query: query didn't match regex.
             */
         }
 
+        #todo #fixme - make this more consistent, because
+        #              all postgres-array-like fields are automatically
+        #              interpreted as array lists, whereas JSON is
+        #              manually invoked via fields_w_json_type
         public static function field_is_array($field_name) {
             $fields_w_array_type =
                 Config::$config['fields_w_array_type'];
             return (is_array($fields_w_array_type)
                     && in_array($field_name,
                             $fields_w_array_type)
+            );
+        }
+
+        public static function field_is_json($field_name) {
+            $fields_w_json_type =
+                Config::$config['fields_w_json_type'];
+            return (is_array($fields_w_json_type)
+                    && in_array($field_name,
+                            $fields_w_json_type)
             );
         }
 
