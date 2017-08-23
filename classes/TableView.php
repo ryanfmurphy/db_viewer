@@ -184,10 +184,14 @@
                     && version_compare(phpversion(), '5.4', '>=')
             ) {
                 $native_val = json_decode($val);
-                $pretty_val = json_encode($native_val, JSON_PRETTY_PRINT);
+                $pretty_val = json_encode($native_val, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+                { ob_start();
 ?>
                         <pre><?= $pretty_val ?></pre>
 <?php
+                    return ob_get_clean();
+                }
                 return ob_get_clean();
             }
             # default quoting / handling of val
