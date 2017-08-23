@@ -179,6 +179,17 @@
             ) {
                 return $val;
             }
+            # JSON field
+            elseif (DbUtil::field_is_json($fieldname)
+                    && version_compare(phpversion(), '5.4', '>=')
+            ) {
+                $native_val = json_decode($val);
+                $pretty_val = json_encode($native_val, JSON_PRETTY_PRINT);
+?>
+                        <pre><?= $pretty_val ?></pre>
+<?php
+                return ob_get_clean();
+            }
             # default quoting / handling of val
             else {
                 $val = htmlentities($val);

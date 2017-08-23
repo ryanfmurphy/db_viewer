@@ -117,6 +117,9 @@ class Config {
             # between array items, unless you provide a leading space
             'MTM_array_fields_to_not_require_commas',
 
+            # json fields
+            'fields_w_json_type',
+
             'fields_that_render_html',
             'fields_that_render_html_by_table',
 
@@ -264,6 +267,8 @@ class Config {
     }
 
     public static function default_values($view_uri) {
+        #todo #fixme - don't require passing in view_uri
+        #              the guess_uri_trunk thing is kind of brittle
         do_log("view_uri = $view_uri\n");
         $trunk = self::get_trunk();
         do_log("trunk = $trunk\n");
@@ -390,6 +395,9 @@ class Config {
             # between array items, unless you provide a leading space
             'MTM_array_fields_to_not_require_commas' => null,
 
+            # json fields
+            'fields_w_json_type' => array(),
+
             'fields_that_render_html' => array(),
             'fields_that_render_html_by_table' => array(),
 
@@ -504,6 +512,7 @@ class Config {
     # try to figure out where db_viewer is installed URI-wise
     # so that we can make our asset links robust and flexible
     public static function guess_uri_trunk($current_view_uri) {
+        #todo #fixme - this is brittle - get uri_trunk in a smarter / more solid way
         if (isset($_SERVER['REQUEST_URI'])) {
             $uri = $_SERVER['REQUEST_URI'];
             $regex = "#(.*)$current_view_uri(\?.*)?$#";
