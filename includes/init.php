@@ -10,6 +10,9 @@
         if (file_exists("$trunk/db_config.php")) {
             # config exists: load it
             if (!isset($cur_subview)) $cur_subview = 'index';
+            #todo #fixme - don't require setting cur_view
+            #              (right now we need it so we can pass in
+            #               uri to Config::default_values)
             $default_values = Config::default_values(
                 "/$cur_view/$cur_subview.php"
             );
