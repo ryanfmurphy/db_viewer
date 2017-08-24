@@ -726,7 +726,7 @@
                     ) {
                         #todo #fixme make archive_instead_of_delete affect this button
 ?>
-                    <input onclick="return deleteButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)"
+                    <input onclick="return deleteCurrentRow(event)"
                         value="Delete" type="submit" id="delete_button"
                     />
 <?php

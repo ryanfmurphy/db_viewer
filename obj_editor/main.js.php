@@ -279,6 +279,14 @@
             return false;
         }
 
+        function createRow(click_event) { // click_event optional
+            return createButtonClickHandler(
+                '/db_viewer/obj_editor/crud_api.php',
+                scope.table_name,
+                click_event
+            );
+        }
+
         function updateButtonClickHandler(
             crud_api_uri, table_name, event
         ) {
@@ -295,6 +303,14 @@
                     + '?action=delete_'+table_name;
             submitForm(url, event, 'delete');
             return false;
+        }
+
+        function deleteCurrentRow(click_event) {
+            return deleteButtonClickHandler(
+                '/db_viewer/obj_editor/crud_api.php',
+                window.scope.table_name,
+                click_event // optional
+            );
         }
 
         var links_minimal_by_default = <?= (int)$links_minimal_by_default ?>;
@@ -509,6 +525,13 @@
             return false;
         }
 
+    }
+
+    // javascript "macro" to delete row from table and resubmit into a different one
+    function moveRowToTable(new_table_name) {
+        deleteCurrentRow();
+        changeTableName(new_table_name);
+        createRow();
     }
 
     function saveFile(filename, data, description, ext) {
@@ -841,6 +864,7 @@
     // but it'd be nice to use it if it does anything we need
     function selectTable(keyEvent) {
 
+        console.log('selectTable, keyEvent =', keyEvent);
         var selectTableInput = document.getElementById('selectTable');
         var table = selectTableInput.value;
         table = prepIdentifierName(table);
@@ -860,7 +884,9 @@
         // no reload - change table w pure JS
         if (change_table_no_reload) {
             focusFirstFormField(keyEvent);
-            keyEvent.preventDefault();
+            if (keyEvent.preventDefault) {
+                keyEvent.preventDefault();
+            }
             change_SelectTableInput_to_header(table);
         }
         // reload - redirect page
@@ -902,6 +928,7 @@
 
 
     function selectTableOnEnter(keyEvent) {
+        console.log('selectTableOnEnter, keyEvent =', keyEvent);
         var ENTER = 13, UNIX_ENTER = 10;
         if (keyEvent.which == ENTER
             || keyEvent.which == UNIX_ENTER
@@ -927,6 +954,20 @@
         selectTableInput.setSelectionRange(0,9999); // needed for mobile
     }
 
+    function openSelectTableInput() {
+        var selectTableElem = document.getElementById('table_name');
+        becomeSelectTableInput(selectTableElem);
+        return document.getElementById('selectTable');
+    }
+
+    function changeTableName(new_table_name) {
+        var selectTableInput = openSelectTableInput();
+
+        // edit input and save changes without refreshing
+        selectTableInput.value = new_table_name;
+        // #todo #fixme respect altKey option instead of assuming alt won't refresh
+        selectTableOnEnter({which:13,altKey:true});
+    }
 
     // <script>
     {   // durationTimer - used for `duration` field
@@ -1469,7 +1510,7 @@
         if (inputs.length > 0) {
             var first_input = inputs[0];
             // mobile iOS browsers aren't doing the focus unless I preventDefault
-            if (e) {
+            if (e && e.preventDefault) {
                 // #todo #fixme actually this is broken for me on iOS again, even with this fix
                 e.preventDefault();
             }
