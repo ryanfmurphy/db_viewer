@@ -426,7 +426,18 @@
 ?>
 
 <!DOCTYPE html>
-<html>
+<html
+<?php
+    if ($mobile_travel_mode
+        && isset($do_use_app_cache_manifest)
+        && $do_use_app_cache_manifest
+    ) {
+?>
+    manifest="manifest.appcache.php"
+<?php
+    }
+?>
+>
     <head>
 <?php
     $page_title = $table
