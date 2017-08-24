@@ -109,7 +109,7 @@
             # pg array is <ul>
             if (DbUtil::seems_like_pg_array($val)) {
                 $vals = DbUtil::pg_array2array($val);
-                return self::array_as_html_list($vals);
+                return self::array_as_html_list($vals, true);
             }
             # show images
             elseif ($show_images
@@ -217,8 +217,58 @@
             }
         }
 
-        public static function array_as_html_list($array) {
-            { ob_start();
+        public static function array_as_html_list($array, $editable=false) {
+            if ($editable) {
+                ob_start();
+                #todo #fixme only include the <script> once
+?>
+        <script>
+
+        function add_array_elem_on_enter(key_event) {
+            // #todo #factor with similar obj_editor code
+            var ENTER = 13, UNIX_ENTER = 10;
+            if (key_event.which == ENTER
+                || key_event.which == UNIX_ENTER
+            ) {
+                // #todo #fixme actually add
+                alert('add');
+            }
+        }
+
+        function li_become_editable(li, keep_existing_content) {
+            if (!li.getAttribute('has_input')) {
+                var value = keep_existing_content
+                                ? li.innerHTML
+                                : '';
+                // #todo #fixme make sure Show/Hide mode H
+                // doesn't get in the way of typing in the input
+                li.innerHTML = '\
+                    <input  value="' + value + '"\
+                            onkeypress="add_array_elem_on_enter(event)"\
+                    />\
+                ';
+                li.setAttribute('has_input', true);
+                var input = li.getElementsByTagName('input')[0];
+                input.focus();
+            }
+        }
+
+        </script>
+        <ul>
+<?php
+                foreach ($array as $val) {
+?>
+            <li><?= htmlentities($val) ?></li>
+<?php
+                }
+?>
+            <li onclick="li_become_editable(this)">+</li>
+        </ul>
+<?php
+                return ob_get_clean();
+            }
+            else {
+                ob_start();
 ?>
         <ul>
 <?php
