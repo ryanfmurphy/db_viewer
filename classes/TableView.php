@@ -98,7 +98,9 @@
 
         # format $val as HTML to put in <td>
         #   ($table should have no quotes)
-        public static function val_html($val, $fieldname, $table=null) {
+        public static function val_html(
+            $val, $fieldname, $table=null, $primary_key=null
+        ) {
             $field_render_filters_by_table = Config::$config['field_render_filters_by_table'];
             $obj_editor_uri = Config::$config['obj_editor_uri'];
             $show_images = Config::$config['show_images'];
@@ -109,7 +111,7 @@
             # pg array is <ul>
             if (DbUtil::seems_like_pg_array($val)) {
                 $vals = DbUtil::pg_array2array($val);
-                return self::array_as_html_list($vals, true);
+                return self::array_as_html_list($vals, true, $fieldname, $primary_key);
             }
             # show images
             elseif ($show_images
@@ -170,7 +172,7 @@
                 $fn = $field_render_filters_by_table[$table][$fieldname];
                 return $fn($val, $obj_editor_uri, $fieldname);
             }
-            # allow html (don't escape val)
+            # allow html (don't escape val) - #todo #factor condition into fn
             elseif ((isset(Config::$config['fields_that_render_html'])
                      && in_array($fieldname, Config::$config['fields_that_render_html']))
                     || (isset(Config::$config['fields_that_render_html_by_table'])
@@ -217,10 +219,16 @@
             }
         }
 
-        public static function array_as_html_list($array, $editable=false) {
+        public static $already_echoed_array_editing_js = false;
+
+        public static function array_as_html_list(
+            $array, $editable=false, $fieldname=null, $primary_key=null
+        ) {
             if ($editable) {
                 ob_start();
                 #todo #fixme only include the <script> once
+                if (!self::$already_echoed_array_editing_js) {
+                    self::$already_echoed_array_editing_js = true;
 ?>
         <script>
 
@@ -233,6 +241,8 @@
                 // #todo #fixme actually add
                 alert('add');
             }
+            key_event.stopPropagation();
+            return true;
         }
 
         function li_become_editable(li, keep_existing_content) {
@@ -244,7 +254,7 @@
                 // doesn't get in the way of typing in the input
                 li.innerHTML = '\
                     <input  value="' + value + '"\
-                            onkeypress="add_array_elem_on_enter(event)"\
+                            onkeypress="return add_array_elem_on_enter(event)"\
                     />\
                 ';
                 li.setAttribute('has_input', true);
@@ -254,6 +264,9 @@
         }
 
         </script>
+<?php
+                }
+?>
         <ul>
 <?php
                 foreach ($array as $val) {
