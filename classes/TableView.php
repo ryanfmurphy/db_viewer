@@ -234,7 +234,10 @@
 ?>
         <script>
 
-        function do_array_elem_add(table, primary_key, field_name, val_to_add) {
+        function do_array_elem_add(
+            table, primary_key, field_name, val_to_add,
+            ul_elem, li_elem, input_elem
+        ) {
             var crud_api_uri = '<?= Config::$config['crud_api_uri'] ?>';
             $.ajax({
                 url: crud_api_uri,
@@ -247,7 +250,13 @@
                 },
                 dataType: 'json',
                 success: function(r) {
-                    alert('success');
+                    li_input_become_non_editable(li_elem, input_elem);
+                    // append "add elt" back li to ul
+                    $(ul_elem).append('\
+                        <li onclick="li_become_editable(this)">\
+                            +\
+                        </li>\
+                    ');
                 },
                 error: function() {
                     alert('Something went wrong');
@@ -283,15 +292,18 @@
                 || key_event.which == UNIX_ENTER
             ) {
                 console.log('key_event',key_event);
-                var elem = key_event.target;
-                var td = get_containing_col(elem);
+                var input_elem = key_event.target;
+                var li_elem = input_elem.parentElement;
+                var ul_elem = li_elem.parentElement;
+                var td = get_containing_col(ul_elem);
                 var tr = get_containing_row(td);
 
                 var table = 'entity'; // #todo #fixme get specific table for table_view
                 var primary_key = get_primary_key_from_row(tr);
-                var val_to_add = elem.value;
+                var val_to_add = input_elem.value;
                 var field_name = td.getAttribute('data-field_name');
-                do_array_elem_add(table, primary_key, field_name, val_to_add);
+                do_array_elem_add(table, primary_key, field_name, val_to_add,
+                                  ul_elem, li_elem, input_elem);
             }
 
             // prevent H triggering Show-Hide Mode etc
@@ -316,6 +328,10 @@
             }
         }
 
+        function li_input_become_non_editable(li_elem, input_elem) {
+            li_elem.innerHTML = input_elem.value;
+        }
+
         </script>
 <?php
                 }
@@ -328,7 +344,9 @@
 <?php
                 }
 ?>
-            <li onclick="li_become_editable(this)">+</li>
+            <li onclick="li_become_editable(this)">
+                +
+            </li>
         </ul>
 <?php
                 return ob_get_clean();
