@@ -1,6 +1,8 @@
 <?php
     { # dynamic style / CSS choices
 
+        $link_blue = '#00F';
+
         { # main style
 
             { # choose / setup background image if any
@@ -42,7 +44,7 @@
     }
 
     .link {
-        color: #00F;
+        color: <?= $link_blue ?>;
         text-decoration: underline;
         cursor: pointer;
     }
@@ -226,6 +228,14 @@
 
     .bold_border_above {
         border-top: solid 4px #833;
+    }
+
+    .add_array_item {
+        /* color: <?= $link_blue ?>; */
+        cursor: pointer;
+    }
+    .new_array_item_input {
+        width: 90%;
     }
 
 <?php
