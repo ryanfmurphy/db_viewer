@@ -7,13 +7,9 @@
         # prepend table schema etc
         public static function full_tablename($tablename) {
             $db_type = Config::$config['db_type'];
+            $table_schemas = Config::$config['table_schemas'];
 
             if ($db_type == 'pgsql') {
-
-                $table_schemas = array( #todo get from database
-                    'company' => 'market',
-                    'quote' => 'market',
-                );
 
                 if (isset($table_schemas[$tablename])) {
                     $schema = $table_schemas[$tablename];
