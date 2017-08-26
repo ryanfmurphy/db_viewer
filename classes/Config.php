@@ -28,6 +28,8 @@ class Config {
             # if true, user will log in using db username/password via a form
             'db_prompt_for_auth',
 
+            'table_schemas',
+
             'id_mode',
             'primary_key_field',
             'id_fields_are_uuids',
@@ -290,6 +292,8 @@ class Config {
 
             # if true, make user log in using db username/password via a form
             'db_prompt_for_auth' => false,
+
+            'table_schemas' => array(),
 
             # should these really be configs?
             'inferred_table' => null,
