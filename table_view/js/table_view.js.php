@@ -676,6 +676,15 @@
         var edit_in_place = <?= $edit_in_place ? 'true' : 'false' ?>;
 
         if (show_hide_mode) {
+
+            // make sure we have a table cell
+            // and not e.g. an inner <div> for a wide_col
+            if (elem.tagName != 'TD'
+                && elem.tagName != 'TH'
+            ) {
+                elem = $(elem).closest('td,th').get(0);
+            }
+
             // alt to fold/unfold row
             if (e.altKey) {
                 rowN = $(elem).closest('tr').attr('data-row');

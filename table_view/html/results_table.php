@@ -89,7 +89,9 @@
 <?= TableView::echo_js_handle_edit_link_onclick_fn() ?>
 <?= TableView::echo_js__hit_url_and_rm_row_from_ui__fn() ?>
 
-<table id="query_table">
+<table  id="query_table"
+        data-table_for_update="<?= TableView::table_for_update($tablename_no_quotes) ?>"
+>
 <?php
                     { # vars
                         $primary_key_field = DbUtil::get_primary_key_field($tablename_no_quotes);
@@ -244,7 +246,7 @@
                                 foreach ($row as $field_name => $val) {
                                     if (includeField($field_name, $tablename_no_quotes)) {
 ?>
-        <td
+        <td data-field_name="<?= $field_name ?>"
 <?php
                                         { # figure out classes, if any, for <td>
 
@@ -254,7 +256,10 @@
 ?>
             class="id_field <?= ($idness == 'id' && $id_fields_are_uuids
                                     ? 'uuid_field'
-                                    : null) ?>"
+                                    : '')
+                                . ' ' . ($field_name == $primary_key_field
+                                            ? 'primary_key'
+                                            : '') ?>"
             onclick="selectText(this)"
 <?php
                                             }

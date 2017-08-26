@@ -98,7 +98,9 @@
 
         # format $val as HTML to put in <td>
         #   ($table should have no quotes)
-        public static function val_html($val, $fieldname, $table=null) {
+        public static function val_html(
+            $val, $fieldname, $table=null, $primary_key=null
+        ) {
             $field_render_filters_by_table = Config::$config['field_render_filters_by_table'];
             $obj_editor_uri = Config::$config['obj_editor_uri'];
             $show_images = Config::$config['show_images'];
@@ -109,7 +111,7 @@
             # pg array is <ul>
             if (DbUtil::seems_like_pg_array($val)) {
                 $vals = DbUtil::pg_array2array($val);
-                return self::array_as_html_list($vals);
+                return self::array_as_html_list($vals, true, $fieldname, $primary_key);
             }
             # show images
             elseif ($show_images
@@ -170,7 +172,7 @@
                 $fn = $field_render_filters_by_table[$table][$fieldname];
                 return $fn($val, $obj_editor_uri, $fieldname);
             }
-            # allow html (don't escape val)
+            # allow html (don't escape val) - #todo #factor condition into fn
             elseif ((isset(Config::$config['fields_that_render_html'])
                      && in_array($fieldname, Config::$config['fields_that_render_html']))
                     || (isset(Config::$config['fields_that_render_html_by_table'])
@@ -217,8 +219,157 @@
             }
         }
 
-        public static function array_as_html_list($array) {
-            { ob_start();
+        public static $already_echoed_array_editing_js = false;
+
+        public static function array_as_html_list(
+            $array, $editable=false, $fieldname=null, $primary_key=null
+        ) {
+            if ($editable) {
+                ob_start();
+
+                # only include the <script> once
+                # #todo #fixme - is it ok to have this <script> in the <td>?
+                if (!self::$already_echoed_array_editing_js) {
+                    self::$already_echoed_array_editing_js = true;
+?>
+        <script>
+
+        function do_array_elem_add(
+            table, primary_key, field_name, val_to_add,
+            ul_elem, li_elem, input_elem
+        ) {
+            var crud_api_uri = '<?= Config::$config['crud_api_uri'] ?>';
+            $.ajax({
+                url: crud_api_uri,
+                data: {
+                    action: 'add_to_array',
+                    table: table,
+                    val_to_add: val_to_add,
+                    field_name: field_name,
+                    primary_key: primary_key
+                },
+                dataType: 'json',
+                success: function(result) {
+                    if (result) {
+                        li_input_become_non_editable(li_elem, input_elem);
+                    }
+                    else {
+                        alert('Something went wrong');
+                        var ul = li_elem.parentElement;
+                        ul.removeChild(li_elem);
+                    }
+
+                    // append "add elt" back li to ul
+                    $(ul_elem).append('\
+                        <li onclick="li_become_editable(this)">\
+                            +\
+                        </li>\
+                    '
+                    );
+                },
+                error: function() {
+                    alert("Something went wrong: no proper JSON result from server");
+                }
+            });
+        }
+
+        // #todo #fixme move these fns out to a table_view js file
+        function get_containing_row(elt) {
+            var tr = $(elt).closest('tr').get(0);
+            return tr;
+        }
+        function get_containing_col(elt) {
+            var td = $(elt).closest('td').get(0);
+            return td;
+        }
+        function get_containing_table(elt) {
+            var table = $(elt).closest('table').get(0);
+            return table;
+        }
+        function get_table_for_update(elt_inside) {
+            var table_elem = get_containing_table(elt_inside);
+            return table_elem.getAttribute('data-table_for_update');
+        }
+
+        function get_primary_key_from_row(row) {
+            var primary_key_td = $(row).find('td.primary_key');
+            if (primary_key_td) {
+                var val = primary_key_td.html();
+                return val;
+            }
+            else {
+                console.log('WARNING: called get_primary_key_from_row but found no primary key for row', row);
+            }
+        }
+
+        function add_array_elem_on_enter(key_event) {
+            // #todo #factor with similar obj_editor code
+            var ENTER = 13, UNIX_ENTER = 10;
+            if (key_event.which == ENTER
+                || key_event.which == UNIX_ENTER
+            ) {
+                console.log('key_event',key_event);
+                var input_elem = key_event.target;
+                var li_elem = input_elem.parentElement;
+                var ul_elem = li_elem.parentElement;
+                var td = get_containing_col(ul_elem);
+                var tr = get_containing_row(td);
+
+                var table = get_table_for_update(tr);
+                var primary_key = get_primary_key_from_row(tr);
+                var val_to_add = input_elem.value;
+                var field_name = td.getAttribute('data-field_name');
+                do_array_elem_add(table, primary_key, field_name, val_to_add,
+                                  ul_elem, li_elem, input_elem);
+            }
+
+            // prevent H triggering Show-Hide Mode etc
+            key_event.stopPropagation();
+
+            //return true;
+        }
+
+        function li_become_editable(li, keep_existing_content) {
+            if (!li.getAttribute('has_input')) {
+                var value = keep_existing_content
+                                ? li.innerHTML
+                                : '';
+                li.innerHTML = '\
+                    <input  value="' + value + '"\
+                            onkeypress="return add_array_elem_on_enter(event)"\
+                    />\
+                ';
+                li.setAttribute('has_input', true);
+                var input = li.getElementsByTagName('input')[0];
+                input.focus();
+            }
+        }
+
+        function li_input_become_non_editable(li_elem, input_elem) {
+            li_elem.innerHTML = input_elem.value;
+        }
+
+        </script>
+<?php
+                }
+?>
+        <ul>
+<?php
+                foreach ($array as $val) {
+?>
+            <li><?= htmlentities($val) ?></li>
+<?php
+                }
+?>
+            <li onclick="li_become_editable(this)">
+                +
+            </li>
+        </ul>
+<?php
+                return ob_get_clean();
+            }
+            else {
+                ob_start();
 ?>
         <ul>
 <?php
@@ -715,6 +866,13 @@
                 $macro_names[] = basename($filename, '.json');
             }
             return $macro_names;
+        }
+
+        public static function table_for_update($table_name) {
+            $table_for_update = Config::$config['table_aliases_for_update'];
+            return isset($table_for_update[$table_name])
+                        ? $table_for_update[$table_name]
+                        : $table_name;
         }
 
     }
