@@ -512,7 +512,7 @@
         }
 
         #todo move to a new class TreeView
-        public static function get_tree_url($primary_key) {
+        public static function get_default_tree_url($primary_key) {
 
             $tree_view_uri = Config::$config['tree_view_uri'];
             $default_root_table_for_tree_view = Config::$config['default_root_table_for_tree_view'];
@@ -534,6 +534,39 @@
                 ."&vary_node_colors=".(int)$vary_node_colors;
         }
 
+        #todo move to a new class TreeView
+        public static function get_tree_url($primary_key) {
+            $tree_view_uri = Config::$config['tree_view_uri'];
+            return $tree_view_uri."?root_id=$primary_key";
+        }
+
+        #todo move to a new class TreeView
+        public static function get_full_tree_url($primary_key) {
+            $tree_url = null;
+
+            if (Config::$config['store_tree_views_in_db']) {
+                $rows = Db::sql("select tree_url('$primary_key')");
+                #if (count($rows) != 1) {
+                #    die("looking for full tree_url of primary_key $primary_key"
+                #        ." resulted in more or less than 1 row");
+                #}
+
+                if (count($rows) >= 1) {
+                    $tree_url = $rows[0]['tree_url'];
+                }
+            }
+
+            # no tree stored in DB? use default url
+            if (!$tree_url) {
+                $tree_url = TableView::get_default_tree_url(
+                    $primary_key
+                );
+            }
+
+            return $tree_url;
+        }
+
+        #todo - maybe #factor between table_view and obj_editor's tree button?
         public static function echo_tree_button(
             $obj_editor_uri, $tablename_no_quotes, $primary_key
         ) {

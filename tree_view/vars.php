@@ -5,15 +5,17 @@
     # if the root_id was passed in, get the tree_url for that row from the DB
     # and parse it out into the $_GET vars
     if (isset($requestVars['root_id'])) {
-        $rows = Db::sql("select tree_url('$requestVars[root_id]')");
-        if (count($rows)) {
-            $tree_url = $rows[0]['tree_url'];
+
+        $tree_url = TableView::get_full_tree_url(
+            $requestVars['root_id']
+        );
+
+        { # get requestVars from url
             $query_str = parse_url($tree_url, PHP_URL_QUERY);
             parse_str($query_str, $new_url_vars);
-            $requestVars = array_merge($requestVars, $new_url_vars);
-        }
-        else {
-            die("looking for tree_url of root_id resulted in more or less than 1 row");
+            $requestVars = array_merge(
+                $requestVars, $new_url_vars
+            );
         }
     }
 
