@@ -217,11 +217,12 @@
                 },
                 dataType: 'json',
                 success: function(result) {
+                    console.log('result',result);
                     if (result) {
                         li_input_become_non_editable(li_elem, input_elem);
                     }
                     else {
-                        alert('Something went wrong');
+                        alert('Something went wrong: server reported failure');
                         var ul = li_elem.parentElement;
                         ul.removeChild(li_elem);
                     }
@@ -233,6 +234,8 @@
                         </li>\
                     '
                     );
+                    var new_li = $(ul_elem).children().last().get(0);
+                    li_become_editable(new_li);
                 },
                 error: function() {
                     alert("Something went wrong: no proper JSON result from server");
