@@ -286,9 +286,9 @@
             var table = $(elt).closest('table').get(0);
             return table;
         }
-        function get_table_name_for_update(elt_inside) {
+        function get_table_for_update(elt_inside) {
             var table_elem = get_containing_table(elt_inside);
-            return table_elem.getAttribute('data-table_name_for_update');
+            return table_elem.getAttribute('data-table_for_update');
         }
 
         function get_primary_key_from_row(row) {
@@ -315,7 +315,7 @@
                 var td = get_containing_col(ul_elem);
                 var tr = get_containing_row(td);
 
-                var table = get_table_name_for_update(tr);
+                var table = get_table_for_update(tr);
                 var primary_key = get_primary_key_from_row(tr);
                 var val_to_add = input_elem.value;
                 var field_name = td.getAttribute('data-field_name');
@@ -868,10 +868,10 @@
             return $macro_names;
         }
 
-        public static function table_name_for_update($table_name) {
-            $table_name_for_update = Config::$config['table_aliases_for_update'];
-            return isset($table_name_for_update[$table_name])
-                        ? $table_name_for_update[$table_name]
+        public static function table_for_update($table_name) {
+            $table_for_update = Config::$config['table_aliases_for_update'];
+            return isset($table_for_update[$table_name])
+                        ? $table_for_update[$table_name]
                         : $table_name;
         }
 

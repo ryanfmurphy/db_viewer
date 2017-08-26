@@ -90,7 +90,7 @@
 <?= TableView::echo_js__hit_url_and_rm_row_from_ui__fn() ?>
 
 <table  id="query_table"
-        data-table_name_for_update="<?= TableView::table_name_for_update($tablename_no_quotes) ?>"
+        data-table_for_update="<?= TableView::table_for_update($tablename_no_quotes) ?>"
 >
 <?php
                     { # vars
