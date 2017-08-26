@@ -109,8 +109,9 @@
             #do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
 
             # pg array is <ul>
-            if (DbUtil::seems_like_pg_array($val)) {
-                $vals = DbUtil::pg_array2array($val);
+            if (DbUtil::seems_like_pg_array($val)
+                && is_array($vals = DbUtil::pg_array2array($val))
+            ) {
                 return self::array_as_html_list($vals, true, $fieldname, $primary_key);
             }
             # show images
