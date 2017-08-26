@@ -869,7 +869,7 @@
         }
 
         public static function table_name_for_update($table_name) {
-            $table_name_for_update = Config::$config['table_name_for_update'];
+            $table_name_for_update = Config::$config['table_aliases_for_update'];
             return isset($table_name_for_update[$table_name])
                         ? $table_name_for_update[$table_name]
                         : $table_name;

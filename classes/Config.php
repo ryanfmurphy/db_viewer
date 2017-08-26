@@ -96,7 +96,7 @@ class Config {
 
             # for tables/views that aren't directly updatable
             # you can give them a different table/view to update instead
-            'table_name_for_update',
+            'table_aliases_for_update',
 
 
             # some special settings for when you're on a mobile device
@@ -372,7 +372,7 @@ class Config {
 
             # for tables/views that aren't directly updatable
             # you can give them a different table/view to update instead
-            'table_name_for_update' => array(),
+            'table_aliases_for_update' => array(),
 
 
             # some special settings for if you're on a mobile device
