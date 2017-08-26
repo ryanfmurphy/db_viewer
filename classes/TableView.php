@@ -249,17 +249,26 @@
                     primary_key: primary_key
                 },
                 dataType: 'json',
-                success: function(r) {
-                    li_input_become_non_editable(li_elem, input_elem);
+                success: function(result) {
+                    if (result) {
+                        li_input_become_non_editable(li_elem, input_elem);
+                    }
+                    else {
+                        alert('Something went wrong');
+                        var ul = li_elem.parentElement;
+                        ul.removeChild(li_elem);
+                    }
+
                     // append "add elt" back li to ul
                     $(ul_elem).append('\
                         <li onclick="li_become_editable(this)">\
                             +\
                         </li>\
-                    ');
+                    '
+                    );
                 },
                 error: function() {
-                    alert('Something went wrong');
+                    alert("Something went wrong: no proper JSON result from server");
                 }
             });
         }
@@ -272,6 +281,14 @@
         function get_containing_col(elt) {
             var td = $(elt).closest('td').get(0);
             return td;
+        }
+        function get_containing_table(elt) {
+            var table = $(elt).closest('table').get(0);
+            return table;
+        }
+        function get_table_name_for_update(elt_inside) {
+            var table_elem = get_containing_table(elt_inside);
+            return table_elem.getAttribute('data-table_name_for_update');
         }
 
         function get_primary_key_from_row(row) {
@@ -298,7 +315,7 @@
                 var td = get_containing_col(ul_elem);
                 var tr = get_containing_row(td);
 
-                var table = 'entity'; // #todo #fixme get specific table for table_view
+                var table = get_table_name_for_update(tr);
                 var primary_key = get_primary_key_from_row(tr);
                 var val_to_add = input_elem.value;
                 var field_name = td.getAttribute('data-field_name');
@@ -849,6 +866,13 @@
                 $macro_names[] = basename($filename, '.json');
             }
             return $macro_names;
+        }
+
+        public static function table_name_for_update($table_name) {
+            $table_name_for_update = Config::$config['table_name_for_update'];
+            return isset($table_name_for_update[$table_name])
+                        ? $table_name_for_update[$table_name]
+                        : $table_name;
         }
 
     }

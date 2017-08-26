@@ -82,6 +82,9 @@ class Config {
             'obj_editor_exclude_fields',
             'table_view_exclude_fields_by_table',
 
+
+            # more table view vars
+
             'allow_destructive_queries',
             'disable_delete_button',
 
@@ -90,6 +93,10 @@ class Config {
 
             'bold_border_between_weeks',
             'bold_border_between_days',
+
+            # for tables/views that aren't directly updatable
+            # you can give them a different table/view to update instead
+            'table_name_for_update',
 
 
             # some special settings for when you're on a mobile device
@@ -350,6 +357,8 @@ class Config {
             'obj_editor_exclude_fields' => array(),
             'table_view_exclude_fields_by_table' => array(),
 
+
+            # more table view vars
             'allow_destructive_queries' => false,
             'disable_delete_button' => false,
 
@@ -360,6 +369,11 @@ class Config {
 
             'bold_border_between_weeks' => false,
             'bold_border_between_days' => false,
+
+            # for tables/views that aren't directly updatable
+            # you can give them a different table/view to update instead
+            'table_name_for_update' => array(),
+
 
             # some special settings for if you're on a mobile device
             # that is accessing e.g. a locally hosted DB Viewer yet
