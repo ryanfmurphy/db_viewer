@@ -244,7 +244,7 @@
                                 foreach ($row as $field_name => $val) {
                                     if (includeField($field_name, $tablename_no_quotes)) {
 ?>
-        <td
+        <td data-field_name="<?= $field_name ?>"
 <?php
                                         { # figure out classes, if any, for <td>
 
@@ -254,7 +254,10 @@
 ?>
             class="id_field <?= ($idness == 'id' && $id_fields_are_uuids
                                     ? 'uuid_field'
-                                    : null) ?>"
+                                    : '')
+                                . ' ' . ($field_name == $primary_key_field
+                                            ? 'primary_key'
+                                            : '') ?>"
             onclick="selectText(this)"
 <?php
                                             }

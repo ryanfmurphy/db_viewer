@@ -226,11 +226,55 @@
         ) {
             if ($editable) {
                 ob_start();
-                #todo #fixme only include the <script> once
+
+                # only include the <script> once
+                # #todo #fixme - is it ok to have this <script> in the <td>?
                 if (!self::$already_echoed_array_editing_js) {
                     self::$already_echoed_array_editing_js = true;
 ?>
         <script>
+
+        function do_array_elem_add(table, primary_key, field_name, val_to_add) {
+            var crud_api_uri = '<?= Config::$config['crud_api_uri'] ?>';
+            $.ajax({
+                url: crud_api_uri,
+                data: {
+                    action: 'add_to_array',
+                    table: table,
+                    val_to_add: val_to_add,
+                    field_name: field_name,
+                    primary_key: primary_key
+                },
+                dataType: 'json',
+                success: function(r) {
+                    alert('success');
+                },
+                error: function() {
+                    alert('Something went wrong');
+                }
+            });
+        }
+
+        // #todo #fixme move these fns out to a table_view js file
+        function get_containing_row(elt) {
+            var tr = $(elt).closest('tr').get(0);
+            return tr;
+        }
+        function get_containing_col(elt) {
+            var td = $(elt).closest('td').get(0);
+            return td;
+        }
+
+        function get_primary_key_from_row(row) {
+            var primary_key_td = $(row).find('td.primary_key');
+            if (primary_key_td) {
+                var val = primary_key_td.html();
+                return val;
+            }
+            else {
+                console.log('WARNING: called get_primary_key_from_row but found no primary key for row', row);
+            }
+        }
 
         function add_array_elem_on_enter(key_event) {
             // #todo #factor with similar obj_editor code
@@ -238,11 +282,22 @@
             if (key_event.which == ENTER
                 || key_event.which == UNIX_ENTER
             ) {
-                // #todo #fixme actually add
-                alert('add');
+                console.log('key_event',key_event);
+                var elem = key_event.target;
+                var td = get_containing_col(elem);
+                var tr = get_containing_row(td);
+
+                var table = 'entity'; // #todo #fixme get specific table for table_view
+                var primary_key = get_primary_key_from_row(tr);
+                var val_to_add = elem.value;
+                var field_name = td.getAttribute('data-field_name');
+                do_array_elem_add(table, primary_key, field_name, val_to_add);
             }
+
+            // prevent H triggering Show-Hide Mode etc
             key_event.stopPropagation();
-            return true;
+
+            //return true;
         }
 
         function li_become_editable(li, keep_existing_content) {
@@ -250,8 +305,6 @@
                 var value = keep_existing_content
                                 ? li.innerHTML
                                 : '';
-                // #todo #fixme make sure Show/Hide mode H
-                // doesn't get in the way of typing in the input
                 li.innerHTML = '\
                     <input  value="' + value + '"\
                             onkeypress="return add_array_elem_on_enter(event)"\
