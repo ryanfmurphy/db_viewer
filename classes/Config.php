@@ -207,6 +207,7 @@ class Config {
             'tree_view_relationship_order_by_limit',
             'tree_view_relationship_expression_name',
             'tree_view_relationship_expression',
+            'store_tree_views_in_db',
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir',
@@ -485,6 +486,7 @@ class Config {
             'tree_view_relationship_order_by_limit' => null,
             'tree_view_relationship_expression_name' => null,
             'tree_view_relationship_expression' => null,
+            'store_tree_views_in_db' => false,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,
