@@ -58,34 +58,6 @@
         public static function is_url($val) {
             if (is_string($val)) {
                 return preg_match('@^\w+://@', $val);
-                /*
-                $url_parts = parse_url($val);
-                $protocol = (isset($url_parts['scheme'])
-                                ? $url_parts['scheme']
-                                : null);
-
-                if ($protocol) {
-                    # prevent false positives where after the colon we have stuff other than a link
-                    # e.g. just some notes to self, but with a colon after the header
-
-                    $colonPos = strpos($val, ':');
-                    $hasStuffAfterColon = strlen($val) > $colonPos + 1;
-                    if ($hasStuffAfterColon) {
-                        $charAfterColon = $val[$colonPos + 1];
-                        $isWhitespace = ctype_space($charAfterColon);
-                        return ( !$isWhitespace
-                                    ? true # probably a url
-                                    : false # might be notes etc
-                               );
-                    }
-                    else {
-                        return false;
-                    }
-                }
-                else {
-                    return false;
-                }
-                */
             }
             else {
                 return false;
@@ -101,8 +73,6 @@
             $obj_editor_uri = Config::$config['obj_editor_uri'];
             $show_images = Config::$config['show_images'];
             $image_max_width = Config::$config['image_max_width'];
-
-            #do_log("top of val_html(val='$val', fieldname='$fieldname')\n");
 
             # pg array is <ul>
             if (DbUtil::seems_like_pg_array($val)
