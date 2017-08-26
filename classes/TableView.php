@@ -217,27 +217,35 @@
                 },
                 dataType: 'json',
                 success: function(result) {
+                    console.log('result',result);
                     if (result) {
                         li_input_become_non_editable(li_elem, input_elem);
                     }
                     else {
-                        alert('Something went wrong');
+                        alert('Something went wrong: server reported failure');
                         var ul = li_elem.parentElement;
                         ul.removeChild(li_elem);
                     }
 
                     // append "add elt" back li to ul
-                    $(ul_elem).append('\
-                        <li onclick="li_become_editable(this)">\
-                            +\
-                        </li>\
-                    '
-                    );
+                    var new_li = add_li_with_plus(ul_elem);
+                    li_become_editable(new_li);
                 },
                 error: function() {
                     alert("Something went wrong: no proper JSON result from server");
                 }
             });
+        }
+
+        function add_li_with_plus(ul_elem) {
+            $(ul_elem).append('\
+                <li onclick="li_become_editable(this)">\
+                    +\
+                </li>\
+            '
+            );
+            var new_li = $(ul_elem).children().last().get(0);
+            return new_li;
         }
 
         // #todo #fixme move these fns out to a table_view js file
@@ -304,6 +312,7 @@
                 li.innerHTML = '\
                     <input  value="' + value + '"\
                             onkeypress="return add_array_elem_on_enter(event)"\
+                            onblur="input_li_disappear_if_empty(this)"\
                     />\
                 ';
                 li.setAttribute('has_input', true);
@@ -314,6 +323,15 @@
 
         function li_input_become_non_editable(li_elem, input_elem) {
             li_elem.innerHTML = input_elem.value;
+        }
+
+        function input_li_disappear_if_empty(input_elem) {
+            var li_elem = input_elem.parentElement;
+            var ul_elem = li_elem.parentElement;
+            if (input_elem.value == '') {
+                $(li_elem).remove();
+                add_li_with_plus(ul_elem);
+            }
         }
 
         </script>
