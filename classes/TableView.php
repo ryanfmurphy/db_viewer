@@ -239,7 +239,7 @@
 
         function add_li_with_plus(ul_elem) {
             $(ul_elem).append('\
-                <li onclick="li_become_editable(this)">\
+                <li class="add_array_item" onclick="li_become_editable(this)">\
                     +\
                 </li>\
             '
@@ -311,6 +311,7 @@
                                 : '';
                 li.innerHTML = '\
                     <input  value="' + value + '"\
+                            class="new_array_item_input"\
                             onkeypress="return add_array_elem_on_enter(event)"\
                             onblur="input_li_disappear_if_empty(this)"\
                     />\
@@ -346,7 +347,7 @@
 <?php
                 }
 ?>
-            <li onclick="li_become_editable(this)">
+            <li class="add_array_item" onclick="li_become_editable(this)">
                 +
             </li>
         </ul>
