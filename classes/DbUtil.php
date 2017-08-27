@@ -920,6 +920,23 @@ infer_limit_from_query: query didn't match regex.
             );
         }
 
+        public static function output_db_error($db) {
+?>
+<div>
+    <p>
+        <b>Oops! Could not get a valid result.</b>
+    </p>
+    <p>
+        PDO::errorCode(): <?= $db->errorCode() ?>
+    </p>
+    <div>
+        PDO::errorInfo():
+        <pre><?php print_r($db->errorInfo()) ?></pre>
+    </div>
+</div>
+<?php
+        }
+
     }
 
 }

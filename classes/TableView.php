@@ -37,23 +37,6 @@
         # Rendering and Type-Recognition Functions
         # ----------------------------------------
 
-        public static function output_db_error($db) {
-?>
-<div>
-    <p>
-        <b>Oops! Could not get a valid result.</b>
-    </p>
-    <p>
-        PDO::errorCode(): <?= $db->errorCode() ?>
-    </p>
-    <div>
-        PDO::errorInfo():
-        <pre><?php print_r($db->errorInfo()) ?></pre>
-    </div>
-</div>
-<?php
-        }
-
         #todo maybe move to different class?
         public static function is_url($val) {
             if (is_string($val)) {

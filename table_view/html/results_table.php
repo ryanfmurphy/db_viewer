@@ -298,6 +298,6 @@
             }
             else {
                 $db = Db::conn();
-                TableView::output_db_error($db);
+                DbUtil::output_db_error($db);
             }
         }
