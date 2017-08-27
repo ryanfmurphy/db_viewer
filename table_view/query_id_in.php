@@ -54,7 +54,7 @@
             }
             else {
                 do_log("          nope. output_db_error and echo query\n");
-                TableView::output_db_error(Db::conn());
+                DbUtil::output_db_error(Db::conn());
                 echo "\n\nquery = $query\n";
                 die();
             }

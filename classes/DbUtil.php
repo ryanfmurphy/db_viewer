@@ -61,14 +61,9 @@ if (!class_exists('DbUtil')) {
         # prepend table schema etc
         public static function full_tablename($tablename) {
             $db_type = Config::$config['db_type'];
+            $table_schemas = Config::$config['table_schemas'];
 
             if ($db_type == 'pgsql') {
-
-                $table_schemas = array( #todo get from database
-                    'company' => 'market',
-                    'quote' => 'market',
-                );
-
                 if (isset($table_schemas[$tablename])) {
                     $schema = $table_schemas[$tablename];
                     return "$schema.$tablename";
@@ -82,13 +77,14 @@ if (!class_exists('DbUtil')) {
             }
         }
 
-		# peel off schema/database
-		public static function just_tablename($full_tablename) {
-			$dotPos = strpos($full_tablename, '.');
-			return ($dotPos !== false
-						? substr($full_tablename, $dotPos+1)
-						: $full_tablename);
-		}
+        # peel off schema/database
+        # Q. does this handle quotes in tablename?
+        public static function just_tablename($full_tablename) {
+            $dotPos = strpos($full_tablename, '.');
+            return ($dotPos !== false
+                        ? substr($full_tablename, $dotPos+1)
+                        : $full_tablename);
+        }
 
         # unquote tablename
         public static function strip_quotes($tablename) {
@@ -487,6 +483,7 @@ if (!class_exists('DbUtil')) {
             }
         }
 
+        /*
         public static function is_url($val) {
             if (is_string($val)) {
                 $url_parts = parse_url($val);
@@ -497,6 +494,7 @@ if (!class_exists('DbUtil')) {
                 return false;
             }
         }
+        */
 
         # postgres-specific setup
         public static function set_db_search_path($search_path) {
@@ -898,6 +896,15 @@ infer_limit_from_query: query didn't match regex.
             */
         }
 
+        public static function is_table_name_field($fieldName) {
+            return ((preg_match('/^Tables_in_|^tablename$|^relname$|^tbl_name$/', $fieldName)
+                     || $fieldName == "Name")
+                            ? true
+                            : false);
+        }
+
+
+
         #todo #fixme - make this more consistent, because
         #              all postgres-array-like fields are automatically
         #              interpreted as array lists, whereas JSON is
@@ -918,6 +925,26 @@ infer_limit_from_query: query didn't match regex.
                     && in_array($field_name,
                             $fields_w_json_type)
             );
+        }
+
+
+
+
+        public static function output_db_error($db) {
+?>
+<div>
+    <p>
+        <b>Oops! Could not get a valid result.</b>
+    </p>
+    <p>
+        PDO::errorCode(): <?= $db->errorCode() ?>
+    </p>
+    <div>
+        PDO::errorInfo():
+        <pre><?php print_r($db->errorInfo()) ?></pre>
+    </div>
+</div>
+<?php
         }
 
     }

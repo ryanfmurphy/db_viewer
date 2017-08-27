@@ -1,58 +1,8 @@
 <?php
     class TableView {
 
-        # table name manipulation functions
-        #----------------------------------
-
-        # prepend table schema etc
-        public static function full_tablename($tablename) {
-            $db_type = Config::$config['db_type'];
-            $table_schemas = Config::$config['table_schemas'];
-
-            if ($db_type == 'pgsql') {
-
-                if (isset($table_schemas[$tablename])) {
-                    $schema = $table_schemas[$tablename];
-                    return "$schema.$tablename";
-                }
-                else {
-                    return $tablename;
-                }
-            }
-            else {
-                return $tablename;
-            }
-        }
-
-		# peel off schema/database
-        # Q. does this handle quotes in tablename?
-		public static function just_tablename($full_tablename) {
-			$dotPos = strpos($full_tablename, '.');
-			return ($dotPos !== false
-						? substr($full_tablename, $dotPos+1)
-						: $full_tablename);
-		}
-
-
         # Rendering and Type-Recognition Functions
         # ----------------------------------------
-
-        public static function output_db_error($db) {
-?>
-<div>
-    <p>
-        <b>Oops! Could not get a valid result.</b>
-    </p>
-    <p>
-        PDO::errorCode(): <?= $db->errorCode() ?>
-    </p>
-    <div>
-        PDO::errorInfo():
-        <pre><?php print_r($db->errorInfo()) ?></pre>
-    </div>
-</div>
-<?php
-        }
 
         #todo maybe move to different class?
         public static function is_url($val) {
@@ -110,7 +60,7 @@
                 }
             }
             # links from table_list
-            elseif (self::is_table_name_field($fieldname)) {
+            elseif (DbUtil::is_table_name_field($fieldname)) {
                 { # vars
                     $tablename = $val;
                     $cmp = class_exists('Campaign');
@@ -369,13 +319,6 @@
 <?php
                 return ob_get_clean();
             }
-        }
-
-        public static function is_table_name_field($fieldName) {
-            return ((preg_match('/^Tables_in_|^tablename$|^relname$|^tbl_name$/', $fieldName)
-                     || $fieldName == "Name")
-                            ? true
-                            : false);
         }
 
         public static function get_submit_url($requestVars) {
