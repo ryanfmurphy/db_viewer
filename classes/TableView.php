@@ -60,7 +60,7 @@
                 }
             }
             # links from table_list
-            elseif (self::is_table_name_field($fieldname)) {
+            elseif (DbUtil::is_table_name_field($fieldname)) {
                 { # vars
                     $tablename = $val;
                     $cmp = class_exists('Campaign');
@@ -319,13 +319,6 @@
 <?php
                 return ob_get_clean();
             }
-        }
-
-        public static function is_table_name_field($fieldName) {
-            return ((preg_match('/^Tables_in_|^tablename$|^relname$|^tbl_name$/', $fieldName)
-                     || $fieldName == "Name")
-                            ? true
-                            : false);
         }
 
         public static function get_submit_url($requestVars) {

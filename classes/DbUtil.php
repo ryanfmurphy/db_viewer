@@ -894,6 +894,15 @@ infer_limit_from_query: query didn't match regex.
             */
         }
 
+        public static function is_table_name_field($fieldName) {
+            return ((preg_match('/^Tables_in_|^tablename$|^relname$|^tbl_name$/', $fieldName)
+                     || $fieldName == "Name")
+                            ? true
+                            : false);
+        }
+
+
+
         #todo #fixme - make this more consistent, because
         #              all postgres-array-like fields are automatically
         #              interpreted as array lists, whereas JSON is
@@ -915,6 +924,9 @@ infer_limit_from_query: query didn't match regex.
                             $fields_w_json_type)
             );
         }
+
+
+
 
         public static function output_db_error($db) {
 ?>
