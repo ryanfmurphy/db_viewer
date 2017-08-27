@@ -188,7 +188,10 @@
 
         }
 
-        function echoFormFieldHtml($name, $defaultValues=array(), $table=null) {
+        function echoFormFieldHtml(
+            $name, $defaultValues=array(), $table=null,
+            $primary_key=null
+        ) {
             { # vars
                 $custom_select_magic_value = Config::$config['custom_select_magic_value'];
                 $magic_null_value = Config::$config['magic_null_value'];
@@ -314,6 +317,21 @@
                     else {
                         die("unknown inputTag: '$inputTag'");
                     }
+
+                    /* #todo #fixme - the other page submits
+                       # instead of adding the array item
+
+                    # nicer UI for adding array elts
+                    if (DbUtil::field_is_array($name)
+                        && $primary_key
+                    ) {
+                        $val_txt = $defaultValues[$name];
+                        $vals = DbUtil::pg_array2array($val_txt);
+                        echo TableView::array_as_html_list(
+                            $vals, $name, $table, $primary_key
+                        );
+                    }
+                    */
                 }
 
                 if ($name == 'duration') {
@@ -638,7 +656,12 @@
                         if (doSkipField($name, $only_include_these_fields)) {
                             continue;
                         }
-                        echoFormFieldHtml($name, $defaultValues, $table);
+                        echoFormFieldHtml(
+                            $name, $defaultValues, $table,
+                            (isset($primary_key)
+                                ? $primary_key
+                                : null)
+                        );
                     }
 ?>
                 <script>
