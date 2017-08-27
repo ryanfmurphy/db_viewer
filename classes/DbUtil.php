@@ -483,6 +483,7 @@ if (!class_exists('DbUtil')) {
             }
         }
 
+        /*
         public static function is_url($val) {
             if (is_string($val)) {
                 $url_parts = parse_url($val);
@@ -493,6 +494,7 @@ if (!class_exists('DbUtil')) {
                 return false;
             }
         }
+        */
 
         # postgres-specific setup
         public static function set_db_search_path($search_path) {
