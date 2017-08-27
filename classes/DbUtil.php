@@ -61,14 +61,9 @@ if (!class_exists('DbUtil')) {
         # prepend table schema etc
         public static function full_tablename($tablename) {
             $db_type = Config::$config['db_type'];
+            $table_schemas = Config::$config['table_schemas'];
 
             if ($db_type == 'pgsql') {
-
-                $table_schemas = array( #todo get from database
-                    'company' => 'market',
-                    'quote' => 'market',
-                );
-
                 if (isset($table_schemas[$tablename])) {
                     $schema = $table_schemas[$tablename];
                     return "$schema.$tablename";
@@ -82,13 +77,14 @@ if (!class_exists('DbUtil')) {
             }
         }
 
-		# peel off schema/database
-		public static function just_tablename($full_tablename) {
-			$dotPos = strpos($full_tablename, '.');
-			return ($dotPos !== false
-						? substr($full_tablename, $dotPos+1)
-						: $full_tablename);
-		}
+        # peel off schema/database
+        # Q. does this handle quotes in tablename?
+        public static function just_tablename($full_tablename) {
+            $dotPos = strpos($full_tablename, '.');
+            return ($dotPos !== false
+                        ? substr($full_tablename, $dotPos+1)
+                        : $full_tablename);
+        }
 
         # unquote tablename
         public static function strip_quotes($tablename) {

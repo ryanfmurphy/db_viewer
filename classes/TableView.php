@@ -1,39 +1,6 @@
 <?php
     class TableView {
 
-        # table name manipulation functions
-        #----------------------------------
-
-        # prepend table schema etc
-        public static function full_tablename($tablename) {
-            $db_type = Config::$config['db_type'];
-            $table_schemas = Config::$config['table_schemas'];
-
-            if ($db_type == 'pgsql') {
-
-                if (isset($table_schemas[$tablename])) {
-                    $schema = $table_schemas[$tablename];
-                    return "$schema.$tablename";
-                }
-                else {
-                    return $tablename;
-                }
-            }
-            else {
-                return $tablename;
-            }
-        }
-
-		# peel off schema/database
-        # Q. does this handle quotes in tablename?
-		public static function just_tablename($full_tablename) {
-			$dotPos = strpos($full_tablename, '.');
-			return ($dotPos !== false
-						? substr($full_tablename, $dotPos+1)
-						: $full_tablename);
-		}
-
-
         # Rendering and Type-Recognition Functions
         # ----------------------------------------
 
