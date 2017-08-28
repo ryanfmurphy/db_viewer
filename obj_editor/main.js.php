@@ -352,8 +352,8 @@
             var row_wrapper;
 
             var editing_existing = (cursor
-                && cursor.array == 'new' // one of the stored_rows, not old_stored_rows
-            );
+                                    && cursor.array == 'new' // one of the stored_rows, not old_stored_rows
+                                   );
             if (editing_existing) {
                 // if you're visiting a previous row, and save,
                 // whatever fields you've changed/added get applied
@@ -1238,8 +1238,18 @@
         function clearAllFields() {
             var form = getForm();
             var inputs = getFormInputs(form);
+            var fields_to_not_clear = ['parent_iids']; // #todo #fixme pull out to Config
             for (var i in inputs) {
                 var input = inputs[i];
+
+                // don't clear certain fields
+                var name = input.getAttribute('name');
+                if (name
+                    && fields_to_not_clear.indexOf(name) != -1
+                ) {
+                    continue;
+                }
+
                 clearField(input);
             }
         }
