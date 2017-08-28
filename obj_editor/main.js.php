@@ -322,9 +322,7 @@
 
         // #todo make interface consistent w other click handlers
         // swap event and table_name
-        function viewButtonClickHandler(
-            crud_api_uri, keyEvent, table_name
-        ) {
+        function viewButtonClickHandler(crud_api_uri, keyEvent, table_name) {
             var url = crud_api_uri;
             var action = 'view_'+table_name;
             var extra_vars = {'action': action};
@@ -337,6 +335,12 @@
             console.log('url',url);
             console.log('extra_vars',extra_vars);
             return setFormAction(url, extra_vars);
+        }
+
+        function submitFormForViewLink(crud_api_uri, keyEvent, table_name) {
+            viewButtonClickHandler(crud_api_uri, keyEvent, table_name);
+            var form = getForm();
+            form.submit();
         }
 
         function saveLocallyButtonClickHandler(

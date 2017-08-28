@@ -567,6 +567,10 @@
                                     ? '&minimal'
                                     : '';
 ?>
+                    <span id="view_link" class="link" target="_blank"
+                          onclick="submitFormForViewLink('<?= $crud_api_uri ?>', event, window.scope.table_name)">
+                        view
+                    </span>
                     <a  id="view_all_link" class="link" target="_blank"
                         href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
                         view all

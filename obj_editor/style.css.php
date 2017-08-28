@@ -240,7 +240,7 @@ input#selectTable {
         margin-right: auto;
     }
 
-    #whoami { /*, #view_all_link {*/
+    #whoami {
         display: none;
     }
 
