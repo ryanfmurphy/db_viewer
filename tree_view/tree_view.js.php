@@ -861,8 +861,9 @@ function deepCloneSvgNode(obj) {
         if (k != 'svg_node_id'
             && obj.hasOwnProperty(k)
         ) {
-            if (k == 'children'
-                || k == '_children'
+            if ((k == 'children'
+                 || k == '_children')
+                && obj[k] !== null
             ) {
                 obj2[k] = deepCloneArrayOfSvgNodes(obj[k]);
             }
