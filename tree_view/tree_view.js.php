@@ -566,7 +566,11 @@ var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
 var nest_mode = false;
 var add_parent_instead_of_move = null; // shift-N to add parent, n to move parent
-var selected_nodes = [];
+
+// selection
+var selected_nodes = [];     // the d3 nodes that are selected
+var selected_dom_nodes = []; // the DOM elements of the selected nodes
+                             // (so we can take off the selected class etc)
 
 function get_alert_elem() {
     return document.getElementById('alert');
@@ -578,6 +582,25 @@ function do_alert(msg, color) {
     alert_elem.style.display = 'inline';
     alert_elem.style.background = color;
 }
+
+function deselectAllNodes() {
+    for (var i=0; i < selected_dom_nodes.length; i++) {
+        var node = selected_dom_nodes[i];
+        node.classList.remove('selected');
+    }
+    selected_nodes = [];
+    selected_dom_nodes = [];
+}
+
+function abortNestMode() {
+    nest_mode = false;
+    deselectAllNodes();
+}
+
+/* #todo
+function selectNode(elem, d3_obj) {
+}
+*/
 
 function doNestModeAlert(mode) {
     if (nest_mode === 'click_selected_nodes') {
@@ -607,14 +630,14 @@ function doNestModeAlert(mode) {
     }
     else if (nest_mode === 'error') {
         do_alert("Something went wrong", 'red');
-        nest_mode = false;
+        abortNestMode();
         setTimeout(function() {
             doNestModeAlert(nest_mode);
         }, 1500);
     }
     else if (nest_mode === 'deleted') {
         do_alert('Node(s) deleted', 'darkred');
-        nest_mode = false;
+        abortNestMode();
         setTimeout(function() {
             get_alert_elem().style.display = 'none';
         }, 1500);
@@ -636,7 +659,7 @@ document.addEventListener('keypress', function(event){
         || event.which == N_code
     ) {
         if (nest_mode) {
-            nest_mode = false;
+            abortNestMode();
             doNestModeAlert(nest_mode);
         }
         else if (!nest_mode) {
@@ -834,10 +857,12 @@ function addChildToNode(node, child, doUpdateTree,
 // clicking the Label takes you to that object in db_viewer
 // #todo #fixme #todo split up this huge function
 function clickLabel(d) {
-    console.log(d3.event.shiftKey);
     var table = ('_node_table' in d
                     ? d._node_table
                     : null);
+
+    var clicked_elem = this;
+    var clicked_node = this.parentElement;
 
     // Use _conn_table if possible because if it's here
     // it means the _node_table a polymorphic table read
@@ -856,7 +881,12 @@ function clickLabel(d) {
         if (nest_mode) {
             if (nest_mode == 'click_selected_nodes') {
                 console.log('click_selected_nodes');
+
+                // #todo #factor
                 selected_nodes = [d];
+                selected_dom_nodes = [clicked_node];
+                clicked_node.classList.add('selected');
+
                 nest_mode = 'click_new_parent_or_select_more';
                 doNestModeAlert(nest_mode);
             }
@@ -997,7 +1027,12 @@ function clickLabel(d) {
                 }
                 else if (sub_mode == 'select_more') {
                     console.log('select_more, adding', d);
+
+                    // #todo #factor
                     selected_nodes.push(d);
+                    selected_dom_nodes.push(clicked_node);
+                    clicked_node.classList.add('selected');
+
                     nest_mode = 'click_new_parent_or_select_more';
                     doNestModeAlert(nest_mode);
                 }
