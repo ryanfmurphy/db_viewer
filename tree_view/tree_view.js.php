@@ -1033,12 +1033,12 @@ function clickLabel(d) {
                                     // need to copy all children too
                                     addChildToNode(new_parent, node_to_move, false,
                                                    add_parent_instead_of_move);
-                                    deselectAllNodes();
 
                                     num_succeeded++;
                                     if (num_succeeded == selected_nodes.length) {
                                         // #todo #performance - could find the leafiest common node to update at
                                         updateTree(svg_tree.root);
+                                        deselectAllNodes();
                                     }
                                 }
                             })(node_to_move, parent_id_field);
