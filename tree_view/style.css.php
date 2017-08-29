@@ -53,6 +53,10 @@
                 font: 10px sans-serif;
             }
 
+            .node.selected text {
+                font-weight: bold;
+            }
+
             .link {
                 fill: none;
                 stroke: #ddd;
