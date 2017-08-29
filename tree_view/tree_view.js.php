@@ -721,11 +721,16 @@ document.addEventListener('keypress', function(event){
     }
     // copy markdown Links of selected nodes' URLs to console
     else if (event.which == l_code) {
-        var link_txts = [];
         if (selected_nodes.length > 0) {
+            var link_txts = [];
+            var domain = <?= TableView::quot_str_for_js((isset($_SERVER['HTTPS'])
+                                                         && $_SERVER['HTTPS']
+                                                            ? 'https'
+                                                            : 'http') . '://' . $_SERVER['HTTP_HOST']
+                                                       ) ?>;
             for (var i=0; i < selected_nodes.length; i++) {
                 var node = selected_nodes[i];
-                var this_link = '[' + node.name + '](' + get_tree_url(node.id) + ')';
+                var this_link = '[' + node.name + '](' + domain + get_tree_url(node.id) + ')';
                 link_txts.push(this_link);
             }
             console.log('Markdown Links of Nodes URLs:');
