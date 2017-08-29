@@ -775,15 +775,53 @@ function cloneSvgNode(obj) {
     return obj2;
 }
 
-function addChildToNode(node, child, doUpdateTree) {
+function deepCloneSvgNode(obj) {
+    var obj2 = {};
+    for (var k in obj) {
+        if (k != 'svg_node_id'
+            && obj.hasOwnProperty(k)
+        ) {
+            if (k == 'children'
+                || k == '_children'
+            ) {
+                obj2[k] = deepCloneArrayOfSvgNodes(obj[k]);
+            }
+            else {
+                obj2[k] = obj[k];
+            }
+        }
+    }
+    console.log('obj2',obj2);
+    return obj2;
+}
+
+function deepCloneArrayOfSvgNodes(node_array) {
+    var array2 = [];
+    for (var i=0; i < node_array.length; i++) {
+        var node = node_array[i];
+        var new_node = deepCloneSvgNode(node);
+        array2.push(new_node);
+    }
+    return array2;
+}
+
+// <script>
+function addChildToNode(node, child, doUpdateTree,
+                        cloneAllChildren // used when copying a node to a new parent
+) {
     if (doUpdateTree === undefined) doUpdateTree = true;
+    if (cloneAllChildren === undefined) cloneAllChildren = false;
+
     // #todo #fixme what if node isn't expanded? _children
     if (!node.hasOwnProperty('children')) {
         node.children = [];
     }
-    node.children.push(
-        cloneSvgNode(child)
-    );
+
+    var newChild = (cloneAllChildren
+                        ? deepCloneSvgNode(child)
+                        : cloneSvgNode(child));
+    node.children.push(newChild);
+
     if (doUpdateTree) {
         updateTree(node);
     }
@@ -836,10 +874,12 @@ function clickLabel(d) {
                     for (var i = 0; i < selected_nodes.length; i++) {
                         // #note could be adding a parent instead of moving
                         var node_to_move = selected_nodes[i]; // #todo #fixme
-                        console.log('loop, i', i, 'node_to_move (or add to parent)', node_to_move);
+                        console.log('loop, i', i, 'node_to_move (or add to parent)',
+                                    node_to_move);
 <?php
-    $new_parent_table = 'entity'; #todo #fixme - don't always assume a catchall entity table
-                                  #              probably will need all this stuff in pure JS
+    #todo #fixme - don't always assume a catchall entity table
+    #              probably will need all this stuff in pure JS
+    $new_parent_table = 'entity';
 ?>
                         var primary_key_field =
                             '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
@@ -856,9 +896,6 @@ function clickLabel(d) {
                         var parent_field_is_array =
                             <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
                         var parent_id = new_parent[id_field];
-                        /*var parent_field_val = (parent_field_is_array
-                                                    ? '{'+parent_id+'}'
-                                                    : parent_id);*/
 
                         // build up the AJAX data to update the node
                         var success_callback = null;
@@ -884,8 +921,6 @@ function clickLabel(d) {
                             if (remove_child) {
                                 // #todo #fixme can we always depend on the key being 'id'
                                 var existing_parent_id = node_to_move.parent.id;
-                                //console.log('parent',node_to_move.parent);
-                                //console.log('existing_parent_id',existing_parent_id);
                                 if (existing_parent_id) {
                                     data['val_to_replace'] = existing_parent_id;
                                 }
@@ -900,12 +935,16 @@ function clickLabel(d) {
                                     
                                     if (remove_child) {
                                         console.log('removing child');
-                                        removeChildFromNode(node_to_move.parent, node_to_move, false);
+                                        removeChildFromNode(node_to_move.parent,
+                                                            node_to_move, false);
                                     }
                                     else {
                                         console.log('not removing child');
                                     }
-                                    addChildToNode(new_parent, node_to_move, false);
+                                    // #todo #fixme if copying the node,
+                                    // need to copy all children too
+                                    addChildToNode(new_parent, node_to_move, false,
+                                                   add_parent_instead_of_move);
 
                                     num_succeeded++;
                                     if (num_succeeded == selected_nodes.length) {
