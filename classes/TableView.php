@@ -502,6 +502,16 @@
             return $tree_view_uri."?root_id=$primary_key";
         }
 
+        public static function include_js__get_tree_url() {
+            $tree_view_uri = Config::$config['tree_view_uri'];
+?>
+    function get_tree_url(primary_key) {
+        var tree_view_uri = <?= self::quot_str_for_js($tree_view_uri) ?>;
+        return tree_view_uri + "?root_id=" + primary_key;
+    }
+<?php
+        }
+
         #todo move to a new class TreeView
         public static function get_full_tree_url($primary_key) {
             $tree_url = null;

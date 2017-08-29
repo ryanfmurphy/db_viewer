@@ -679,11 +679,16 @@ function doNestModeAlert(mode) {
     }
 }
 
+<?php TableView::include_js__get_tree_url() ?>
+
 document.addEventListener('keypress', function(event){
     console.log(event);
+
     var n_code = 110;
     var N_code = 78;
     var d_code = 100; // wanted delete but some browsers have DEL go back a page??
+    var l_code = 108; // copy Links
+
     if (event.which == n_code
         || event.which == N_code
     ) {
@@ -710,6 +715,24 @@ document.addEventListener('keypress', function(event){
         }
         else {
             alert("You haven't selected any nodes to delete");
+            nest_mode = 'error';
+        }
+        doNestModeAlert(nest_mode);
+    }
+    // copy markdown Links of selected nodes' URLs to console
+    else if (event.which == l_code) {
+        var link_txts = [];
+        if (selected_nodes.length > 0) {
+            for (var i=0; i < selected_nodes.length; i++) {
+                var node = selected_nodes[i];
+                var this_link = '[' + node.name + '](' + get_tree_url(node.id) + ')';
+                link_txts.push(this_link);
+            }
+            console.log('Markdown Links of Nodes URLs:');
+            console.log(link_txts.join(' -> '));
+        }
+        else {
+            alert("You haven't selected any nodes to copy Links of");
             nest_mode = 'error';
         }
         doNestModeAlert(nest_mode);
