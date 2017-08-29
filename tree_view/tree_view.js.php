@@ -602,12 +602,20 @@ function selectNode(elem, d3_obj) {
 }
 */
 
+// to avoid conflicting nest mode alert timeouts
+// e.g. if you click something and it changes the message
+// but there was already a timeout, it may disappear too soon
+// therefore, keep a seq_number so the timeout only happens
+// if a later request has not been made
+var nest_mode_alert_seq_number = 0;
+
 function doNestModeAlert(mode) {
     if (nest_mode === 'click_selected_nodes') {
         var action = (add_parent_instead_of_move
                         ? 'add a new parent to'
                         : 'move');
         do_alert('Nest mode: click a node to ' + action + ', or N to stop', 'orange');
+        nest_mode_alert_seq_number++;
     }
     else if (nest_mode === 'click_new_parent_or_select_more') {
         var action = (add_parent_instead_of_move
@@ -620,32 +628,53 @@ function doNestModeAlert(mode) {
             ',
             'purple'
         );
+        nest_mode_alert_seq_number++;
     }
     else if (nest_mode === 'success') {
         do_alert('Success. Refresh to see changes.', 'green');
         nest_mode = 'click_selected_nodes';
+
+        nest_mode_alert_seq_number++;
+        var success_alert_timeout_seq_number = nest_mode_alert_seq_number;
         setTimeout(function() {
-            doNestModeAlert(nest_mode);
+            if (nest_mode_alert_seq_number == success_alert_timeout_seq_number) {
+                doNestModeAlert(nest_mode);
+            }
         }, 750);
     }
     else if (nest_mode === 'error') {
         do_alert("Something went wrong", 'red');
         abortNestMode();
+
+        nest_mode_alert_seq_number++;
+        var error_alert_timeout_seq_number = nest_mode_alert_seq_number;
         setTimeout(function() {
-            doNestModeAlert(nest_mode);
+            if (nest_mode_alert_seq_number == error_alert_timeout_seq_number) {
+                doNestModeAlert(nest_mode);
+            }
         }, 1500);
     }
     else if (nest_mode === 'deleted') {
         do_alert('Node(s) deleted', 'darkred');
         abortNestMode();
+
+        nest_mode_alert_seq_number++;
+        var nodes_deleted_alert_timeout_seq_number = nest_mode_alert_seq_number;
         setTimeout(function() {
-            get_alert_elem().style.display = 'none';
+            if (nest_mode_alert_seq_number == nodes_deleted_alert_timeout_seq_number) {
+                get_alert_elem().style.display = 'none';
+            }
         }, 1500);
     }
     else if (nest_mode === false) {
         do_alert('Nest mode disabled', 'blue');
+
+        nest_mode_alert_seq_number++;
+        var disappear_alert_timeout_seq_number = nest_mode_alert_seq_number;
         setTimeout(function() {
-            get_alert_elem().style.display = 'none';
+            if (nest_mode_alert_seq_number == disappear_alert_timeout_seq_number) {
+                get_alert_elem().style.display = 'none';
+            }
         }, 1500);
     }
 }
