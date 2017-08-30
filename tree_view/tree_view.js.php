@@ -859,6 +859,12 @@ function deepCloneSvgNode(obj) {
     var obj2 = {};
     for (var k in obj) {
         if (k != 'svg_node_id'
+            && k != 'parent'
+            && k != 'x'
+            && k != 'y'
+            && k != 'x0'
+            && k != 'y0'
+            && k != 'depth'
             && obj.hasOwnProperty(k)
         ) {
             if ((k == 'children'
