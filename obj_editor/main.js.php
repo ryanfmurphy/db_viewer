@@ -538,10 +538,13 @@
         createRow();
     }
 
-    function saveFile(filename, data, description, ext) {
+    // used to save JSON posts and response text
+    // in unique filenames that don't exist yet
+    function saveFile(filename, filename_after_date, data, description, ext) {
         if (ext === undefined) ext = '';
         console.log(
             'saveFile, filename=', filename,
+            'filename_after_date=', filename_after_date,
             'data=', data
         );
         // do the ajax
@@ -550,6 +553,7 @@
             {
                 data: data,
                 filename: filename,
+                filename_after_date: filename_after_date,
                 ext: ext
             },
             Function.prototype, // noop
@@ -564,7 +568,8 @@
         var data = getStoredRowsLocal();
         var json_dump = JSON.stringify(data);
         saveFile(
-            'stored_rows_dump',
+            'stored_rows',
+            'dump',
             json_dump,
             'JSON dump of stored rows',
             '.json'
@@ -574,7 +579,8 @@
     function saveDumpOfOverallResponse(overall_response) {
         console.log('saveDumpOfOverallResponse:', overall_response);
         saveFile(
-            'stored_rows_response',
+            'stored_rows',
+            'response',
             overall_response,
             'dump of overall response'
         );
