@@ -5,6 +5,12 @@ function md5_to_rgb($md5) {
 }
 
 function name_to_rgb($name) {
-    return md5_to_rgb(md5($name));
+    $node_color_by_table = Config::$config['node_color_by_table'];
+    if (isset($node_color_by_table[$name])) {
+        return $node_color_by_table[$name];
+    }
+    else {
+        return md5_to_rgb(md5($name));
+    }
 }
 
