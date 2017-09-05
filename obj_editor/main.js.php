@@ -1454,29 +1454,6 @@
             }
         }
 
-        /*
-        // only for saving when you're back visiting a prev row.
-        // #todo gracefully handle edge case of going back
-        // and editing an old_stored_row (one that's been saved to DB)
-        function saveStoredRowAtCursor(
-            stored_rows // optional, for caching
-        ) {
-            var cursor = scope.stored_row_cursor;
-            var stored_rows = (stored_rows
-                                        ? stored_rows
-                                        : getStoredRowsLocal());
-            if (cursor === null) {
-                console.log("Don't call saveStoredRowAtCursor for null cursor");
-                return;
-            }
-            else {
-                var row = getStoredRowAtCursor(stored_rows);
-                
-                saveStoredRowsLocal(stored_rows);
-            }
-        }
-        */
-
         function visitRow(row) {
             // change table name if needed
             if (row.hasOwnProperty('table_name')) {
