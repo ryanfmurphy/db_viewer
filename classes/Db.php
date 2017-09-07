@@ -16,7 +16,15 @@ if (!class_exists('Db')) {
 
             $connection_str = ($db_type == 'sqlite'
                                 ? "$db_type:$db_name"
-                                : "$db_type:host=$db_host;dbname=$db_name");
+                                : "$db_type:host=$db_host;"
+                                    . "dbname=$db_name;"
+                                    . ($db_type == 'mysql'
+                                            ? "charset=utf8" # this charset is to fix issues with PHP
+                                                             # understanding/rendering Unicode characters
+                                                             # when talking with MySQL / MariaDB
+                                                             #      ~ 2017-09-11 RFM
+                                            : "")
+                              );
 
             try {
                 $db = self::$db = new PDO(
