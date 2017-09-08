@@ -10,6 +10,8 @@
 
     var save_json_dump_of_stored_rows =
         <?= (int)Config::$config['save_json_dump_of_stored_rows'] ?>;
+    var change_to_update_after_insert =
+        <?= (int)Config::$config['change_to_update_after_insert'] ?>;
 
     function hasPreviouslyStoredRows() {
         var stored_rows = localStorage.getItem('stored_rows');
@@ -614,11 +616,14 @@
                                 respond_callback('Thanks! Row Created');
 
                                 // change Create form to Update form after Insert submission
-                                // #todo #fixme only do this if a config is set
-                                var created_obj = result[0];
-                                if (created_obj) {
-                                    console.log('primary key val =', created_obj.id);
-                                    //changeCreateButtonToUpdateButton();
+                                if (change_to_update_after_insert) {
+                                    var created_obj = result[0];
+                                    if (created_obj) {
+                                        edit = true;
+                                        primary_key = created_obj[primary_key_field];
+                                        console.log('primary key val =', primary_key);
+                                        changeCreateButtonToUpdateButton();
+                                    }
                                 }
                             }
                             else if (action == 'update') {
@@ -640,6 +645,16 @@
             }
         }
     }
+
+
+    var edit = <?= (int)$edit ?>;
+    var primary_key = <?= isset($primary_key)
+                            ? '"'.str_replace('"', '\"', $primary_key).'"'
+                            : 'null' ?>;
+    var primary_key_field = <?= isset($primary_key_field)
+                                    ? '"'.str_replace('"', '\"', $primary_key_field).'"'
+                                    : 'null' ?>;
+
 
     // #todo code cleanup
     function submitForm(url, event, action,
@@ -680,10 +695,7 @@
                         postData += "&show_sql_query=1";
                     }
 
-                    var edit = <?= (int)$edit ?>;
                     if (edit) {
-                        var primary_key = "<?= str_replace('"', '\"', $primary_key) ?>";
-                        var primary_key_field = "<?= str_replace('"', '\"', $primary_key_field) ?>";
 
                         // update needs a where clause
                         if (   action == 'update'
