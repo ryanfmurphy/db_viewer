@@ -680,22 +680,20 @@
                         postData += "&show_sql_query=1";
                     }
 
-<?php
-            if ($edit) {
-                # escape for js
-                $primary_key__esc = str_replace('"', '\"', $primary_key);
-?>
-                    // update needs a where clause
-                    if (   action == 'update'
-                        || action == 'delete'
-                    ) {
-                        console.log('update');
-                        postData += "&" + "where_clauses[<?= $primary_key_field ?>]"
-                                                    + "=" + "<?= $primary_key__esc ?>";
+                    var edit = <?= (int)$edit ?>;
+                    if (edit) {
+                        var primary_key = "<?= str_replace('"', '\"', $primary_key) ?>";
+                        var primary_key_field = "<?= str_replace('"', '\"', $primary_key_field) ?>";
+
+                        // update needs a where clause
+                        if (   action == 'update'
+                            || action == 'delete'
+                        ) {
+                            console.log('update');
+                            postData += "&" + "where_clauses[" + primary_key_field + "]"
+                                                        + "=" + primary_key;
+                        }
                     }
-<?php
-            }
-?>
                 }
             }
 
