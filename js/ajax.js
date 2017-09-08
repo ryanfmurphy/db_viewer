@@ -69,14 +69,22 @@
         }
     }
 
-    function ajaxCallback(xhttp, success, error) {
-        if (xhttp.readyState == 4) {
-            if (xhttp.status == 200) {
-                success(xhttp);
+    // if "callback" AND "error" are provided,
+    // use error as the error callback fn
+    // else, just use "callback"
+    function ajaxCallback(xhttp, callback, error) {
+        if (error) {
+            if (xhttp.readyState == 4) {
+                if (xhttp.status == 200) {
+                    callback(xhttp);
+                }
+                else {
+                    error(xhttp);
+                }
             }
-            else {
-                error(xhttp);
-            }
+        }
+        else {
+            callback(xhttp);
         }
     }
 
@@ -84,7 +92,9 @@
     function doAjax(method, url, data, success, error) {
         var xhttp = new XMLHttpRequest();
 
-        var queryString = obj2queryString(data);
+        var queryString = (typeof data == 'string'
+                                ? data
+                                : obj2queryString(data));
 
         xhttp.onreadystatechange = function() {
             return ajaxCallback(xhttp, success, error);

@@ -580,61 +580,62 @@
         );
     }
 
-    function formSubmitCallback(xhttp, event, action, respond_callback) {
-
+    function formSubmitCallback(/*xhttp,*/ event, action, respond_callback) {
         // respond_callback is the fn that will be called with the response msg to the user
         // alert by default
         // e.g. Thanks! Row Created
-        if (respond_callback === undefined) respond_callback = alert;
 
-        if (xhttp.readyState == 4) {
-            if (xhttp.status == 200) {
-                result = JSON.parse(xhttp.responseText);
-                if (event && event.altKey) {
-                    alert('SQL Query Logged to Console');
+        return function(xhttp) {
+            if (respond_callback === undefined) respond_callback = alert;
+
+            if (xhttp.readyState == 4) {
+                if (xhttp.status == 200) {
                     result = JSON.parse(xhttp.responseText);
-                    console.log(result.sql);
-                }
-                else if (result) {
-                    if ('success' in result
-                        && !result.success
-                    ) {
-                        var error_details = result.error_info[2];
-                        respond_callback('Failed... Error '
-                                + result.error_code + ': '
-                                + error_details
-                        );
+                    if (event && event.altKey) {
+                        alert('SQL Query Logged to Console');
+                        result = JSON.parse(xhttp.responseText);
+                        console.log(result.sql);
                     }
-                    else { // success
-                        if (action == 'delete') {
-                            respond_callback('Thanks! Row Deleted');
+                    else if (result) {
+                        if ('success' in result
+                            && !result.success
+                        ) {
+                            var error_details = result.error_info[2];
+                            respond_callback('Failed... Error '
+                                    + result.error_code + ': '
+                                    + error_details
+                            );
                         }
-                        else if (action == 'create') {
-                            respond_callback('Thanks! Row Created');
-                            //#todo can only do this change if we get the primary_key var set
-                            //changeCreateButtonToUpdateButton();
-                        }
-                        else if (action == 'update') {
-                            respond_callback('Thanks! Row Updated');
-                        }
-                        else {
-                            respond_callback('Thanks! Unknown action "' + action + '" done to Row');
+                        else { // success
+                            if (action == 'delete') {
+                                respond_callback('Thanks! Row Deleted');
+                            }
+                            else if (action == 'create') {
+                                respond_callback('Thanks! Row Created');
+                                //#todo can only do this change if we get the primary_key var set
+                                //changeCreateButtonToUpdateButton();
+                            }
+                            else if (action == 'update') {
+                                respond_callback('Thanks! Row Updated');
+                            }
+                            else {
+                                respond_callback('Thanks! Unknown action "' + action + '" done to Row');
+                            }
                         }
                     }
+                    else {
+                        respond_callback('Failed... Try alt-clicking to see the Query');
+                    }
+                    console.log(result);
                 }
                 else {
-                    respond_callback('Failed... Try alt-clicking to see the Query');
+                    respond_callback('Non-200 Response Code: ' + xhttp.status);
                 }
-                console.log(result);
-            }
-            else {
-                respond_callback('Non-200 Response Code: ' + xhttp.status);
             }
         }
     }
 
-    // #todo #fixme factor this into a more generalized AJAX function
-    // like jQuery's $.ajax: separate the AJAX stuff from the submitForm stuff
+    // #todo code cleanup
     function submitForm(url, event, action,
                         obj, respond_callback // optional args
     ) {
@@ -654,21 +655,13 @@
         }
 
         { // do ajax
-            var xhttp = new XMLHttpRequest();
-            {   // callback
-                xhttp.onreadystatechange = function() {
-                    return formSubmitCallback(
-                        xhttp, event, action, respond_callback
-                    );
-                }
-            }
-            { // do post
-                xhttp.open("POST", url, true);
-                xhttp.setRequestHeader(
-                    "Content-type",
-                    "application/x-www-form-urlencoded"
+            var callback = /*function() { return */
+                formSubmitCallback(
+                    /*xhttp,*/ event, action, respond_callback
                 );
+            //};
 
+            { // do post
                 var valsToAlwaysInclude = scope;
                 var postData  = (action == 'delete'
                                 ? "" // don't include key-val pairs for delete
@@ -703,7 +696,8 @@
 ?>
                 }
             }
-            xhttp.send(postData);
+
+            doAjax('POST', url, postData, callback);
         }
     }
 
