@@ -262,8 +262,12 @@ if (!class_exists('Db')) {
             $tableNameQuoted = DbUtil::quote_ident($tableName);
             $sql = "
                 insert into $tableNameQuoted ($varNameList)
-                values ($varValList);
+                values ($varValList)
             ";
+            if (Config::$config['db_type'] == 'pgsql') {
+                $sql .= " returning * ";
+            }
+            $sql .= ';';
 
             if ($showSqlQuery) {
                 return array('sql'=>$sql);
