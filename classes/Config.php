@@ -27,6 +27,7 @@ class Config {
             'db_name',
             # if true, user will log in using db username/password via a form
             'db_prompt_for_auth',
+            'session_timeout_secs',
 
             'table_schemas',
 
@@ -246,6 +247,12 @@ class Config {
 
     # username/pw auth: populate config and check/populate session vars
     public static function handle_auth(&$config) {
+        $session_timeout_secs = Config::$config['session_timeout_secs'];
+        if ($session_timeout_secs) {
+            ini_set('session.cookie_lifetime', $session_timeout_secs);
+            ini_set('session.gc_maxlifetime', $session_timeout_secs);
+        }
+
         $requestVars = array_merge($_GET, $_POST);
         if ($config['db_prompt_for_auth']) {
             if (!isset($_SESSION)) {
@@ -287,6 +294,7 @@ class Config {
 
             # if true, make user log in using db username/password via a form
             'db_prompt_for_auth' => false,
+            'session_timeout_secs' => null,
 
             'table_schemas' => array(),
 
