@@ -371,6 +371,11 @@ if (!class_exists('Db')) {
                 $idField = self::get_id_field_name($table_name, $id_name_scheme);
 
                 $sql .= self::build_where_clause($whereClauses);
+                # return data
+                if (Config::$config['db_type'] == 'pgsql') {
+                    $sql .= " returning * ";
+                }
+
                 $sql .= ';';
             }
 
