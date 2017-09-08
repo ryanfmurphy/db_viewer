@@ -2,9 +2,14 @@
 
 <?php
     include("$trunk/js/ajax.js");
+    $table_field_spaces_to_underscores =
+        Config::$config['table_field_spaces_to_underscores'];
 ?>
 
 { // main javascript
+
+    var save_json_dump_of_stored_rows =
+        <?= (int)Config::$config['save_json_dump_of_stored_rows'] ?>;
 
     function hasPreviouslyStoredRows() {
         var stored_rows = localStorage.getItem('stored_rows');
@@ -17,10 +22,6 @@
         }
     }
 
-<?php
-    $table_field_spaces_to_underscores = Config::$config['table_field_spaces_to_underscores'];
-?>
-
     // global-ish state
     scope = {
         table_name: '<?= $table ?>',
@@ -31,9 +32,10 @@
         // {array: 'new'/'old', idx:int}
         stored_row_cursor: null,
 
-        table_field_spaces_to_underscores: <?= $table_field_spaces_to_underscores
-                                                    ? 1
-                                                    : 0 ?>
+        table_field_spaces_to_underscores:
+            <?= $table_field_spaces_to_underscores
+                    ? 1
+                    : 0 ?>
     };
 
     // get array of form inputs / textareas / etc
@@ -402,13 +404,9 @@
 
             if (stored_rows.length) {
 
-<?php
-    if (Config::$config['save_json_dump_of_stored_rows']) {
-?>
-            saveJsonDumpOfStoredRows();
-<?php
-    }
-?>
+                if (save_json_dump_of_stored_rows) {
+                    saveJsonDumpOfStoredRows();
+                }
 
                 // prepare responses array and callback fn to collect and display responses
                 // append all the response msgs into an array instead of showing them one by one
@@ -429,13 +427,9 @@
                     // do we have all the responses? show them
                     if (responses.length >= stored_rows.length) {
                         var overall_response = responses.join('\n\n');
-<?php
-    if (Config::$config['save_json_dump_of_stored_rows']) {
-?>
-                        saveDumpOfOverallResponse(overall_response);
-<?php
-    }
-?>
+                        if (save_json_dump_of_stored_rows) {
+                            saveDumpOfOverallResponse(overall_response);
+                        }
                         alert( overall_response );
                     }
                 }
