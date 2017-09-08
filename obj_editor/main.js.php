@@ -580,7 +580,7 @@
         );
     }
 
-    function formSubmitCallback(/*xhttp,*/ event, action, respond_callback) {
+    function formSubmitCallback(event, action, respond_callback) {
         // respond_callback is the fn that will be called with the response msg to the user
         // alert by default
         // e.g. Thanks! Row Created
@@ -655,11 +655,7 @@
         }
 
         { // do ajax
-            var callback = /*function() { return */
-                formSubmitCallback(
-                    /*xhttp,*/ event, action, respond_callback
-                );
-            //};
+            var callback = formSubmitCallback(event, action, respond_callback);
 
             { // do post
                 var valsToAlwaysInclude = scope;
