@@ -612,8 +612,14 @@
                             }
                             else if (action == 'create') {
                                 respond_callback('Thanks! Row Created');
-                                //#todo can only do this change if we get the primary_key var set
-                                //changeCreateButtonToUpdateButton();
+
+                                // change Create form to Update form after Insert submission
+                                // #todo #fixme only do this if a config is set
+                                var created_obj = result[0];
+                                if (created_obj) {
+                                    console.log('primary key val =', created_obj.id);
+                                    //changeCreateButtonToUpdateButton();
+                                }
                             }
                             else if (action == 'update') {
                                 respond_callback('Thanks! Row Updated');
