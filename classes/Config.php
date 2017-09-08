@@ -234,6 +234,7 @@ class Config {
             'custom_query_links',
 
             'obj_editor_show_image',
+            'change_to_update_after_insert',
 
             # kanban view
             'kanban_table',
@@ -512,6 +513,7 @@ class Config {
             'custom_query_links' => null,
 
             'obj_editor_show_image' => false,
+            'change_to_update_after_insert' => true,
 
             # kanban view
             'kanban_table' => 'todo',

@@ -262,8 +262,12 @@ if (!class_exists('Db')) {
             $tableNameQuoted = DbUtil::quote_ident($tableName);
             $sql = "
                 insert into $tableNameQuoted ($varNameList)
-                values ($varValList);
+                values ($varValList)
             ";
+            if (Config::$config['db_type'] == 'pgsql') {
+                $sql .= " returning * ";
+            }
+            $sql .= ';';
 
             if ($showSqlQuery) {
                 return array('sql'=>$sql);
@@ -367,6 +371,11 @@ if (!class_exists('Db')) {
                 $idField = self::get_id_field_name($table_name, $id_name_scheme);
 
                 $sql .= self::build_where_clause($whereClauses);
+                # return data
+                if (Config::$config['db_type'] == 'pgsql') {
+                    $sql .= " returning * ";
+                }
+
                 $sql .= ';';
             }
 

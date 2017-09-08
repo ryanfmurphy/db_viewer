@@ -2,9 +2,16 @@
 
 <?php
     include("$trunk/js/ajax.js");
+    $table_field_spaces_to_underscores =
+        Config::$config['table_field_spaces_to_underscores'];
 ?>
 
 { // main javascript
+
+    var save_json_dump_of_stored_rows =
+        <?= (int)Config::$config['save_json_dump_of_stored_rows'] ?>;
+    var change_to_update_after_insert =
+        <?= (int)Config::$config['change_to_update_after_insert'] ?>;
 
     function hasPreviouslyStoredRows() {
         var stored_rows = localStorage.getItem('stored_rows');
@@ -17,10 +24,6 @@
         }
     }
 
-<?php
-    $table_field_spaces_to_underscores = Config::$config['table_field_spaces_to_underscores'];
-?>
-
     // global-ish state
     scope = {
         table_name: '<?= $table ?>',
@@ -31,9 +34,10 @@
         // {array: 'new'/'old', idx:int}
         stored_row_cursor: null,
 
-        table_field_spaces_to_underscores: <?= $table_field_spaces_to_underscores
-                                                    ? 1
-                                                    : 0 ?>
+        table_field_spaces_to_underscores:
+            <?= $table_field_spaces_to_underscores
+                    ? 1
+                    : 0 ?>
     };
 
     // get array of form inputs / textareas / etc
@@ -402,13 +406,9 @@
 
             if (stored_rows.length) {
 
-<?php
-    if (Config::$config['save_json_dump_of_stored_rows']) {
-?>
-            saveJsonDumpOfStoredRows();
-<?php
-    }
-?>
+                if (save_json_dump_of_stored_rows) {
+                    saveJsonDumpOfStoredRows();
+                }
 
                 // prepare responses array and callback fn to collect and display responses
                 // append all the response msgs into an array instead of showing them one by one
@@ -429,13 +429,9 @@
                     // do we have all the responses? show them
                     if (responses.length >= stored_rows.length) {
                         var overall_response = responses.join('\n\n');
-<?php
-    if (Config::$config['save_json_dump_of_stored_rows']) {
-?>
-                        saveDumpOfOverallResponse(overall_response);
-<?php
-    }
-?>
+                        if (save_json_dump_of_stored_rows) {
+                            saveDumpOfOverallResponse(overall_response);
+                        }
                         alert( overall_response );
                     }
                 }
@@ -586,61 +582,81 @@
         );
     }
 
-    function formSubmitCallback(xhttp, event, action, respond_callback) {
-
+    function formSubmitCallback(event, action, respond_callback) {
         // respond_callback is the fn that will be called with the response msg to the user
         // alert by default
         // e.g. Thanks! Row Created
-        if (respond_callback === undefined) respond_callback = alert;
 
-        if (xhttp.readyState == 4) {
-            if (xhttp.status == 200) {
-                result = JSON.parse(xhttp.responseText);
-                if (event && event.altKey) {
-                    alert('SQL Query Logged to Console');
+        return function(xhttp) {
+            if (respond_callback === undefined) respond_callback = alert;
+
+            if (xhttp.readyState == 4) {
+                if (xhttp.status == 200) {
                     result = JSON.parse(xhttp.responseText);
-                    console.log(result.sql);
-                }
-                else if (result) {
-                    if ('success' in result
-                        && !result.success
-                    ) {
-                        var error_details = result.error_info[2];
-                        respond_callback('Failed... Error '
-                                + result.error_code + ': '
-                                + error_details
-                        );
+                    if (event && event.altKey) {
+                        alert('SQL Query Logged to Console');
+                        result = JSON.parse(xhttp.responseText);
+                        console.log(result.sql);
                     }
-                    else { // success
-                        if (action == 'delete') {
-                            respond_callback('Thanks! Row Deleted');
+                    else if (result) {
+                        if ('success' in result
+                            && !result.success
+                        ) {
+                            var error_details = result.error_info[2];
+                            respond_callback('Failed... Error '
+                                    + result.error_code + ': '
+                                    + error_details
+                            );
                         }
-                        else if (action == 'create') {
-                            respond_callback('Thanks! Row Created');
-                            //#todo can only do this change if we get the primary_key var set
-                            //changeCreateButtonToUpdateButton();
-                        }
-                        else if (action == 'update') {
-                            respond_callback('Thanks! Row Updated');
-                        }
-                        else {
-                            respond_callback('Thanks! Unknown action "' + action + '" done to Row');
+                        else { // success
+                            if (action == 'delete') {
+                                respond_callback('Thanks! Row Deleted');
+                            }
+                            else if (action == 'create') {
+                                respond_callback('Thanks! Row Created');
+
+                                // change Create form to Update form after Insert submission
+                                if (change_to_update_after_insert) {
+                                    var created_obj = result[0];
+                                    if (created_obj) {
+                                        edit = true;
+                                        primary_key = created_obj[primary_key_field];
+                                        console.log('primary key val =', primary_key);
+                                        changeCreateButtonToUpdateButton();
+                                    }
+                                }
+                            }
+                            else if (action == 'update') {
+                                respond_callback('Thanks! Row Updated');
+                            }
+                            else {
+                                respond_callback('Thanks! Unknown action "' + action + '" done to Row');
+                            }
                         }
                     }
+                    else {
+                        respond_callback('Failed... Try alt-clicking to see the Query');
+                    }
+                    console.log(result);
                 }
                 else {
-                    respond_callback('Failed... Try alt-clicking to see the Query');
+                    respond_callback('Non-200 Response Code: ' + xhttp.status);
                 }
-                console.log(result);
-            }
-            else {
-                respond_callback('Non-200 Response Code: ' + xhttp.status);
             }
         }
     }
 
-    // #todo #fixme factor this into a more generalized AJAX function
-    // like jQuery's $.ajax: separate the AJAX stuff from the submitForm stuff
+
+    var edit = <?= (int)$edit ?>;
+    var primary_key = <?= isset($primary_key)
+                            ? '"'.str_replace('"', '\"', $primary_key).'"'
+                            : 'null' ?>;
+    var primary_key_field = <?= isset($primary_key_field)
+                                    ? '"'.str_replace('"', '\"', $primary_key_field).'"'
+                                    : 'null' ?>;
+
+
+    // #todo code cleanup
     function submitForm(url, event, action,
                         obj, respond_callback // optional args
     ) {
@@ -660,21 +676,9 @@
         }
 
         { // do ajax
-            var xhttp = new XMLHttpRequest();
-            {   // callback
-                xhttp.onreadystatechange = function() {
-                    return formSubmitCallback(
-                        xhttp, event, action, respond_callback
-                    );
-                }
-            }
-            { // do post
-                xhttp.open("POST", url, true);
-                xhttp.setRequestHeader(
-                    "Content-type",
-                    "application/x-www-form-urlencoded"
-                );
+            var callback = formSubmitCallback(event, action, respond_callback);
 
+            { // do post
                 var valsToAlwaysInclude = scope;
                 var postData  = (action == 'delete'
                                 ? "" // don't include key-val pairs for delete
@@ -691,25 +695,21 @@
                         postData += "&show_sql_query=1";
                     }
 
-<?php
-            if ($edit) {
-                # escape for js
-                $primary_key__esc = str_replace('"', '\"', $primary_key);
-?>
-                    // update needs a where clause
-                    if (   action == 'update'
-                        || action == 'delete'
-                    ) {
-                        console.log('update');
-                        postData += "&" + "where_clauses[<?= $primary_key_field ?>]"
-                                                    + "=" + "<?= $primary_key__esc ?>";
+                    if (edit) {
+
+                        // update needs a where clause
+                        if (   action == 'update'
+                            || action == 'delete'
+                        ) {
+                            console.log('update');
+                            postData += "&" + "where_clauses[" + primary_key_field + "]"
+                                                        + "=" + primary_key;
+                        }
                     }
-<?php
-            }
-?>
                 }
             }
-            xhttp.send(postData);
+
+            doAjax('POST', url, postData, callback);
         }
     }
 
