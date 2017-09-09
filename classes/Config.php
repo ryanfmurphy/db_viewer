@@ -236,6 +236,7 @@ class Config {
 
             'obj_editor_show_image',
             'change_to_update_after_insert',
+            'alt_enter_reverses_change2update_setting',
 
         );
 
@@ -514,6 +515,7 @@ class Config {
 
             'obj_editor_show_image' => false,
             'change_to_update_after_insert' => true,
+            'alt_enter_reverses_change2update_setting' => true,
 
         );
 

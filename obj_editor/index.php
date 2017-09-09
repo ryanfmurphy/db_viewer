@@ -291,12 +291,18 @@
                     if ($inputTag == 'input') {
 ?>
                 <input
-                    <?= $commonInputAttrs ?>
-                    autocapitalize="none"
+                  <?= $commonInputAttrs ?>
+                  autocapitalize="none"
 <?php
+                    if (Config::$config['alt_enter_reverses_change2update_setting']) {
+?>
+                  onkeypress="configureCreateUiOnEnter(event)"
+<?php
+                    }
+
                     if (isset($defaultValues[$name])) {
 ?>
-                    value="<?= htmlentities($defaultValues[$name]) ?>"
+                  value="<?= htmlentities($defaultValues[$name]) ?>"
 <?php
                     }
 ?>
