@@ -598,7 +598,7 @@
 
     // GLOBALS
     var show_hide_mode = 0;
-    var sql = <?= TableView::quot_str_for_js(str_replace("\n","\n ",$sql)) ?>;
+    var sql = <?= Utility::quot_str_for_js(str_replace("\n","\n ",$sql)) ?>;
 
 
     // HANDLERS
@@ -725,7 +725,7 @@
                 var primary_key = 'snoodlydoo'; // #todo #fixme
                 var id_field = 'id'; // #todo #fixme
                 var crud_api_uri = <?=
-                    TableView::quot_str_for_js(
+                    Utility::quot_str_for_js(
                         Config::$config['crud_api_uri']
                     )
                 ?>;
@@ -852,7 +852,7 @@
 
 <?php
     $db_viewer_macro_uri = Config::$config['db_viewer_macro_uri'];
-    $db_viewer_macro_uri_js = TableView::quot_str_for_js($db_viewer_macro_uri);
+    $db_viewer_macro_uri_js = Utility::quot_str_for_js($db_viewer_macro_uri);
 ?>
     var db_viewer_macro_uri = <?= $db_viewer_macro_uri_js ?>;
 
@@ -922,7 +922,7 @@
 <?php
     if ($macroName) {
 ?>
-    playMacro(<?= TableView::quot_str_for_js($macroName) ?>);
+    playMacro(<?= Utility::quot_str_for_js($macroName) ?>);
 <?php
     }
 ?>

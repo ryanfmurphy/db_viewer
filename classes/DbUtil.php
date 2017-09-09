@@ -1,19 +1,4 @@
 <?php
-#todo move this function / class elsewhere
-if (!class_exists('Utility')) {
-
-    class Utility {
-
-        public static function ends_with($needle,$haystack) {
-            $len = strlen($needle);
-            $LEN = strlen($haystack);
-            return substr($haystack, $LEN - $len) == $needle;
-        }
-
-    }
-
-}
-
 if (!class_exists('DbUtil')) {
 
     class DbUtil {
