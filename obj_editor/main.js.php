@@ -621,9 +621,11 @@
                                 if (change_to_update_after_insert) {
                                     var created_obj = result[0];
                                     if (created_obj) {
+                                        // primary_key, global vars
                                         edit = true;
                                         primary_key = created_obj[primary_key_field];
                                         console.log('primary key val =', primary_key);
+                                        setFormVal(primary_key_field, primary_key, true);
 
                                         // tree link
                                         var tree_link = document.getElementById('tree_link');
@@ -787,8 +789,11 @@
         return data[name];
     }
 
-    function setFormVal(name, val) {
+    function setFormVal(name, val, create_if_not_exists) {
         var formInputs = getFormInputs(getForm());
+        if (create_if_not_exists) {
+            addNewInputIfNotExists(name);
+        }
         for (var i=0; i < formInputs.length; i++) {
             var input = formInputs[i];
             if (input.getAttribute('name') == name) {
@@ -809,7 +814,6 @@
         var id = getFormVal(id_field);
         console.log(id);
         resetToCreateTable(null, true);
-        addNewInputIfNotExists(parent_id_field);
 
         // #todo maybe #factor common code
         // for parent_id_field stuff
@@ -818,7 +822,7 @@
                                     ? '{'+id+'}'
                                     : id);
 
-        setFormVal(parent_id_field, parent_field_val);
+        setFormVal(parent_id_field, parent_field_val, true);
         focusFirstFormField();
     }
 
