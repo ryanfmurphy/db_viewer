@@ -591,19 +591,31 @@
                         create child
                     </span>
 <?php
-                if (isset($primary_key)
-                    && $primary_key
-                ) {
-                    $primary_key_field = DbUtil::get_primary_key_field($default_root_table_for_tree_view);
+
+                { # tree link
+                    $tree_url = (isset($primary_key)
+                                    ? TableView::get_tree_url($primary_key)
+                                    : null);
 ?>
                     <a  class="link"
+                        id="tree_link"
                         target="_blank"
-                        href="<?= TableView::get_tree_url($primary_key) ?>">
+                        href="<?= $tree_url ?>"
+<?php
+                    if (!$tree_url) {
+?>
+                        style="display: none"
+<?php
+                    }
+?>
+                    >
                         tree
                     </a>
 <?php
                 }
+
             }
+
             #todo #fixme this trello link should be a plugin, not part of the code code
             if (in_array('trello_card_url', $fields)
                 && isset($defaultValues['trello_card_url'])

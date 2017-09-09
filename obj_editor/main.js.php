@@ -4,6 +4,8 @@
     include("$trunk/js/ajax.js");
     $table_field_spaces_to_underscores =
         Config::$config['table_field_spaces_to_underscores'];
+
+    TableView::include_js__get_tree_url();
 ?>
 
 { // main javascript
@@ -622,6 +624,13 @@
                                         edit = true;
                                         primary_key = created_obj[primary_key_field];
                                         console.log('primary key val =', primary_key);
+
+                                        // tree link
+                                        var tree_link = document.getElementById('tree_link');
+                                        var tree_url = get_tree_url(primary_key);
+                                        tree_link.setAttribute('href', tree_url);
+                                        tree_link.style.display = 'initial'; // show tree link if hidden
+
                                         changeCreateButtonToUpdateButton();
                                     }
                                 }
