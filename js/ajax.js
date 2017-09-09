@@ -1,6 +1,5 @@
 
     // serializes a js object into a query string
-    // #todo #fixme don't duplicate in obj_editor/main.js
     function obj2queryString(data) {
         console.log('obj2queryString: data=',data);
         { // vars
