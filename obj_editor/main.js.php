@@ -14,6 +14,7 @@
         <?= (int)Config::$config['save_json_dump_of_stored_rows'] ?>;
     var change_to_update_after_insert =
         <?= (int)Config::$config['change_to_update_after_insert'] ?>;
+    var do_change_to_update_after_insert = change_to_update_after_insert;
 
     function hasPreviouslyStoredRows() {
         var stored_rows = localStorage.getItem('stored_rows');
@@ -618,7 +619,7 @@
                                 respond_callback('Thanks! Row Created');
 
                                 // change Create form to Update form after Insert submission
-                                if (change_to_update_after_insert) {
+                                if (do_change_to_update_after_insert) {
                                     var created_obj = result[0];
                                     if (created_obj) {
                                         // primary_key, global vars
@@ -671,6 +672,7 @@
     function submitForm(url, event, action,
                         obj, respond_callback // optional args
     ) {
+        console.log('submitForm event = ', event);
         var queryString;
 
         // if obj is supplied, it is a js obj to be submitted directly
@@ -950,14 +952,39 @@
     }
 
 
+    function doOnEnter(keyEvent, callback) {
+        var ENTER = 13, UNIX_ENTER = 10;
+        if (keyEvent.which == ENTER
+            || keyEvent.which == UNIX_ENTER
+        ) {
+            return callback(keyEvent);
+        }
+    }
+
     function selectTableOnEnter(keyEvent) {
         console.log('selectTableOnEnter, keyEvent =', keyEvent);
+        doOnEnter(keyEvent, selectTable);
+        /*
         var ENTER = 13, UNIX_ENTER = 10;
         if (keyEvent.which == ENTER
             || keyEvent.which == UNIX_ENTER
         ) {
             selectTable(keyEvent);
         }
+        */
+    }
+
+    function configureCreateUiOnEnter(keyEvent) {
+        doOnEnter(keyEvent, function(event){
+            if (event.altKey) {
+                do_change_to_update_after_insert = !change_to_update_after_insert;
+                console.log('alt pressed');
+            }
+            else {
+                do_change_to_update_after_insert = change_to_update_after_insert;
+                console.log('no alt pressed');
+            }
+        });
     }
 
     // given elem, make it become an <input> to select the table
