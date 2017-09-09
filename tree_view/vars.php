@@ -6,7 +6,7 @@
     # and parse it out into the $_GET vars
     if (isset($requestVars['root_id'])) {
 
-        $tree_url = TableView::get_full_tree_url(
+        $tree_url = TreeView::get_full_tree_url(
             $requestVars['root_id']
         );
 

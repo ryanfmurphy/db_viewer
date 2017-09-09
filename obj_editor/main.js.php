@@ -5,7 +5,7 @@
     $table_field_spaces_to_underscores =
         Config::$config['table_field_spaces_to_underscores'];
 
-    TableView::include_js__get_tree_url();
+    TreeView::include_js__get_tree_url();
 ?>
 
 { // main javascript

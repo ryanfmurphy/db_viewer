@@ -594,7 +594,7 @@
 
                 { # tree link
                     $tree_url = (isset($primary_key)
-                                    ? TableView::get_tree_url($primary_key)
+                                    ? TreeView::get_tree_url($primary_key)
                                     : null);
 ?>
                     <a  class="link"

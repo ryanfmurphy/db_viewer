@@ -679,7 +679,7 @@ function doNestModeAlert(mode) {
     }
 }
 
-<?php TableView::include_js__get_tree_url() ?>
+<?php TreeView::include_js__get_tree_url() ?>
 
 document.addEventListener('keypress', function(event){
     console.log(event);
@@ -723,7 +723,7 @@ document.addEventListener('keypress', function(event){
     else if (event.which == l_code) {
         if (selected_nodes.length > 0) {
             var link_txts = [];
-            var domain = <?= TableView::quot_str_for_js((isset($_SERVER['HTTPS'])
+            var domain = <?= Utility::quot_str_for_js((isset($_SERVER['HTTPS'])
                                                          && $_SERVER['HTTPS']
                                                             ? 'https'
                                                             : 'http') . '://' . $_SERVER['HTTP_HOST']
