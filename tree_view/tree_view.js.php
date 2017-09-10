@@ -1,5 +1,34 @@
 <?php
+    # tree_view.js.php
     # gets included from tree_view/index.php with certain vars already set
+
+    { # figure out primary key fields for all needed tables
+      # and provide array to JS
+        $id_mode = Config::$config['id_mode'];
+
+        $id_fields_by_table = array();
+        $id_fields_by_table[$root_table] =
+            DbUtil::get_primary_key_field($root_table);
+
+        foreach ($parent_relationships as $relationship) {
+            $child_table = $relationship['child_table'];
+            $parent_table = $relationship['parent_table'];
+            if (!isset($id_fields_by_table[$child_table])) {
+                $id_fields_by_table[$child_table] =
+                    DbUtil::get_primary_key_field($child_table);
+            }
+            if (!isset($id_fields_by_table[$parent_table])) {
+                $id_fields_by_table[$parent_table] =
+                    DbUtil::get_primary_key_field($parent_table);
+            }
+        }
+    }
+
+    #todo #fixme - don't always assume a catchall entity table
+    #              probably will need all this stuff in pure JS
+    $table2update = 'entity';
+    $parent_table = 'entity';
+
 ?>
         <script>
 
@@ -286,18 +315,12 @@ function getRootNode() {
     var min_x = undefined;
     var root_node = undefined;
     for (var i=0; i<nodes.length; i++) {
-        //console.log('i =',i);
         var node = nodes[i];
-        //console.log('node =',node);
         var rect = node.getBoundingClientRect();
-        //console.log('rect =',rect);
         var new_x = rect.left; //rect.x;
-        //console.log('new_x =', new_x);
         if (min_x === undefined
             || new_x < min_x
         ) {
-            //console.log("and that's good enough to make", node, 'the new root');
-            //console.log('min_x was', min_x);
             root_node = node;
             min_x = new_x;
         }
@@ -534,30 +557,6 @@ function expandRootNodes() {
     }
 }
 
-<?php
-    { # figure out primary key fields for all needed tables
-      # and provide array to JS
-        $id_mode = Config::$config['id_mode'];
-
-        $id_fields_by_table = array();
-        $id_fields_by_table[$root_table] =
-            DbUtil::get_primary_key_field($root_table);
-
-        foreach ($parent_relationships as $relationship) {
-            $child_table = $relationship['child_table'];
-            $parent_table = $relationship['parent_table'];
-            if (!isset($id_fields_by_table[$child_table])) {
-                $id_fields_by_table[$child_table] =
-                    DbUtil::get_primary_key_field($child_table);
-            }
-            if (!isset($id_fields_by_table[$parent_table])) {
-                $id_fields_by_table[$parent_table] =
-                    DbUtil::get_primary_key_field($parent_table);
-            }
-        }
-    }
-?>
-
 // <script>
 var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
@@ -600,10 +599,6 @@ function abortNestMode() {
     deselectAllNodes();
 }
 
-/* #todo
-function selectNode(elem, d3_obj) {
-}
-*/
 
 // to avoid conflicting nest mode alert timeouts
 // e.g. if you click something and it changes the message
@@ -757,11 +752,8 @@ function removeChildFromNode(node, child, doUpdateTree) {
         if (key in node) {
             var children = node[key];
             for (var i = children.length - 1; i >= 0; i--) {
-                //console.log('checking child',i);
                 var this_child = children[i];
-                //console.log('child=',child);
                 if (child === this_child) {
-                    //console.log('deleting children['+i+']');
                     children.splice(i,1);
                     return node;
                 }
@@ -773,12 +765,9 @@ function removeChildFromNode(node, child, doUpdateTree) {
     }
 }
 
-<?php
-    $table2update = 'entity';   #todo #fixme - don't always assume a catchall entity table
-                                #              probably will need all this stuff in pure JS
-    $parent_table = 'entity';
-?>
-
+// DB + UI operation
+// either removes the parent_id from the child,
+// or if do_delete == true, delete it altogether
 function detachNodeFromParent(node, do_delete, do_nest_mode) {
     console.log('detachNodeFromParent, node=', node);
     var parent = node.parent;
@@ -1374,7 +1363,6 @@ function clickLabel(d) {
         }
         else {
             openPopup(d, d3.event, clicked_node);
-            // editNode(d, clicked_node);
         }
     }
 }
@@ -1389,7 +1377,6 @@ function clickLabel(d) {
     }
     else {
         die("unknown backend '$backend'");
-    }
 ?>
 
         </script>
