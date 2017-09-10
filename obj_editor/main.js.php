@@ -12,8 +12,11 @@
 
     var save_json_dump_of_stored_rows =
         <?= (int)Config::$config['save_json_dump_of_stored_rows'] ?>;
+
     var change_to_update_after_insert =
         <?= (int)Config::$config['change_to_update_after_insert'] ?>;
+    // this one will momentarily reflect the above option,
+    // or the opposite if an <input> is submitted with alt-Enter
     var do_change_to_update_after_insert = change_to_update_after_insert;
 
     function hasPreviouslyStoredRows() {
@@ -964,16 +967,11 @@
     function selectTableOnEnter(keyEvent) {
         console.log('selectTableOnEnter, keyEvent =', keyEvent);
         doOnEnter(keyEvent, selectTable);
-        /*
-        var ENTER = 13, UNIX_ENTER = 10;
-        if (keyEvent.which == ENTER
-            || keyEvent.which == UNIX_ENTER
-        ) {
-            selectTable(keyEvent);
-        }
-        */
     }
 
+    // decide how to handle the UI after the submit:
+    // change the Create button to Update etc?
+    // depends if the <input> is submitted with alt-Enter
     function configureCreateUiOnEnter(keyEvent) {
         doOnEnter(keyEvent, function(event){
             if (event.altKey) {

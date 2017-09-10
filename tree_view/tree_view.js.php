@@ -770,16 +770,17 @@ function removeChildFromNode(node, child, doUpdateTree) {
     }
 }
 
-function detachNodeFromParent(node) {
-    console.log('detachNodeFromParent, node=', node);
-    var parent = node.parent;
-    console.log('  parent=', parent);
-    
 <?php
     $table2update = 'entity';   #todo #fixme - don't always assume a catchall entity table
                                 #              probably will need all this stuff in pure JS
     $parent_table = 'entity';
 ?>
+
+function detachNodeFromParent(node) {
+    console.log('detachNodeFromParent, node=', node);
+    var parent = node.parent;
+    console.log('  parent=', parent);
+    
     var primary_key_field = '<?= DbUtil::get_primary_key_field($table2update) ?>';
     var primary_key = node[primary_key_field];
     var parent_id_field = '<?= Config::$config['default_parent_field'] ?>';
@@ -842,10 +843,21 @@ function detachNodeFromParent(node) {
     doAjax("POST", url, data, success_callback, error_callback);
 }
 
+function keyIsClonable(k) {
+    return (k != 'svg_node_id'
+            && k != 'parent'
+            && k != 'x'
+            && k != 'y'
+            && k != 'x0'
+            && k != 'y0'
+            && k != 'depth');
+}
+
+// #todo #fixme - rename to cloneD3Object?
 function cloneSvgNode(obj) {
     var obj2 = {};
     for (var k in obj) {
-        if (k != 'svg_node_id'
+        if (keyIsClonable(k)
             && obj.hasOwnProperty(k)
         ) {
             obj2[k] = obj[k];
@@ -855,16 +867,29 @@ function cloneSvgNode(obj) {
     return obj2;
 }
 
+function setNodeName(node, name) {
+    node._node_name = name;
+    node.name = name; // #todo #fixme don't assume name_field
+}
+
+function cloneCleanNode(node) {
+    var new_node = cloneSvgNode(node);
+    setNodeName(new_node, null);
+    new_node.children = [];
+    delete new_node._children;
+
+    var id_field = idFieldForNode(node);
+    if (id_field) {
+        delete new_node[id_field];
+    }
+
+    return new_node;
+}
+
 function deepCloneSvgNode(obj) {
     var obj2 = {};
     for (var k in obj) {
-        if (k != 'svg_node_id'
-            && k != 'parent'
-            && k != 'x'
-            && k != 'y'
-            && k != 'x0'
-            && k != 'y0'
-            && k != 'depth'
+        if (keyIsClonable(k)
             && obj.hasOwnProperty(k)
         ) {
             if ((k == 'children'
@@ -904,6 +929,8 @@ function addChildToNode(node, child, doUpdateTree,
         node.children = [];
     }
 
+    // #todo #fixme - sometimes we are double-cloning, e.g. on Add Child
+    //                because the caller sometimes clones before calling
     var newChild = (cloneAllChildren
                         ? deepCloneSvgNode(child)
                         : cloneSvgNode(child));
@@ -914,19 +941,123 @@ function addChildToNode(node, child, doUpdateTree,
     }
 }
 
-<?php
-    if ($backend == 'db') {
-?>
-// <script>
-// clicking the Label takes you to that object in db_viewer
-// #todo #fixme #todo split up this huge function
-function clickLabel(d) {
+var elem_w_popup_open = null;
+
+function closePopup() {
+    var popup = document.getElementById('popup');
+    if (popup) {
+        popup.parentElement.removeChild(popup);
+    }
+
+    if (elem_w_popup_open) {
+        elem_w_popup_open.classList.remove('selected');
+    }
+}
+
+// invoked on clicking popup option
+function addChildWithPrompt(node_to_add_to) {
+    var name = prompt('Name of new node:');
+
+    if (name) {
+        var url = 'http://127.0.0.1:89/db_viewer/obj_editor/crud_api.php'; // #todo #fixme generalize crud_api_url
+        var table = getConnTable(node_to_add_to); // #todo #fixme should this be getNodeTable()?
+        var id_field = idFieldForNode(node_to_add_to);
+
+        var data = {
+            action: 'create_' + table,
+        };
+        data['name'] = name;                      // #todo #fixme use name field
+        var parent_id = node_to_add_to[id_field];
+        data['parent_ids'] = '{'+parent_id+'}';   // #todo generalize 'parent_ids' field
+        
+        success_callback = function(xhttp) {
+            var response = JSON.parse(xhttp.responseText);
+            if (response) {
+                if (Array.isArray(response)
+                    && response.length == 1
+                ) {
+                    var response_obj = response[0];
+                    console.log('response_obj', response_obj);
+
+                    var new_node = cloneCleanNode(node_to_add_to);
+                    setNodeName(new_node, name);
+                    new_node[id_field] = response_obj[id_field];
+
+                    addChildToNode(node_to_add_to, new_node, true, false);
+                }
+                else {
+                    alert("Error: unexpected response format");
+                }
+            }
+            else {
+                alert("Error: couldn't parse response");
+            }
+        };
+        error_callback = function() {
+            alert('Something went wrong');
+        };
+        doAjax("POST", url, data, success_callback, error_callback);
+    }
+}
+
+function openPopup(d, event, clicked_node) {
+    closePopup();
+
+    var popup = document.createElement('ul');
+    popup.setAttribute('id', 'popup');
+
+    // Edit - link to obj_editor
+    var edit_link = document.createElement('li');
+    edit_link.classList.add('non_link');
+    edit_link.innerHTML = 'Edit';
+    edit_link.addEventListener('click', function(){
+        editNode(d, clicked_node);
+        closePopup();
+    });
+    popup.append(edit_link);
+
+    // Add Child
+    var add_child_link = document.createElement('li');
+    add_child_link.classList.add('non_link');
+    add_child_link.innerHTML = 'Add Child';
+    add_child_link.addEventListener('click', function(){
+        addChildWithPrompt(d, clicked_node);
+        closePopup();
+    });
+    popup.append(add_child_link);
+
+    // Detach
+    var detach_link = document.createElement('li');
+    detach_link.classList.add('non_link');
+    detach_link.innerHTML = 'Detach';
+    detach_link.addEventListener('click', function(){
+        detachNodeFromParent(d);
+        closePopup();
+    });
+    popup.append(detach_link);
+
+    document.body.appendChild(popup);
+
+    // update style / position
+    popup.style.position = 'absolute';
+    mouse_x = event.layerX - 20;
+    mouse_y = event.layerY - 2;
+    popup.style.left = mouse_x + 'px';
+    popup.style.top = mouse_y + 'px';
+
+    elem_w_popup_open = clicked_node;
+    elem_w_popup_open.classList.add('selected');
+}
+
+function getNodeTable(d) {
     var table = ('_node_table' in d
                     ? d._node_table
                     : null);
+    return table;
+}
 
-    var clicked_elem = this;
-    var clicked_node = this.parentElement;
+function getConnTable(d) {
+    var table = getNodeTable(d);
 
     // Use _conn_table if possible because if it's here
     // it means the _node_table a polymorphic table read
@@ -938,11 +1069,51 @@ function clickLabel(d) {
     var conn_table = ('_conn_table' in d
                         ? d._conn_table
                         : table);
+    return conn_table;
+}
+
+function idFieldForNode(d) {
+    var conn_table = getConnTable(d);
+    if (conn_table) {
+        var id_field = id_fields_by_table[conn_table];
+        return id_field;
+    }
+}
+
+function editNode(d, clicked_node) {
+    var table = getNodeTable(d);
+    var id_field = idFieldForNode(d);
+    var url = "<?= $obj_editor_uri ?>"
+                    +"?table="+table
+                    +"&edit=1"
+                    +"&primary_key=" + d[id_field];
+    window.open(url, '_blank');
+}
+
+<?php
+    if ($backend == 'db') {
+        #todo #fixme - don't always assume a catchall entity table
+        #              probably will need all this stuff in pure JS
+        $new_parent_table = 'entity';
+?>
+// <script>
+// clicking the Label takes you to that object in db_viewer
+// #todo #fixme #todo split up this huge function
+function clickLabel(d) {
+    console.log('event', d3.event);
+
+    var clicked_elem = this;
+    var clicked_node = clicked_elem.parentElement;
+
+    console.log('top of editNode');
+    console.log('clicked_node', clicked_node);
+    var table = getNodeTable(d);
+    var conn_table = getConnTable(d);
 
     if (table && conn_table) {
-        var id_field = id_fields_by_table[conn_table];
-        // #todo #factor - handleNestModeClick()
+        var id_field = idFieldForNode(d);
         if (nest_mode) {
+            // #todo #factor - handleNestModeClick()
             if (nest_mode == 'click_selected_nodes') {
                 console.log('click_selected_nodes');
 
@@ -970,11 +1141,7 @@ function clickLabel(d) {
                         var node_to_move = selected_nodes[i]; // #todo #fixme
                         console.log('loop, i', i, 'node_to_move (or add to parent)',
                                     node_to_move);
-<?php
-    #todo #fixme - don't always assume a catchall entity table
-    #              probably will need all this stuff in pure JS
-    $new_parent_table = 'entity';
-?>
+
                         var primary_key_field =
                             '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
                         var primary_key = node_to_move[id_field];
@@ -1035,8 +1202,6 @@ function clickLabel(d) {
                                     else {
                                         console.log('not removing child');
                                     }
-                                    // #todo #fixme if copying the node,
-                                    // need to copy all children too
                                     addChildToNode(new_parent, node_to_move, false,
                                                    add_parent_instead_of_move);
 
@@ -1106,13 +1271,9 @@ function clickLabel(d) {
                 }
             }
         }
-        // link to obj_editor
         else {
-            var url = "<?= $obj_editor_uri ?>"
-                            +"?table="+table
-                            +"&edit=1"
-                            +"&primary_key=" + d[id_field];
-            window.open(url, '_blank');
+            openPopup(d, d3.event, clicked_node);
+            // editNode(d, clicked_node);
         }
     }
 }
