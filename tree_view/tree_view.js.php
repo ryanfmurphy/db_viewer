@@ -572,6 +572,9 @@ var selected_nodes = [];     // the d3 nodes that are selected
 var selected_dom_nodes = []; // the DOM elements of the selected nodes
                              // (so we can take off the selected class etc)
 
+var obj_editor_uri = <?= Utility::quot_str_for_js($obj_editor_uri) ?>;
+var crud_api_uri = <?= Utility::quot_str_for_js($crud_api_uri) ?>;
+
 function get_alert_elem() {
     return document.getElementById('alert');
 }
@@ -959,7 +962,7 @@ function addChildWithPrompt(node_to_add_to) {
     var name = prompt('Name of new node:');
 
     if (name) {
-        var url = 'http://127.0.0.1:89/db_viewer/obj_editor/crud_api.php'; // #todo #fixme generalize crud_api_url
+        var url = crud_api_uri;
         var table = getConnTable(node_to_add_to); // #todo #fixme should this be getNodeTable()?
         var id_field = idFieldForNode(node_to_add_to);
 
@@ -1083,7 +1086,7 @@ function idFieldForNode(d) {
 function editNode(d, clicked_node) {
     var table = getNodeTable(d);
     var id_field = idFieldForNode(d);
-    var url = "<?= $obj_editor_uri ?>"
+    var url = obj_editor_uri
                     +"?table="+table
                     +"&edit=1"
                     +"&primary_key=" + d[id_field];
