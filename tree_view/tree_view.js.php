@@ -876,7 +876,13 @@ function cloneCleanNode(node) {
     var new_node = cloneSvgNode(node);
     setNodeName(new_node, null);
     new_node.children = [];
-    new_node._children = null;
+    delete new_node._children;
+
+    var id_field = idFieldForNode(node);
+    if (id_field) {
+        delete new_node[id_field];
+    }
+
     return new_node;
 }
 
@@ -951,11 +957,46 @@ function closePopup() {
 // invoked on clicking popup option
 function addChildWithPrompt(node_to_add_to) {
     var name = prompt('Name of new node:');
-    if (name) {
-        var new_node = cloneCleanNode(node_to_add_to);
-        new_node._node_name = name;
 
-        addChildToNode(node_to_add_to, new_node, true, false);
+    if (name) {
+        var url = 'http://127.0.0.1:89/db_viewer/obj_editor/crud_api.php'; // #todo #fixme generalize crud_api_url
+        var table = getConnTable(node_to_add_to); // #todo #fixme should this be getNodeTable()?
+        var id_field = idFieldForNode(node_to_add_to);
+
+        var data = {
+            action: 'create_' + table,
+        };
+        data['name'] = name;                      // #todo #fixme use name field
+        var parent_id = node_to_add_to[id_field];
+        data['parent_ids'] = '{'+parent_id+'}';   // #todo generalize 'parent_ids' field
+        
+        success_callback = function(xhttp) {
+            var response = JSON.parse(xhttp.responseText);
+            if (response) {
+                if (Array.isArray(response)
+                    && response.length == 1
+                ) {
+                    var response_obj = response[0];
+                    console.log('response_obj', response_obj);
+
+                    var new_node = cloneCleanNode(node_to_add_to);
+                    setNodeName(new_node, name);
+                    new_node[id_field] = response_obj[id_field];
+
+                    addChildToNode(node_to_add_to, new_node, true, false);
+                }
+                else {
+                    alert("Error: unexpected response format");
+                }
+            }
+            else {
+                alert("Error: couldn't parse response");
+            }
+        };
+        error_callback = function() {
+            alert('Something went wrong');
+        };
+        doAjax("POST", url, data, success_callback, error_callback);
     }
 }
 
@@ -1031,10 +1072,17 @@ function getConnTable(d) {
     return conn_table;
 }
 
+function idFieldForNode(d) {
+    var conn_table = getConnTable(d);
+    if (conn_table) {
+        var id_field = id_fields_by_table[conn_table];
+        return id_field;
+    }
+}
+
 function editNode(d, clicked_node) {
     var table = getNodeTable(d);
-    var conn_table = getConnTable(d);
-    var id_field = id_fields_by_table[conn_table];
+    var id_field = idFieldForNode(d);
     var url = "<?= $obj_editor_uri ?>"
                     +"?table="+table
                     +"&edit=1"
@@ -1063,7 +1111,7 @@ function clickLabel(d) {
     var conn_table = getConnTable(d);
 
     if (table && conn_table) {
-        var id_field = id_fields_by_table[conn_table];
+        var id_field = idFieldForNode(d);
         if (nest_mode) {
             // #todo #factor - handleNestModeClick()
             if (nest_mode == 'click_selected_nodes') {
