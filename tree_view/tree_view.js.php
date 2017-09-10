@@ -1000,6 +1000,8 @@ function closePopup() {
     if (elem_w_popup_open) {
         elem_w_popup_open.classList.remove('focus_of_popup');
     }
+
+    document.body.removeEventListener('click', closePopup);
 }
 
 // <script>
@@ -1153,6 +1155,8 @@ function openPopup(d, event, clicked_node) {
     });
 
     document.body.appendChild(popup);
+    document.body.addEventListener('click', closePopup);
+    event.stopPropagation(); // avoid this click triggering closePopup
 
     // update style / position
     popup.style.position = 'absolute';
