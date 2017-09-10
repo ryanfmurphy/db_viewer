@@ -53,7 +53,9 @@
                 font: 10px sans-serif;
             }
 
-            .node.selected text {
+            .node.selected text,
+            .node.focus_of_popup text
+            {
                 font-weight: bold;
             }
 

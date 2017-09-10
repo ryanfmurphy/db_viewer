@@ -1,10 +1,41 @@
 <?php
+    # tree_view.js.php
     # gets included from tree_view/index.php with certain vars already set
+
+    { # figure out primary key fields for all needed tables
+      # and provide array to JS
+        $id_mode = Config::$config['id_mode'];
+
+        $id_fields_by_table = array();
+        $id_fields_by_table[$root_table] =
+            DbUtil::get_primary_key_field($root_table);
+
+        foreach ($parent_relationships as $relationship) {
+            $child_table = $relationship['child_table'];
+            $parent_table = $relationship['parent_table'];
+            if (!isset($id_fields_by_table[$child_table])) {
+                $id_fields_by_table[$child_table] =
+                    DbUtil::get_primary_key_field($child_table);
+            }
+            if (!isset($id_fields_by_table[$parent_table])) {
+                $id_fields_by_table[$parent_table] =
+                    DbUtil::get_primary_key_field($parent_table);
+            }
+        }
+    }
+
+    #todo #fixme - don't always assume a catchall entity table
+    #              probably will need all this stuff in pure JS
+    $table2update = 'entity';
+    $parent_table = 'entity';
+
 ?>
         <script>
 
 <?php
+    # javascript includes directly via PHP
     require_once("$trunk/js/ajax.js");
+    TreeView::include_js__get_tree_url();
 ?>
 
 var table_info = <?= json_encode($table_info) ?>;
@@ -286,18 +317,12 @@ function getRootNode() {
     var min_x = undefined;
     var root_node = undefined;
     for (var i=0; i<nodes.length; i++) {
-        //console.log('i =',i);
         var node = nodes[i];
-        //console.log('node =',node);
         var rect = node.getBoundingClientRect();
-        //console.log('rect =',rect);
         var new_x = rect.left; //rect.x;
-        //console.log('new_x =', new_x);
         if (min_x === undefined
             || new_x < min_x
         ) {
-            //console.log("and that's good enough to make", node, 'the new root');
-            //console.log('min_x was', min_x);
             root_node = node;
             min_x = new_x;
         }
@@ -534,38 +559,16 @@ function expandRootNodes() {
     }
 }
 
-<?php
-    { # figure out primary key fields for all needed tables
-      # and provide array to JS
-        $id_mode = Config::$config['id_mode'];
+</script>
+<script>
 
-        $id_fields_by_table = array();
-        $id_fields_by_table[$root_table] =
-            DbUtil::get_primary_key_field($root_table);
-
-        foreach ($parent_relationships as $relationship) {
-            $child_table = $relationship['child_table'];
-            $parent_table = $relationship['parent_table'];
-            if (!isset($id_fields_by_table[$child_table])) {
-                $id_fields_by_table[$child_table] =
-                    DbUtil::get_primary_key_field($child_table);
-            }
-            if (!isset($id_fields_by_table[$parent_table])) {
-                $id_fields_by_table[$parent_table] =
-                    DbUtil::get_primary_key_field($parent_table);
-            }
-        }
-    }
-?>
-
-// <script>
 var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
 
-// Nest Mode - some crude UI to help easily nest nodes under other nodes
-
+// Nest Mode - UI to nest nodes under other nodes
 var nest_mode = false;
 var add_parent_instead_of_move = null; // shift-N to add parent, n to move parent
+var leave_nest_mode_after_move = false; // when chosen by popup: yes, by keyboard: no
 
 // selection
 var selected_nodes = [];     // the d3 nodes that are selected
@@ -574,6 +577,15 @@ var selected_dom_nodes = []; // the DOM elements of the selected nodes
 
 var obj_editor_uri = <?= Utility::quot_str_for_js($obj_editor_uri) ?>;
 var crud_api_uri = <?= Utility::quot_str_for_js($crud_api_uri) ?>;
+
+// keyboard commands
+var kb = {
+    n_code: 110,
+    N_code: 78,
+    d_code: 100, // wanted delete but some browsers have DEL go back a page??
+    l_code: 108, // copy Links
+};
+
 
 function get_alert_elem() {
     return document.getElementById('alert');
@@ -600,10 +612,8 @@ function abortNestMode() {
     deselectAllNodes();
 }
 
-/* #todo
-function selectNode(elem, d3_obj) {
-}
-*/
+</script>
+<script>
 
 // to avoid conflicting nest mode alert timeouts
 // e.g. if you click something and it changes the message
@@ -635,7 +645,9 @@ function doNestModeAlert(mode) {
     }
     else if (nest_mode === 'success') {
         do_alert('Success. Refresh to see changes.', 'green');
-        nest_mode = 'click_selected_nodes';
+        nest_mode = (leave_nest_mode_after_move
+                        ? false
+                        : 'click_selected_nodes');
 
         nest_mode_alert_seq_number++;
         var success_alert_timeout_seq_number = nest_mode_alert_seq_number;
@@ -658,7 +670,7 @@ function doNestModeAlert(mode) {
         }, 1500);
     }
     else if (nest_mode === 'deleted') {
-        do_alert('Node(s) deleted', 'darkred');
+        do_alert('Node(s) detached', 'darkred');
         abortNestMode();
 
         nest_mode_alert_seq_number++;
@@ -682,68 +694,91 @@ function doNestModeAlert(mode) {
     }
 }
 
-<?php TreeView::include_js__get_tree_url() ?>
+</script>
+
+<script>
+
+function startNestMode(event) {
+    nest_mode = 'click_selected_nodes';
+
+    // #todo only allow this if parent_field is an array
+    add_parent_instead_of_move = (event
+                                  && event.which == kb.N_code);
+
+    doNestModeAlert(nest_mode);
+
+    selected_nodes = [];
+    selected_dom_nodes = [];
+
+    var from_popup = !event;
+    leave_nest_mode_after_move = from_popup;
+}
+
+function toggleNestMode(event) {
+    if (nest_mode) {
+        abortNestMode();
+        doNestModeAlert(nest_mode);
+    }
+    else if (!nest_mode) {
+        startNestMode(event);
+    }
+}
+
+function detachSelectedNodes() {
+    if (selected_nodes.length > 0) {
+        for (var i=0; i < selected_nodes.length; i++) {
+            var node = selected_nodes[i];
+            detachNodeFromParent(node, false, true);
+        }
+        nest_mode = 'deleted';
+    }
+    else {
+        alert("You haven't selected any nodes to delete");
+        nest_mode = 'error';
+    }
+    doNestModeAlert(nest_mode);
+}
+
+function copyLinksOfSelectedNodes() {
+    if (selected_nodes.length > 0) {
+        var link_txts = [];
+        var domain = <?= Utility::quot_str_for_js((isset($_SERVER['HTTPS'])
+                                                     && $_SERVER['HTTPS']
+                                                        ? 'https'
+                                                        : 'http') . '://' . $_SERVER['HTTP_HOST']
+                                                   ) ?>;
+        for (var i=0; i < selected_nodes.length; i++) {
+            var node = selected_nodes[i];
+            var this_link = '[' + node.name + '](' + domain + get_tree_url(node.id) + ')';
+            link_txts.push(this_link);
+        }
+        console.log('Markdown Links of Nodes URLs:');
+        console.log(link_txts.join(' -> '));
+    }
+    else {
+        alert("You haven't selected any nodes to copy Links of");
+        nest_mode = 'error';
+    }
+    doNestModeAlert(nest_mode);
+}
 
 document.addEventListener('keypress', function(event){
     console.log(event);
 
-    var n_code = 110;
-    var N_code = 78;
-    var d_code = 100; // wanted delete but some browsers have DEL go back a page??
-    var l_code = 108; // copy Links
-
-    if (event.which == n_code
-        || event.which == N_code
+    if (event.which == kb.n_code
+        || event.which == kb.N_code
     ) {
-        if (nest_mode) {
-            abortNestMode();
-            doNestModeAlert(nest_mode);
-        }
-        else if (!nest_mode) {
-            nest_mode = 'click_selected_nodes';
-            add_parent_instead_of_move = (event.which == N_code); // #todo only allow if parent_field is an array
-            doNestModeAlert(nest_mode);
-        }
+        toggleNestMode(event);
     }
     // detach selected node
-    else if (event.which == d_code
+    else if (event.which == kb.d_code
             && nest_mode
     ) {
-        if (selected_nodes.length > 0) {
-            for (var i=0; i < selected_nodes.length; i++) {
-                var node = selected_nodes[i];
-                detachNodeFromParent(node, false, true);
-            }
-            nest_mode = 'deleted';
-        }
-        else {
-            alert("You haven't selected any nodes to delete");
-            nest_mode = 'error';
-        }
-        doNestModeAlert(nest_mode);
+        detachSelectedNodes();
     }
     // copy markdown Links of selected nodes' URLs to console
-    else if (event.which == l_code) {
-        if (selected_nodes.length > 0) {
-            var link_txts = [];
-            var domain = <?= Utility::quot_str_for_js((isset($_SERVER['HTTPS'])
-                                                         && $_SERVER['HTTPS']
-                                                            ? 'https'
-                                                            : 'http') . '://' . $_SERVER['HTTP_HOST']
-                                                       ) ?>;
-            for (var i=0; i < selected_nodes.length; i++) {
-                var node = selected_nodes[i];
-                var this_link = '[' + node.name + '](' + domain + get_tree_url(node.id) + ')';
-                link_txts.push(this_link);
-            }
-            console.log('Markdown Links of Nodes URLs:');
-            console.log(link_txts.join(' -> '));
-        }
-        else {
-            alert("You haven't selected any nodes to copy Links of");
-            nest_mode = 'error';
-        }
-        doNestModeAlert(nest_mode);
+    else if (event.which == kb.l_code) {
+        copyLinksOfSelectedNodes();
     }
 });
 
@@ -757,11 +792,8 @@ function removeChildFromNode(node, child, doUpdateTree) {
         if (key in node) {
             var children = node[key];
             for (var i = children.length - 1; i >= 0; i--) {
-                //console.log('checking child',i);
                 var this_child = children[i];
-                //console.log('child=',child);
                 if (child === this_child) {
-                    //console.log('deleting children['+i+']');
                     children.splice(i,1);
                     return node;
                 }
@@ -773,12 +805,9 @@ function removeChildFromNode(node, child, doUpdateTree) {
     }
 }
 
-<?php
-    $table2update = 'entity';   #todo #fixme - don't always assume a catchall entity table
-                                #              probably will need all this stuff in pure JS
-    $parent_table = 'entity';
-?>
-
+// DB + UI operation
+// either removes the parent_id from the child,
+// or if do_delete == true, delete it altogether
 function detachNodeFromParent(node, do_delete, do_nest_mode) {
     console.log('detachNodeFromParent, node=', node);
     var parent = node.parent;
@@ -969,7 +998,7 @@ function closePopup() {
     }
 
     if (elem_w_popup_open) {
-        elem_w_popup_open.classList.remove('selected');
+        elem_w_popup_open.classList.remove('focus_of_popup');
     }
 }
 
@@ -1080,62 +1109,48 @@ function renameNode(node, clicked_node) {
     }
 }
 
-// <script>
+</script>
+<script>
+
+function addPopupOption(popup_elem, name, callback) {
+    var link = document.createElement('li');
+    link.classList.add('non_link');
+    link.innerHTML = name;
+    link.addEventListener('click', callback);
+    popup_elem.append(link);
+}
+
 function openPopup(d, event, clicked_node) {
     closePopup();
 
     var popup = document.createElement('ul');
     popup.setAttribute('id', 'popup');
 
-    // Add Child
-    var add_child_link = document.createElement('li');
-    add_child_link.classList.add('non_link');
-    add_child_link.innerHTML = 'Add Child';
-    add_child_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Add Child', function(){
         addChildWithPrompt(d);
         closePopup();
     });
-    popup.append(add_child_link);
-
-    // Rename - link to obj_editor
-    var rename_link = document.createElement('li');
-    rename_link.classList.add('non_link');
-    rename_link.innerHTML = 'Rename';
-    rename_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Rename', function(){
         renameNode(d, clicked_node);
         closePopup();
     });
-    popup.append(rename_link);
-
-    // Edit - link to obj_editor
-    var edit_link = document.createElement('li');
-    edit_link.classList.add('non_link');
-    edit_link.innerHTML = 'Visit/Edit';
-    edit_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Select/Move', function(){
+        startNestMode();
+        selectNode(d, clicked_node);
+        closePopup();
+    });
+    addPopupOption(popup, 'Visit/Edit', function(){
         editNode(d, clicked_node);
         closePopup();
     });
-    popup.append(edit_link);
-
-    // Detach
-    var detach_link = document.createElement('li');
-    detach_link.classList.add('non_link');
-    detach_link.innerHTML = 'Detach';
-    detach_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Detach', function(){
         detachNodeFromParent(d, false, false);
         closePopup();
     });
-    popup.append(detach_link);
-
-    // Delete
-    var delete_link = document.createElement('li');
-    delete_link.classList.add('non_link');
-    delete_link.innerHTML = 'Delete';
-    delete_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Delete', function(){
         deleteNodeFromParent(d);
         closePopup();
     });
-    popup.append(delete_link);
 
     document.body.appendChild(popup);
 
@@ -1147,7 +1162,7 @@ function openPopup(d, event, clicked_node) {
     popup.style.top = mouse_y + 'px';
 
     elem_w_popup_open = clicked_node;
-    elem_w_popup_open.classList.add('selected');
+    elem_w_popup_open.classList.add('focus_of_popup');
 }
 
 function getNodeTable(d) {
@@ -1191,6 +1206,17 @@ function editNode(d, clicked_node) {
     window.open(url, '_blank');
 }
 
+function selectNode(d, clicked_node) {
+    //selected_nodes = [d];
+    //selected_dom_nodes = [clicked_node];
+    selected_nodes.push(d);
+    selected_dom_nodes.push(clicked_node);
+    clicked_node.classList.add('selected');
+
+    nest_mode = 'click_new_parent_or_select_more';
+    doNestModeAlert(nest_mode);
+}
+
 <?php
     if ($backend == 'db') {
         #todo #fixme - don't always assume a catchall entity table
@@ -1217,14 +1243,7 @@ function clickLabel(d) {
             // #todo #factor - handleNestModeClick()
             if (nest_mode == 'click_selected_nodes') {
                 console.log('click_selected_nodes');
-
-                // #todo #factor
-                selected_nodes = [d];
-                selected_dom_nodes = [clicked_node];
-                clicked_node.classList.add('selected');
-
-                nest_mode = 'click_new_parent_or_select_more';
-                doNestModeAlert(nest_mode);
+                selectNode(d, clicked_node);
             }
             else if (nest_mode == 'click_new_parent_or_select_more') {
                 var sub_mode = (d3.event.shiftKey
@@ -1374,7 +1393,6 @@ function clickLabel(d) {
         }
         else {
             openPopup(d, d3.event, clicked_node);
-            // editNode(d, clicked_node);
         }
     }
 }
