@@ -705,14 +705,14 @@ document.addEventListener('keypress', function(event){
             doNestModeAlert(nest_mode);
         }
     }
-    // delete selected node
+    // detach selected node
     else if (event.which == d_code
             && nest_mode
     ) {
         if (selected_nodes.length > 0) {
             for (var i=0; i < selected_nodes.length; i++) {
                 var node = selected_nodes[i];
-                detachNodeFromParent(node);
+                detachNodeFromParent(node, false, true);
             }
             nest_mode = 'deleted';
         }
@@ -779,7 +779,7 @@ function removeChildFromNode(node, child, doUpdateTree) {
     $parent_table = 'entity';
 ?>
 
-function detachNodeFromParent(node) {
+function detachNodeFromParent(node, do_delete, do_nest_mode) {
     console.log('detachNodeFromParent, node=', node);
     var parent = node.parent;
     console.log('  parent=', parent);
@@ -800,8 +800,17 @@ function detachNodeFromParent(node) {
     // build up the AJAX data to update the node
     var data = null;
 
+    // actually delete the row
+    if (do_delete) {
+        var where_clauses = {};
+        where_clauses[primary_key_field] = primary_key;
+        data = {
+            action: 'delete_' + table_name,
+            where_clauses: where_clauses
+        };
+    }
     // array case: remove this one parent value from array
-    if (parent_field_is_array) {
+    else if (parent_field_is_array) {
         data = {
             action: 'remove_from_array',
             table: table_name,
@@ -827,8 +836,10 @@ function detachNodeFromParent(node) {
     var success_callback = (function(node, parent_id_field) {
         return function(xhttp) {
             var r = xhttp.responseText;
-            nest_mode = 'success'; // #todo #fixme - 'deleted' ?
-            doNestModeAlert(nest_mode);
+            if (do_nest_mode) {
+                nest_mode = 'success'; // #todo #fixme - 'deleted' ?
+                doNestModeAlert(nest_mode);
+            }
             
             console.log('removing child');
             removeChildFromNode(node.parent, node, false);
@@ -844,6 +855,10 @@ function detachNodeFromParent(node) {
     }
 
     doAjax("POST", url, data, success_callback, error_callback);
+}
+
+function deleteNodeFromParent(node) {
+    return detachNodeFromParent(node, true, false);
 }
 
 function keyIsClonable(k) {
@@ -1034,10 +1049,20 @@ function openPopup(d, event, clicked_node) {
     detach_link.classList.add('non_link');
     detach_link.innerHTML = 'Detach';
     detach_link.addEventListener('click', function(){
-        detachNodeFromParent(d);
+        detachNodeFromParent(d, false, false);
         closePopup();
     });
     popup.append(detach_link);
+
+    // Delete
+    var delete_link = document.createElement('li');
+    delete_link.classList.add('non_link');
+    delete_link.innerHTML = 'Delete';
+    delete_link.addEventListener('click', function(){
+        deleteNodeFromParent(d);
+        closePopup();
+    });
+    popup.append(delete_link);
 
     document.body.appendChild(popup);
 
