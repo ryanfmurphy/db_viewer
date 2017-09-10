@@ -33,7 +33,9 @@
         <script>
 
 <?php
+    # javascript includes directly via PHP
     require_once("$trunk/js/ajax.js");
+    TreeView::include_js__get_tree_url();
 ?>
 
 var table_info = <?= json_encode($table_info) ?>;
@@ -599,6 +601,8 @@ function abortNestMode() {
     deselectAllNodes();
 }
 
+</script>
+<script>
 
 // to avoid conflicting nest mode alert timeouts
 // e.g. if you click something and it changes the message
@@ -653,7 +657,7 @@ function doNestModeAlert(mode) {
         }, 1500);
     }
     else if (nest_mode === 'deleted') {
-        do_alert('Node(s) deleted', 'darkred');
+        do_alert('Node(s) detached', 'darkred');
         abortNestMode();
 
         nest_mode_alert_seq_number++;
@@ -677,7 +681,70 @@ function doNestModeAlert(mode) {
     }
 }
 
-<?php TreeView::include_js__get_tree_url() ?>
+</script>
+
+<script>
+
+function startNestMode(event) {
+    nest_mode = 'click_selected_nodes';
+
+    // #todo only allow this if parent_field is an array
+    add_parent_instead_of_move = (event
+                                  && event.which == N_code);
+
+    doNestModeAlert(nest_mode);
+
+    selected_nodes = [];
+    selected_dom_nodes = [];
+}
+
+function toggleNestMode(event) {
+    if (nest_mode) {
+        abortNestMode();
+        doNestModeAlert(nest_mode);
+    }
+    else if (!nest_mode) {
+        startNestMode();
+    }
+}
+
+function detachSelectedNodes() {
+    if (selected_nodes.length > 0) {
+        for (var i=0; i < selected_nodes.length; i++) {
+            var node = selected_nodes[i];
+            detachNodeFromParent(node, false, true);
+        }
+        nest_mode = 'deleted';
+    }
+    else {
+        alert("You haven't selected any nodes to delete");
+        nest_mode = 'error';
+    }
+    doNestModeAlert(nest_mode);
+}
+
+function copyLinksOfSelectedNodes() {
+    if (selected_nodes.length > 0) {
+        var link_txts = [];
+        var domain = <?= Utility::quot_str_for_js((isset($_SERVER['HTTPS'])
+                                                     && $_SERVER['HTTPS']
+                                                        ? 'https'
+                                                        : 'http') . '://' . $_SERVER['HTTP_HOST']
+                                                   ) ?>;
+        for (var i=0; i < selected_nodes.length; i++) {
+            var node = selected_nodes[i];
+            var this_link = '[' + node.name + '](' + domain + get_tree_url(node.id) + ')';
+            link_txts.push(this_link);
+        }
+        console.log('Markdown Links of Nodes URLs:');
+        console.log(link_txts.join(' -> '));
+    }
+    else {
+        alert("You haven't selected any nodes to copy Links of");
+        nest_mode = 'error';
+    }
+    doNestModeAlert(nest_mode);
+}
 
 document.addEventListener('keypress', function(event){
     console.log(event);
@@ -690,55 +757,17 @@ document.addEventListener('keypress', function(event){
     if (event.which == n_code
         || event.which == N_code
     ) {
-        if (nest_mode) {
-            abortNestMode();
-            doNestModeAlert(nest_mode);
-        }
-        else if (!nest_mode) {
-            nest_mode = 'click_selected_nodes';
-            add_parent_instead_of_move = (event.which == N_code); // #todo only allow if parent_field is an array
-            doNestModeAlert(nest_mode);
-        }
+        toggleNestMode(event);
     }
     // detach selected node
     else if (event.which == d_code
             && nest_mode
     ) {
-        if (selected_nodes.length > 0) {
-            for (var i=0; i < selected_nodes.length; i++) {
-                var node = selected_nodes[i];
-                detachNodeFromParent(node, false, true);
-            }
-            nest_mode = 'deleted';
-        }
-        else {
-            alert("You haven't selected any nodes to delete");
-            nest_mode = 'error';
-        }
-        doNestModeAlert(nest_mode);
+        detachSelectedNodes();
     }
     // copy markdown Links of selected nodes' URLs to console
     else if (event.which == l_code) {
-        if (selected_nodes.length > 0) {
-            var link_txts = [];
-            var domain = <?= Utility::quot_str_for_js((isset($_SERVER['HTTPS'])
-                                                         && $_SERVER['HTTPS']
-                                                            ? 'https'
-                                                            : 'http') . '://' . $_SERVER['HTTP_HOST']
-                                                       ) ?>;
-            for (var i=0; i < selected_nodes.length; i++) {
-                var node = selected_nodes[i];
-                var this_link = '[' + node.name + '](' + domain + get_tree_url(node.id) + ')';
-                link_txts.push(this_link);
-            }
-            console.log('Markdown Links of Nodes URLs:');
-            console.log(link_txts.join(' -> '));
-        }
-        else {
-            alert("You haven't selected any nodes to copy Links of");
-            nest_mode = 'error';
-        }
-        doNestModeAlert(nest_mode);
+        copyLinksOfSelectedNodes();
     }
 });
 
@@ -1096,7 +1125,18 @@ function openPopup(d, event, clicked_node) {
     });
     popup.append(rename_link);
 
-    // Edit - link to obj_editor
+    // Select/Move - link to obj_editor
+    var select_link = document.createElement('li');
+    select_link.classList.add('non_link');
+    select_link.innerHTML = 'Select/Move';
+    select_link.addEventListener('click', function(){
+        startNestMode();
+        selectNode(d, clicked_node);
+        closePopup();
+    });
+    popup.append(select_link);
+
+    // Visit/Edit - link to obj_editor
     var edit_link = document.createElement('li');
     edit_link.classList.add('non_link');
     edit_link.innerHTML = 'Visit/Edit';
@@ -1180,6 +1220,17 @@ function editNode(d, clicked_node) {
     window.open(url, '_blank');
 }
 
+function selectNode(d, clicked_node) {
+    //selected_nodes = [d];
+    //selected_dom_nodes = [clicked_node];
+    selected_nodes.push(d);
+    selected_dom_nodes.push(clicked_node);
+    clicked_node.classList.add('selected');
+
+    nest_mode = 'click_new_parent_or_select_more';
+    doNestModeAlert(nest_mode);
+}
+
 <?php
     if ($backend == 'db') {
         #todo #fixme - don't always assume a catchall entity table
@@ -1206,14 +1257,7 @@ function clickLabel(d) {
             // #todo #factor - handleNestModeClick()
             if (nest_mode == 'click_selected_nodes') {
                 console.log('click_selected_nodes');
-
-                // #todo #factor
-                selected_nodes = [d];
-                selected_dom_nodes = [clicked_node];
-                clicked_node.classList.add('selected');
-
-                nest_mode = 'click_new_parent_or_select_more';
-                doNestModeAlert(nest_mode);
+                selectNode(d, clicked_node);
             }
             else if (nest_mode == 'click_new_parent_or_select_more') {
                 var sub_mode = (d3.event.shiftKey
@@ -1377,6 +1421,7 @@ function clickLabel(d) {
     }
     else {
         die("unknown backend '$backend'");
+    }
 ?>
 
         </script>
