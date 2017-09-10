@@ -965,7 +965,7 @@ function openPopup(d, event, clicked_node) {
     var popup = document.createElement('ul');
     popup.setAttribute('id', 'popup');
 
-    // Edit
+    // Edit - link to obj_editor
     var edit_link = document.createElement('li');
     edit_link.classList.add('non_link');
     edit_link.innerHTML = 'Edit';
@@ -1008,6 +1008,40 @@ function openPopup(d, event, clicked_node) {
     elem_w_popup_open.classList.add('selected');
 }
 
+function getNodeTable(d) {
+    var table = ('_node_table' in d
+                    ? d._node_table
+                    : null);
+    return table;
+}
+
+function getConnTable(d) {
+    var table = getNodeTable(d);
+
+    // Use _conn_table if possible because if it's here
+    // it means the _node_table a polymorphic table read
+    // from the 'relname' field due to the option
+    // 'use_relname_for_tree_node_table'.
+    // We may not have that table in id_fields_by_table
+    // so the backend gives us '_conn_table' which is the
+    // non-polymorphic base-table that we have in our hash
+    var conn_table = ('_conn_table' in d
+                        ? d._conn_table
+                        : table);
+    return conn_table;
+}
+
+function editNode(d, clicked_node) {
+    var table = getNodeTable(d);
+    var conn_table = getConnTable(d);
+    var id_field = id_fields_by_table[conn_table];
+    var url = "<?= $obj_editor_uri ?>"
+                    +"?table="+table
+                    +"&edit=1"
+                    +"&primary_key=" + d[id_field];
+    window.open(url, '_blank');
+}
+
 <?php
     if ($backend == 'db') {
         #todo #fixme - don't always assume a catchall entity table
@@ -1023,32 +1057,15 @@ function clickLabel(d) {
     var clicked_elem = this;
     var clicked_node = clicked_elem.parentElement;
 
-    openPopup(d, d3.event, clicked_node);
-}
-
-function editNode(d, clicked_node) {
     console.log('top of editNode');
     console.log('clicked_node', clicked_node);
-    var table = ('_node_table' in d
-                    ? d._node_table
-                    : null);
-
-
-    // Use _conn_table if possible because if it's here
-    // it means the _node_table a polymorphic table read
-    // from the 'relname' field due to the option
-    // 'use_relname_for_tree_node_table'.
-    // We may not have that table in id_fields_by_table
-    // so the backend gives us '_conn_table' which is the
-    // non-polymorphic base-table that we have in our hash
-    var conn_table = ('_conn_table' in d
-                        ? d._conn_table
-                        : table);
+    var table = getNodeTable(d);
+    var conn_table = getConnTable(d);
 
     if (table && conn_table) {
         var id_field = id_fields_by_table[conn_table];
-        // #todo #factor - handleNestModeClick()
         if (nest_mode) {
+            // #todo #factor - handleNestModeClick()
             if (nest_mode == 'click_selected_nodes') {
                 console.log('click_selected_nodes');
 
@@ -1206,13 +1223,9 @@ function editNode(d, clicked_node) {
                 }
             }
         }
-        // link to obj_editor
         else {
-            var url = "<?= $obj_editor_uri ?>"
-                            +"?table="+table
-                            +"&edit=1"
-                            +"&primary_key=" + d[id_field];
-            window.open(url, '_blank');
+            openPopup(d, d3.event, clicked_node);
+            // editNode(d, clicked_node);
         }
     }
 }
