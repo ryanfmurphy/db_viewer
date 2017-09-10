@@ -559,14 +559,16 @@ function expandRootNodes() {
     }
 }
 
-// <script>
+</script>
+<script>
+
 var id_fields_by_table = <?= json_encode($id_fields_by_table) ?>;
 
 
-// Nest Mode - some crude UI to help easily nest nodes under other nodes
-
+// Nest Mode - UI to nest nodes under other nodes
 var nest_mode = false;
 var add_parent_instead_of_move = null; // shift-N to add parent, n to move parent
+var leave_nest_mode_after_move = false; // when chosen by popup: yes, by keyboard: no
 
 // selection
 var selected_nodes = [];     // the d3 nodes that are selected
@@ -575,6 +577,15 @@ var selected_dom_nodes = []; // the DOM elements of the selected nodes
 
 var obj_editor_uri = <?= Utility::quot_str_for_js($obj_editor_uri) ?>;
 var crud_api_uri = <?= Utility::quot_str_for_js($crud_api_uri) ?>;
+
+// keyboard commands
+var kb = {
+    n_code: 110,
+    N_code: 78,
+    d_code: 100, // wanted delete but some browsers have DEL go back a page??
+    l_code: 108, // copy Links
+};
+
 
 function get_alert_elem() {
     return document.getElementById('alert');
@@ -634,7 +645,9 @@ function doNestModeAlert(mode) {
     }
     else if (nest_mode === 'success') {
         do_alert('Success. Refresh to see changes.', 'green');
-        nest_mode = 'click_selected_nodes';
+        nest_mode = (leave_nest_mode_after_move
+                        ? false
+                        : 'click_selected_nodes');
 
         nest_mode_alert_seq_number++;
         var success_alert_timeout_seq_number = nest_mode_alert_seq_number;
@@ -690,12 +703,15 @@ function startNestMode(event) {
 
     // #todo only allow this if parent_field is an array
     add_parent_instead_of_move = (event
-                                  && event.which == N_code);
+                                  && event.which == kb.N_code);
 
     doNestModeAlert(nest_mode);
 
     selected_nodes = [];
     selected_dom_nodes = [];
+
+    var from_popup = !event;
+    leave_nest_mode_after_move = from_popup;
 }
 
 function toggleNestMode(event) {
@@ -704,7 +720,7 @@ function toggleNestMode(event) {
         doNestModeAlert(nest_mode);
     }
     else if (!nest_mode) {
-        startNestMode();
+        startNestMode(event);
     }
 }
 
@@ -749,24 +765,19 @@ function copyLinksOfSelectedNodes() {
 document.addEventListener('keypress', function(event){
     console.log(event);
 
-    var n_code = 110;
-    var N_code = 78;
-    var d_code = 100; // wanted delete but some browsers have DEL go back a page??
-    var l_code = 108; // copy Links
-
-    if (event.which == n_code
-        || event.which == N_code
+    if (event.which == kb.n_code
+        || event.which == kb.N_code
     ) {
         toggleNestMode(event);
     }
     // detach selected node
-    else if (event.which == d_code
+    else if (event.which == kb.d_code
             && nest_mode
     ) {
         detachSelectedNodes();
     }
     // copy markdown Links of selected nodes' URLs to console
-    else if (event.which == l_code) {
+    else if (event.which == kb.l_code) {
         copyLinksOfSelectedNodes();
     }
 });
