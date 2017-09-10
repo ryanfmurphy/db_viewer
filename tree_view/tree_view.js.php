@@ -1098,73 +1098,48 @@ function renameNode(node, clicked_node) {
     }
 }
 
-// <script>
+</script>
+<script>
+
+function addPopupOption(popup_elem, name, callback) {
+    var link = document.createElement('li');
+    link.classList.add('non_link');
+    link.innerHTML = name;
+    link.addEventListener('click', callback);
+    popup_elem.append(link);
+}
+
 function openPopup(d, event, clicked_node) {
     closePopup();
 
     var popup = document.createElement('ul');
     popup.setAttribute('id', 'popup');
 
-    // Add Child
-    var add_child_link = document.createElement('li');
-    add_child_link.classList.add('non_link');
-    add_child_link.innerHTML = 'Add Child';
-    add_child_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Add Child', function(){
         addChildWithPrompt(d);
         closePopup();
     });
-    popup.append(add_child_link);
-
-    // Rename - link to obj_editor
-    var rename_link = document.createElement('li');
-    rename_link.classList.add('non_link');
-    rename_link.innerHTML = 'Rename';
-    rename_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Rename', function(){
         renameNode(d, clicked_node);
         closePopup();
     });
-    popup.append(rename_link);
-
-    // Select/Move - link to obj_editor
-    var select_link = document.createElement('li');
-    select_link.classList.add('non_link');
-    select_link.innerHTML = 'Select/Move';
-    select_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Select/Move', function(){
         startNestMode();
         selectNode(d, clicked_node);
         closePopup();
     });
-    popup.append(select_link);
-
-    // Visit/Edit - link to obj_editor
-    var edit_link = document.createElement('li');
-    edit_link.classList.add('non_link');
-    edit_link.innerHTML = 'Visit/Edit';
-    edit_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Visit/Edit', function(){
         editNode(d, clicked_node);
         closePopup();
     });
-    popup.append(edit_link);
-
-    // Detach
-    var detach_link = document.createElement('li');
-    detach_link.classList.add('non_link');
-    detach_link.innerHTML = 'Detach';
-    detach_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Detach', function(){
         detachNodeFromParent(d, false, false);
         closePopup();
     });
-    popup.append(detach_link);
-
-    // Delete
-    var delete_link = document.createElement('li');
-    delete_link.classList.add('non_link');
-    delete_link.innerHTML = 'Delete';
-    delete_link.addEventListener('click', function(){
+    addPopupOption(popup, 'Delete', function(){
         deleteNodeFromParent(d);
         closePopup();
     });
-    popup.append(delete_link);
 
     document.body.appendChild(popup);
 
