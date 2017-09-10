@@ -57,7 +57,7 @@
     </head>
     <body>
         <div id="header">
-            <img src="http://127.0.0.1:89/imgroot/chandelier.jpg"
+            <img src="/imgroot/chandelier.jpg"
                  id="header_image"
             />
         </div>
