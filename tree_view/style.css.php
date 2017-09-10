@@ -95,8 +95,8 @@
             }
             #popup li {
                 list-style-type: none;
-                padding: .4em;
-                padding-bottom: .3em;
+                padding: .25em;
+                padding-bottom: .2em;
                 margin: .1em;
             }
             #popup li a {

@@ -784,6 +784,7 @@ function detachNodeFromParent(node, do_delete, do_nest_mode) {
     var parent = node.parent;
     console.log('  parent=', parent);
     
+    // #todo #fixme don't assume a catchall table to update
     var primary_key_field = '<?= DbUtil::get_primary_key_field($table2update) ?>';
     var primary_key = node[primary_key_field];
     var parent_id_field = '<?= Config::$config['default_parent_field'] ?>';
@@ -972,6 +973,7 @@ function closePopup() {
     }
 }
 
+// <script>
 // invoked on clicking popup option
 function addChildWithPrompt(node_to_add_to) {
     var name = prompt('Name of new node:');
@@ -1018,31 +1020,102 @@ function addChildWithPrompt(node_to_add_to) {
     }
 }
 
+function changeNodeText(svg_g_node, new_text) {
+    var texts = svg_g_node.getElementsByTagName('text');
+    if (texts.length != 1) {
+        console.log('WARNING - assumed <g> would only have 1 <text> node, but it has', texts.length);
+    }
+    var text_node = texts[0];
+    text_node.textContent = new_text;
+}
+
+// invoked on clicking popup option
+function renameNode(node, clicked_node) {
+    var name = prompt('Rename node:', node._node_name);
+
+    if (name) {
+        var url = crud_api_uri;
+        var table = getConnTable(node); // #todo #fixme should this be getNodeTable()?
+        var id_field = idFieldForNode(node);
+
+        // #todo #fixme don't assume a catchall table to update
+        var primary_key_field = '<?= DbUtil::get_primary_key_field($table2update) ?>';
+        var primary_key = node[primary_key_field];
+        var table_name = '<?= $table2update ?>';
+
+
+        // build up the AJAX data to update the node
+        var where_clauses = {};
+        where_clauses[primary_key_field] = primary_key;
+        var data = {
+            action: 'update_' + table,
+            where_clauses: where_clauses
+        };
+        data['name'] = name; // #todo #fixme use name_field
+        
+        success_callback = function(xhttp) {
+            var response = JSON.parse(xhttp.responseText);
+            if (response) {
+                if (Array.isArray(response)
+                    && response.length == 1
+                ) {
+                    var response_obj = response[0];
+                    console.log('response_obj', response_obj);
+
+                    setNodeName(node, name);
+                    changeNodeText(clicked_node, name);
+                }
+                else {
+                    alert("Error: unexpected response format");
+                }
+            }
+            else {
+                alert("Error: couldn't parse response");
+            }
+        };
+        error_callback = function() {
+            alert('Something went wrong');
+        };
+        doAjax("POST", url, data, success_callback, error_callback);
+    }
+}
+
+// <script>
 function openPopup(d, event, clicked_node) {
     closePopup();
 
     var popup = document.createElement('ul');
     popup.setAttribute('id', 'popup');
 
-    // Edit - link to obj_editor
-    var edit_link = document.createElement('li');
-    edit_link.classList.add('non_link');
-    edit_link.innerHTML = 'Edit';
-    edit_link.addEventListener('click', function(){
-        editNode(d, clicked_node);
-        closePopup();
-    });
-    popup.append(edit_link);
-
     // Add Child
     var add_child_link = document.createElement('li');
     add_child_link.classList.add('non_link');
     add_child_link.innerHTML = 'Add Child';
     add_child_link.addEventListener('click', function(){
-        addChildWithPrompt(d, clicked_node);
+        addChildWithPrompt(d);
         closePopup();
     });
     popup.append(add_child_link);
+
+    // Rename - link to obj_editor
+    var rename_link = document.createElement('li');
+    rename_link.classList.add('non_link');
+    rename_link.innerHTML = 'Rename';
+    rename_link.addEventListener('click', function(){
+        renameNode(d, clicked_node);
+        closePopup();
+    });
+    popup.append(rename_link);
+
+    // Edit - link to obj_editor
+    var edit_link = document.createElement('li');
+    edit_link.classList.add('non_link');
+    edit_link.innerHTML = 'Visit/Edit';
+    edit_link.addEventListener('click', function(){
+        editNode(d, clicked_node);
+        closePopup();
+    });
+    popup.append(edit_link);
 
     // Detach
     var detach_link = document.createElement('li');
