@@ -958,7 +958,7 @@ function closePopup() {
     }
 
     if (elem_w_popup_open) {
-        elem_w_popup_open.classList.remove('selected');
+        elem_w_popup_open.classList.remove('focus_of_popup');
     }
 }
 
@@ -1136,7 +1136,7 @@ function openPopup(d, event, clicked_node) {
     popup.style.top = mouse_y + 'px';
 
     elem_w_popup_open = clicked_node;
-    elem_w_popup_open.classList.add('selected');
+    elem_w_popup_open.classList.add('focus_of_popup');
 }
 
 function getNodeTable(d) {
