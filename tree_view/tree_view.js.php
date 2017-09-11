@@ -34,6 +34,7 @@
 <?php
     # javascript includes directly from PHP
     require_once("$trunk/js/ajax.js");
+    include("$trunk/js/popup.js");
     TreeView::include_js__get_tree_url();
 ?>
 
@@ -1123,61 +1124,6 @@ function renameNode(node, clicked_node) {
 </script>
 <script>
 
-function addPopupOption(popup_elem, name, callback) {
-    var link = document.createElement('li');
-    link.classList.add('non_link');
-    link.innerHTML = name;
-    link.addEventListener('click', callback);
-    popup_elem.append(link);
-}
-
-function openPopup(d, event, clicked_node) {
-    closePopup();
-
-    var popup = document.createElement('ul');
-    popup.setAttribute('id', 'popup');
-
-    addPopupOption(popup, 'Add Child', function(){
-        addChildWithPrompt(d);
-        closePopup();
-    });
-    addPopupOption(popup, 'Rename', function(){
-        renameNode(d, clicked_node);
-        closePopup();
-    });
-    addPopupOption(popup, 'Visit/Edit', function(){
-        editNode(d, clicked_node);
-        closePopup();
-    });
-    addPopupOption(popup, 'Select/Move', function(){
-        startNestMode();
-        selectNode(d, clicked_node);
-        closePopup();
-    });
-    addPopupOption(popup, 'Detach', function(){
-        detachNodeFromParent(d, false, false);
-        closePopup();
-    });
-    addPopupOption(popup, 'Delete', function(){
-        deleteNodeFromParent(d);
-        closePopup();
-    });
-
-    document.body.appendChild(popup);
-    document.body.addEventListener('click', closePopup);
-    event.stopPropagation(); // avoid this click triggering closePopup
-
-    // update style / position
-    popup.style.position = 'absolute';
-    mouse_x = event.layerX - 20;
-    mouse_y = event.layerY - 2;
-    popup.style.left = mouse_x + 'px';
-    popup.style.top = mouse_y + 'px';
-
-    elem_w_popup_open = clicked_node;
-    elem_w_popup_open.classList.add('focus_of_popup');
-}
-
 function getNodeTable(d) {
     var table = ('_node_table' in d
                     ? d._node_table
@@ -1228,6 +1174,37 @@ function selectNode(d, clicked_node) {
 
     nest_mode = 'click_new_parent_or_select_more';
     doNestModeAlert(nest_mode);
+}
+
+function openTreeNodePopup(d, event, clicked_node) {
+    var popup_options = [
+        {   name: 'Add Child', callback: function(){
+                                            addChildWithPrompt(d);
+                                            closePopup();
+                                         } },
+        {   name: 'Rename', callback: function(){
+                                        renameNode(d, clicked_node);
+                                        closePopup();
+                                      } },
+        {   name: 'Visit/Edit', callback: function(){
+                                            editNode(d, clicked_node);
+                                            closePopup();
+                                          } },
+        {   name: 'Select/Move', callback: function(){
+                                            startNestMode();
+                                            selectNode(d, clicked_node);
+                                            closePopup();
+                                           } },
+        {   name: 'Detach', callback: function(){
+                                        detachNodeFromParent(d, false, false);
+                                        closePopup();
+                                      } },
+        {   name: 'Delete', callback: function(){
+                                        deleteNodeFromParent(d);
+                                        closePopup();
+                                      } }
+    ];
+    openPopup(popup_options, d, event, clicked_node);
 }
 
 <?php
@@ -1405,7 +1382,7 @@ function clickLabel(d) {
             }
         }
         else {
-            openPopup(d, d3.event, clicked_node);
+            openTreeNodePopup(d, d3.event, clicked_node);
         }
     }
 }
