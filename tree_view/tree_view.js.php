@@ -1145,13 +1145,13 @@ function openPopup(d, event, clicked_node) {
         renameNode(d, clicked_node);
         closePopup();
     });
+    addPopupOption(popup, 'Visit/Edit', function(){
+        editNode(d, clicked_node);
+        closePopup();
+    });
     addPopupOption(popup, 'Select/Move', function(){
         startNestMode();
         selectNode(d, clicked_node);
-        closePopup();
-    });
-    addPopupOption(popup, 'Visit/Edit', function(){
-        editNode(d, clicked_node);
         closePopup();
     });
     addPopupOption(popup, 'Detach', function(){
