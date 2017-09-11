@@ -147,6 +147,7 @@
         }
         else {
             my_debug('sql',"  SQL ERROR!\n\n");
+            die(json_encode(Db::error_result()));
         }
         return $rows;
     }
@@ -311,6 +312,9 @@
             ";
             my_debug('sql',"root sql = {'$sql'}\n");
             $rows = Db::sql($sql);
+            if (!$rows) {
+                die(json_encode(Db::error_result()));
+            }
             my_debug('sql',"  # rows = ".count($rows)."\n\n");
         }
 
