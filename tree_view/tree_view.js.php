@@ -1020,7 +1020,7 @@ function addChildWithPrompt(node_to_add_to) {
 
     if (name) {
         var url = crud_api_uri;
-        var table = getConnTable(node_to_add_to); // #todo #fixme should this be getNodeTable()?
+        var table = getNodeTable(node_to_add_to);
         var id_field = idFieldForNode(node_to_add_to);
 
         var data = {
