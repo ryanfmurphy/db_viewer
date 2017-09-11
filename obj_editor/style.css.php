@@ -26,6 +26,10 @@ body {
     }
 }
 
+#table_name {
+    cursor: pointer;
+}
+
 <?php 
         $input_opacity = .7;
         if ($background=='dark') {
@@ -182,7 +186,10 @@ input#selectTable {
     margin-top: .5em;
 }
 
-<?php include("$trunk/css/background_image.css.php") ?>
+<?php
+    include("$trunk/css/background_image.css.php");
+    include("$trunk/css/popup.css");
+?>
 
 @media (max-width: <?= $mobile_size ?>px) {
 

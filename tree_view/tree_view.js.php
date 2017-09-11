@@ -999,21 +999,6 @@ function addChildToNode(node, child, doUpdateTree,
     }
 }
 
-var elem_w_popup_open = null;
-
-function closePopup() {
-    var popup = document.getElementById('popup');
-    if (popup) {
-        popup.parentElement.removeChild(popup);
-    }
-
-    if (elem_w_popup_open) {
-        elem_w_popup_open.classList.remove('focus_of_popup');
-    }
-
-    document.body.removeEventListener('click', closePopup);
-}
-
 // <script>
 // invoked on clicking popup option
 function addChildWithPrompt(node_to_add_to) {
@@ -1204,7 +1189,7 @@ function openTreeNodePopup(d, event, clicked_node) {
                                         closePopup();
                                       } }
     ];
-    openPopup(popup_options, d, event, clicked_node);
+    openPopup(popup_options, event, clicked_node);
 }
 
 <?php

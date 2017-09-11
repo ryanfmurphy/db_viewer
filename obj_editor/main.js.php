@@ -2,13 +2,17 @@
 
 <?php
     include("$trunk/js/ajax.js");
+    include("$trunk/js/popup.js");
+    TreeView::include_js__get_tree_url();
+
     $table_field_spaces_to_underscores =
         Config::$config['table_field_spaces_to_underscores'];
 
-    TreeView::include_js__get_tree_url();
 ?>
 
 { // main javascript
+
+    var crud_api_uri = <?= Utility::quot_str_for_js(Config::$config['crud_api_uri']) ?>;
 
     var save_json_dump_of_stored_rows =
         <?= (int)Config::$config['save_json_dump_of_stored_rows'] ?>;
@@ -291,7 +295,7 @@
 
         function createRow(click_event) { // click_event optional
             return createButtonClickHandler(
-                '/db_viewer/obj_editor/crud_api.php',
+                crud_api_uri, //'/db_viewer/obj_editor/crud_api.php',
                 scope.table_name,
                 click_event
             );
@@ -317,7 +321,7 @@
 
         function deleteCurrentRow(click_event) {
             return deleteButtonClickHandler(
-                '/db_viewer/obj_editor/crud_api.php',
+                crud_api_url, //'/db_viewer/obj_editor/crud_api.php',
                 window.scope.table_name,
                 click_event // optional
             );
@@ -954,7 +958,6 @@
         }
     }
 
-
     function doOnEnter(keyEvent, callback) {
         var ENTER = 13, UNIX_ENTER = 10;
         if (keyEvent.which == ENTER
@@ -983,6 +986,33 @@
                 console.log('no alt pressed');
             }
         });
+    }
+
+    function viewRelationCandidates() {
+        var table_name_elem = document.getElementById('table_name');
+        var table_name = table_name_elem.innerHTML.trim();
+
+        var action = 'view_relation';
+        var url = crud_api_uri
+                    + '?action=' + action
+                    + '&name=' + table_name; // #todo #fixme use name field
+        return window.open(url, '_blank');
+    }
+
+    function openTableNamePopup(event, clicked_elem) {
+        var d = null;
+        var options = [
+            {   name: 'New Object', callback: function() {
+                                                becomeSelectTableInput(clicked_elem);
+                                                closePopup();
+                                              }},
+            // #todo #fixme only include this option if we have a schema for relation
+            {   name: 'View/Edit Relation', callback: function() {
+                                                        viewRelationCandidates();
+                                                        closePopup();
+                                                      }}
+        ];
+        openPopup(options, event, clicked_elem);
     }
 
     // given elem, make it become an <input> to select the table

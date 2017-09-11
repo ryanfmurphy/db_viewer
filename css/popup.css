@@ -1,0 +1,25 @@
+            #popup {
+                border: solid 1px #77c;
+                background: #ccf;
+                padding: .2em;
+                font-size: 80%;
+                white-space: nowrap;
+            }
+            #popup li {
+                list-style-type: none;
+                padding: .25em;
+                padding-bottom: .2em;
+                margin: .1em;
+            }
+            #popup li a {
+                display: block;
+                width: 100%;
+                height: 100%;
+                text-decoration: none;
+                color: initial;
+            }
+            #popup li:hover {
+                background: white;
+                text-decoration: none;
+                cursor: pointer;
+            }
