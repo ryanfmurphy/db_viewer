@@ -526,7 +526,7 @@
             #todo #fixme make this not get small when editing it in mobile_travel_mode
             #todo #fixme make this not lose its id when editing in mobile_travel_mode
 ?>
-                    <code id="table_name" onclick="becomeSelectTableInput(this)">
+                    <code id="table_name" onclick="/*openTableNamePopup(event, this)*/ becomeSelectTableInput(this)">
                         <?= $table ?>
                     </code>
 <?php
