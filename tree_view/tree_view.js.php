@@ -28,17 +28,26 @@
     #              probably will need all this stuff in pure JS
     $table2update = 'entity';
     $parent_table = 'entity';
-
 ?>
         <script>
 
 <?php
-    # javascript includes directly via PHP
+    # javascript includes directly from PHP
     require_once("$trunk/js/ajax.js");
     TreeView::include_js__get_tree_url();
 ?>
 
+var start_w_tree_fully_expanded = <?= (int)$start_w_tree_fully_expanded ?>;
+var omit_root_node = <?= (int)$omit_root_node ?>;
+var default_name_cutoff = <?= $name_cutoff ?>;
+
 var table_info = <?= json_encode($table_info) ?>;
+
+var config = {
+    tree_height_factor: <?= Config::$config['tree_height_factor'] ?>
+};
+
+// ideally PHP would end here - pure JS from here forward
 
 var svg_tree = {
     tree: undefined,
@@ -64,9 +73,9 @@ function setupTree(new_width, new_height, level_width) {
     if (new_height === undefined) new_height = defaults.height;
     if (level_width === undefined) level_width = defaults.level_width;
 
-    var left_margin = <?= ($omit_root_node
-                                ? 120
-                                : 250) ?>;
+    var left_margin = (omit_root_node
+                            ? 120
+                            : 250);
     var margin = svg_tree.margin =
         {top: 20, right: 120, bottom: 20, left: left_margin};
     var width = svg_tree.width =
@@ -220,16 +229,16 @@ function setupTreeWithSize(root) {
     */
     var num_nodes_updown = treeHeightFactor(root);
     console.log('num_nodes_updown', num_nodes_updown);
-    var height_factor_config = <?= Config::$config['tree_height_factor'] ?>;
+    var height_factor_config = config.tree_height_factor;
     var height = Math.max(
         num_nodes_updown * 65 * height_factor_config,
         defaults.height
     );
     var width = undefined; // 2000;
 
-    var name_cutoff = <?= $name_cutoff
-                            ? (int)$name_cutoff
-                            : 'undefined' ?>;
+    var name_cutoff = default_name_cutoff
+                        ? default_name_cutoff
+                        : undefined;
     var max_node_strlen = getMaxNodeStrlen(
         root, name_cutoff, strlenVarWidth
     );
@@ -1011,7 +1020,7 @@ function addChildWithPrompt(node_to_add_to) {
 
     if (name) {
         var url = crud_api_uri;
-        var table = getConnTable(node_to_add_to); // #todo #fixme should this be getNodeTable()?
+        var table = getNodeTable(node_to_add_to);
         var id_field = idFieldForNode(node_to_add_to);
 
         var data = {
@@ -1136,13 +1145,13 @@ function openPopup(d, event, clicked_node) {
         renameNode(d, clicked_node);
         closePopup();
     });
+    addPopupOption(popup, 'Visit/Edit', function(){
+        editNode(d, clicked_node);
+        closePopup();
+    });
     addPopupOption(popup, 'Select/Move', function(){
         startNestMode();
         selectNode(d, clicked_node);
-        closePopup();
-    });
-    addPopupOption(popup, 'Visit/Edit', function(){
-        editNode(d, clicked_node);
         closePopup();
     });
     addPopupOption(popup, 'Detach', function(){
