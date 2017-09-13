@@ -1158,6 +1158,13 @@ function editNode(d, clicked_node) {
     window.open(url, '_blank');
 }
 
+function viewTree(d, clicked_node) {
+    var id_field = idFieldForNode(d);
+    var primary_key = d[id_field];
+    var url = get_tree_url(primary_key);
+    window.open(url, '_blank');
+}
+
 function selectNode(d, clicked_node) {
     //selected_nodes = [d];
     //selected_dom_nodes = [clicked_node];
@@ -1172,10 +1179,6 @@ function selectNode(d, clicked_node) {
 function openTreeNodePopup(d, event, clicked_node) {
     //var type_name = getNodeTable(d);
     var popup_options = [
-        /*{   name: 'Add Child "' + type_name + '"', callback: function(){
-                                                                addChildWithPrompt(d);
-                                                                closePopup();
-                                                             } },*/
         {   name: 'Add Child', callback: function() {
                                                     addChildWithPrompt(d, true);
                                                     closePopup();
@@ -1184,10 +1187,14 @@ function openTreeNodePopup(d, event, clicked_node) {
                                         renameNode(d, clicked_node);
                                         closePopup();
                                       } },
-        {   name: 'Visit/Edit', callback: function(){
-                                            editNode(d, clicked_node);
-                                            closePopup();
-                                          } },
+        {   name: 'Details/Edit', callback: function(){
+                                                editNode(d, clicked_node);
+                                                closePopup();
+                                            } },
+        {   name: 'Local Tree', callback:  function(){
+                                                viewTree(d, clicked_node);
+                                                closePopup();
+                                           } },
         {   name: 'Select/Move', callback: function(){
                                             startNestMode();
                                             selectNode(d, clicked_node);
