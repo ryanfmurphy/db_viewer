@@ -1001,12 +1001,20 @@ function addChildToNode(node, child, doUpdateTree,
 
 // <script>
 // invoked on clicking popup option
-function addChildWithPrompt(node_to_add_to) {
+function addChildWithPrompt(node_to_add_to, ask_type) {
+    var default_table = getNodeTable(node_to_add_to);
+    var table = default_table;
+    if (ask_type) {
+        table = prompt('Type/Table of new node:', table);
+    }
+
     var name = prompt('Name of new node:');
 
     if (name) {
         var url = crud_api_uri;
-        var table = getNodeTable(node_to_add_to);
+        if (!table) {
+            table = default_table;
+        }
         var id_field = idFieldForNode(node_to_add_to);
 
         var data = {
@@ -1162,11 +1170,16 @@ function selectNode(d, clicked_node) {
 }
 
 function openTreeNodePopup(d, event, clicked_node) {
+    //var type_name = getNodeTable(d);
     var popup_options = [
-        {   name: 'Add Child', callback: function(){
-                                            addChildWithPrompt(d);
-                                            closePopup();
-                                         } },
+        /*{   name: 'Add Child "' + type_name + '"', callback: function(){
+                                                                addChildWithPrompt(d);
+                                                                closePopup();
+                                                             } },*/
+        {   name: 'Add Child', callback: function() {
+                                                    addChildWithPrompt(d, true);
+                                                    closePopup();
+                                                } },
         {   name: 'Rename', callback: function(){
                                         renameNode(d, clicked_node);
                                         closePopup();
