@@ -49,7 +49,7 @@
             # get|get1
             view|create|update|delete
         )
-        _(?<table>\w+)
+        (?:_(?<table>\w+))
         |
         add_to_array
         |
@@ -112,10 +112,8 @@
 
         switch ($action) {
 
-            #todo #cleanup - action should be just view|create|update|delete
-            #                and table should be filled out
-
-            case "view_$table":
+            case "view":
+            case "view_$table": #todo #deprecate
 
                 if (isset($vars['select_fields'])) {
                     $select_fields = $vars['select_fields'];
@@ -134,18 +132,21 @@
                 ));
                 break;
 
-            case "create_$table":
+            case "create":
+            case "create_$table": #todo #deprecate
                 die(json_encode(
                     Db::insert_row($table, $vars)
                 ));
                 break;
 
-            case "update_$table":
+            case "update":
+            case "update_$table": #todo #deprecate
                 die(json_encode(
                     Db::update_rows($table, $vars)
                 ));
 
-            case "delete_$table":
+            case "delete":
+            case "delete_$table": #todo #deprecate
                 die(json_encode(
                     Db::delete_rows($table, $vars)
                 ));

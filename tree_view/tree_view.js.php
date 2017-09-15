@@ -1040,6 +1040,7 @@ function addChildWithPrompt(node_to_add_to, ask_type) {
                     var new_node = cloneCleanNode(node_to_add_to);
                     setNodeName(new_node, name);
                     new_node[id_field] = response_obj[id_field];
+                    new_node._node_table = table;
 
                     addChildToNode(node_to_add_to, new_node, true, false);
                 }
