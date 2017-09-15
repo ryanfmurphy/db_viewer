@@ -321,7 +321,7 @@
 
         function deleteCurrentRow(click_event) {
             return deleteButtonClickHandler(
-                crud_api_url, //'/db_viewer/obj_editor/crud_api.php',
+                crud_api_uri, //'/db_viewer/obj_editor/crud_api.php',
                 window.scope.table_name,
                 click_event // optional
             );
