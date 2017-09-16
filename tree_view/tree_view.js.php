@@ -442,6 +442,7 @@ function updateTree(source) {
             ;
 
 <?php
+    #todo turn more pure-JS-like
     $maybe_tree_transitions = ($do_tree_transitions
                                     ? '
                                         .transition()
@@ -933,8 +934,11 @@ function setNodeName(node, name) {
 function cloneCleanNode(node) {
     var new_node = cloneSvgNode(node);
     setNodeName(new_node, null);
-    new_node.children = [];
     delete new_node._children;
+    delete new_node._node_table;
+    delete new_node._node_color;
+
+    new_node.children = [];
 
     var id_field = idFieldForNode(node);
     if (id_field) {
@@ -1037,6 +1041,7 @@ function addChildWithPrompt(node_to_add_to, ask_type) {
                     setNodeName(new_node, name);
                     new_node[id_field] = response_obj[id_field];
                     new_node._node_table = table;
+                    new_node._node_color = 'green';
 
                     addChildToNode(node_to_add_to, new_node, true, false);
                 }
