@@ -295,7 +295,7 @@
 
         function createRow(click_event) { // click_event optional
             return createButtonClickHandler(
-                crud_api_uri, //'/db_viewer/obj_editor/crud_api.php',
+                crud_api_uri,
                 scope.table_name,
                 click_event
             );
