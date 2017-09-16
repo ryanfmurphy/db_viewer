@@ -453,9 +453,13 @@ if (!class_exists('Db')) {
             return $sql;
         }
 
-        public static function get($table_name, $wheres) {
+        public static function get($table_name, $wheres, $get1=false) {
             $sql = self::build_select_sql($table_name, $wheres);
-            return self::query_fetch($sql);
+            return self::query_fetch($sql, $get1=false);
+        }
+
+        public static function get1($table_name, $wheres) {
+            return self::get($table_name, $wheres, true);
         }
 
         private static function query_fetch($sql, $only1=false) {

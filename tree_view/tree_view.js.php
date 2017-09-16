@@ -1003,60 +1003,97 @@ function addChildToNode(node, child, doUpdateTree,
     }
 }
 
+function get1row(params) { // table, kv pairs for where clause
+    var url = crud_api_uri;
+
+    var success = params.success;
+    var error = params.error;
+    delete params.success;
+    delete params.error;
+
+    params.action = 'get1';
+    doAjax("POST", url, params, success, error);
+}
+
 // <script>
 // invoked on clicking popup option
-function addChildWithPrompt(node_to_add_to, ask_type) {
+function addChildWithPrompt(node_to_add_to, ask_type, match_existing_obj_by_name) {
     var default_table = getNodeTable(node_to_add_to);
     var table = default_table;
     if (ask_type) {
-        table = prompt('Type/Table of new node:', table);
+        table = prompt(
+            (match_existing_obj_by_name
+                        ? "Type/Table of the node you're looking for"
+                        : 'Type/Table of new node:'),
+            table);
     }
 
-    var name = prompt('Name of new node:');
+    var name = prompt(match_existing_obj_by_name
+                        ? 'Name of node to match'
+                        : 'Name of new node:');
 
     if (name) {
-        var url = crud_api_uri;
-        if (!table) {
-            table = default_table;
+
+        if (match_existing_obj_by_name) {
+            var row = get1row({
+                table: table,
+                where_clauses: {
+                    name: name
+                },
+                success: function(r) {
+                    console.log(r);
+                    alert('Success');
+                },
+                error: function(r) {
+                    alert('Error');
+                }
+            });
+            console.log('got row:', row);
         }
-        var id_field = idFieldForNode(node_to_add_to);
+        else {
+            var url = crud_api_uri;
+            if (!table) {
+                table = default_table;
+            }
+            var id_field = idFieldForNode(node_to_add_to);
 
-        var data = {
-            action: 'create_' + table,
-        };
-        data['name'] = name;                      // #todo #fixme use name field
-        var parent_id = node_to_add_to[id_field];
-        data['parent_ids'] = '{'+parent_id+'}';   // #todo generalize 'parent_ids' field
-        
-        success_callback = function(xhttp) {
-            var response = JSON.parse(xhttp.responseText);
-            if (response) {
-                if (Array.isArray(response)
-                    && response.length == 1
-                ) {
-                    var response_obj = response[0];
-                    console.log('response_obj', response_obj);
+            var data = {
+                action: 'create_' + table,
+            };
+            data['name'] = name;                      // #todo #fixme use name field
+            var parent_id = node_to_add_to[id_field];
+            data['parent_ids'] = '{'+parent_id+'}';   // #todo generalize 'parent_ids' field
+            
+            success_callback = function(xhttp) {
+                var response = JSON.parse(xhttp.responseText);
+                if (response) {
+                    if (Array.isArray(response)
+                        && response.length == 1
+                    ) {
+                        var response_obj = response[0];
+                        console.log('response_obj', response_obj);
 
-                    var new_node = cloneCleanNode(node_to_add_to);
-                    setNodeName(new_node, name);
-                    new_node[id_field] = response_obj[id_field];
-                    new_node._node_table = table;
-                    new_node._node_color = 'green';
+                        var new_node = cloneCleanNode(node_to_add_to);
+                        setNodeName(new_node, name);
+                        new_node[id_field] = response_obj[id_field];
+                        new_node._node_table = table;
+                        new_node._node_color = 'green';
 
-                    addChildToNode(node_to_add_to, new_node, true, false);
+                        addChildToNode(node_to_add_to, new_node, true, false);
+                    }
+                    else {
+                        alert("Error: unexpected response format");
+                    }
                 }
                 else {
-                    alert("Error: unexpected response format");
+                    alert("Error: couldn't parse response");
                 }
-            }
-            else {
-                alert("Error: couldn't parse response");
-            }
-        };
-        error_callback = function() {
-            alert('Something went wrong');
-        };
-        doAjax("POST", url, data, success_callback, error_callback);
+            };
+            error_callback = function() {
+                alert('Something went wrong');
+            };
+            doAjax("POST", url, data, success_callback, error_callback);
+        }
     }
 }
 
@@ -1187,6 +1224,10 @@ function openTreeNodePopup(d, event, clicked_node) {
     var popup_options = [
         {   name: 'Add Child', callback: function() {
                                                     addChildWithPrompt(d, true);
+                                                    closePopup();
+                                                } },
+        {   name: 'Add Known Child', callback: function() {
+                                                    addChildWithPrompt(d, true, true);
                                                     closePopup();
                                                 } },
         {   name: 'Rename', callback: function(){
