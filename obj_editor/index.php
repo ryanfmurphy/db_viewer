@@ -60,7 +60,7 @@
     { # prep logic - get fields from db
 
         { # vars
-            $schemas_in_path = DbUtil::schemas_in_path($search_path);
+            $schemas_in_path = DbUtil::schemas_in_path(/*$search_path*/);
             #$schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
             { # choose background

@@ -492,7 +492,8 @@ if (!class_exists('DbUtil')) {
         }
 
         # get comma-sep search_path as array of schemas
-        public static function schemas_in_path($search_path) {
+        public static function schemas_in_path(/*$search_path*/) {
+            $search_path = Config::$config['search_path'];
             $search_path = trim($search_path);
             $search_path_no_spaces = str_replace(' ', '', $search_path);
             $schemas_in_path = explode(',', $search_path_no_spaces);
@@ -942,24 +943,60 @@ infer_limit_from_query: query didn't match regex.
             }
         }
 
+        public static function default_order_by_limit(
+            $tablename_no_quotes, $schemas_in_path=null
+        ) {
+            $order = self::order_by_time_sql($tablename_no_quotes, $schemas_in_path);
+            
+            $sql = ($order
+                        ? "$order "
+                        : "");
+            $sql .= 'limit 100';
+            return $sql;
+        }
+
         # if $sqlish might just be a tablename
         # expand it to actual sql
         # return true if the expand happened, false otherwise
-        public static function expand_tablename_into_query($sqlish) {
+        public static function expand_tablename_into_query(
+            $sqlish, $whereVars=array(), $selectFields=null,
+            $order_by_limit=null
+        ) {
+            if ($order_by_limit === null) {
+                $order_by_limit = DbUtil::default_order_by_limit(
+                                    $tablename_no_quotes, null);
+            }
             $sqlHasNoSpaces = (strpos(trim($sqlish), ' ') === false);
             if (strlen($sqlish) > 0
                     && $sqlHasNoSpaces
             ) {
                 $tablename = $sqlish;
 
+                /*
                 $sqlish = "select * from "
-                                .DbUtil::quote_ident($tablename)
-                                ." limit 100";
-                return $sqlish;
+                                .DbUtil::quote_ident($tablename);
+                if ($order_by_limit) {
+                    $sqlish .= " $order_by_limit";
+                }
+                */
+
+                return Db::build_select_sql(
+                    $tablename, $whereVars, $selectFields,
+                    $order_by_limit
+                );
             }
             else {
                 return false;
             }
+        }
+
+        public static function order_by_time_sql($tablename_no_quotes, $schemas_in_path) {
+            $time_field = DbUtil::get_time_field(
+                        $tablename_no_quotes, $schemas_in_path);
+            if ($time_field) {
+                return "\norder by $time_field desc";
+            }
+            return null;
         }
 
     }

@@ -63,7 +63,7 @@
                     );
             }
 
-            $schemas_in_path = DbUtil::schemas_in_path($search_path);
+            $schemas_in_path = DbUtil::schemas_in_path(/*$search_path*/);
             DbUtil::set_db_search_path($search_path);
         }
 

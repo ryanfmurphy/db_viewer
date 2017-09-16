@@ -80,7 +80,9 @@
                                     : false);
 
                 { # just tablename? turn to select statement
-                    $expanded_sql = DbUtil::expand_tablename_into_query($sql);
+                    $expanded_sql = DbUtil::expand_tablename_into_query(
+                        $sql, array(), null, false # no order_by_limit for now
+                    );
                     if ($expanded_sql) {
                         # and order by time field if there is one
                         $order_by_time = true;
@@ -119,21 +121,17 @@
                     $limit_info = DbUtil::infer_limit_info_from_query($sql);
 
                     { # prep for order_by_time
-                        #(already set)
-                        #$order_by_time = (isset($requestVars['order_by_time'])
-                        #                    && $requestVars['order_by_time']);
-
                         $order_by_to_add_to_sql = null;
                         if ($order_by_time) {
-                            $time_field = DbUtil::get_time_field(
-                                        $tablename_no_quotes, $schemas_in_path);
-                            if ($time_field) {
-                                $order_by_to_add_to_sql = "\norder by $time_field desc";
+                            $order_by_to_add_to_sql = DbUtil::order_by_time_sql(
+                                $tablename_no_quotes, $schemas_in_path
+                            );
+                        }
 
-                                #todo - would this always be true? can I remove this "if"?
-                                if (isset($limit_info['query_wo_limit'])) {
-                                    $limit_info['query_wo_limit'] .= $order_by_to_add_to_sql;
-                                }
+                        if ($order_by_to_add_to_sql) {
+                            #todo - would this always be true? can I remove this "if"?
+                            if (isset($limit_info['query_wo_limit'])) {
+                                $limit_info['query_wo_limit'] .= $order_by_to_add_to_sql;
                             }
                         }
                     }

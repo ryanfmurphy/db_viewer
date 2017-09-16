@@ -429,13 +429,12 @@ if (!class_exists('Db')) {
             header("Location: ".self::view_query_url($sql, $minimal));
         }
 
-        public static function viewTable(
-            $table_name, $whereVars=array(),
-            $selectFields=null, $minimal=false
+        public static function view_table(
+            $table_name, $where_vars=array(), $select_fields=null, $minimal=false
         ) {
-            $sql = self::build_select_sql(
-                $table_name, $whereVars, $selectFields);
-
+            $sql = DbUtil::expand_tablename_into_query(
+                $table_name, $where_vars, $select_fields
+            );
             return Db::view_query($sql, $minimal);
         }
 
