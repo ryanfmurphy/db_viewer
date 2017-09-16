@@ -1045,7 +1045,14 @@ function addChildWithPrompt(node_to_add_to, ask_type, match_existing_obj_by_name
                     var response_obj = JSON.parse(xhttp.responseText);
                     if (response_obj) {
                         console.log('got response_obj:', response_obj);
-                        addChildFromResponseObj(response_obj, node_to_add_to, table);
+                        //addChildFromResponseObj(response_obj, node_to_add_to, table);
+                        var primary_key_field = 'id'; // #todo #fixme generalize
+                        var primary_key = response_obj[primary_key_field];
+                        var parent_id_field = 'parent_ids'; // #todo #fixme generalize
+                        addParentToNode(
+                            null, node_to_add_to, table, primary_key,
+                            /*parent_id,*/ parent_id_field
+                        );
                     }
                     else {
                         alert("Couldn't find " + table + " with " + search_field + " " + name);
@@ -1329,7 +1336,7 @@ function clickLabel(d) {
                         // for parent_id_field stuff
                         var parent_field_is_array =
                             <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
-                        var parent_id = new_parent[id_field];
+                        var parent_id = new_parent[id_field]; // #todo might not need this
 
                         // build up the AJAX data to update the node
                         var success_callback = null;
@@ -1338,7 +1345,7 @@ function clickLabel(d) {
                         if (parent_field_is_array) {
                             addSetParent_arrayField(
                                 node_to_move, new_parent,
-                                table_name, primary_key, parent_id,
+                                table_name, primary_key, /*parent_id,*/
                                 parent_id_field, add_parent_instead_of_move
                             );
 ;
@@ -1408,12 +1415,12 @@ function clickLabel(d) {
 }
 
 function addParentToNode(
-    node_to_move, table_name, primary_key,
-    parent_id, parent_id_field,
+    node_to_move, new_parent, table_name,
+    primary_key, /*parent_id,*/ parent_id_field,
 ) {
     return addSetParent_arrayField(
-        node_to_move, table_name, primary_key,
-        parent_id, parent_id_field, true
+        node_to_move, new_parent, table_name, primary_key,
+        /*parent_id,*/ parent_id_field, true
     );
 }
 
@@ -1424,10 +1431,12 @@ function addParentToNode(
 function addSetParent_arrayField(
     node_to_move, new_parent,
     table_name, primary_key, // might not need these args
-    parent_id, parent_id_field, add_parent_instead_of_move
+    /*parent_id,*/ parent_id_field, add_parent_instead_of_move
 ) {
     var url = "<?= $crud_api_uri ?>";
     var remove_child = !add_parent_instead_of_move;
+    var primary_key_field = 'id'; // #todo #fixme generalize
+    var parent_id = new_parent[primary_key_field];
 
     data = {
         action: 'add_to_array',
