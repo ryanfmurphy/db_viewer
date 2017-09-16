@@ -40,22 +40,23 @@
         }
 
         { # vars
-            #$cmp = class_exists('Util');
             { # url & resource setup - jquery etc
                 {
                     if (!isset($js_path)) { # allow js_path to be specified in config
-                        $js_path = ($cmp ? '/js/shared' : '/js');
+                        $js_path = (isset($cmp) && $cmp #todo #fixme do we still need this?
+                                        ? '/js/shared'
+                                        : '/js');
                     }
                     $jquery_url = "$js_path/jquery-1.12.3.js";
                 }
 
                 if (!isset($php_ext)) {
-                    $php_ext = ($cmp ? false : true); #todo move out
+                    $php_ext = (isset($cmp) && $cmp ? false : true); #todo #fixme do we still need this
                 }
             }
 
             { # get sql query (if any) from incoming request
-                { # get sql and sanitize
+                { # get sql and sanitize #todo #fixme turn into a fn (in DbUtil?)
 
                     # sql can be taken implicitly from a launched macro
                     $macroName = (isset($requestVars['play_macro'])
@@ -73,38 +74,21 @@
                     $sql = str_replace("\r\n", "\n", $sql);
                 }
 
+                # we'll also decide whether to order by time
+                $order_by_time = (isset($requestVars['order_by_time'])
+                                    ? $requestVars['order_by_time']
+                                    : false);
+
                 { # just tablename? turn to select statement
-
-                    # we'll also decide whether to order by time
-                    $order_by_time = (isset($requestVars['order_by_time'])
-                                        ? $requestVars['order_by_time']
-                                        : false);
-
-                    $sqlHasNoSpaces = (strpos(trim($sql), ' ') === false);
-                    if (strlen($sql) > 0
-                            && $sqlHasNoSpaces
-                    ) {
-                        $tablename = $sql;
-
-                        $sql = "select * from "
-                                        .DbUtil::quote_ident($sql)
-                                        ." limit 100";
-
+                    $expanded_sql = DbUtil::expand_tablename_into_query($sql);
+                    if ($expanded_sql) {
                         # and order by time field if there is one
-                        #$requestVars['order_by_time'] = true;
                         $order_by_time = true;
+                        $sql = $expanded_sql;
                     }
                 }
 
-                { # allow destructive queries?
-                    $allow_destructive_queries = Config::$config['allow_destructive_queries'];
-                    $query_is_destructive = $destructive_kw = DbUtil::query_is_destructive($sql);
-                    if (!$allow_destructive_queries
-                        && $query_is_destructive
-                    ) {
-                        die("Cannot perform a destructive query: keyword '$destructive_kw' found");
-                    }
-                }
+                DbUtil::disallow_destructive_queries($sql);
             }
 
             { # vars

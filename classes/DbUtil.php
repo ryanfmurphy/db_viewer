@@ -932,6 +932,36 @@ infer_limit_from_query: query didn't match regex.
 <?php
         }
 
+        public static function disallow_destructive_queries($sql) {
+            $allow_destructive_queries = Config::$config['allow_destructive_queries'];
+            $query_is_destructive = $destructive_kw = DbUtil::query_is_destructive($sql);
+            if (!$allow_destructive_queries
+                && $query_is_destructive
+            ) {
+                die("Cannot perform a destructive query: keyword '$destructive_kw' found");
+            }
+        }
+
+        # if $sqlish might just be a tablename
+        # expand it to actual sql
+        # return true if the expand happened, false otherwise
+        public static function expand_tablename_into_query($sqlish) {
+            $sqlHasNoSpaces = (strpos(trim($sqlish), ' ') === false);
+            if (strlen($sqlish) > 0
+                    && $sqlHasNoSpaces
+            ) {
+                $tablename = $sqlish;
+
+                $sqlish = "select * from "
+                                .DbUtil::quote_ident($tablename)
+                                ." limit 100";
+                return $sqlish;
+            }
+            else {
+                return false;
+            }
+        }
+
     }
 
 }
