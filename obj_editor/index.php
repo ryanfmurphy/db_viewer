@@ -574,7 +574,7 @@
                                     : '';
 ?>
                     <span id="view_link" class="link" target="_blank"
-                          onclick="submitFormForViewLink('<?= $crud_api_uri ?>', event, window.scope.table_name)">
+                          onclick="submitFormForViewLink('<?= $crud_api_uri ?>', window.scope.table_name, event)">
                         search
                     </span>
                     <!--<a  id="view_all_link" class="link" target="_blank"
