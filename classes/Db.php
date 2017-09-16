@@ -351,7 +351,7 @@ if (!class_exists('Db')) {
             if ($order_by_limit) {
                 $sql .= "\n$order_by_limit";
             }
-            $sql .= ";"; #todo #fixme reconsider, maybe we don't want to close the query?
+            #$sql .= ";"; #todo #fixme reconsider, maybe we don't want to close the query?
                          #            might want to add more where conditions for example?
                          #            though having it here might be safer
             return $sql;
