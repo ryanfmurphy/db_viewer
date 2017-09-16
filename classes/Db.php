@@ -123,7 +123,7 @@ if (!class_exists('Db')) {
                                         ? $config['hash_password_fields']
                                         : false);
 
-            { # key list
+            { # key list - #todo #fixme - pull out into fn so we can use it in build_select_sql?
                 $keys = array_keys($vars);
                 $quotedKeys = array();
                 foreach ($keys as $key) {
@@ -132,7 +132,7 @@ if (!class_exists('Db')) {
                 $varNameList = implode(', ', $quotedKeys);
             }
 
-            { # val list
+            { # val list - #todo #fixme should we use make_val_list()?
                 $varValLiterals = array();
                 foreach ($keys as $key) {
                     $val = $vars[$key];
@@ -367,7 +367,7 @@ if (!class_exists('Db')) {
                     $sql .= "\n$key = $val";
                     $comma = true;
                 }
-                $id_name_scheme = 'table_id'; #todo
+                $id_name_scheme = 'table_id'; #todo #fixme use value from Config
                 $idField = self::get_id_field_name($table_name, $id_name_scheme);
 
                 $sql .= self::build_where_clause($whereClauses);

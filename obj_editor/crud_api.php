@@ -26,7 +26,7 @@
 }
 
 { # handle ___settings
-    { # no_js: don't send empty fields
+    { # no_js: don't send empty fields - #todo #cleanup - put in fn
         if (isset($vars['___settings'])
             && isset($vars['___settings']['no_js'])
             && $vars['___settings']['no_js']
@@ -128,7 +128,9 @@
                 }
 
                 die(json_encode(
-                    Db::viewTable($table, $vars, $select_fields, $minimal)
+                    Db::view_table(
+                        $table, $vars, $select_fields, $minimal
+                    )
                 ));
                 break;
 
