@@ -455,7 +455,7 @@ if (!class_exists('Db')) {
 
         public static function get($table_name, $wheres, $get1=false) {
             $sql = self::build_select_sql($table_name, $wheres);
-            return self::query_fetch($sql, $get1=false);
+            return self::query_fetch($sql, $get1);
         }
 
         public static function get1($table_name, $wheres) {
@@ -463,14 +463,11 @@ if (!class_exists('Db')) {
         }
 
         private static function query_fetch($sql, $only1=false) {
-            $rows = self::sql($sql);
             if ($only1) {
-                return (count($rows)
-                            ? $rows[0]
-                            : null);
+                return self::sql_get1($sql);
             }
             else {
-                return $rows;
+                return self::sql($sql);
             }
         }
 

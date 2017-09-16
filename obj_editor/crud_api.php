@@ -168,10 +168,6 @@
                 ));
 
             case "add_to_array":
-                #todo pull this $table out so it applies to all actions
-                $table = (isset($vars['table'])
-                            ? $vars['table']
-                            : die('ERROR: no table supplied'));
                 $primary_key = (isset($vars['primary_key'])
                                 ? $vars['primary_key']
                                 : die('ERROR: no primary_key supplied'));
