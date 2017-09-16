@@ -1035,22 +1035,28 @@ function addChildWithPrompt(node_to_add_to, ask_type, match_existing_obj_by_name
     if (name) {
 
         if (match_existing_obj_by_name) {
+            var search_field = 'name';
+            var where_clauses = {};
+            where_clauses[search_field] = name;
             var row = get1row({
                 table: table,
-                where_clauses: {
-                    name: name
-                },
-                success: function(r) {
-                    console.log(r);
-                    alert('Success');
+                where_clauses: where_clauses,
+                success: function(xhttp) {
+                    var response_obj = JSON.parse(xhttp.responseText);
+                    if (response_obj) {
+                        console.log('got response_obj:', response_obj);
+                        addChildFromResponseObj(response_obj, node_to_add_to, table);
+                    }
+                    else {
+                        alert("Couldn't find " + table + " with " + search_field + " " + name);
+                    }
                 },
                 error: function(r) {
                     alert('Error');
                 }
             });
-            console.log('got row:', row);
         }
-        else {
+        else { // #todo #fixme factor into a fn, maybe create_child_in_db?
             var url = crud_api_uri;
             if (!table) {
                 table = default_table;
@@ -1070,16 +1076,9 @@ function addChildWithPrompt(node_to_add_to, ask_type, match_existing_obj_by_name
                     if (Array.isArray(response)
                         && response.length == 1
                     ) {
-                        var response_obj = response[0];
                         console.log('response_obj', response_obj);
-
-                        var new_node = cloneCleanNode(node_to_add_to);
-                        setNodeName(new_node, name);
-                        new_node[id_field] = response_obj[id_field];
-                        new_node._node_table = table;
-                        new_node._node_color = 'green';
-
-                        addChildToNode(node_to_add_to, new_node, true, false);
+                        var response_obj = response[0];
+                        addChildFromResponseObj(response_obj, node_to_add_to, table);
                     }
                     else {
                         alert("Error: unexpected response format");
@@ -1095,6 +1094,18 @@ function addChildWithPrompt(node_to_add_to, ask_type, match_existing_obj_by_name
             doAjax("POST", url, data, success_callback, error_callback);
         }
     }
+}
+
+function addChildFromResponseObj(response_obj, node_to_add_to, table) {
+    var new_node = cloneCleanNode(node_to_add_to);
+    var name = response_obj.name;
+    setNodeName(new_node, name);
+    var id_field = idFieldForNode(node_to_add_to);
+    new_node[id_field] = response_obj[id_field];
+    new_node._node_table = table;
+    new_node._node_color = 'green';
+
+    addChildToNode(node_to_add_to, new_node, true, false);
 }
 
 function changeNodeText(svg_g_node, new_text) {
@@ -1325,56 +1336,12 @@ function clickLabel(d) {
                         var data = null;
 
                         if (parent_field_is_array) {
-                            // array field:
-                            // if pressed shift-N, then add addl parent: use "add_to_array" action
-                            //      else move parent by removing JUST the one existing parent
-                            //      and adding the new one (allow other existing parents to remain)
-
-                            var remove_child = !add_parent_instead_of_move;
-
-                            data = {
-                                action: 'add_to_array',
-                                table: table_name,
-                                primary_key: primary_key,
-                                field_name: parent_id_field,
-                                val_to_add: parent_id
-                            };
-
-                            // if we're moving the node, replace the existing id
-                            if (remove_child) {
-                                // #todo #fixme can we always depend on the key being 'id'
-                                var existing_parent_id = node_to_move.parent.id;
-                                if (existing_parent_id) {
-                                    data['val_to_replace'] = existing_parent_id;
-                                }
-                            }
-
-                            // #todo could #factor success_callback back in between the 2 cases
-                            success_callback = (function(node_to_move, parent_id_field) {
-                                return function(xhttp) {
-                                    var r = xhttp.responseText;
-                                    nest_mode = 'success';
-                                    doNestModeAlert(nest_mode);
-                                    
-                                    if (remove_child) {
-                                        console.log('removing child');
-                                        removeChildFromNode(node_to_move.parent,
-                                                            node_to_move, false);
-                                    }
-                                    else {
-                                        console.log('not removing child');
-                                    }
-                                    addChildToNode(new_parent, node_to_move, false,
-                                                   add_parent_instead_of_move);
-
-                                    num_succeeded++;
-                                    if (num_succeeded == selected_nodes.length) {
-                                        // #todo #performance - could find the leafiest common node to update at
-                                        updateTree(svg_tree.root);
-                                        deselectAllNodes();
-                                    }
-                                }
-                            })(node_to_move, parent_id_field);
+                            addSetParent_arrayField(
+                                node_to_move, new_parent,
+                                table_name, primary_key, parent_id,
+                                parent_id_field, add_parent_instead_of_move
+                            );
+;
                         }
                         // non-array field, simple update of parent field
                         // #todo make sure non-array parent field still works right
@@ -1406,15 +1373,16 @@ function clickLabel(d) {
                                     }
                                 }
                             })(node_to_move, parent_id_field);
+
+                            var error_callback = function(xhttp) {
+                                var r = xhttp.responseText;
+                                nest_mode = 'error'
+                                doNestModeAlert(nest_mode);
+                            }
+
+                            doAjax("POST", url, data, success_callback, error_callback);
                         }
 
-                        var error_callback = function(xhttp) {
-                            var r = xhttp.responseText;
-                            nest_mode = 'error'
-                            doNestModeAlert(nest_mode);
-                        }
-
-                        doAjax("POST", url, data, success_callback, error_callback);
                     }
                 }
                 else if (sub_mode == 'select_more') {
@@ -1438,6 +1406,83 @@ function clickLabel(d) {
         }
     }
 }
+
+function addParentToNode(
+    node_to_move, table_name, primary_key,
+    parent_id, parent_id_field,
+) {
+    return addSetParent_arrayField(
+        node_to_move, table_name, primary_key,
+        parent_id, parent_id_field, true
+    );
+}
+
+// addParentToNode - assumes parent_ids is an array field:
+// e.g. if pressed shift-N, then add addl parent: use "add_to_array" action
+//      else move parent by removing JUST the one existing parent
+//      and adding the new one (allow other existing parents to remain)
+function addSetParent_arrayField(
+    node_to_move, new_parent,
+    table_name, primary_key, // might not need these args
+    parent_id, parent_id_field, add_parent_instead_of_move
+) {
+    var url = "<?= $crud_api_uri ?>";
+    var remove_child = !add_parent_instead_of_move;
+
+    data = {
+        action: 'add_to_array',
+        table: table_name,
+        primary_key: primary_key,
+        field_name: parent_id_field,
+        val_to_add: parent_id
+    };
+
+    // if we're moving the node, replace the existing id
+    if (remove_child) {
+        // #todo #fixme can we always depend on the key being 'id'
+        var existing_parent_id = node_to_move.parent.id;
+        if (existing_parent_id) {
+            data['val_to_replace'] = existing_parent_id;
+        }
+    }
+
+    // #todo could #factor success_callback back in between the 2 cases
+    success_callback = (function(node_to_move, parent_id_field) {
+        return function(xhttp) {
+            var r = xhttp.responseText;
+            nest_mode = 'success';
+            doNestModeAlert(nest_mode);
+            
+            if (remove_child) {
+                console.log('removing child');
+                removeChildFromNode(node_to_move.parent,
+                                    node_to_move, false);
+            }
+            else {
+                console.log('not removing child');
+            }
+            addChildToNode(new_parent, node_to_move, false,
+                           add_parent_instead_of_move);
+
+            //num_succeeded++;
+            //if (num_succeeded == selected_nodes.length) {
+                // #todo #performance - could find the leafiest common node to update at
+                updateTree(svg_tree.root);
+                deselectAllNodes();
+            //}
+        }
+    })(node_to_move, parent_id_field);
+
+    var error_callback = function(xhttp) {
+        var r = xhttp.responseText;
+        nest_mode = 'error'
+        doNestModeAlert(nest_mode);
+    }
+
+    doAjax("POST", url, data, success_callback, error_callback);
+}
+
+
 <?php
     }
     elseif ($backend == 'fs') {
