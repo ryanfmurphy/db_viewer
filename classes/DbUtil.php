@@ -943,10 +943,8 @@ infer_limit_from_query: query didn't match regex.
             }
         }
 
-        public static function default_order_by_limit(
-            $tablename_no_quotes, $schemas_in_path=null
-        ) {
-            $order = self::order_by_time_sql($tablename_no_quotes, $schemas_in_path);
+        public static function default_order_by_limit($tablename_no_quotes) {
+            $order = self::order_by_time_sql($tablename_no_quotes);
             
             $sql = ($order
                         ? "$order "
@@ -962,23 +960,15 @@ infer_limit_from_query: query didn't match regex.
             $sqlish, $whereVars=array(), $selectFields=null,
             $order_by_limit=null
         ) {
-            if ($order_by_limit === null) {
-                $order_by_limit = DbUtil::default_order_by_limit(
-                                    $tablename_no_quotes, null);
-            }
             $sqlHasNoSpaces = (strpos(trim($sqlish), ' ') === false);
             if (strlen($sqlish) > 0
                     && $sqlHasNoSpaces
             ) {
-                $tablename = $sqlish;
+                $tablename = $sqlish; # (tablename has no quotes)
 
-                /*
-                $sqlish = "select * from "
-                                .DbUtil::quote_ident($tablename);
-                if ($order_by_limit) {
-                    $sqlish .= " $order_by_limit";
+                if ($order_by_limit === null) {
+                    $order_by_limit = DbUtil::default_order_by_limit($tablename);
                 }
-                */
 
                 return Db::build_select_sql(
                     $tablename, $whereVars, $selectFields,
@@ -990,7 +980,8 @@ infer_limit_from_query: query didn't match regex.
             }
         }
 
-        public static function order_by_time_sql($tablename_no_quotes, $schemas_in_path) {
+        public static function order_by_time_sql($tablename_no_quotes) {
+            $schemas_in_path = DbUtil::schemas_in_path();
             $time_field = DbUtil::get_time_field(
                         $tablename_no_quotes, $schemas_in_path);
             if ($time_field) {
