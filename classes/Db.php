@@ -333,7 +333,9 @@ if (!class_exists('Db')) {
             }
         }
 
-        public static function build_select_sql($table_name, $wheres, $select_fields=null) {
+        public static function build_select_sql(
+            $table_name, $wheres, $select_fields=null, $order_by_limit=null
+        ) {
 
             if ($select_fields === null) {
                 $select_fields = '*';
@@ -346,7 +348,12 @@ if (!class_exists('Db')) {
             $table_name_quoted = DbUtil::quote_ident($table_name);
             $sql = "select $select_fields from $table_name_quoted ";
             $sql .= self::build_where_clause($wheres);
-            $sql .= ";";
+            if ($order_by_limit) {
+                $sql .= "\n$order_by_limit";
+            }
+            $sql .= ";"; #todo #fixme reconsider, maybe we don't want to close the query?
+                         #            might want to add more where conditions for example?
+                         #            though having it here might be safer
             return $sql;
         }
 
