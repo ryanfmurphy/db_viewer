@@ -903,18 +903,16 @@
 
         // depending on alt key, decide whether to refresh page,
         // or just change the table we're pointing at
-        var need_alt_for_no_reload = <?= ($need_alt_for_no_reload ? 'true' : 'false') ?>;
+        var need_alt_for_no_reload = <?= ($need_alt_for_no_reload ? 'true' : 'false') ?>; // #todo move to config obj at top
         var change_table_no_reload = (need_alt_for_no_reload
                                         ? keyEvent.altKey
                                         : !keyEvent.altKey);
 
-        // change live document (#todo probably only need this if (change_table_no_reload))
-        resetToCreateTable(table, false);
-
-        var newLocation = '?table='+table;
-
         // no reload - change table w pure JS
         if (change_table_no_reload) {
+            // change live document
+            resetToCreateTable(table, false);
+
             focusFirstFormField(keyEvent);
             if (keyEvent.preventDefault) {
                 keyEvent.preventDefault();
@@ -923,6 +921,8 @@
         }
         // reload - redirect page
         else {
+            var newLocation = '?table='+table;
+
             var do_minimal = links_minimal_by_default
                                 ? !keyEvent.ctrlKey
                                 : keyEvent.ctrlKey;
