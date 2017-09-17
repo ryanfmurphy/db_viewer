@@ -65,6 +65,9 @@
             $table = $vars['table'];
             unset($vars['table']);
         }
+        else {
+            $table = null;
+        }
 
         $fields_w_array_type                    = Config::$config['fields_w_array_type'];
         $automatic_curly_braces_for_arrays      = Config::$config['automatic_curly_braces_for_arrays'];
