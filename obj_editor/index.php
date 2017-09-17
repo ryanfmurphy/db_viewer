@@ -577,10 +577,10 @@
                           onclick="submitFormForViewLink('<?= $crud_api_uri ?>', window.scope.table_name, event)">
                         search
                     </span>
-                    <!--<a  id="view_all_link" class="link" target="_blank"
+                    <a  id="view_all_link" class="link" target="_blank"
                         href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
                         view all
-                    </a>-->
+                    </a>
 <?php
 ?>
                     <span   id="clear_fields_link" class="link" target="_blank"
@@ -761,7 +761,7 @@
 <?php
                     }
 ?>
-                    <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, window.scope.table_name)" <?php # view ?>
+                    <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)" <?php # view ?>
                         value="View" type="submit" id="view_button"
                     />
 <?php
