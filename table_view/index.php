@@ -81,7 +81,7 @@
 
                 { # just tablename? turn to select statement
                     $expanded_sql = DbUtil::expand_tablename_into_query(
-                        $sql, array(), null, false # no order_by_limit for now
+                        $sql, array(), null, ' limit 100' # to infer/rebuild it later on
                     );
                     if ($expanded_sql) {
                         # and order by time field if there is one
