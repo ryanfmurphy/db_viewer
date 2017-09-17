@@ -348,13 +348,13 @@
 
         // #todo make interface consistent w other click handlers
         // swap event and table_name
-        function viewButtonClickHandler(crud_api_uri, keyEvent, table_name) {
+        function viewButtonClickHandler(crud_api_uri, table_name, key_event) {
             var url = crud_api_uri;
             var action = 'view_'+table_name;
             var extra_vars = {'action': action};
             var do_minimal = links_minimal_by_default
-                                ? !keyEvent.altKey
-                                : keyEvent.altKey
+                                ? !key_event.altKey
+                                : key_event.altKey
             if (do_minimal) {
                 extra_vars.table_view_minimal_mode = 1;
             }
@@ -363,8 +363,8 @@
             return setFormAction(url, extra_vars);
         }
 
-        function submitFormForViewLink(crud_api_uri, keyEvent, table_name) {
-            viewButtonClickHandler(crud_api_uri, keyEvent, table_name);
+        function submitFormForViewLink(crud_api_uri, table_name, key_event) {
+            viewButtonClickHandler(crud_api_uri, table_name, key_event);
             var form = getForm();
             form.submit();
         }
