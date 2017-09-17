@@ -1003,116 +1003,61 @@ function addChildToNode(node, child, doUpdateTree,
     }
 }
 
-function get1row(params) { // table, kv pairs for where clause
-    var url = crud_api_uri;
-
-    var success = params.success;
-    var error = params.error;
-    delete params.success;
-    delete params.error;
-
-    params.action = 'get1';
-    doAjax("POST", url, params, success, error);
-}
-
 // <script>
 // invoked on clicking popup option
-function addChildWithPrompt(node_to_add_to, ask_type, match_existing_obj_by_name) {
+function addChildWithPrompt(node_to_add_to, ask_type) {
     var default_table = getNodeTable(node_to_add_to);
     var table = default_table;
     if (ask_type) {
-        table = prompt(
-            (match_existing_obj_by_name
-                        ? "Type/Table of the node you're looking for"
-                        : 'Type/Table of new node:'),
-            table);
+        table = prompt('Type/Table of new node:', table);
     }
 
-    var name = prompt(match_existing_obj_by_name
-                        ? 'Name of node to match'
-                        : 'Name of new node:');
+    var name = prompt('Name of new node:');
 
     if (name) {
-
-        if (match_existing_obj_by_name) {
-            var search_field = 'name';
-            var where_clauses = {};
-            where_clauses[search_field] = name;
-            var row = get1row({
-                table: table,
-                where_clauses: where_clauses,
-                success: function(xhttp) {
-                    var response_obj = JSON.parse(xhttp.responseText);
-                    if (response_obj) {
-                        console.log('got response_obj:', response_obj);
-                        //addChildFromResponseObj(response_obj, node_to_add_to, table);
-                        var primary_key_field = 'id'; // #todo #fixme generalize
-                        var primary_key = response_obj[primary_key_field];
-                        var parent_id_field = 'parent_ids'; // #todo #fixme generalize
-                        addParentToNode(
-                            null, node_to_add_to, table, primary_key,
-                            /*parent_id,*/ parent_id_field
-                        );
-                    }
-                    else {
-                        alert("Couldn't find " + table + " with " + search_field + " " + name);
-                    }
-                },
-                error: function(r) {
-                    alert('Error');
-                }
-            });
+        var url = crud_api_uri;
+        if (!table) {
+            table = default_table;
         }
-        else { // #todo #fixme factor into a fn, maybe create_child_in_db?
-            var url = crud_api_uri;
-            if (!table) {
-                table = default_table;
-            }
-            var id_field = idFieldForNode(node_to_add_to);
+        var id_field = idFieldForNode(node_to_add_to);
 
-            var data = {
-                action: 'create_' + table,
-            };
-            data['name'] = name;                      // #todo #fixme use name field
-            var parent_id = node_to_add_to[id_field];
-            data['parent_ids'] = '{'+parent_id+'}';   // #todo generalize 'parent_ids' field
-            
-            success_callback = function(xhttp) {
-                var response = JSON.parse(xhttp.responseText);
-                if (response) {
-                    if (Array.isArray(response)
-                        && response.length == 1
-                    ) {
-                        console.log('response_obj', response_obj);
-                        var response_obj = response[0];
-                        addChildFromResponseObj(response_obj, node_to_add_to, table);
-                    }
-                    else {
-                        alert("Error: unexpected response format");
-                    }
+        var data = {
+            action: 'create_' + table,
+        };
+        data['name'] = name;                      // #todo #fixme use name field
+        var parent_id = node_to_add_to[id_field];
+        data['parent_ids'] = '{'+parent_id+'}';   // #todo generalize 'parent_ids' field
+        
+        success_callback = function(xhttp) {
+            var response = JSON.parse(xhttp.responseText);
+            if (response) {
+                if (Array.isArray(response)
+                    && response.length == 1
+                ) {
+                    var response_obj = response[0];
+                    console.log('response_obj', response_obj);
+
+                    var new_node = cloneCleanNode(node_to_add_to);
+                    setNodeName(new_node, name);
+                    new_node[id_field] = response_obj[id_field];
+                    new_node._node_table = table;
+                    new_node._node_color = 'green';
+
+                    addChildToNode(node_to_add_to, new_node, true, false);
                 }
                 else {
-                    alert("Error: couldn't parse response");
+                    alert("Error: unexpected response format");
                 }
-            };
-            error_callback = function() {
-                alert('Something went wrong');
-            };
-            doAjax("POST", url, data, success_callback, error_callback);
-        }
+            }
+            else {
+                alert("Error: couldn't parse response");
+            }
+        };
+        error_callback = function() {
+            alert('Something went wrong');
+        };
+        doAjax("POST", url, data, success_callback, error_callback);
     }
-}
-
-function addChildFromResponseObj(response_obj, node_to_add_to, table) {
-    var new_node = cloneCleanNode(node_to_add_to);
-    var name = response_obj.name;
-    setNodeName(new_node, name);
-    var id_field = idFieldForNode(node_to_add_to);
-    new_node[id_field] = response_obj[id_field];
-    new_node._node_table = table;
-    new_node._node_color = 'green';
-
-    addChildToNode(node_to_add_to, new_node, true, false);
 }
 
 function changeNodeText(svg_g_node, new_text) {
@@ -1244,10 +1189,6 @@ function openTreeNodePopup(d, event, clicked_node) {
                                                     addChildWithPrompt(d, true);
                                                     closePopup();
                                                 } },
-        {   name: 'Add Known Child', callback: function() {
-                                                    addChildWithPrompt(d, true, true);
-                                                    closePopup();
-                                                } },
         {   name: 'Rename', callback: function(){
                                         renameNode(d, clicked_node);
                                         closePopup();
@@ -1336,19 +1277,63 @@ function clickLabel(d) {
                         // for parent_id_field stuff
                         var parent_field_is_array =
                             <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
-                        var parent_id = new_parent[id_field]; // #todo might not need this
+                        var parent_id = new_parent[id_field];
 
                         // build up the AJAX data to update the node
                         var success_callback = null;
                         var data = null;
 
                         if (parent_field_is_array) {
-                            addSetParent_arrayField(
-                                node_to_move, new_parent,
-                                table_name, primary_key, /*parent_id,*/
-                                parent_id_field, add_parent_instead_of_move
-                            );
-;
+                            // array field:
+                            // if pressed shift-N, then add addl parent: use "add_to_array" action
+                            //      else move parent by removing JUST the one existing parent
+                            //      and adding the new one (allow other existing parents to remain)
+
+                            var remove_child = !add_parent_instead_of_move;
+
+                            data = {
+                                action: 'add_to_array',
+                                table: table_name,
+                                primary_key: primary_key,
+                                field_name: parent_id_field,
+                                val_to_add: parent_id
+                            };
+
+                            // if we're moving the node, replace the existing id
+                            if (remove_child) {
+                                // #todo #fixme can we always depend on the key being 'id'
+                                var existing_parent_id = node_to_move.parent.id;
+                                if (existing_parent_id) {
+                                    data['val_to_replace'] = existing_parent_id;
+                                }
+                            }
+
+                            // #todo could #factor success_callback back in between the 2 cases
+                            success_callback = (function(node_to_move, parent_id_field) {
+                                return function(xhttp) {
+                                    var r = xhttp.responseText;
+                                    nest_mode = 'success';
+                                    doNestModeAlert(nest_mode);
+                                    
+                                    if (remove_child) {
+                                        console.log('removing child');
+                                        removeChildFromNode(node_to_move.parent,
+                                                            node_to_move, false);
+                                    }
+                                    else {
+                                        console.log('not removing child');
+                                    }
+                                    addChildToNode(new_parent, node_to_move, false,
+                                                   add_parent_instead_of_move);
+
+                                    num_succeeded++;
+                                    if (num_succeeded == selected_nodes.length) {
+                                        // #todo #performance - could find the leafiest common node to update at
+                                        updateTree(svg_tree.root);
+                                        deselectAllNodes();
+                                    }
+                                }
+                            })(node_to_move, parent_id_field);
                         }
                         // non-array field, simple update of parent field
                         // #todo make sure non-array parent field still works right
@@ -1380,16 +1365,15 @@ function clickLabel(d) {
                                     }
                                 }
                             })(node_to_move, parent_id_field);
-
-                            var error_callback = function(xhttp) {
-                                var r = xhttp.responseText;
-                                nest_mode = 'error'
-                                doNestModeAlert(nest_mode);
-                            }
-
-                            doAjax("POST", url, data, success_callback, error_callback);
                         }
 
+                        var error_callback = function(xhttp) {
+                            var r = xhttp.responseText;
+                            nest_mode = 'error'
+                            doNestModeAlert(nest_mode);
+                        }
+
+                        doAjax("POST", url, data, success_callback, error_callback);
                     }
                 }
                 else if (sub_mode == 'select_more') {
@@ -1413,85 +1397,6 @@ function clickLabel(d) {
         }
     }
 }
-
-function addParentToNode(
-    node_to_move, new_parent, table_name,
-    primary_key, /*parent_id,*/ parent_id_field,
-) {
-    return addSetParent_arrayField(
-        node_to_move, new_parent, table_name, primary_key,
-        /*parent_id,*/ parent_id_field, true
-    );
-}
-
-// addParentToNode - assumes parent_ids is an array field:
-// e.g. if pressed shift-N, then add addl parent: use "add_to_array" action
-//      else move parent by removing JUST the one existing parent
-//      and adding the new one (allow other existing parents to remain)
-function addSetParent_arrayField(
-    node_to_move, new_parent,
-    table_name, primary_key, // might not need these args
-    /*parent_id,*/ parent_id_field, add_parent_instead_of_move
-) {
-    var url = "<?= $crud_api_uri ?>";
-    var remove_child = !add_parent_instead_of_move;
-    var primary_key_field = 'id'; // #todo #fixme generalize
-    var parent_id = new_parent[primary_key_field];
-
-    data = {
-        action: 'add_to_array',
-        table: table_name,
-        primary_key: primary_key,
-        field_name: parent_id_field,
-        val_to_add: parent_id
-    };
-
-    // if we're moving the node, replace the existing id
-    if (remove_child) {
-        // #todo #fixme can we always depend on the key being 'id'
-        var existing_parent_id = node_to_move.parent.id;
-        if (existing_parent_id) {
-            data['val_to_replace'] = existing_parent_id;
-        }
-    }
-
-    // #todo could #factor success_callback back in between the 2 cases
-    success_callback = (function(node_to_move, parent_id_field) {
-        return function(xhttp) {
-            var r = xhttp.responseText;
-            nest_mode = 'success';
-            doNestModeAlert(nest_mode);
-            
-            if (remove_child) {
-                console.log('removing child');
-                removeChildFromNode(node_to_move.parent,
-                                    node_to_move, false);
-            }
-            else {
-                console.log('not removing child');
-            }
-            addChildToNode(new_parent, node_to_move, false,
-                           add_parent_instead_of_move);
-
-            //num_succeeded++;
-            //if (num_succeeded == selected_nodes.length) {
-                // #todo #performance - could find the leafiest common node to update at
-                updateTree(svg_tree.root);
-                deselectAllNodes();
-            //}
-        }
-    })(node_to_move, parent_id_field);
-
-    var error_callback = function(xhttp) {
-        var r = xhttp.responseText;
-        nest_mode = 'error'
-        doNestModeAlert(nest_mode);
-    }
-
-    doAjax("POST", url, data, success_callback, error_callback);
-}
-
-
 <?php
     }
     elseif ($backend == 'fs') {
