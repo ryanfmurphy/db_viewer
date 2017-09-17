@@ -1253,31 +1253,36 @@ function clickLabel(d) {
 
                 if (sub_mode == 'click_new_parent') {
                     console.log('click_new_parent');
-                    // #todo #factor into a function moveNodeUnderNewParent()
+                    // #todo #factor into a function moveNodesUnderNewParent()
                     // selected_nodes var is already populated
                     var new_parent = d;
                     var num_succeeded = 0;
+                    var primary_key_field =
+                        '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
+                    var parent_id_field =
+                        '<?= Config::$config['default_parent_field'] ?>';
+                    var table_name = '<?= $new_parent_table ?>'; // #todo use _node_table
+                    var url = "<?= $crud_api_uri ?>";
+
+                    // #todo maybe #factor common code
+                    // for parent_id_field stuff
+                    var parent_field_is_array =
+                        <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
+                    var parent_id = new_parent[id_field];
+
+                    var error_callback = function(xhttp) {
+                        var r = xhttp.responseText;
+                        nest_mode = 'error'
+                        doNestModeAlert(nest_mode);
+                    }
+
                     for (var i = 0; i < selected_nodes.length; i++) {
                         // #note could be adding a parent instead of moving
                         var node_to_move = selected_nodes[i]; // #todo #fixme
                         console.log('loop, i', i, 'node_to_move (or add to parent)',
                                     node_to_move);
 
-                        var primary_key_field =
-                            '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
                         var primary_key = node_to_move[id_field];
-                        var parent_id_field =
-                            '<?= Config::$config['default_parent_field'] ?>';
-
-                        var table_name = '<?= $new_parent_table ?>';
-
-                        var url = "<?= $crud_api_uri ?>";
-
-                        // #todo maybe #factor common code
-                        // for parent_id_field stuff
-                        var parent_field_is_array =
-                            <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
-                        var parent_id = new_parent[id_field];
 
                         // build up the AJAX data to update the node
                         var success_callback = null;
@@ -1365,12 +1370,6 @@ function clickLabel(d) {
                                     }
                                 }
                             })(node_to_move, parent_id_field);
-                        }
-
-                        var error_callback = function(xhttp) {
-                            var r = xhttp.responseText;
-                            nest_mode = 'error'
-                            doNestModeAlert(nest_mode);
                         }
 
                         doAjax("POST", url, data, success_callback, error_callback);
