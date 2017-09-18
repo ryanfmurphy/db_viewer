@@ -1339,9 +1339,11 @@ function clickLabel(d) {
                                     }
                                 }
                             })(node_to_move, parent_id_field);
+
+                            doAjax("POST", url, data, success_callback, error_callback);
                         }
                         // non-array field, simple update of parent field
-                        // #todo make sure non-array parent field still works right
+                        // #todo #test - make sure non-array parent field still works right
                         else {
                             var where_clauses = {};
                             where_clauses[primary_key_field] = primary_key
@@ -1370,9 +1372,9 @@ function clickLabel(d) {
                                     }
                                 }
                             })(node_to_move, parent_id_field);
-                        }
 
-                        doAjax("POST", url, data, success_callback, error_callback);
+                            doAjax("POST", url, data, success_callback, error_callback);
+                        }
                     }
                 }
                 else if (sub_mode == 'select_more') {
