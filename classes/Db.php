@@ -123,7 +123,7 @@ if (!class_exists('Db')) {
                                         ? $config['hash_password_fields']
                                         : false);
 
-            { # key list
+            { # key list - #todo #fixme - pull out into fn so we can use it in build_select_sql?
                 $keys = array_keys($vars);
                 $quotedKeys = array();
                 foreach ($keys as $key) {
@@ -132,7 +132,7 @@ if (!class_exists('Db')) {
                 $varNameList = implode(', ', $quotedKeys);
             }
 
-            { # val list
+            { # val list - #todo #fixme should we use make_val_list()?
                 $varValLiterals = array();
                 foreach ($keys as $key) {
                     $val = $vars[$key];
@@ -333,7 +333,9 @@ if (!class_exists('Db')) {
             }
         }
 
-        public static function build_select_sql($table_name, $wheres, $select_fields=null) {
+        public static function build_select_sql(
+            $table_name, $wheres, $select_fields=null, $order_by_limit=null
+        ) {
 
             if ($select_fields === null) {
                 $select_fields = '*';
@@ -346,7 +348,12 @@ if (!class_exists('Db')) {
             $table_name_quoted = DbUtil::quote_ident($table_name);
             $sql = "select $select_fields from $table_name_quoted ";
             $sql .= self::build_where_clause($wheres);
-            $sql .= ";";
+            if ($order_by_limit) {
+                $sql .= "\n$order_by_limit";
+            }
+            #$sql .= ";"; #todo #fixme reconsider, maybe we don't want to close the query?
+                         #            might want to add more where conditions for example?
+                         #            though having it here might be safer
             return $sql;
         }
 
@@ -367,7 +374,7 @@ if (!class_exists('Db')) {
                     $sql .= "\n$key = $val";
                     $comma = true;
                 }
-                $id_name_scheme = 'table_id'; #todo
+                $id_name_scheme = 'table_id'; #todo #fixme use value from Config
                 $idField = self::get_id_field_name($table_name, $id_name_scheme);
 
                 $sql .= self::build_where_clause($whereClauses);
@@ -422,13 +429,12 @@ if (!class_exists('Db')) {
             header("Location: ".self::view_query_url($sql, $minimal));
         }
 
-        public static function viewTable(
-            $table_name, $whereVars=array(),
-            $selectFields=null, $minimal=false
+        public static function view_table(
+            $table_name, $where_vars=array(), $select_fields=null, $minimal=false
         ) {
-            $sql = self::build_select_sql(
-                $table_name, $whereVars, $selectFields);
-
+            $sql = DbUtil::expand_tablename_into_query(
+                $table_name, $where_vars, $select_fields
+            );
             return Db::view_query($sql, $minimal);
         }
 
@@ -447,20 +453,21 @@ if (!class_exists('Db')) {
             return $sql;
         }
 
-        public static function get($table_name, $wheres) {
+        public static function get($table_name, $wheres, $get1=false) {
             $sql = self::build_select_sql($table_name, $wheres);
-            return self::query_fetch($sql);
+            return self::query_fetch($sql, $get1);
+        }
+
+        public static function get1($table_name, $wheres) {
+            return self::get($table_name, $wheres, true);
         }
 
         private static function query_fetch($sql, $only1=false) {
-            $rows = self::sql($sql);
             if ($only1) {
-                return (count($rows)
-                            ? $rows[0]
-                            : null);
+                return self::sql_get1($sql);
             }
             else {
-                return $rows;
+                return self::sql($sql);
             }
         }
 

@@ -12,6 +12,7 @@
 
 { // main javascript
 
+    // some globals - #todo consolidate
     var crud_api_uri = <?= Utility::quot_str_for_js(Config::$config['crud_api_uri']) ?>;
 
     var save_json_dump_of_stored_rows =
@@ -22,6 +23,17 @@
     // this one will momentarily reflect the above option,
     // or the opposite if an <input> is submitted with alt-Enter
     var do_change_to_update_after_insert = change_to_update_after_insert;
+
+    var edit = <?= (int)$edit ?>;
+    var primary_key = <?= isset($primary_key)
+                            ? '"'.str_replace('"', '\"', $primary_key).'"'
+                            : 'null' ?>;
+    // #todo #fixme is this the best value for primary_key_field?
+    // a few places later in the JS we need primary_key_field
+    // but it's hardly ever this, they use a DbUtil fn instead, passing tbl name
+    var primary_key_field = <?= isset($primary_key_field)
+                                    ? '"'.str_replace('"', '\"', $primary_key_field).'"'
+                                    : 'null' ?>;
 
     function hasPreviouslyStoredRows() {
         var stored_rows = localStorage.getItem('stored_rows');
@@ -295,7 +307,7 @@
 
         function createRow(click_event) { // click_event optional
             return createButtonClickHandler(
-                crud_api_uri, //'/db_viewer/obj_editor/crud_api.php',
+                crud_api_uri,
                 scope.table_name,
                 click_event
             );
@@ -336,13 +348,13 @@
 
         // #todo make interface consistent w other click handlers
         // swap event and table_name
-        function viewButtonClickHandler(crud_api_uri, keyEvent, table_name) {
+        function viewButtonClickHandler(crud_api_uri, table_name, key_event) {
             var url = crud_api_uri;
             var action = 'view_'+table_name;
             var extra_vars = {'action': action};
             var do_minimal = links_minimal_by_default
-                                ? !keyEvent.altKey
-                                : keyEvent.altKey
+                                ? !key_event.altKey
+                                : key_event.altKey
             if (do_minimal) {
                 extra_vars.table_view_minimal_mode = 1;
             }
@@ -351,8 +363,8 @@
             return setFormAction(url, extra_vars);
         }
 
-        function submitFormForViewLink(crud_api_uri, keyEvent, table_name) {
-            viewButtonClickHandler(crud_api_uri, keyEvent, table_name);
+        function submitFormForViewLink(crud_api_uri, table_name, key_event) {
+            viewButtonClickHandler(crud_api_uri, table_name, key_event);
             var form = getForm();
             form.submit();
         }
@@ -631,6 +643,9 @@
                                     if (created_obj) {
                                         // primary_key, global vars
                                         edit = true;
+                                        // #todo #fixme is this value of primary_key_field correct?
+                                        // seem like it's depending on an explicit $primary_key_field
+                                        // from PHP/config when there's also a DbUtil fn by tbl to use
                                         primary_key = created_obj[primary_key_field];
                                         console.log('primary key val =', primary_key);
                                         setFormVal(primary_key_field, primary_key, true);
@@ -665,17 +680,7 @@
         }
     }
 
-
-    var edit = <?= (int)$edit ?>;
-    var primary_key = <?= isset($primary_key)
-                            ? '"'.str_replace('"', '\"', $primary_key).'"'
-                            : 'null' ?>;
-    var primary_key_field = <?= isset($primary_key_field)
-                                    ? '"'.str_replace('"', '\"', $primary_key_field).'"'
-                                    : 'null' ?>;
-
-
-    // #todo code cleanup
+    // #todo code cleanup throughout fn
     function submitForm(url, event, action,
                         obj, respond_callback // optional args
     ) {
@@ -722,6 +727,8 @@
                             || action == 'delete'
                         ) {
                             console.log('update');
+                            // #todo #fixme do we need the other value of primary_key_field?
+                            // right now using that weird global value from the PHP var
                             postData += "&" + "where_clauses[" + primary_key_field + "]"
                                                         + "=" + primary_key;
                         }
@@ -818,9 +825,9 @@
 ?>
 
     function changeToCreateChildForm() {
-        var id_field = '<?= DbUtil::get_primary_key_field($table) ?>';
+        var primary_key_field = '<?= DbUtil::get_primary_key_field($table) ?>';
         var parent_id_field = '<?= $default_parent_field ?>';
-        var id = getFormVal(id_field);
+        var id = getFormVal(primary_key_field);
         console.log(id);
         resetToCreateTable(null, true);
 
@@ -903,26 +910,34 @@
 
         // depending on alt key, decide whether to refresh page,
         // or just change the table we're pointing at
-        var need_alt_for_no_reload = <?= ($need_alt_for_no_reload ? 'true' : 'false') ?>;
+        var need_alt_for_no_reload = <?= ($need_alt_for_no_reload ? 'true' : 'false') ?>; // #todo move to config obj at top
         var change_table_no_reload = (need_alt_for_no_reload
                                         ? keyEvent.altKey
                                         : !keyEvent.altKey);
 
-        // change live document (#todo probably only need this if (change_table_no_reload))
-        resetToCreateTable(table, false);
-
-        var newLocation = '?table='+table;
-
         // no reload - change table w pure JS
         if (change_table_no_reload) {
+            // change live document
+            resetToCreateTable(table, false);
+
             focusFirstFormField(keyEvent);
             if (keyEvent.preventDefault) {
                 keyEvent.preventDefault();
             }
             change_SelectTableInput_to_header(table);
+
+            // blank out id field so we don't accidentally either
+            // create a quantum-entangled doppleganger row with the same id
+            // or error out if for violating a key constraint
+            var primary_key_field = '<?= DbUtil::get_primary_key_field($table) ?>';
+            if (primary_key_field != '') {
+                setFormVal(primary_key_field, null, false);
+            }
         }
         // reload - redirect page
         else {
+            var newLocation = '?table='+table;
+
             var do_minimal = links_minimal_by_default
                                 ? !keyEvent.ctrlKey
                                 : keyEvent.ctrlKey;

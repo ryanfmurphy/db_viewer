@@ -26,7 +26,7 @@
 }
 
 { # handle ___settings
-    { # no_js: don't send empty fields
+    { # no_js: don't send empty fields - #todo #cleanup - put in fn
         if (isset($vars['___settings'])
             && isset($vars['___settings']['no_js'])
             && $vars['___settings']['no_js']
@@ -46,10 +46,9 @@
 {
     $matchesActionPattern = preg_match("@^
         (?<action>
-            # get|get1
-            view|create|update|delete
+            view|get|get1|create|update|delete
         )
-        (?:_(?<table>\w+))
+        (?:_(?<table>\w+))?
         |
         add_to_array
         |
@@ -64,6 +63,10 @@
         }
         elseif (isset($vars['table'])) {
             $table = $vars['table'];
+            unset($vars['table']);
+        }
+        else {
+            $table = null;
         }
 
         $fields_w_array_type                    = Config::$config['fields_w_array_type'];
@@ -128,7 +131,23 @@
                 }
 
                 die(json_encode(
-                    Db::viewTable($table, $vars, $select_fields, $minimal)
+                    Db::view_table(
+                        $table, $vars, $select_fields, $minimal
+                    )
+                ));
+                break;
+
+            case "get1":
+            case "get1_$table": #todo #deprecate
+                $get1 = true;
+            case "get":
+            case "get_$table": #todo #deprecate
+                if (!isset($get1)) $get1 = false;
+                $where_clauses = $vars['where_clauses']
+                                    ? $vars['where_clauses']
+                                    : die('need where_clauses');
+                die(json_encode(
+                    Db::get($table, $where_clauses, $get1)
                 ));
                 break;
 
@@ -152,10 +171,7 @@
                 ));
 
             case "add_to_array":
-                #todo pull this $table out so it applies to all actions
-                $table = (isset($vars['table'])
-                            ? $vars['table']
-                            : die('ERROR: no table supplied'));
+                if (!$table) die('ERROR: no table supplied');
                 $primary_key = (isset($vars['primary_key'])
                                 ? $vars['primary_key']
                                 : die('ERROR: no primary_key supplied'));
@@ -176,10 +192,7 @@
                 ));
 
             case "remove_from_array":
-                #todo pull this $table out so it applies to all actions
-                $table = (isset($vars['table'])
-                            ? $vars['table']
-                            : die('ERROR: no table supplied'));
+                if (!$table) die('ERROR: no table supplied');
                 $primary_key = (isset($vars['primary_key'])
                                 ? $vars['primary_key']
                                 : die('ERROR: no primary_key supplied'));

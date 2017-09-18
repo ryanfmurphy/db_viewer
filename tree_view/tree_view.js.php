@@ -446,6 +446,7 @@ function updateTree(source) {
             ;
 
 <?php
+    #todo turn more pure-JS-like
     $maybe_tree_transitions = ($do_tree_transitions
                                     ? '
                                         .transition()
@@ -937,8 +938,11 @@ function setNodeName(node, name) {
 function cloneCleanNode(node) {
     var new_node = cloneSvgNode(node);
     setNodeName(new_node, null);
-    new_node.children = [];
     delete new_node._children;
+    delete new_node._node_table;
+    delete new_node._node_color;
+
+    new_node.children = [];
 
     var id_field = idFieldForNode(node);
     if (id_field) {
@@ -1041,6 +1045,7 @@ function addChildWithPrompt(node_to_add_to, ask_type) {
                     setNodeName(new_node, name);
                     new_node[id_field] = response_obj[id_field];
                     new_node._node_table = table;
+                    new_node._node_color = 'green';
 
                     addChildToNode(node_to_add_to, new_node, true, false);
                 }
@@ -1252,43 +1257,48 @@ function clickLabel(d) {
 
                 if (sub_mode == 'click_new_parent') {
                     console.log('click_new_parent');
-                    // #todo #factor into a function moveNodeUnderNewParent()
+                    // #todo #factor into a function moveNodesUnderNewParent()
                     // selected_nodes var is already populated
                     var new_parent = d;
-                    var num_succeeded = 0;
-                    for (var i = 0; i < selected_nodes.length; i++) {
-                        // #note could be adding a parent instead of moving
-                        var node_to_move = selected_nodes[i]; // #todo #fixme
-                        console.log('loop, i', i, 'node_to_move (or add to parent)',
-                                    node_to_move);
+                    var primary_key_field =
+                        '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
+                    var parent_id_field =
+                        '<?= Config::$config['default_parent_field'] ?>';
+                    var table_name = '<?= $new_parent_table ?>'; // #todo use _node_table
+                    var url = "<?= $crud_api_uri ?>";
 
-                        var primary_key_field =
-                            '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
-                        var primary_key = node_to_move[id_field];
-                        var parent_id_field =
-                            '<?= Config::$config['default_parent_field'] ?>';
+                    // #todo maybe #factor common code
+                    // for parent_id_field stuff
+                    var parent_field_is_array =
+                        <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
+                    var parent_id = new_parent[id_field];
 
-                        var table_name = '<?= $new_parent_table ?>';
+                    var error_callback = function(xhttp) {
+                        var r = xhttp.responseText;
+                        nest_mode = 'error'
+                        doNestModeAlert(nest_mode);
+                    }
 
-                        var url = "<?= $crud_api_uri ?>";
+                    if (parent_field_is_array) {
+                        // array field:
+                        // if pressed shift-N, then add addl parent: use "add_to_array" action
+                        //      else move parent by removing JUST the one existing parent
+                        //      and adding the new one (allow other existing parents to remain)
 
-                        // #todo maybe #factor common code
-                        // for parent_id_field stuff
-                        var parent_field_is_array =
-                            <?= (int)DbUtil::field_is_array($default_parent_field) ?>;
-                        var parent_id = new_parent[id_field];
+                        var num_succeeded = 0;
+                        var remove_child = !add_parent_instead_of_move;
 
-                        // build up the AJAX data to update the node
-                        var success_callback = null;
-                        var data = null;
+                        for (var i = 0; i < selected_nodes.length; i++) {
+                            // #note could be adding a parent instead of moving
+                            var node_to_move = selected_nodes[i];
+                            console.log('loop, i', i, 'node_to_move (or add to parent)',
+                                        node_to_move);
 
-                        if (parent_field_is_array) {
-                            // array field:
-                            // if pressed shift-N, then add addl parent: use "add_to_array" action
-                            //      else move parent by removing JUST the one existing parent
-                            //      and adding the new one (allow other existing parents to remain)
+                            var primary_key = node_to_move[id_field];
 
-                            var remove_child = !add_parent_instead_of_move;
+                            // build up the AJAX data to update the node
+                            var success_callback = null;
+                            var data = null;
 
                             data = {
                                 action: 'add_to_array',
@@ -1333,10 +1343,27 @@ function clickLabel(d) {
                                     }
                                 }
                             })(node_to_move, parent_id_field);
+
+                            doAjax("POST", url, data, success_callback, error_callback);
                         }
+                    }
+                    else {
                         // non-array field, simple update of parent field
-                        // #todo make sure non-array parent field still works right
-                        else {
+
+                        var num_succeeded = 0;
+
+                        for (var i = 0; i < selected_nodes.length; i++) {
+                            // #note could be adding a parent instead of moving
+                            var node_to_move = selected_nodes[i];
+                            console.log('loop, i', i, 'node_to_move (or add to parent)',
+                                        node_to_move);
+
+                            var primary_key = node_to_move[id_field];
+
+                            // build up the AJAX data to update the node
+                            var success_callback = null;
+                            var data = null;
+
                             var where_clauses = {};
                             where_clauses[primary_key_field] = primary_key
 
@@ -1364,15 +1391,9 @@ function clickLabel(d) {
                                     }
                                 }
                             })(node_to_move, parent_id_field);
-                        }
 
-                        var error_callback = function(xhttp) {
-                            var r = xhttp.responseText;
-                            nest_mode = 'error'
-                            doNestModeAlert(nest_mode);
+                            doAjax("POST", url, data, success_callback, error_callback);
                         }
-
-                        doAjax("POST", url, data, success_callback, error_callback);
                     }
                 }
                 else if (sub_mode == 'select_more') {

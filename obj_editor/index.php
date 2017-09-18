@@ -60,7 +60,7 @@
     { # prep logic - get fields from db
 
         { # vars
-            $schemas_in_path = DbUtil::schemas_in_path($search_path);
+            $schemas_in_path = DbUtil::schemas_in_path(/*$search_path*/);
             #$schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
             { # choose background
@@ -574,13 +574,13 @@
                                     : '';
 ?>
                     <span id="view_link" class="link" target="_blank"
-                          onclick="submitFormForViewLink('<?= $crud_api_uri ?>', event, window.scope.table_name)">
+                          onclick="submitFormForViewLink('<?= $crud_api_uri ?>', window.scope.table_name, event)">
                         search
                     </span>
-                    <!--<a  id="view_all_link" class="link" target="_blank"
+                    <a  id="view_all_link" class="link" target="_blank"
                         href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
                         view all
-                    </a>-->
+                    </a>
 <?php
 ?>
                     <span   id="clear_fields_link" class="link" target="_blank"
@@ -761,7 +761,7 @@
 <?php
                     }
 ?>
-                    <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', event, window.scope.table_name)" <?php # view ?>
+                    <input onclick="viewButtonClickHandler('<?= $crud_api_uri ?>', window.scope.table_name, event)" <?php # view ?>
                         value="View" type="submit" id="view_button"
                     />
 <?php

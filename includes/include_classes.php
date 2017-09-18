@@ -8,5 +8,6 @@
     require_once("$trunk/classes/EditorBackend.php");
     require_once("$trunk/classes/TableView.php");
     require_once("$trunk/classes/TreeView.php");
+    require_once("$trunk/classes/Wikiness.php");
     require_once("$trunk/classes/Curl.php");
 ?>
