@@ -224,7 +224,7 @@
                                         );
                                     }
 
-                                    # delete
+                                    # tree
                                     if ($include_row_tree_button) {
                                         TreeView::echo_tree_button(
                                             $obj_editor_uri, $tablename_no_quotes, $primary_key

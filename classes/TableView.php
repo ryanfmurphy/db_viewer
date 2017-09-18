@@ -565,9 +565,9 @@
                     );
                     $href_or_onclick = (isset($special_op['remove'])
                                         && $special_op['remove']
-                                            ? "href=\"$special_op_url\""
-                                            : "onclick=\"hit_url_and_rm_row_from_ui(
-                                                            this, event, '$special_op_url')\"");
+                                            ? "onclick=\"hit_url_and_rm_row_from_ui(
+                                                            this, event, '$special_op_url')\""
+                                            : "href=\"$special_op_url\"");
 ?>
             <li>
                 <nobr>
