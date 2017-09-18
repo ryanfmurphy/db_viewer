@@ -180,6 +180,8 @@ class Config {
             # function should take 1 arg: the event
             'custom_td_click_handler',
 
+            'enable_objlinks_in_fields',
+
             'cmp',
 
             # tree view stuff
@@ -460,6 +462,8 @@ class Config {
             # when clicking a <td> data cell in table_view
             # function should take 1 arg: the event
             'custom_td_click_handler' => null,
+
+            'enable_objlinks_in_fields' => array(),
 
             'cmp' => false,
 
