@@ -1276,25 +1276,25 @@ function clickLabel(d) {
                         doNestModeAlert(nest_mode);
                     }
 
-                    for (var i = 0; i < selected_nodes.length; i++) {
-                        // #note could be adding a parent instead of moving
-                        var node_to_move = selected_nodes[i]; // #todo #fixme
-                        console.log('loop, i', i, 'node_to_move (or add to parent)',
-                                    node_to_move);
+                    if (parent_field_is_array) {
+                        // array field:
+                        // if pressed shift-N, then add addl parent: use "add_to_array" action
+                        //      else move parent by removing JUST the one existing parent
+                        //      and adding the new one (allow other existing parents to remain)
 
-                        var primary_key = node_to_move[id_field];
+                        var remove_child = !add_parent_instead_of_move;
 
-                        // build up the AJAX data to update the node
-                        var success_callback = null;
-                        var data = null;
+                        for (var i = 0; i < selected_nodes.length; i++) {
+                            // #note could be adding a parent instead of moving
+                            var node_to_move = selected_nodes[i];
+                            console.log('loop, i', i, 'node_to_move (or add to parent)',
+                                        node_to_move);
 
-                        if (parent_field_is_array) {
-                            // array field:
-                            // if pressed shift-N, then add addl parent: use "add_to_array" action
-                            //      else move parent by removing JUST the one existing parent
-                            //      and adding the new one (allow other existing parents to remain)
+                            var primary_key = node_to_move[id_field];
 
-                            var remove_child = !add_parent_instead_of_move;
+                            // build up the AJAX data to update the node
+                            var success_callback = null;
+                            var data = null;
 
                             data = {
                                 action: 'add_to_array',
@@ -1342,9 +1342,22 @@ function clickLabel(d) {
 
                             doAjax("POST", url, data, success_callback, error_callback);
                         }
+                    }
+                    else {
                         // non-array field, simple update of parent field
-                        // #todo #test - make sure non-array parent field still works right
-                        else {
+
+                        for (var i = 0; i < selected_nodes.length; i++) {
+                            // #note could be adding a parent instead of moving
+                            var node_to_move = selected_nodes[i];
+                            console.log('loop, i', i, 'node_to_move (or add to parent)',
+                                        node_to_move);
+
+                            var primary_key = node_to_move[id_field];
+
+                            // build up the AJAX data to update the node
+                            var success_callback = null;
+                            var data = null;
+
                             var where_clauses = {};
                             where_clauses[primary_key_field] = primary_key
 
