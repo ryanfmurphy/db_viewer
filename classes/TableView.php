@@ -116,8 +116,8 @@
             # default quoting / handling of val / possibly objlinks
             else {
                 $val = htmlentities($val);
-                $val = TableView::replace_objlinks($val, $fieldname);
                 $val = nl2br($val); # show newlines as <br>'s
+                $val = Wikiness::replace_objlinks($val, $fieldname);
 
                 { # get bigger column width for longform text fields
                     #todo factor this logic in the 2 places we have it
@@ -320,35 +320,6 @@
 <?php
                 return ob_get_clean();
             }
-        }
-
-        # sub {{objlinks}} as needed
-        public static function replace_objlinks($txt, $fieldname='name') {
-            if (is_array(Config::$config['enable_objlinks_in_fields'])
-                && in_array($fieldname, Config::$config['enable_objlinks_in_fields'])
-            ) {
-                $crud_api_uri = Config::$config['crud_api_uri']; 
-                $txt = preg_replace_callback(
-                    '/{{(?:(\w+):)?\s*([\w ]+)}}/',
-                    function($match) use ($crud_api_uri) {
-                        $table = ($match[1]
-                                    ? $match[1]
-                                    : 'entity'); # start general by default - #todo #fixme use Config
-                        $name = $match[2];
-                        $url = "$crud_api_uri?action=view&table=$table&name=$name";
-                        { ob_start();
-    ?>
-                    <a href="<?= $url ?>" target="_blank">
-                        <?= $name ?>
-                    </a>
-    <?php
-                            return ob_get_clean();
-                        }
-                    },
-                    $txt
-                );
-            }
-            return $txt;
         }
 
         public static function get_submit_url($requestVars) {
