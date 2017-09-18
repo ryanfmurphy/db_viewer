@@ -46,7 +46,7 @@
     </h1>
     <form action="<?= $uri ?>" method="post">
         <div class="form_row">
-            <input name="db_user" placeholder="Username">
+            <input id="username" name="db_user" placeholder="Username">
         </div>
         <div class="form_row">
             <input name="db_password" type="password" placeholder="Password">
@@ -55,4 +55,7 @@
             <input type="submit" value="submit">
         </div>
     </form>
+    <script>
+        document.getElementById('username').focus();
+    </script>
 </html>
