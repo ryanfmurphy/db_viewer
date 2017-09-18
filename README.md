@@ -2,13 +2,32 @@ DB Viewer - database table view with inline dynamic joins
 =========================================================
 
 This program provides a PHP-HTML-Javascript web interface
-for a SQL Database, allowing you to type in queries and view
-the results in a table format.  You can hide/show rows and
-columns, and click on key fields to join in data from new
-tables.
+for interacting with a SQL Database, allowing you to:
 
-Join-Splice more data into your view
-------------------------------------
+* (in Table View)
+
+    * type in Queries and view/browse the results in a table format.
+
+    * you can hide/show rows and columns, and click on key fields to join in data from new tables.
+
+* (in Tree View)
+
+    * see a Tree View of your SQL data, with expandable/collapsable Nodes
+      - powered by (d3.js)[https://d3.js]
+
+    * customize a definition of the Root Conditions and other-table Relationships
+      that reflect a Tree or Hierarchy of rows within your Database
+
+* (in Object Editor)
+
+    * Create (Insert) or Edit (Update) Rows in your Database via your web browser.
+
+
+Table View
+----------
+
+### Join-Splice more data into your view
+
 * click a header / field name that corresponds to an id in another table
   and see the data from that table get automatically spliced into your view
 * can connect in the following ways:
@@ -18,14 +37,19 @@ Join-Splice more data into your view
         * or if `$id_mode == "id_only"`, to the `iid` of the `<table>` table
     * connect fields named `<table>` to the `name` field of the `<table>` table
 
-Show and Hide Columns and Rows
-------------------------------
+### Show and Hide Columns and Rows
+
 * Only available with `show_hide_mode = true`
 * click a column to hide it, shift-click to show again
 * alt-click a row to hide it, shift-alt-click to show again
 
-Many-to-many and Back-linking Relationships
--------------------------------------------
+### Many-to-many and Back-linking Relationships
+
+* This is for expanding data into your Table View when you have a
+  many-to-many or many-to-one relationship where the connecting Key
+  field is on the other table, not the table you are currently
+  browsing.
+
 * In the query table view, alt-click on a primary key field.
     * A menu come up asking which connection you want
     * Click a connection and the database will automatically be queried to get the related data you asked for
@@ -40,13 +64,15 @@ Besides the Table View, the Object Editor is the other main view in DB Viewer.
 Whereas the Table View represents a set of rows that is the result of a SQL
 query, the Object Editor represents a single row in an editable format.
 
-### Inserting Rows ###
+### Create (Insert) or Edit (Update) Rows in your Database via your web browser
+
+#### Inserting Rows 
 By default, the Object Editor just provides a blank form for whatever `table`
 is selected, by looking in the `information_schema` to see what the fields are
 and build the form accordingly.  The blank form can be filled out and submitted
 to insert a new row into the table.
 
-### Updating Rows ###
+#### Updating Rows
 You can also use the Object Editor view to edit an existing row by sending the
 GET var `edit=1` as well as a value for `primary_key` so it knows which object/row
 to edit.  The form inputs should be autopopulated with the values from the row.
