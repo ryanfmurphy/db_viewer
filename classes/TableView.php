@@ -82,7 +82,7 @@
                     return ob_get_clean();
                 }
             }
-            # filters from array in db_config
+            # filter fns from Config
             elseif ($table !== null
                     && isset($field_render_filters_by_table[$table][$fieldname])
             ) {
@@ -113,10 +113,11 @@
                 }
                 return ob_get_clean();
             }
-            # default quoting / handling of val
+            # default quoting / handling of val / possibly objlinks
             else {
                 $val = htmlentities($val);
                 $val = nl2br($val); # show newlines as <br>'s
+                $val = Wikiness::replace_objlinks($val, $fieldname);
 
                 { # get bigger column width for longform text fields
                     #todo factor this logic in the 2 places we have it
