@@ -1256,7 +1256,6 @@ function clickLabel(d) {
                     // #todo #factor into a function moveNodesUnderNewParent()
                     // selected_nodes var is already populated
                     var new_parent = d;
-                    var num_succeeded = 0;
                     var primary_key_field =
                         '<?= DbUtil::get_primary_key_field($new_parent_table) ?>';
                     var parent_id_field =
@@ -1282,6 +1281,7 @@ function clickLabel(d) {
                         //      else move parent by removing JUST the one existing parent
                         //      and adding the new one (allow other existing parents to remain)
 
+                        var num_succeeded = 0;
                         var remove_child = !add_parent_instead_of_move;
 
                         for (var i = 0; i < selected_nodes.length; i++) {
@@ -1345,6 +1345,8 @@ function clickLabel(d) {
                     }
                     else {
                         // non-array field, simple update of parent field
+
+                        var num_succeeded = 0;
 
                         for (var i = 0; i < selected_nodes.length; i++) {
                             // #note could be adding a parent instead of moving
