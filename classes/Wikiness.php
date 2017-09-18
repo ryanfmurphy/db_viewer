@@ -7,6 +7,8 @@ class Wikiness {
             && in_array($fieldname, Config::$config['enable_objlinks_in_fields'])
         ) {
             $crud_api_uri = Config::$config['crud_api_uri']; 
+
+            # replace objlinks
             $txt = preg_replace_callback(
                 '/{{\s*(?:(\w+):)?\s*([\w ]+)\s*}}/',
                 function($match) use ($crud_api_uri, $plain_txt) {
@@ -21,6 +23,32 @@ class Wikiness {
                         $url = "$crud_api_uri?action=view&table=$table&name=$name";
                         { ob_start();
                             ?><a href="<?= $url ?>" target="_blank"><?= $name ?></a><?php
+                          return ob_get_clean();
+                        }
+                    }
+                },
+                $txt
+            );
+
+            # replace markdown-style links - #todo #fixme put this somewhere else?
+            # replace objlinks
+            $txt = preg_replace_callback(
+                '/  \[
+                        ([^]]+)
+                    \] \s*
+                    \(
+                        ([^)]+)
+                    \)
+                 /x',
+                function($match) use ($crud_api_uri, $plain_txt) {
+                    $title = $match[1];
+                    $url = $match[2];
+                    if ($plain_txt) {
+                        return $title;
+                    }
+                    else {
+                        { ob_start();
+                            ?><a href="<?= $url ?>" target="_blank"><?= $title ?></a><?php
                           return ob_get_clean();
                         }
                     }
