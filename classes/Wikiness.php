@@ -10,7 +10,7 @@ class Wikiness {
 
             # replace objlinks
             $txt = preg_replace_callback(
-                '/{{\s*(?:(\w+):)?\s*([\w ]+)\s*}}/',
+                '/{{\s*(?:(\w+):)?\s*([^}]+)\s*}}/',
                 function($match) use ($crud_api_uri, $plain_txt) {
                     $table = ($match[1]
                                 ? $match[1]
