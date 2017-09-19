@@ -435,6 +435,10 @@ function updateTree(source) {
                     : null;
             })
             .style("fill", function(d) {
+                // #todo #fixme generalize
+                return d.has_image
+                            ? 'blue'
+                            : null;
                 return d._node_color && vary_node_colors
                     ? d._node_color
                     : null;
