@@ -26,13 +26,23 @@
 		<input type="submit" value="Submit">
 	</form>
 <?php
+        $new_column_every = 3;
         if (is_array($custom_query_links)) {
 ?>
-    <div>
+    <div id="custom_query_links">
         <h3>Suggestions</h3>
         <ul>
 <?php
+            $n = 0;
             foreach ($custom_query_links as $name => $url) {
+                if ($n >= $new_column_every) {
+                    $n = 0;
+?>
+        </ul>
+        <ul>
+<?php
+                }
+                $n++;
 ?>
             <li>
                 <a href="<?= $url ?>">
