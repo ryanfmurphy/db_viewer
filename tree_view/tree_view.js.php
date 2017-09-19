@@ -397,7 +397,7 @@ function updateTree(source) {
             )
             .on("click", toggleNodeExpansion);
 
-    var vary_node_colors = <?= $vary_node_colors; #(int)Config::$config['vary_node_colors'] ?>;
+    var vary_node_colors = <?= (int)Config::$config['vary_node_colors'] ?>;
     nodeEnter.append("text")
             .attr("x", function(d) {
                             // where the text goes
