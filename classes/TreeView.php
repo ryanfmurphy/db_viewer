@@ -44,10 +44,6 @@
 
             if (Config::$config['store_tree_views_in_db']) {
                 $rows = Db::sql("select tree_url('$primary_key')");
-                #if (count($rows) != 1) {
-                #    die("looking for full tree_url of primary_key $primary_key"
-                #        ." resulted in more or less than 1 row");
-                #}
 
                 if (count($rows) >= 1) {
                     $tree_url = $rows[0]['tree_url'];

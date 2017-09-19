@@ -5,10 +5,13 @@
     # if the root_id was passed in, get the tree_url for that row from the DB
     # and parse it out into the $_GET vars
     if (isset($requestVars['root_id'])) {
-
-        $tree_url = TreeView::get_full_tree_url(
-            $requestVars['root_id']
-        );
+        $root_id = $requestVars['root_id'];
+        if (isset($requestVars['use_default_view'])) {
+            $tree_url = TreeView::get_default_tree_url($root_id);
+        }
+        else {
+            $tree_url = TreeView::get_full_tree_url($root_id);
+        }
 
         { # get requestVars from url
             $query_str = parse_url($tree_url, PHP_URL_QUERY);
