@@ -84,8 +84,8 @@ returns text as $$
                   and not is_archived
         loop
             -- a new physical relationship for each child_table/parent_table combination
-            foreach parent_table in array relationship.parent_table loop
-                foreach child_table in array relationship.child_table loop
+            foreach parent_table in array relationship.parent_tables loop
+                foreach child_table in array relationship.child_tables loop
                     ret := ret
                         || '&parent_relationships[' || n || '][child_table]='
                             || coalesce(relationship.child_table,'')
