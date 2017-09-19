@@ -88,9 +88,9 @@ returns text as $$
                 foreach child_table in array relationship.child_tables loop
                     ret := ret
                         || '&parent_relationships[' || n || '][child_table]='
-                            || coalesce(relationship.child_table,'')
+                            || coalesce(child_table,'')
                         || '&parent_relationships[' || n || '][parent_table]='
-                            || coalesce(relationship.parent_table,'')
+                            || coalesce(parent_table,'')
                         || '&parent_relationships[' || n || '][parent_field]='
                             || coalesce(relationship.parent_field,'')
                         || '&parent_relationships[' || n || '][matching_field_on_parent]='
