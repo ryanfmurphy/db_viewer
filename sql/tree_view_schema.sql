@@ -14,10 +14,10 @@ CREATE TABLE tree (
 INHERITS (entity_view);
 
 CREATE TABLE tree_relationship (
-    -- child_table text,
-    child_tables text[] check (array_length(child_tables,1) > 0),
-    -- parent_table text,
-    parent_tables text[] check (array_length(parent_tables,1) > 0),
+    child_tables text[] not null
+        check (array_length(child_tables,1) > 0),
+    parent_tables text[] not null
+        check (array_length(parent_tables,1) > 0),
     parent_field text,
     matching_field_on_parent text,
     condition text,
