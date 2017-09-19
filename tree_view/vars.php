@@ -13,6 +13,10 @@
             $tree_url = TreeView::get_full_tree_url($root_id);
         }
 
+        if (isset($requestVars['show_tree_url'])) {
+            echo $tree_url;
+        }
+
         { # get requestVars from url
             $query_str = parse_url($tree_url, PHP_URL_QUERY);
             parse_str($query_str, $new_url_vars);
