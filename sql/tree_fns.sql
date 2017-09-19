@@ -75,27 +75,34 @@ returns text as $$
         ret text := '';
         relationship tree_relationship;
         n integer := 0;
+        child_table text;
+        parent_table text;
     begin
         for relationship in
             select * from tree_relationship
             where parent_ids @> array[tree_id]
                   and not is_archived
         loop
-            ret := ret
-                || '&parent_relationships[' || n || '][child_table]='
-                    || coalesce(relationship.child_table,'')
-                || '&parent_relationships[' || n || '][parent_table]='
-                    || coalesce(relationship.parent_table,'')
-                || '&parent_relationships[' || n || '][parent_field]='
-                    || coalesce(relationship.parent_field,'')
-                || '&parent_relationships[' || n || '][matching_field_on_parent]='
-                    || coalesce(relationship.matching_field_on_parent,'')
-                || '&parent_relationships[' || n || '][order_by_limit]='
-                    || coalesce(relationship.order_by_limit,'')
-                || '&parent_relationships[' || n || '][condition]='
-                    || coalesce(relationship.condition,'')
-            ;
-            n := n + 1;
+            -- a new physical relationship for each child_table/parent_table combination
+            foreach parent_table in array relationship.parent_tables loop
+                foreach child_table in array relationship.child_tables loop
+                    ret := ret
+                        || '&parent_relationships[' || n || '][child_table]='
+                            || coalesce(child_table,'')
+                        || '&parent_relationships[' || n || '][parent_table]='
+                            || coalesce(parent_table,'')
+                        || '&parent_relationships[' || n || '][parent_field]='
+                            || coalesce(relationship.parent_field,'')
+                        || '&parent_relationships[' || n || '][matching_field_on_parent]='
+                            || coalesce(relationship.matching_field_on_parent,'')
+                        || '&parent_relationships[' || n || '][order_by_limit]='
+                            || coalesce(relationship.order_by_limit,'')
+                        || '&parent_relationships[' || n || '][condition]='
+                            || coalesce(relationship.condition,'')
+                    ;
+                    n := n + 1;
+                end loop;
+            end loop;
         end loop;
         return ret;
     end
