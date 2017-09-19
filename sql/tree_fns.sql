@@ -7,15 +7,19 @@ returns text as $$
         ret text = '(';
         first_loop boolean default true;
     begin
-        foreach tag in array tags loop
-            if first_loop then
-                first_loop := false;
-            else
-                ret := ret || ' or ';
-            end if;
-            ret := ret || ' tags @> array[' || quote_literal(tag::text) || '] ';
-        end loop;
-        return ret || ')';
+        if tags = '{}' then
+            return null;
+        else
+            foreach tag in array tags loop
+                if first_loop then
+                    first_loop := false;
+                else
+                    ret := ret || ' or ';
+                end if;
+                ret := ret || ' tags @> array[' || quote_literal(tag::text) || '] ';
+            end loop;
+            return ret || ')';
+        end if;
     end
 $$ language plpgsql;
 
