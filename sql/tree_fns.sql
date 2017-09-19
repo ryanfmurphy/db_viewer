@@ -34,7 +34,7 @@ returns text as $$
         return (
             select
                 'http://127.0.0.1:89/db_viewer/tree_view/index.php?'
-                    || 'root_table='                || coalesce(root_table, 'entity_view')
+                    || 'root_table='                   || coalesce(root_table, 'entity_view')
                     || '&root_cond='
                         || coalesce(root_cond,
                                     'id = ' || quote_literal(row_id)
@@ -52,11 +52,13 @@ returns text as $$
                                            ),
                                     ''
                                    )
-                    || '&name_cutoff='              || coalesce(name_cutoff, 75::text)
-                    || '&order_by_limit='           || coalesce(order_by_limit, '')
-                    || '&root_nodes_w_child_only='  || coalesce(root_nodes_w_child_only::int::text, '')
-                    || '&use_stars_for_node_size='  || coalesce(use_stars_for_node_size::int::text, '')
-                    || '&vary_node_colors='         || coalesce(vary_node_colors::int::text, '')
+                    || '&name_cutoff='                 || coalesce(name_cutoff, 75::text)
+                    || '&order_by_limit='              || coalesce(order_by_limit, '')
+                    || '&root_nodes_w_child_only='     || coalesce(root_nodes_w_child_only::int::text, '')
+                    || '&use_stars_for_node_size='     || coalesce(use_stars_for_node_size::int::text, '')
+                    || '&vary_node_colors='            || coalesce(vary_node_colors::int::text, '')
+                    || '&start_w_tree_fully_expanded=' || coalesce(start_w_tree_fully_expanded::int::text, '')
+                    || '&tree_height_factor='          || coalesce(tree_height_factor::text, '')
                     || tree_relationship_url_addons(id)
                         as url
             from tree
