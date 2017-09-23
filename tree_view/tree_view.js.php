@@ -257,10 +257,23 @@ function setupTreeWithSize(root) {
 <?php
     # build up a get_tree url to get the tree data as JSON
     # send all the tree vars from vars.php as GET vars
-    $tree_vars = compact($tree_var_names);
+    if (isset($root_id)) {
+        # avoid super-long URL, backend can figure it out themselves
+        $tree_vars = array(
+            'root_id' => $root_id,
+        );
+        if (isset($requestVars['use_default_view'])) {
+            $tree_vars['use_default_view'] = $requestVars['use_default_view'];
+        }
+    }
+    else {
+        $tree_vars = compact($tree_var_names);
+    }
+
     $get_tree_query_string = http_build_query($tree_vars);
 ?>
 function treeDataUrl() {
+    // todo POST instead
     return "<?= "$get_tree_uri?$get_tree_query_string" ?>";
 }
 
