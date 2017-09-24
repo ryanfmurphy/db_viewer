@@ -1221,19 +1221,6 @@ function openTreeNodePopup(d, event, clicked_node) {
                                                 viewTreeForNode(d, clicked_node);
                                                 closePopup();
                                            } },
-        {   name: 'Select/Move', callback: function(){
-                                            startNestMode();
-                                            selectNode(d, clicked_node);
-                                            closePopup();
-                                           } },
-        {   name: 'Detach', callback: function(){
-                                        detachNodeFromParent(d, false, false);
-                                        closePopup();
-                                      } },
-        {   name: 'Delete', callback: function(){
-                                        deleteNodeFromParent(d);
-                                        closePopup();
-                                      } },
         {   name: 'Parent Tree', callback:  function(){
                                                 var url = crud_api_uri;
                                                 var primary_key = d.id; // #todo #fixme generalize
@@ -1259,11 +1246,20 @@ function openTreeNodePopup(d, event, clicked_node) {
                                                     primary_key: primary_key
                                                 };
                                                 doAjax("POST", url, data, success_callback, error_callback);
-                                                /*var d.parent_ids
-                                                primary_key = parent_ids;
-                                                viewTree(primary_key, clicked_node);
-                                                closePopup();*/
                                            } },
+        {   name: 'Select/Move', callback: function(){
+                                            startNestMode();
+                                            selectNode(d, clicked_node);
+                                            closePopup();
+                                           } },
+        {   name: 'Detach', callback: function(){
+                                        detachNodeFromParent(d, false, false);
+                                        closePopup();
+                                      } },
+        {   name: 'Delete', callback: function(){
+                                        deleteNodeFromParent(d);
+                                        closePopup();
+                                      } }
     ];
     openPopup(popup_options, event, clicked_node);
 }
