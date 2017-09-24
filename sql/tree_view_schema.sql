@@ -9,7 +9,8 @@ CREATE TABLE tree (
     use_stars_for_node_size boolean DEFAULT false NOT NULL,
     vary_node_colors boolean DEFAULT true NOT NULL,
     tree_height_factor real DEFAULT NULL,
-    start_w_tree_fully_expanded boolean DEFAULT true NOT NULL
+    start_w_tree_fully_expanded boolean DEFAULT true NOT NULL,
+    sideline_tables text[] NOT NULL
 )
 INHERITS (entity_view);
 
