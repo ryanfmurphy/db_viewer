@@ -49,12 +49,10 @@
             view|get|get1|create|update|delete
         )
         (?:_(?<table>\w+))?
-        |
-        add_to_array
-        |
-        remove_from_array
-        |
-        special_op
+        | add_to_array
+        | remove_from_array
+        | special_op
+        | get_parent
     $@x", $action, $matches);
 
     if ($matchesActionPattern) {
@@ -137,11 +135,32 @@
                 ));
                 break;
 
+            #note - gives only the 1st parent if there's > 1
+            case 'get_parent':
+                $primary_key = (isset($vars['primary_key'])
+                                    ? $vars['primary_key']
+                                    : die('no primary_key'));
+                #todo #fixme generalize
+                #todo do not assume parent_ids / array field
+                # maybe do not assume entity table?
+                $rows = Db::sql("
+                            select parent_ids[1] parent_id from entity
+                            where id = ".Db::quote($primary_key)."
+                        "); #todo don't assume 'id' field
+                if (count($rows)) {
+                    $row = $rows[0];
+                    die(json_encode($row['parent_id']));
+                }
+                else {
+                    die('no parent');
+                }
+                break;
+
             case "get1":
-            case "get1_$table": #todo #deprecate
+            case "get1_$table": #todo #deprecate this format of action
                 $get1 = true;
             case "get":
-            case "get_$table": #todo #deprecate
+            case "get_$table": #todo #deprecate this format of action
                 if (!isset($get1)) $get1 = false;
                 $where_clauses = $vars['where_clauses']
                                     ? $vars['where_clauses']
@@ -152,20 +171,20 @@
                 break;
 
             case "create":
-            case "create_$table": #todo #deprecate
+            case "create_$table": #todo #deprecate this format of action
                 die(json_encode(
                     Db::insert_row($table, $vars)
                 ));
                 break;
 
             case "update":
-            case "update_$table": #todo #deprecate
+            case "update_$table": #todo #deprecate this format of action
                 die(json_encode(
                     Db::update_rows($table, $vars)
                 ));
 
             case "delete":
-            case "delete_$table": #todo #deprecate
+            case "delete_$table": #todo #deprecate this format of action
                 die(json_encode(
                     Db::delete_rows($table, $vars)
                 ));
