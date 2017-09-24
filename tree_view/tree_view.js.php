@@ -1177,9 +1177,13 @@ function editNode(d, clicked_node) {
     window.open(url, '_blank');
 }
 
-function viewTree(d, clicked_node) {
+function viewTreeForNode(d, clicked_node) {
     var id_field = idFieldForNode(d);
     var primary_key = d[id_field];
+    return viewTree(primary_key, clicked_node);
+}
+
+function viewTree(primary_key, clicked_node) {
     var url = get_tree_url(primary_key);
     window.open(url, '_blank');
 }
@@ -1211,7 +1215,7 @@ function openTreeNodePopup(d, event, clicked_node) {
                                                 closePopup();
                                             } },
         {   name: 'Local Tree', callback:  function(){
-                                                viewTree(d, clicked_node);
+                                                viewTreeForNode(d, clicked_node);
                                                 closePopup();
                                            } },
         {   name: 'Select/Move', callback: function(){
@@ -1226,7 +1230,37 @@ function openTreeNodePopup(d, event, clicked_node) {
         {   name: 'Delete', callback: function(){
                                         deleteNodeFromParent(d);
                                         closePopup();
-                                      } }
+                                      } },
+        {   name: 'Parent Tree', callback:  function(){
+                                                var url = crud_api_uri;
+                                                var primary_key = d.id; // #todo #fixme generalize
+                                                var success_callback = function(xhttp){
+                                                    var response = JSON.parse(xhttp.responseText);
+                                                    if (response) {
+                                                        var parent_key = response;
+                                                        var parent_tree_url = get_tree_url(parent_key);
+                                                        // #todo #fixme this seems to be considered a "popup"
+                                                        // and gets blocked in some browsers
+                                                        // figure out best practice
+                                                        window.open(parent_tree_url, '_blank');
+                                                    }
+                                                    else {
+                                                        alert('error: invalid response');
+                                                    }
+                                                };
+                                                var error_callback = function(xhttp){
+                                                    alert('error');
+                                                };
+                                                var data = {
+                                                    action: 'get_parent',
+                                                    primary_key: primary_key
+                                                };
+                                                doAjax("POST", url, data, success_callback, error_callback);
+                                                /*var d.parent_ids
+                                                primary_key = parent_ids;
+                                                viewTree(primary_key, clicked_node);
+                                                closePopup();*/
+                                           } },
     ];
     openPopup(popup_options, event, clicked_node);
 }
