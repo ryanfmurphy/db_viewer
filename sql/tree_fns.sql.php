@@ -1,3 +1,11 @@
+<?php
+    { # init
+        $trunk = dirname(__DIR__);
+        $cur_view = 'sql';
+        require("$trunk/includes/init.php");
+    }
+?>
+
 create or replace function tags_contain_any__sql(
     tags text[]
 )
@@ -59,6 +67,7 @@ returns text as $$
                     || '&vary_node_colors='            || coalesce(vary_node_colors::int::text, '')
                     || '&start_w_tree_fully_expanded=' || coalesce(start_w_tree_fully_expanded::int::text, '')
                     || '&tree_height_factor='          || coalesce(tree_height_factor::text, '')
+                    || '&sideline_tables='             || coalesce(sideline_tables::text, '')
                     || tree_relationship_url_addons(id)
                         as url
             from tree
@@ -92,9 +101,9 @@ returns text as $$
                         || '&parent_relationships[' || n || '][parent_table]='
                             || coalesce(parent_table,'')
                         || '&parent_relationships[' || n || '][parent_field]='
-                            || coalesce(relationship.parent_field,'')
+                            || coalesce(relationship.parent_field,'<?= $default_parent_field ?>')
                         || '&parent_relationships[' || n || '][matching_field_on_parent]='
-                            || coalesce(relationship.matching_field_on_parent,'')
+                            || coalesce(relationship.matching_field_on_parent,'<?= $primary_key_field ?>')
                         || '&parent_relationships[' || n || '][order_by_limit]='
                             || coalesce(relationship.order_by_limit,'')
                         || '&parent_relationships[' || n || '][condition]='
