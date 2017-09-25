@@ -1,14 +1,17 @@
-DB Viewer - database table view with inline dynamic joins
-=========================================================
+Table View
+----------
 
-This program provides a PHP-HTML-Javascript web interface
+This view provides a PHP-HTML-Javascript web interface
 for a SQL Database, allowing you to type in queries and view
 the results in a table format.  You can hide/show rows and
 columns, and click on key fields to join in data from new
 tables.
 
-Join-Splice more data into your view
-------------------------------------
+It could be compared to database administration tools, like
+phpMyAdmin, but with a more minimalist interface.
+
+### Join-Splice more data into your view
+
 * click a header / field name that corresponds to an id in another table
   and see the data from that table get automatically spliced into your view
 * can connect in the following ways:
@@ -18,14 +21,19 @@ Join-Splice more data into your view
         * or if `$id_mode == "id_only"`, to the `iid` of the `<table>` table
     * connect fields named `<table>` to the `name` field of the `<table>` table
 
-Show and Hide Columns and Rows
-------------------------------
+### Show and Hide Columns and Rows
+
 * Only available with `show_hide_mode = true`
 * click a column to hide it, shift-click to show again
 * alt-click a row to hide it, shift-alt-click to show again
 
-Many-to-many and Back-linking Relationships
--------------------------------------------
+### Many-to-many and Back-linking Relationships
+
+* This is for expanding data into your Table View when you have a
+  many-to-many or many-to-one relationship where the connecting Key
+  field is on the other table, not the table you are currently
+  browsing.
+
 * In the query table view, alt-click on a primary key field.
     * A menu come up asking which connection you want
     * Click a connection and the database will automatically be queried to get the related data you asked for
