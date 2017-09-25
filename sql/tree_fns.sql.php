@@ -1,4 +1,8 @@
 <?php
+    #todo #fixme just leave the dynamic variables blank
+    # and let vars.php fill them in
+    # we shouldn't need any PHP here
+
     { # init
         $trunk = dirname(__DIR__);
         $cur_view = 'sql';

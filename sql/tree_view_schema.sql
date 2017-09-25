@@ -9,15 +9,16 @@ CREATE TABLE tree (
     use_stars_for_node_size boolean DEFAULT false NOT NULL,
     vary_node_colors boolean DEFAULT true NOT NULL,
     tree_height_factor real DEFAULT NULL,
-    start_w_tree_fully_expanded boolean DEFAULT true NOT NULL
+    start_w_tree_fully_expanded boolean DEFAULT true NOT NULL,
+    sideline_tables text[] NOT NULL
 )
 INHERITS (entity_view);
 
 CREATE TABLE tree_relationship (
-    child_tables text[] not null
-        check (array_length(child_tables,1) > 0),
-    parent_tables text[] not null
-        check (array_length(parent_tables,1) > 0),
+    child_tables text[], -- not null
+        -- check (array_length(child_tables,1) > 0),
+    parent_tables text[], -- not null
+        -- check (array_length(parent_tables,1) > 0),
     parent_field text,
     matching_field_on_parent text,
     condition text,

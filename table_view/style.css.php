@@ -238,6 +238,14 @@
         width: 90%;
     }
 
+    #custom_query_links ul {
+        list-style-type: none;
+        padding: 0;
+        display: inline-block;
+        vertical-align: top;
+        margin: auto 2em;
+    }
+
 <?php
                 if (file_exists('custom_css.php')) {
                     include('custom_css.php');
