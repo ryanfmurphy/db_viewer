@@ -20,7 +20,8 @@ class Wikiness {
                         return $name;
                     }
                     else {
-                        $url = "$crud_api_uri?action=view&table=$table&name=$name";
+                        $url = "$crud_api_uri?action=view&table=".urlencode($table)
+                                                        ."&name=".urlencode($name);
                         { ob_start();
                             ?><a href="<?= $url ?>" target="_blank"><?= $name ?></a><?php
                           return ob_get_clean();
