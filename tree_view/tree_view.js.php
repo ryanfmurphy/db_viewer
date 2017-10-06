@@ -1221,6 +1221,7 @@ function openTreeNodePopup(d, event, clicked_node) {
                                             } }
     ];
 
+    // URL field links
     for (var url_field_name in url_field_links) {
         if (url_field_links.hasOwnProperty(url_field_name)) {
             var url_field = url_field_links[url_field_name];
@@ -1229,7 +1230,7 @@ function openTreeNodePopup(d, event, clicked_node) {
                 if (url !== null) {
                     popup_options.push(
                         {
-                            name: url_field,
+                            name: url_field_name,
                             callback: function(){
                                 document.location = url; // #todo #fixme make target=_blank
                             }
