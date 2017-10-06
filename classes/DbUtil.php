@@ -374,6 +374,11 @@ if (!class_exists('DbUtil')) {
         }
 
         public static function val_list_str($vals) {
+            if (!is_array($vals)) {
+                echo "val_list_str on non-array, backtrace = \n";
+                print_r(debug_backtrace()); #todo #fixme maybe don't put into output?  helpful tho
+                die();
+            }
             $val_reps = array_map(
                 function($val) {
 					return Db::sql_literal($val);
@@ -689,6 +694,9 @@ infer_limit_from_query: query didn't match regex.
         public static function get_columns_sql(
             $table, $schemas_in_path
         ) {
+            if ($schemas_in_path === null) {
+                $schemas_in_path = self::schemas_in_path();
+            }
             $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
             $db_type = Config::$config['db_type'];
 
