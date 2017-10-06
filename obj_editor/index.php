@@ -622,11 +622,7 @@
 
             }
 
-            #todo #fixme this should be a plugin, not part of the code code
-            $url_field_links = array(
-                'url' => 'url',
-                'trello' => 'trello_card_url'
-            );
+            $url_field_links = Config::$config['url_field_links'];
             foreach ($url_field_links as $url_field_name => $url_field) {
                 if (in_array($url_field, $fields)
                     && isset($defaultValues[$url_field])

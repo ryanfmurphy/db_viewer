@@ -240,6 +240,8 @@ class Config {
             'change_to_update_after_insert',
             'alt_enter_reverses_change2update_setting',
 
+            'url_field_links', # e.g. links at top of object editor
+
         );
 
         $config = compact($config_vars);
@@ -521,6 +523,8 @@ class Config {
             'change_to_update_after_insert' => true,
             'alt_enter_reverses_change2update_setting' => true,
 
+            # keys are names of link, values are urls
+            'url_field_links' => array('url' => 'url'),
         );
 
         return $default_values;
