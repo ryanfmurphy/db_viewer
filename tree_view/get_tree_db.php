@@ -55,8 +55,13 @@
             }
         }
 
+        #todo #fixme address schema
+        #todo #fixme #performance - maybe don't make this call so much, #cache it?
+        $existing_fields = DbUtil::get_table_fields($table);
         foreach (Config::$config['url_field_links'] as $url_field) {
-            $fields[$url_field] = 1;
+            if (in_array($url_field, $existing_fields)) {
+                $fields[$url_field] = 1;
+            }
         }
 
         my_debug('fields', "  } (finishing field_list)\n");
