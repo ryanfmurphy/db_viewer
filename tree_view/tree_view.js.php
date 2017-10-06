@@ -613,6 +613,8 @@ var kb = {
     l_code: 108, // copy Links
 };
 
+var url_field_links = <?= json_encode(Config::$config['url_field_links']) ?>;
+
 
 function get_alert_elem() {
     return document.getElementById('alert');
@@ -1216,7 +1218,30 @@ function openTreeNodePopup(d, event, clicked_node) {
         {   name: 'Details/Edit', callback: function(){
                                                 editNode(d, clicked_node);
                                                 closePopup();
-                                            } },
+                                            } }
+    ];
+
+    for (var url_field_name in url_field_links) {
+        if (url_field_links.hasOwnProperty(url_field_name)) {
+            var url_field = url_field_links[url_field_name];
+            if (url_field in d) {
+                var url = d[url_field];
+                if (url !== null) {
+                    popup_options.push(
+                        {
+                            name: url_field,
+                            callback: function(){
+                                document.location = url; // #todo #fixme make target=_blank
+                            }
+                        }
+                    );
+                }
+            }
+        }
+    }
+
+    // append more options
+    popup_options.push.apply(popup_options, [
         {   name: 'Local Tree', callback:  function(){
                                                 viewTreeForNode(d, clicked_node);
                                                 closePopup();
@@ -1260,7 +1285,7 @@ function openTreeNodePopup(d, event, clicked_node) {
                                         deleteNodeFromParent(d);
                                         closePopup();
                                       } }
-    ];
+    ]);
     openPopup(popup_options, event, clicked_node);
 }
 

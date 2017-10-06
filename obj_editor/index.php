@@ -563,7 +563,7 @@
                         </span>
                         <span   id="clear_fields_link" class="link" target="_blank"
                                 onclick="clearAllFields()">
-                            clear
+                            Clear
                         </span>
                     </nobr>
 <?php
@@ -575,17 +575,17 @@
 ?>
                     <span id="view_link" class="link" target="_blank"
                           onclick="submitFormForViewLink('<?= $crud_api_uri ?>', window.scope.table_name, event)">
-                        search
+                        Search
                     </span>
                     <a  id="view_all_link" class="link" target="_blank"
                         href="<?= Db::view_query_url($table, $maybe_minimal) ?>">
-                        view all
+                        View All
                     </a>
 <?php
 ?>
                     <span   id="clear_fields_link" class="link" target="_blank"
                             onclick="clearAllFields()">
-                        clear <!--<span class="details">all fields</span>-->
+                        Clear <!--<span class="details">all fields</span>-->
                     </span>
 
 <?php
@@ -594,7 +594,7 @@
             if (Config::$config['include_tree_buttons']) {
 ?>
                     <span class="link" onclick="changeToCreateChildForm()">
-                        create child
+                        Create Child
                     </span>
 <?php
 
@@ -615,7 +615,7 @@
                     }
 ?>
                     >
-                        tree
+                        Tree
                     </a>
 <?php
                 }

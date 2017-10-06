@@ -543,7 +543,7 @@ class Config {
             'kanban_root_level_override_field' => null,
 
             # keys are names of link, values are urls
-            'url_field_links' => array('url' => 'url'),
+            'url_field_links' => array('URL' => 'url'),
         );
 
         return $default_values;

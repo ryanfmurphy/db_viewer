@@ -55,6 +55,10 @@
             }
         }
 
+        foreach (Config::$config['url_field_links'] as $url_field) {
+            $fields[$url_field] = 1;
+        }
+
         my_debug('fields', "  } (finishing field_list)\n");
         $result = implode(', ', array_keys($fields));
         return $result;
