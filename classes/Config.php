@@ -524,7 +524,7 @@ class Config {
             'alt_enter_reverses_change2update_setting' => true,
 
             # keys are names of link, values are urls
-            'url_field_links' => array('url' => 'url'),
+            'url_field_links' => array('URL' => 'url'),
         );
 
         return $default_values;
