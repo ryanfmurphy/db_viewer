@@ -622,16 +622,23 @@
 
             }
 
-            #todo #fixme this trello link should be a plugin, not part of the code code
-            if (in_array('trello_card_url', $fields)
-                && isset($defaultValues['trello_card_url'])
-                && $defaultValues['trello_card_url']
-            ) {
+            #todo #fixme this should be a plugin, not part of the code code
+            $url_field_links = array(
+                'url' => 'url',
+                'trello' => 'trello_card_url'
+            );
+            foreach ($url_field_links as $url_field_name => $url_field) {
+                if (in_array($url_field, $fields)
+                    && isset($defaultValues[$url_field])
+                    && $defaultValues[$url_field]
+                ) {
+                    $url_val = $defaultValues[$url_field];
 ?>
-                    <a target="_blank" class="link" href="<?= $defaultValues['trello_card_url'] ?>">
-                        trello
+                    <a target="_blank" class="link" href="<?= $url_val ?>">
+                        <?= $url_field_name ?>
                     </a>
 <?php
+                }
             }
         }
 ?>

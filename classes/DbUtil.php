@@ -497,8 +497,15 @@ if (!class_exists('DbUtil')) {
             $search_path = trim($search_path);
             $search_path_no_spaces = str_replace(' ', '', $search_path);
             $schemas_in_path = explode(',', $search_path_no_spaces);
-            if (count($schemas_in_path) == 1 && $schemas_in_path[0] == '') {
-                return null;
+            if (count($schemas_in_path) == 1
+                && $schemas_in_path[0] == ''
+            ) {
+                if (Config::$config['db_type'] == 'pgsql') {
+                    return array('public');
+                }
+                else {
+                    return null;
+                }
             }
             else {
                 return $schemas_in_path;
