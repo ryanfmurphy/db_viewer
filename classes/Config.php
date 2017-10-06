@@ -248,6 +248,9 @@ class Config {
             'kanban_wheres',
             'kanban_root_level_nodes_only',
             'kanban_root_level_override_field',
+
+            'url_field_links', # e.g. links at top of object editor
+
         );
 
         $config = compact($config_vars);
@@ -538,6 +541,9 @@ class Config {
             'kanban_root_level_nodes_only' => true,
             # allows a node to be considered "root" enough to show up even though it has a parent
             'kanban_root_level_override_field' => null,
+
+            # keys are names of link, values are urls
+            'url_field_links' => array('url' => 'url'),
         );
 
         return $default_values;
