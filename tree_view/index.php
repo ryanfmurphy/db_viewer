@@ -64,12 +64,12 @@
         </head>
 
         <body>
+            <span id="alert"></span>
 <?php
     { # Configure Tree link
         $vars_for_edit_link = $requestVars;
         $vars_for_edit_link['edit_vars'] = 1;
 ?>
-            <span id="alert"></span>
             <a id="edit_vars_link"
                href="<?= "?".http_build_query($vars_for_edit_link) ?>"
                target="_blank">
@@ -77,6 +77,9 @@
             </a>
 <?php
     }
+
+    TreeView::echo_default_view_toggle_link($requestVars);
+
 ?>
             <h1>
                 🌳 Tree View:
