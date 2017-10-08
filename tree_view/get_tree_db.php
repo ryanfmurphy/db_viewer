@@ -175,7 +175,10 @@
     # and the value of each property is an array of the parent nodes that 
     # meet that description
     function add_node_to_relationship_lists(
-        $row, $parent, $parent_relationships, &$all_parents_by_relationship, $table
+        $row, $parent, $parent_relationships,
+        #&$all_parents_by_relationship,
+        $all_parents_by_relationship,
+        $table
     ) {
         my_debug('arrays', "top of add_node_to_relationship_lists...\n");
         # add val to each applicable relationship
@@ -197,8 +200,8 @@
                     #    ." relationship_no = $rel_no\n");
 
                     # detructively modify $add_children_by_relationship
-                    if (!isset($all_parents_by_relationship[$rel_no])) {
-                        $all_parents_by_relationship[$rel_no] = new stdClass();
+                    if (!isset($all_parents_by_relationship->{$rel_no})) {
+                        $all_parents_by_relationship->{$rel_no} = new stdClass();
                     }
 
                     # If that the child is going to try to match to this node
@@ -215,7 +218,7 @@
                             if ($val) {
                                 # add this parent in the proper bucket
                                 # (PHP will create an array if none exist)
-                                $all_parents_by_relationship[$rel_no]->{$val}[] = $parent;
+                                $all_parents_by_relationship->{$rel_no}->{$val}[] = $parent;
                             }
                             else {
                                 my_debug('not truthy, skipping', "    val = $val\n");
@@ -226,7 +229,7 @@
                         my_debug('arrays', "  it is not, adding it normally\n");
                         # add this parent in the proper bucket
                         # (PHP will create an array if none exist)
-                        $all_parents_by_relationship[$rel_no]->{$parent_match_val}[] = $parent;
+                        $all_parents_by_relationship->{$rel_no}->{$parent_match_val}[] = $parent;
                     }
                 }
                 else {
@@ -335,9 +338,9 @@
             $all_nodes = new stdClass();
 
             # each parent_relationship gets its own hash
-            $parent_nodes_by_relationship = array();
+            $parent_nodes_by_relationship = new stdClass(); #array();
             foreach ($parent_relationships as $rel_no => $parent_relationship) {
-                $parent_nodes_by_relationship[$rel_no] = new stdClass();
+                $parent_nodes_by_relationship->{$rel_no} = new stdClass();
             }
         }
 
@@ -438,9 +441,9 @@
                             ));
         $id_mode = Config::$config['id_mode']; #todo do we need id_mode anymore?
 
-        $all_children_by_relationship = array();
+        $all_children_by_relationship = new stdClass(); # array();
         foreach ($parent_relationships as $relationship_no => $parent_relationship) {
-            $all_children_by_relationship[$relationship_no] = new stdClass();
+            $all_children_by_relationship->{$relationship_no} = new stdClass();
         }
 
         $more_children_to_look_for = false;
@@ -461,7 +464,7 @@
             $matching_field_on_parent = get_matching_field_on_parent(
                                     $parent_relationship, $parent_table);
 
-            $parent_nodes = $parent_nodes_by_relationship[$relationship_no];
+            $parent_nodes = $parent_nodes_by_relationship->{$relationship_no};
             $parent_vals = get_field_values_for_matching($parent_nodes,
                                                  $matching_field_on_parent);
 
