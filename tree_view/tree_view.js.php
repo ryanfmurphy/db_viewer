@@ -270,6 +270,12 @@ function setupTreeWithSize(root) {
         $tree_vars = compact($tree_var_names);
     }
 
+    if (isset($_GET['xdebug_profile'])
+        && $_GET['xdebug_profile']
+    ) {
+        $tree_vars['XDEBUG_PROFILE'] = true;
+    }
+
     $get_tree_query_string = http_build_query($tree_vars);
 ?>
 function treeDataUrl() {
