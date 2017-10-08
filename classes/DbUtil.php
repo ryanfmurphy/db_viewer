@@ -727,8 +727,15 @@ infer_limit_from_query: query didn't match regex.
         # get fields of table from db
         # returns false if table $table doesn't exist
         public static function get_table_fields(
-            $table, $schemas_in_path=null
+            $table, $schemas_in_path=null, $use_cache=true
         ) {
+            # read from cache if applicable
+            if ($use_cache
+                && isset(Config::$config['cached_table_fields'][$table])
+            ) {
+                return Config::$config['cached_table_fields'][$table];
+            }
+
             $db_type = Config::$config['db_type'];
             #todo #fixme factor this with dup code in obj_editor/index.php
             $get_columns_sql = DbUtil::get_columns_sql(
@@ -769,51 +776,58 @@ infer_limit_from_query: query didn't match regex.
                         #die("Table $table doesn't exist");
                         return false;
                     }
-                }*/
+                }}*/
 
-                { # group by schema
-                    $fieldsRowsBySchema = array();
-                    #todo #fixme Warning: Invalid argument supplied for foreach()
-                    foreach ($fieldsRows as $fieldsRow) {
-                        $schema = $fieldsRow['table_schema'];
-                        $fieldsRowsBySchema[$schema][] = $fieldsRow;
-                    }
+            { # group by schema
+                $fieldsRowsBySchema = array();
+                #todo #fixme Warning: Invalid argument supplied for foreach()
+                foreach ($fieldsRows as $fieldsRow) {
+                    $schema = $fieldsRow['table_schema'];
+                    $fieldsRowsBySchema[$schema][] = $fieldsRow;
                 }
+            }
 
-                { # choose 1st schema that applies
-                    if ($schemas_in_path) {
-                        $schema = null;
+            { # choose 1st schema that applies
+                if ($schemas_in_path) {
+                    $schema = null;
 
-                        foreach ($schemas_in_path as $schema_in_path) {
-                            if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                                $schema = $schema_in_path;
-                                break;
-                            }
-                        }
-                        if ($schema === null) {
-                            die("Whoops!  Couldn't select a DB schema for table $table");
+                    foreach ($schemas_in_path as $schema_in_path) {
+                        if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                            $schema = $schema_in_path;
+                            break;
                         }
                     }
+                    if ($schema === null) {
+                        die("Whoops!  Couldn't select a DB schema for table $table");
+                    }
                 }
+            }
 
-                { # get just the column_names
-                    $fields = array_map(
-                        function($x) {
-                            return $x['column_name'];
-                        },
-                        $fieldsRowsBySchema[$schema]
-                    );
+            { # get just the column_names
+                $fields = array_map(
+                    function($x) {
+                        return $x['column_name'];
+                    },
+                    $fieldsRowsBySchema[$schema]
+                );
+            }
+
+            /* #todo pass this out
+            { # so we can give a warning/notice about it later
+                $multipleTablesFoundInDifferentSchemas =
+                    count(array_keys($fieldsRowsBySchema)) > 1;
+            }
+            */
+
+            # save to cache if applicable
+            if ($use_cache) {
+                if (!isset(Config::$config['cached_table_fields'])) {
+                    Config::$config['cached_table_fields'] = array();
                 }
+                Config::$config['cached_table_fields'][$table] = $fields;
+            }
 
-                /* #todo pass this out
-                { # so we can give a warning/notice about it later
-                    $multipleTablesFoundInDifferentSchemas =
-                        count(array_keys($fieldsRowsBySchema)) > 1;
-                }
-                */
-
-                return $fields;
-            #}
+            return $fields;
         }
 
         # if returns false, maybe table doesn't exist
