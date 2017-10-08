@@ -1227,7 +1227,7 @@ function openTreeNodePopup(d, event, clicked_node) {
             var url_field = url_field_links[url_field_name];
             if (url_field in d) {
                 var url = d[url_field];
-                if (url !== null) {
+                if (url) {
                     popup_options.push(
                         {
                             name: url_field_name,
