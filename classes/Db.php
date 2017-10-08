@@ -429,25 +429,68 @@ if (!class_exists('Db')) {
             header("Location: ".self::view_query_url($sql, $minimal));
         }
 
+        # view_table - given a table_name and optional where_vars
+        #              view those rows in the Table View
+        # note: $match_aliases is Postgres only
         public static function view_table(
-            $table_name, $where_vars=array(), $select_fields=null, $minimal=false
+            $table_name, $where_vars=array(), $select_fields=null,
+            $minimal=false, $match_aliases=false
         ) {
+            # add aliases to where_vars
+            if ($match_aliases
+                && $where_vars['name']
+                && Config::$config['aliases_field']
+            ) {
+                $name = $where_vars['name'];
+                $name_quot = Db::sql_literal($name);
+                $aliases_field = Config::$config['aliases_field'];
+                unset($where_vars['name']);
+                $aliases_pred = new Predicate(
+                    '@>', 'array['.$name_quot.']',
+                    false # no need to escape val
+                );
+                $or_clauses = new OrClauses(array(
+                    'name' => $name,
+                    $aliases_field => $aliases_pred,
+                ));
+                $where_vars[] = $or_clauses;
+            }
+
+            # build the query
             $sql = DbUtil::expand_tablename_into_query(
                 $table_name, $where_vars, $select_fields
             );
+            # go to that query in table_view
             return Db::view_query($sql, $minimal);
         }
 
         #todo maybe allow magic null value?
-        public static function build_where_clause($wheres) {
+        public static function build_where_clause(
+            $wheres, $logical_op='and', $include_where=true
+        ) {
             $sql = '';
 
             # add where clauses
-            $where_or_and = 'where';
-            foreach ($wheres as $key => $val) {
-                $val = Db::sql_literal($val);
-                $sql .= "\n$where_or_and $key = $val";
-                $where_or_and = '    and';
+            $where_and_or = ($include_where
+                                ? 'where'
+                                : '');
+            foreach ($wheres as $key => $val_or_predicate) {
+                if ($val_or_predicate instanceof Predicate) {
+                    # Predicate has a __toString() fn
+                    $expr = "$key $val_or_predicate";
+                }
+                elseif ($val_or_predicate instanceof OrClauses) {
+                    # OrClauses has a __toString() fn
+                    $expr = "$val_or_predicate";
+                }
+                else {
+                    $val = Db::sql_literal($val_or_predicate);
+                    $expr = "$key = $val";
+                }
+
+                $sql .= "\n$where_and_or $expr";
+
+                $where_and_or = "    $logical_op";
             }
 
             return $sql;
