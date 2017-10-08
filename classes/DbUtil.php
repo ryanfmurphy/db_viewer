@@ -992,12 +992,15 @@ infer_limit_from_query: query didn't match regex.
         ) {
             $sqlHasNoSpaces = (strpos(trim($sqlish), ' ') === false);
             if (strlen($sqlish) > 0
-                    && $sqlHasNoSpaces
+                && $sqlHasNoSpaces
             ) {
-                $tablename = $sqlish; # (tablename has no quotes)
+                # (tablename has no quotes)
+                $tablename = $sqlish;
 
                 if ($order_by_limit === null) {
-                    $order_by_limit = DbUtil::default_order_by_limit($tablename);
+                    $order_by_limit =
+                        DbUtil::default_order_by_limit(
+                                                $tablename);
                 }
 
                 return Db::build_select_sql(

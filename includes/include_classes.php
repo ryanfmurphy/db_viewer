@@ -3,6 +3,7 @@
     # needs $trunk defined before including
 
     require_once("$trunk/classes/Predicate.php");
+    require_once("$trunk/classes/OrClauses.php");
     require_once("$trunk/classes/Db.php");
     require_once("$trunk/classes/Utility.php");
     require_once("$trunk/classes/DbUtil.php");

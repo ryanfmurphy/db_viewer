@@ -120,17 +120,27 @@
                     $select_fields = $vars['select_fields'];
                     unset($vars['select_fields']);
                 }
-                elseif (isset($vars['table_view_minimal_mode'])) {
-                    $minimal = $vars['table_view_minimal_mode'];
-                    unset($vars['table_view_minimal_mode']);
-                }
                 else {
                     $select_fields = null;
                 }
 
+                if (isset($vars['table_view_minimal_mode'])) {
+                    $minimal = $vars['table_view_minimal_mode'];
+                    unset($vars['table_view_minimal_mode']);
+                }
+
+                if (isset($vars['match_aliases'])) {
+                    $match_aliases = $vars['match_aliases'];
+                    unset($vars['match_aliases']);
+                }
+                else {
+                    $match_aliases = false;
+                }
+
                 die(json_encode(
                     Db::view_table(
-                        $table, $vars, $select_fields, $minimal
+                        $table, $vars, $select_fields,
+                        $minimal, $match_aliases
                     )
                 ));
                 break;

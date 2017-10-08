@@ -33,7 +33,8 @@ class Wikiness {
                         # without breaking the link
                         $name_decoded = html_entity_decode($name);
                         $url = "$crud_api_uri?action=view&table=".urlencode($table)
-                                                        ."&name=".urlencode($name_decoded);
+                                                        ."&name=".urlencode($name_decoded)
+                                                        ."&match_aliases=1";
                         { ob_start();
                             ?><a href="<?= $url ?>" target="_blank"><?= $name ?></a><?php
                           return ob_get_clean();
