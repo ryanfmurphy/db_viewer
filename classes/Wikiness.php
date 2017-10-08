@@ -2,7 +2,13 @@
 class Wikiness {
 
     # sub {{objlinks}} as needed
-    public static function replace_objlinks($txt, $fieldname='name', $plain_txt=false) {
+    # called after val_html in TableView
+    # (NOTE: called after htmlentities has been called
+    #  so it has to do html_entity_decode within the URL
+    #  so that e.g. <> is allowed in the sql of the link
+    public static function replace_objlinks(
+        $txt, $fieldname='name', $plain_txt=false
+    ) {
         if (is_array(Config::$config['enable_objlinks_in_fields'])
             && in_array($fieldname, Config::$config['enable_objlinks_in_fields'])
         ) {
@@ -17,11 +23,17 @@ class Wikiness {
                                 : 'entity'); # start general by default - #todo #fixme use Config
                     $name = $match[2];
                     if ($plain_txt) {
+                        # still has e.g. &lt; instead of <
+                        # to avoid rendering html in table cell
                         return $name;
                     }
                     else {
+                        # decode &lt; into < etc
+                        # to allow special chars in name
+                        # without breaking the link
+                        $name_decoded = html_entity_decode($name);
                         $url = "$crud_api_uri?action=view&table=".urlencode($table)
-                                                        ."&name=".urlencode($name);
+                                                        ."&name=".urlencode($name_decoded);
                         { ob_start();
                             ?><a href="<?= $url ?>" target="_blank"><?= $name ?></a><?php
                           return ob_get_clean();
