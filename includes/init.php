@@ -13,8 +13,9 @@
             #todo #fixme - don't require setting cur_view
             #              (right now we need it so we can pass in
             #               uri to Config::default_values)
+            $view_uri = "/$cur_view/$cur_subview.php";
             $default_values = Config::default_values(
-                "/$cur_view/$cur_subview.php"
+                $view_uri
             );
 
             $config = Config::load_config("$trunk/db_config.php",
