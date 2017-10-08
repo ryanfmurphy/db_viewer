@@ -444,9 +444,19 @@ if (!class_exists('Db')) {
 
             # add where clauses
             $where_or_and = 'where';
-            foreach ($wheres as $key => $val) {
-                $val = Db::sql_literal($val);
-                $sql .= "\n$where_or_and $key = $val";
+            foreach ($wheres as $key => $val_or_predicate) {
+                if ($val_or_predicate instanceof Predicate) {
+                    echo "val_or_predicate = $val_or_predicate\n";
+                    # Predicate has a __toString() fn
+                    $expr = "$key $val_or_predicate";
+                }
+                else {
+                    $val = Db::sql_literal($val_or_predicate);
+                    $expr = "$key = $val";
+                }
+
+                $sql .= "\n$where_or_and $expr";
+
                 $where_or_and = '    and';
             }
 
