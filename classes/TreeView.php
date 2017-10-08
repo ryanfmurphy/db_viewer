@@ -76,4 +76,35 @@
         </td>
 <?php
         }
+
+        public static function echo_default_view_toggle_link($requestVars) {
+            # toggle Default View / Stored View
+            if (isset($requestVars['root_id'])) {
+                # Stored View
+                if (isset($requestVars['use_default_view'])
+                    && $requestVars['use_default_view']
+                ) {
+                    # $_GET, not $requestVars, because we don't want all the expanded vars
+                    $storedViewVars = $_GET;
+                    unset($storedViewVars['use_default_view']);
+?>
+                    <a id="edit_vars_link"
+                       href="<?= Config::$config['tree_view_uri'] . '?' . http_build_query($storedViewVars) ?>"
+                       target="_blank">
+                        Stored View
+                    </a>
+<?php
+                }
+                # Default View
+                else {
+?>
+                    <a id="edit_vars_link"
+                       href="<?= $_SERVER['REQUEST_URI'] ?>&use_default_view=1"
+                       target="_blank">
+                        Default View
+                    </a>
+<?php
+                }
+            }
+        }
     }
