@@ -10,6 +10,7 @@
     const DEBUG_RESULT = false;
 
     function my_debug($category, $msg) {
+        /*
         if (DEBUG_ALL
             || $category === true
             || in_array($category, array(
@@ -34,12 +35,13 @@
         ) {
             echo($msg);
         }
+        */
     }
 
     { # init: defines $db, TableView,
         # and Util (if not already present)
         $trunk = dirname(__DIR__);
-        $cur_view = 'tree_view';
+        $cur_view = 'get_tree';
         require("$trunk/includes/init.php");
         require("$trunk/tree_view/hash_color.php");
         require("$trunk/tree_view/vars.php");
