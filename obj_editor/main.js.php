@@ -1598,4 +1598,17 @@
         }
     }
 
+    function bodyKeypressHandler(event) {
+        var KEY_S = 115;
+        if (event.ctrlKey
+            && event.which == KEY_S
+        ) {
+            alert('wanna search huh');
+        }
+    }
+
+    window.addEventListener('load', function(){
+        document.body.addEventListener('keypress', bodyKeypressHandler);
+    });
+
 }
