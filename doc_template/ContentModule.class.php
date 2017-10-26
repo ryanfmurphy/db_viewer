@@ -4,12 +4,12 @@ class ContentModule {
 
     public static function getIdField() {
         $id_mode = Config::$config['id_mode'];
-        return DbUtil::get_primary_key_field('content_container');
+        return DbUtil::get_primary_key_field('content_module');
     }
 
     public function getId() {
         $id_mode = Config::$config['id_mode'];
-        $field_name = DbUtil::get_primary_key_field('content_module');
+        $field_name = self::getIdField();
         return $this->$field_name;
     }
 
