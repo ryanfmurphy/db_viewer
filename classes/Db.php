@@ -311,6 +311,11 @@ if (!class_exists('Db')) {
             }
         }
 
+        public static function update_row($table_name, $rowVars) {
+            #todo - add additional checking to make sure there's a primary key
+            return self::update_rows($table_name, $rowVars);
+        }
+
         public static function delete_rows($table_name, $rowVars, $allowEmptyWheres = false) {
             if (isset($rowVars['where_clauses'])) {
                 $whereClauses = $rowVars['where_clauses'];
