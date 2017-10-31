@@ -259,12 +259,12 @@ function setupTreeWithSize(root) {
     # send all the tree vars from vars.php as GET vars
     if (isset($root_id)) {
         # avoid super-long URL, backend can figure it out themselves
-        $tree_vars = array(
+        $tree_vars = $_GET; /*array(
             'root_id' => $root_id,
         );
         if (isset($requestVars['use_default_view'])) {
             $tree_vars['use_default_view'] = $requestVars['use_default_view'];
-        }
+        }*/
     }
     else {
         $tree_vars = compact($tree_var_names);

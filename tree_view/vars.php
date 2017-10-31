@@ -20,11 +20,12 @@
         { # get requestVars from url
             $query_str = parse_url($tree_url, PHP_URL_QUERY);
             parse_str($query_str, $new_url_vars);
-            $requestVars = array_merge(
+            $requestVars = array_merge( #todo: array_merge_recursive_seq(
                 $requestVars, $new_url_vars
             );
         }
     }
+
 
 
     # temporarily override / adjust Config vars
