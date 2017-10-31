@@ -48,7 +48,8 @@ var config = {
     tree_height_factor: <?= Config::$config['tree_height_factor'] ?>,
     add_child__interpret_complex_table_as_name: <?= Config::$config['add_child__interpret_complex_table_as_name']
                                                         ? 'true'
-                                                        : 'false' ?>
+                                                        : 'false' ?>,
+    vary_node_colors: <?= (int)Config::$config['vary_node_colors'] ?>
 };
 
 // ideally PHP would end here - pure JS from here forward
@@ -419,7 +420,7 @@ function updateTree(source) {
             )
             .on("click", toggleNodeExpansion);
 
-    var vary_node_colors = <?= (int)Config::$config['vary_node_colors']; ?>;
+    var vary_node_colors = config.vary_node_colors;
     nodeEnter.append("text")
             .attr("x", function(d) {
                             // where the text goes
