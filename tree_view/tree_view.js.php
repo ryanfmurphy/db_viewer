@@ -45,7 +45,10 @@ var default_name_cutoff = <?= $name_cutoff ?>;
 var table_info = <?= json_encode($table_info) ?>;
 
 var config = {
-    tree_height_factor: <?= Config::$config['tree_height_factor'] ?>
+    tree_height_factor: <?= Config::$config['tree_height_factor'] ?>,
+    add_child__interpret_complex_table_as_name: <?= Config::$config['add_child__interpret_complex_table_as_name']
+                                                        ? 'true'
+                                                        : 'false' ?>
 };
 
 // ideally PHP would end here - pure JS from here forward
@@ -1029,13 +1032,10 @@ function addChildToNode(node, child, doUpdateTree,
 function addChildWithPrompt(node_to_add_to, ask_type) {
     var default_table = getNodeTable(node_to_add_to);
     var table = default_table;
-    var add_child__interpret_complex_table_as_name = <?= Config::$config['add_child__interpret_complex_table_as_name']
-                                                            ? 'true'
-                                                            : 'false' ?>; 
     var name;
     if (ask_type) {
         table = prompt('Type/Table of new node:', table);
-        if (add_child__interpret_complex_table_as_name) {
+        if (config.add_child__interpret_complex_table_as_name) {
             var complex_table_name = (table.indexOf(' ') !== -1);
             if (complex_table_name) {
                 name = table;
