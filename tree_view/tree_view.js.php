@@ -51,7 +51,8 @@ var config = {
                                                         : 'false' ?>,
     vary_node_colors: <?= (int)(isset($requestVars['vary_node_colors'])
                                     ? $requestVars['vary_node_colors']
-                                    : Config::$config['vary_node_colors']) ?>
+                                    : Config::$config['vary_node_colors']) ?>,
+    default_values: <?= json_encode(Config::$config['default_values']) ?>
 };
 
 // ideally PHP would end here - pure JS from here forward
@@ -953,6 +954,16 @@ function cloneSvgNode(obj) {
     return obj2;
 }
 
+function cloneObj(obj) { // util
+    var obj2 = {};
+    for (var k in obj) {
+        if (obj.hasOwnProperty(k)) {
+            obj2[k] = obj[k];
+        }
+    }
+    return obj2;
+}
+
 function setNodeName(node, name) {
     node._node_name = name;
     node.name = name; // #todo #fixme don't assume name_field
@@ -1057,9 +1068,8 @@ function addChildWithPrompt(node_to_add_to, ask_type) {
         }
         var id_field = idFieldForNode(node_to_add_to);
 
-        var data = {
-            action: 'create_' + table,
-        };
+        var data = cloneObj(config.default_values);
+        data['action'] = 'create_' + table; // #todo #fixme use new CRUD api: {action: 'create', table: table}
         data['name'] = name;                      // #todo #fixme use name field
         var parent_id = node_to_add_to[id_field];
         data['parent_ids'] = '{'+parent_id+'}';   // #todo generalize 'parent_ids' field
