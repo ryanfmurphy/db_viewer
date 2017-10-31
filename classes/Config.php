@@ -49,7 +49,10 @@ class Config {
             'minimal_field_inheritance',
             'use_field_ordering_from_minimal_fields',
             'links_minimal_by_default',
+
+            'default_values',
             'default_values_by_table',
+
             'fields_to_make_selects',
             #'fields_to_make_selects_by_table', #todo
             'fields_to_make_textarea',
@@ -329,6 +332,7 @@ class Config {
             # obj view
             'multipleTablesFoundInDifferentSchemas' => false,
             'search_path' => null,
+            'default_values' => array(),
             'default_values_by_table' => array(),
             'fields_to_make_selects' => array(),
             #'fields_to_make_selects_by_table', #todo

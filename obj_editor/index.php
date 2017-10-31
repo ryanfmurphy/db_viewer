@@ -22,7 +22,7 @@
             # default values specified in config
             $defaultValues = isset($default_values_by_table[$table])
                                 ? $default_values_by_table[$table]
-                                : array();
+                                : Config::$config['default_values'];
             # pass requestVars in as default values
             $defaultValues = array_merge(
                 $defaultValues,
