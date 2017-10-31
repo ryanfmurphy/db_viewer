@@ -49,7 +49,9 @@ var config = {
     add_child__interpret_complex_table_as_name: <?= Config::$config['add_child__interpret_complex_table_as_name']
                                                         ? 'true'
                                                         : 'false' ?>,
-    vary_node_colors: <?= (int)Config::$config['vary_node_colors'] ?>
+    vary_node_colors: <?= (int)(isset($requestVars['vary_node_colors'])
+                                    ? $requestVars['vary_node_colors']
+                                    : Config::$config['vary_node_colors']) ?>
 };
 
 // ideally PHP would end here - pure JS from here forward
