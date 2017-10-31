@@ -216,6 +216,7 @@ class Config {
             'tree_view_relationship_expression_name',
             'tree_view_relationship_expression',
             'store_tree_views_in_db',
+            'add_child__interpret_complex_table_as_name',
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir',
@@ -503,6 +504,7 @@ class Config {
             'tree_view_relationship_expression_name' => null,
             'tree_view_relationship_expression' => null,
             'store_tree_views_in_db' => false,
+            'add_child__interpret_complex_table_as_name' => false,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,

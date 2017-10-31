@@ -1029,11 +1029,23 @@ function addChildToNode(node, child, doUpdateTree,
 function addChildWithPrompt(node_to_add_to, ask_type) {
     var default_table = getNodeTable(node_to_add_to);
     var table = default_table;
+    var add_child__interpret_complex_table_as_name = <?= Config::$config['add_child__interpret_complex_table_as_name']
+                                                            ? 'true'
+                                                            : 'false' ?>; 
+    var name;
     if (ask_type) {
         table = prompt('Type/Table of new node:', table);
+        if (add_child__interpret_complex_table_as_name) {
+            var complex_table_name = (table.indexOf(' ') !== -1);
+            if (complex_table_name) {
+                name = table;
+                table = default_table;
+            }
+        }
     }
-
-    var name = prompt('Name of new node:');
+    if (name === undefined) {
+        name = prompt('Name of new node:');
+    }
 
     if (name) {
         var url = crud_api_uri;
