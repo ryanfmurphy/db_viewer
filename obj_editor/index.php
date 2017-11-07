@@ -628,7 +628,7 @@
                     && isset($defaultValues[$url_field])
                     && $defaultValues[$url_field]
                 ) {
-                    $url_val = $defaultValues[$url_field];
+                    $url_val = Utility::escape_vars_in_url($defaultValues[$url_field]);
 ?>
                     <a target="_blank" class="link" href="<?= $url_val ?>">
                         <?= $url_field_name ?>
