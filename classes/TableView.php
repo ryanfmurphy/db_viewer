@@ -590,6 +590,17 @@
 <?php
         }
 
+
+        public static function echo_checkbox(
+            $obj_editor_uri, $table_for_edit_link, $primary_key
+        ) {
+?>
+        <td class="action_cell">
+            <input type="checkbox" />
+        </td>
+<?php
+        }
+
         public static function choose_background_image(
             $tablename, &$background_images
         ) {

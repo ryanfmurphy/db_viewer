@@ -33,6 +33,7 @@ class Config {
 
             'id_mode',
             'primary_key_field',
+            'table_view_checkboxes',
             'id_fields_are_uuids',
             'search_path',
             'backgroundImages',
@@ -329,6 +330,8 @@ class Config {
 
             'id_mode' => 'id_only', #todo is this a good default?
             'primary_key_field' => 'id',
+
+            'table_view_checkboxes' => false,
 
             # obj view
             'multipleTablesFoundInDifferentSchemas' => false,

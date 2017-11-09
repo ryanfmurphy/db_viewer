@@ -26,6 +26,7 @@
             function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns, $tablename_no_quotes) {
                 $row = current($rows);
                 $currentRow = TableView::prep_row($row);
+                
                 $has_delete_column = Config::$config['include_row_delete_button']
                                      && $has_edit_column;
                 $has_tree_column =  Config::$config['include_row_tree_button']
@@ -34,6 +35,12 @@
     <tr data-row="<?= $rowN ?>">
 <?php
                 { # action columns
+                    if (Config::$config['table_view_checkboxes']) {
+?>
+        <th class="action_cell"></th>
+<?php
+                    }
+
                     if ($has_edit_column) {
 ?>
         <th class="action_cell"></th>
@@ -208,10 +215,20 @@
 
                                 # edit and delete links (need pk)
                                 if ($has_primary_key_field) {
-                                    # edit
+
+                                    # in polymorphic cases with "relname", update that table instead
                                     $table_for_edit_link = ($relname
                                                                 ? DbUtil::strip_quotes($relname)
                                                                 : $tablename_no_quotes);
+
+                                    # checkbox for selecting
+                                    if (Config::$config['table_view_checkboxes']) {
+                                        TableView::echo_checkbox(
+                                            $obj_editor_uri, $table_for_edit_link, $primary_key
+                                        );
+                                    }
+
+                                    # edit
                                     TableView::echo_edit_link(
                                         $obj_editor_uri, $table_for_edit_link,
                                         $primary_key, $links_minimal_by_default
