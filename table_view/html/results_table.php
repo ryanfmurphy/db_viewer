@@ -23,10 +23,14 @@
             # factored into a function because
             # the <th>'s are repeated every so many rows
             # so it's easier to see what column you're on
-            function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns, $tablename_no_quotes) {
+            function headerRow(&$rows, $rowN, $has_primary_key_field, $num_action_columns, $tablename_no_quotes) {
                 $row = current($rows);
                 $currentRow = TableView::prep_row($row);
                 
+                $has_checkbox = $has_primary_key_field
+                                && Config::$config['table_view_checkboxes'];
+                $has_edit_column = $has_primary_key_field;
+
                 $has_delete_column = Config::$config['include_row_delete_button']
                                      && $has_edit_column;
                 $has_tree_column =  Config::$config['include_row_tree_button']
@@ -35,7 +39,7 @@
     <tr data-row="<?= $rowN ?>">
 <?php
                 { # action columns
-                    if (Config::$config['table_view_checkboxes']) {
+                    if ($has_checkbox) {
 ?>
         <th class="action_cell"></th>
 <?php
@@ -132,9 +136,7 @@
                         { # sometimes add a header row
                             if ($rowN % $header_every == 0) {
                                 $num_action_columns = count($special_ops_cols);
-                                #$has_edit_column = ($primary_key !== null);
-                                $has_edit_column = ($has_primary_key_field);
-                                headerRow($rows, $rowN, $has_edit_column, $num_action_columns, $tablename_no_quotes);
+                                headerRow($rows, $rowN, $has_primary_key_field, $num_action_columns, $tablename_no_quotes);
                                 $rowN++;
                             }
                         }
