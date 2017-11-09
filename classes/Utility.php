@@ -16,7 +16,15 @@ if (!class_exists('Utility')) {
         }
 
         public static function quot_str_for_js($string) {
-            return "'" . self::esc_str_for_js($string) . "'";
+            if ($string === null
+                || $string === false
+                || $string === 0
+            ) {
+                return 'undefined';
+            }
+            else {
+                return "'" . self::esc_str_for_js($string) . "'";
+            }
         }
 
         # thanks thomas http://php.net/manual/en/function.parse-url.php
