@@ -1,7 +1,6 @@
-<?php
-                    { # js
-?>
 <script>
+
+    var macro_to_run = <?= Utility::quot_str_for_js($macroName) ?>;
 
     function getColVals(cells) {
         var vals = $.map(cells, function(n,i){return n.innerText});
@@ -919,13 +918,10 @@
             saveMacro(macroEvents, macroName);
         }
     }
-<?php
-    if ($macroName) {
-?>
-    playMacro(<?= Utility::quot_str_for_js($macroName) ?>);
-<?php
+
+    if (macro_to_run) {
+        playMacro(macro_to_run);
     }
-?>
 
 
     function get_id_col_no() {
@@ -984,5 +980,3 @@
 
 </script>
 
-<?php
-                    }
