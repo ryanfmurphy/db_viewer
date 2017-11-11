@@ -584,7 +584,7 @@
     // save JSON dump of stored_rows in case something went wrong
     function saveJsonDumpOfStoredRows() {
         var data = getStoredRowsLocal();
-        var json_dump = JSON.stringify(data);
+        var json_dump = JSON.stringify(data, null, 4); // pretty prent
         saveFile(
             'stored_rows',
             'dump',
