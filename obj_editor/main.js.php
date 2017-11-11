@@ -621,9 +621,7 @@
                         console.log(result.sql);
                     }
                     else if (result) {
-                        if ('success' in result
-                            && !result.success
-                        ) {
+                        if ('success' in result && !result.success) {
                             var error_details = result.error_info[2];
                             respond_callback('Failed... Error '
                                     + result.error_code + ': '
@@ -706,11 +704,10 @@
             { // do post
                 var valsToAlwaysInclude = scope;
                 var postData  = (action == 'delete'
-                                ? "" // don't include key-val pairs for delete
-                                     // (except where_clause for primary key,
-                                     //  added later)
-                                : queryString
-                            );
+                                    ? "" // don't include key-val pairs for delete
+                                         // (except where_clause for primary key,
+                                         //  added later)
+                                    : queryString);
 
                 {   // further additions to data
                     // #todo be more civilized: join up an array
@@ -721,11 +718,8 @@
                     }
 
                     if (edit) {
-
                         // update needs a where clause
-                        if (   action == 'update'
-                            || action == 'delete'
-                        ) {
+                        if (action == 'update' || action == 'delete') {
                             console.log('update');
                             // #todo #fixme do we need the other value of primary_key_field?
                             // right now using that weird global value from the PHP var
