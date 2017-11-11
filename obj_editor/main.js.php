@@ -437,7 +437,7 @@
                 responses = [];
                 // this callback needs a row_name
                 // which will be curried in when we have a row and know the name
-                generic_respond_callback = function(row_name, response_msg) {
+                generic_respond_callback = function(row_name, response_msg, response) {
                     console.log('adding ', response_msg, ' to responses');
                     console.log('responses:', responses);
 
@@ -446,7 +446,9 @@
                         msg_w_details += row_name + ' - ';
                     }
                     msg_w_details += response_msg;
+                    console.log('pushing response msg:', msg_w_details);
                     responses.push(msg_w_details);
+                    console.log('full response =', response);
 
                     // do we have all the responses? show them
                     if (responses.length >= stored_rows.length) {
@@ -479,9 +481,9 @@
                     // freeze the value so that it is not overwritten by the next loop
                     respond_callback = (function(frozen_name) {
                         // this returned fn becomes the respond_callback:
-                        return function(response_msg) {
+                        return function(response_msg, response) {
                             // and all it does is call this but give it the name
-                            generic_respond_callback(frozen_name, response_msg);
+                            generic_respond_callback(frozen_name, response_msg, response);
                         };
                     })(
                         data.name // gets passed in as frozen name
@@ -622,18 +624,20 @@
                     }
                     else if (result) {
                         if ('success' in result && !result.success) {
+                            console.log('ajax callback - Failure');
                             var error_details = result.error_info[2];
                             respond_callback('Failed... Error '
-                                    + result.error_code + ': '
-                                    + error_details
-                            );
+                                                + result.error_code + ': '
+                                                + error_details,
+                                             result);
                         }
                         else { // success
+                            console.log('ajax callback - Success');
                             if (action == 'delete') {
-                                respond_callback('Thanks! Row Deleted');
+                                respond_callback('Thanks! Row Deleted', result);
                             }
                             else if (action == 'create') {
-                                respond_callback('Thanks! Row Created');
+                                respond_callback('Thanks! Row Created', result);
 
                                 // change Create form to Update form after Insert submission
                                 if (do_change_to_update_after_insert) {
