@@ -446,13 +446,41 @@
                         msg_w_details += row_name + ' - ';
                     }
                     msg_w_details += response_msg;
-                    console.log('pushing response msg:', msg_w_details);
-                    responses.push(msg_w_details);
+                    console.log('response msg:', msg_w_details);
+                    response['msg'] = msg_w_details;
+
                     console.log('full response =', response);
+                    responses.push(response);
 
                     // do we have all the responses? show them
                     if (responses.length >= stored_rows.length) {
-                        var overall_response = responses.join('\n\n');
+                        console.log('got all responses, giving back overall response');
+
+                        // save errors separately for easy fixing
+                        if (save_json_dump_of_stored_rows) {
+                            var error_msgs = responses.map(function(response){
+                                if ('success' in response && response.success) {
+                                    return false; // don't include in map
+                                }
+                                else {
+                                    return response.msg;
+                                }
+                            }).filter(function(response){
+                                return (response === false
+                                            ? false
+                                            : true);
+                            });
+                            console.log('error_msgs =', error_msgs);
+                            var overall_error_response = error_msgs.join('\n\n');
+                            saveDumpOfOverallErrorResponse(overall_error_response);
+                        }
+
+                        // overall response (successes and errors)
+                        var response_msgs = responses.map(function(response){
+                            return response.msg;
+                        });
+                        console.log('response_msgs =', response_msgs);
+                        var overall_response = response_msgs.join('\n\n');
                         if (save_json_dump_of_stored_rows) {
                             saveDumpOfOverallResponse(overall_response);
                         }
@@ -573,7 +601,9 @@
             {
                 data: data,
                 filename: filename,
-                filename_after_date: filename_after_date,
+                filename_after_date: filename_after_date, // component of filename after date,
+                                        // so all the files from a date will be grouped together
+                                        // e.g. in shell autocomplete
                 ext: ext
             },
             Function.prototype, // noop
@@ -603,6 +633,16 @@
             'response',
             overall_response,
             'dump of overall response'
+        );
+    }
+
+    function saveDumpOfOverallErrorResponse(overall_error_response) {
+        console.log('saveDumpOfOverallErrorResponse:', overall_error_response);
+        saveFile(
+            'stored_rows',
+            'error',
+            overall_error_response,
+            'dump of overall error response'
         );
     }
 
@@ -981,7 +1021,7 @@
     }
 
     function selectTableOnEnter(keyEvent) {
-        console.log('selectTableOnEnter, keyEvent =', keyEvent);
+        //console.log('selectTableOnEnter, keyEvent =', keyEvent);
         doOnEnter(keyEvent, selectTable);
     }
 
