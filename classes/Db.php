@@ -234,16 +234,6 @@ if (!class_exists('Db')) {
 
 
         public static function insert_row($tableName, $rowVars) {
-            #todo work around limitation of needing at least 1 kv pair
-            # e.g. postgres will do:
-            #   insert into my_table default values
-            if (!count($rowVars)) {
-                trigger_error(
-                    "Db::insert_row needs at least one key-value pair",
-                    E_USER_ERROR
-                );
-            }
-
             { # detect show_sql_query (filter out that var too)
                 if (isset($rowVars['show_sql_query'])
                     && $rowVars['show_sql_query']
@@ -256,18 +246,36 @@ if (!class_exists('Db')) {
                 }
             }
 
-            list($varNameList, $varValList)
-                = Db::sql_fields_and_vals_from_array($rowVars);
-
             $tableNameQuoted = DbUtil::quote_ident($tableName);
-            $sql = "
-                insert into $tableNameQuoted ($varNameList)
-                values ($varValList)
-            ";
-            if (Config::$config['db_type'] == 'pgsql') {
-                $sql .= " returning * ";
+
+            { # build sql
+                # special case of no key-value pairs
+                if (!count($rowVars)) {
+                    if (Config::$config['db_type'] == 'pgsql') {
+                        $sql = "insert into $tableNameQuoted default values";
+                    }
+                    else {
+                        trigger_error(
+                            "Db::insert_row needs at least one key-value pair for this database type",
+                            E_USER_ERROR
+                        );
+                    }
+                }
+                else { # actual values passed in
+                    list($varNameList, $varValList)
+                        = Db::sql_fields_and_vals_from_array($rowVars);
+
+                    $sql = "
+                        insert into $tableNameQuoted ($varNameList)
+                        values ($varValList)
+                    ";
+                }
+
+                if (Config::$config['db_type'] == 'pgsql') {
+                    $sql .= " returning * ";
+                }
+                $sql .= ';';
             }
-            $sql .= ';';
 
             if ($showSqlQuery) {
                 return array('sql'=>$sql);
