@@ -8,6 +8,7 @@
             $default_parent_field = Config::$config['default_parent_field'];
             $vary_node_colors = Config::$config['vary_node_colors'];
             $primary_key_field = DbUtil::get_primary_key_field($default_root_table_for_tree_view);
+            $default_tree_relationship_condition = Config::$config['default_tree_relationship_condition'];
 
             return $tree_view_uri."?root_table=$default_root_table_for_tree_view"
                 ."&root_cond=id = '$primary_key'"
@@ -15,7 +16,7 @@
                 ."&parent_relationships[0][parent_table]=$default_root_table_for_tree_view"
                 ."&parent_relationships[0][parent_field]=$default_parent_field"
                 ."&parent_relationships[0][matching_field_on_parent]=$primary_key_field"
-                ."&parent_relationships[0][condition]="
+                ."&parent_relationships[0][condition]=$default_tree_relationship_condition"
                 #."&order_by_limit=order+by+time_added+desc"
                 ."&name_cutoff=50"
                 ."&root_nodes_w_child_only="
