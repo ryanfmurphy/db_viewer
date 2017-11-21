@@ -10,8 +10,31 @@
             $primary_key_field = DbUtil::get_primary_key_field($default_root_table_for_tree_view);
             $default_tree_relationship_condition = Config::$config['default_tree_relationship_condition'];
 
+            $root_cond = "id = '$primary_key'";
+            
+            if (Config::$config['show_matching_rows_on_tree_sideline']) {
+                $aliases = Db::get_row_aliases($default_root_table_for_tree_view, $primary_key);
+
+                { # figure out tags condition
+                    $first = true;
+                    $tags_condition = '';
+                    foreach ($aliases as $alias) {
+                        if ($first) {
+                            $first = false;
+                        }
+                        else {
+                            $tags_condition .= ' or';
+                        }
+                        $tags_condition .= " tags @> '{".$alias."}'";
+                    }
+                }
+                $sideline_condition = "($tags_condition) and parent_ids = '{}'";
+
+                $root_cond .= " or ($sideline_condition)";
+            }
+
             return $tree_view_uri."?root_table=$default_root_table_for_tree_view"
-                ."&root_cond=id = '$primary_key'"
+                ."&root_cond=$root_cond"
                 ."&parent_relationships[0][child_table]=$default_root_table_for_tree_view"
                 ."&parent_relationships[0][parent_table]=$default_root_table_for_tree_view"
                 ."&parent_relationships[0][parent_field]=$default_parent_field"

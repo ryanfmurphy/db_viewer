@@ -600,6 +600,46 @@ if (!class_exists('Db')) {
             return Db::sql($sql);
         }
 
+        public static function get_row_name($table_name, $primary_key) {
+            $primary_key_field = 'id'; #todo #fixme
+            $wheres = array(
+                $primary_key_field => $primary_key,
+            );
+            $name_field = 'name'; #todo #fixme
+            $fields = array($name_field);
+            $sql = self::build_select_sql($table_name, $wheres, $fields);
+            $rows = Db::sql($sql);
+            if (count($rows)) {
+                return $rows[0][$name_field];
+            }
+        }
+
+        public static function get_row_aliases($table_name, $primary_key) {
+            $primary_key_field = 'id'; #todo #fixme
+            $name_field = 'name'; #todo #fixme
+            $aliases_field = 'aliases'; #todo #fixme
+            $sql = "
+                select
+                    unnest(
+                        array_append($aliases_field, $name_field)
+                    ) alias
+                from (
+                    select $name_field, $aliases_field
+                    from $table_name
+                    where
+                        $primary_key_field = ".self::sql_literal($primary_key)."
+                ) t
+            ";
+            $rows = Db::sql($sql);
+            if (count($rows)) {
+                $aliases = array();
+                foreach ($rows as $row) {
+                    $aliases[] = $row['alias'];
+                }
+                return $aliases;
+            }
+        }
+
     }
 
 }
