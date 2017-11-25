@@ -2,6 +2,8 @@
         { # vars
             # strip quotes because e.g. obj_editor doesn't want quotes
             $tablename_no_quotes = DbUtil::strip_quotes($inferred_table);
+            # sometimes can't update view directly, must update underlying table
+            $table_for_update = TableView::table_for_update($tablename_no_quotes);
         }
 
         function includeField($field_name, $tablename_no_quotes) {
@@ -101,7 +103,7 @@
 <?= TableView::echo_js__hit_url_and_rm_row_from_ui__fn() ?>
 
 <table  id="query_table"
-        data-table_for_update="<?= TableView::table_for_update($tablename_no_quotes) ?>"
+        data-table_for_update="<?= $table_for_update ?>"
 >
 <?php
                     { # vars
@@ -221,7 +223,7 @@
                                     # in polymorphic cases with "relname", update that table instead
                                     $table_for_edit_link = ($relname
                                                                 ? DbUtil::strip_quotes($relname)
-                                                                : $tablename_no_quotes);
+                                                                : $table_for_update);
 
                                     # checkbox for selecting
                                     if (Config::$config['table_view_checkboxes']) {
@@ -239,12 +241,15 @@
                                     # delete
                                     if ($include_row_delete_button) {
                                         TableView::echo_delete_button(
-                                            $obj_editor_uri, $tablename_no_quotes, $primary_key
+                                            $obj_editor_uri, $table_for_edit_link, $primary_key
                                         );
                                     }
 
                                     # tree
                                     if ($include_row_tree_button) {
+                                        #todo #fixme - should we use table_for_edit_link here?
+                                        # would fix e.g. trying to get the tree for an obj
+                                        # that is excluded from the entity_view
                                         TreeView::echo_tree_button(
                                             $obj_editor_uri, $tablename_no_quotes, $primary_key
                                         );
