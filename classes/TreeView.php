@@ -15,22 +15,26 @@
             if (Config::$config['show_matching_rows_on_tree_sideline']) {
                 $aliases = Db::get_row_aliases($default_root_table_for_tree_view, $primary_key);
 
-                { # figure out tags condition
-                    $first = true;
-                    $tags_condition = '';
-                    foreach ($aliases as $alias) {
-                        if ($first) {
-                            $first = false;
+                if (is_array($aliases)) {
+                    { # figure out tags condition
+                        $first = true;
+                        $tags_condition = '';
+                        foreach ($aliases as $alias) {
+                            if ($first) {
+                                $first = false;
+                            }
+                            else {
+                                $tags_condition .= ' or';
+                            }
+                            $tags_condition .= " tags @> '{".$alias."}'";
                         }
-                        else {
-                            $tags_condition .= ' or';
-                        }
-                        $tags_condition .= " tags @> '{".$alias."}'";
                     }
+                    $sideline_condition = "($tags_condition) and parent_ids = '{}'";
+                    $root_cond .= " or ($sideline_condition)";
                 }
-                $sideline_condition = "($tags_condition) and parent_ids = '{}'";
-
-                $root_cond .= " or ($sideline_condition)";
+                else {
+                    # leave root_cond alone
+                }
             }
 
             return $tree_view_uri."?root_table=$default_root_table_for_tree_view"
