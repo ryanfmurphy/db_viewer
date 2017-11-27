@@ -220,6 +220,7 @@ class Config {
             'add_child__interpret_complex_table_as_name',
             'default_tree_relationship_condition',
             'show_matching_rows_on_tree_sideline',
+            'sideline_addl_requirements',
 
             # filesystem-based tree (experimental/unstable)
             'fs_tree_default_root_dir',
@@ -512,6 +513,7 @@ class Config {
             'add_child__interpret_complex_table_as_name' => false,
             'default_tree_relationship_condition' => null,
             'show_matching_rows_on_tree_sideline' => false,
+            'sideline_addl_requirements' => "parent_ids = '{}'",
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,

@@ -29,7 +29,8 @@
                             $tags_condition .= " tags @> '{".$alias."}'";
                         }
                     }
-                    $sideline_condition = "($tags_condition) and parent_ids = '{}'";
+                    $sideline_addl_requirements = Config::$config['sideline_addl_requirements'];
+                    $sideline_condition = "($tags_condition) and ($sideline_addl_requirements)";
                     $root_cond .= " or ($sideline_condition)";
                 }
                 else {
