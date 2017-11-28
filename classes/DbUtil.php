@@ -697,29 +697,35 @@ infer_limit_from_query: query didn't match regex.
             if ($schemas_in_path === null) {
                 $schemas_in_path = self::schemas_in_path();
             }
-            $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
             $db_type = Config::$config['db_type'];
 
             if ($db_type == 'sqlite') {
+                #todo #fixme decide how/when to do entity inheritance
+                #$get_columns_sql = "
+                #    pragma table_info('entity')
+                #";
                 $get_columns_sql = "
-                    pragma table_info('entity')
+                    pragma table_info('$table')
                 ";
             }
             else {
-                ob_start();
+                $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
+
+                { ob_start();
 ?>
-                select
-                    table_schema, table_name,
-                    column_name
-                from information_schema.columns
-                where table_name='<?= $table ?>'
+                    select
+                        table_schema, table_name,
+                        column_name
+                    from information_schema.columns
+                    where table_name='<?= $table ?>'
 <?php
-                if ($schemas_val_list) {
+                    if ($schemas_val_list) {
 ?>
-                    and table_schema in (<?= $schemas_val_list ?>)
+                        and table_schema in (<?= $schemas_val_list ?>)
 <?php
+                    }
+                    $get_columns_sql = ob_get_clean();
                 }
-                $get_columns_sql = ob_get_clean();
             }
             return $get_columns_sql;
         }
