@@ -26,7 +26,8 @@
                             else {
                                 $tags_condition .= ' or';
                             }
-                            $tags_condition .= " tags @> '{".$alias."}'";
+                            $alias_quoted = Db::sql_literal($alias);
+                            $tags_condition .= " tags @> array[$alias_quoted]";
                         }
                     }
                     $sideline_addl_requirements = Config::$config['sideline_addl_requirements'];
