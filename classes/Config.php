@@ -191,6 +191,7 @@ class Config {
 
             # tree view stuff
             'default_parent_field',
+            #'default_matching_field_on_parent', #todo #fixme
             'load_d3_via_cdn',
             'start_w_tree_fully_expanded',
             'vary_node_colors',
@@ -483,7 +484,8 @@ class Config {
             'cmp' => false,
 
             # tree view stuff
-            'default_parent_field' => 'parent_id',
+            'default_parent_field' => 'parent_ids',
+            #'default_matching_field_on_parent' => 'id', #todo #fixme
             'load_d3_via_cdn' => false,
             'start_w_tree_fully_expanded' => false,
             'vary_node_colors' => false,
@@ -505,7 +507,7 @@ class Config {
             'primary_key_fields_by_table' => array(),
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship' => false,
-            'tree_view_order_by_limit' => 'order by time_added desc',
+            'tree_view_order_by_limit' => 'order by time_added desc', #todo should this really be default?
             'tree_view_relationship_order_by_limit' => null,
             'tree_view_relationship_expression_name' => null,
             'tree_view_relationship_expression' => null,
