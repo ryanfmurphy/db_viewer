@@ -333,7 +333,7 @@ class Config {
             'special_ops' => array(),
 
             'id_mode' => 'id_only', #todo is this a good default?
-            'primary_key_field' => 'id',
+            'primary_key_field' => 'id', #todo #fixme make sure this doesn't conflict with id_mode
 
             'table_view_checkboxes' => false,
 

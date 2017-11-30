@@ -1,11 +1,39 @@
 <?php
-    # vars.php - create vars needed for tree_view
-    #            used for both frontend (index.php) and backend (get_tree*.php)
+    # vars.php
+    # --------
+    # create vars needed for tree_view
+    # used for both frontend (index.php)
+    # and backend (get_tree*.php)
 
-    # if the root_id was passed in, get the tree_url for that row from the DB
-    # and parse it out into the $_GET vars
     if (isset($requestVars['root_id'])) {
         $root_id = $requestVars['root_id'];
+    }
+    else {
+        $root_id = null;
+        # if passed in root_table & root_name, figure out root_id
+        if (isset($requestVars['root_table'])
+            && isset($requestVars['root_name'])
+        ) {
+            $root_row = Db::get1(
+                $requestVars['root_table'],
+                array( # wheres
+                    'name' => $requestVars['root_name'], #todo #fixme use name_field
+                )
+            );
+            $root_id = $root_row[
+                Config::$config['primary_key_field']
+            ];
+            # change back to generic table
+            # so default relationships will work
+            $requestVars['root_table'] =
+                Config::$config['default_root_table_for_tree_view'];
+        }
+    }
+
+    # if the root_id was passed in (or derived above),
+    # get the tree_url for that row from the DB
+    # and parse it out into the $_GET vars
+    if ($root_id) {
         if (isset($requestVars['use_default_view'])) {
             $tree_url = TreeView::get_default_tree_url($root_id);
         }
