@@ -1210,6 +1210,17 @@ function editNode(d, clicked_node) {
     window.open(url, '_blank');
 }
 
+function viewNodeDetails(d, clicked_node) {
+    var table = getNodeTable(d);
+    var id_field = idFieldForNode(d);
+    var url = crud_api_uri
+                    +"?action=view"
+                    +"&table="+table
+                    +"&"+id_field+"="+d[id_field];
+    console.log('url to open =',url);
+    window.open(url, '_blank');
+}
+
 function viewTreeForNode(d, clicked_node) {
     var id_field = idFieldForNode(d);
     var primary_key = d[id_field];
@@ -1243,7 +1254,11 @@ function openTreeNodePopup(d, event, clicked_node) {
                                         renameNode(d, clicked_node);
                                         closePopup();
                                       } },
-        {   name: 'Details/Edit', callback: function(){
+        {   name: 'View Details', callback: function(){
+                                                viewNodeDetails(d, clicked_node);
+                                                closePopup();
+                                            } },
+        {   name: 'Edit Details', callback: function(){
                                                 editNode(d, clicked_node);
                                                 closePopup();
                                             } }
