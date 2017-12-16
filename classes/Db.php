@@ -477,6 +477,14 @@ if (!class_exists('Db')) {
             return Db::view_query($sql, $minimal);
         }
 
+        public static function view_row($table_name, $primary_key) {
+            $primary_key_field = 'id'; #todo #fixme
+            $wheres = array(
+                $primary_key_field => $primary_key,
+            );
+            return self::view_table($table_name, $wheres);
+        }
+
         #todo maybe allow magic null value?
         public static function build_where_clause(
             $wheres, $logical_op='and', $include_where=true
