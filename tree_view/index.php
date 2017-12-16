@@ -84,21 +84,30 @@
         if (Config::$config['tree_view_include_header']) {
 ?>
             <h1>
-                🌳 Tree View:
-                <span id="summary">
 <?php
-            if ($backend == 'db') {
-?>
-                    <?= tree_view_summary_txt($root_table, $parent_relationships) ?>
-<?php
+            if (Config::$config['tree_view_custom_header']) {
+                echo Config::$config['tree_view_custom_header'];
             }
             else {
 ?>
+                🌳 Tree View:
+                <span id="summary">
+<?php
+                if ($backend == 'db') {
+?>
+                    <?= tree_view_summary_txt($root_table, $parent_relationships) ?>
+<?php
+                }
+                else {
+?>
                     filesystem
+<?php
+                }
+?>
+                </span>
 <?php
             }
 ?>
-                </span>
             </h1>
 <?php
         }

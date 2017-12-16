@@ -223,6 +223,7 @@ class Config {
             'show_matching_rows_on_tree_sideline',
             'sideline_addl_requirements',
             'tree_view_include_header',
+            'tree_view_custom_header',
 
             # filesystem-based tree (experimental/unstable)
             'fs_tree_default_root_dir',
@@ -518,6 +519,7 @@ class Config {
             'show_matching_rows_on_tree_sideline' => false,
             'sideline_addl_requirements' => "parent_ids = '{}'",
             'tree_view_include_header' => true,
+            'tree_view_custom_header' => null,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,
