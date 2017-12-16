@@ -80,25 +80,30 @@
 
     TreeView::echo_default_view_toggle_link($requestVars);
 
+    { # header
+        if (Config::$config['tree_view_include_header']) {
 ?>
             <h1>
                 🌳 Tree View:
                 <span id="summary">
 <?php
-    if ($backend == 'db') {
+            if ($backend == 'db') {
 ?>
                     <?= tree_view_summary_txt($root_table, $parent_relationships) ?>
 <?php
-    }
-    else {
+            }
+            else {
 ?>
                     filesystem
 <?php
-    }
+            }
 ?>
                 </span>
             </h1>
 <?php
+        }
+    }
+
     if ($load_d3_via_cdn) {
 ?>
         <script src="//d3js.org/d3.v3.min.js"></script>
