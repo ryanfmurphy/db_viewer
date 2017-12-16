@@ -1275,7 +1275,9 @@ function openTreeNodePopup(d, event, clicked_node) {
                         {
                             name: url_field_name,
                             callback: function(){
-                                document.location = url; // #todo #fixme make target=_blank
+                                //document.location = url;
+                                window.open(url, '_blank'); // #todo #fixme make sure this works all the time
+                                                            // e.g. does a popup blocker prevent it ever?
                             }
                         }
                     );
