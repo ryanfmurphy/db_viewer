@@ -686,7 +686,7 @@
                 { # create form fields
                     $fields = TableView::prep_fields($fields);
                     foreach ($fields as $name) {
-                        if (doSkipField($name, $table_name, $only_include_these_fields)) {
+                        if (doSkipField($name, $table, $only_include_these_fields)) {
                             continue;
                         }
                         echoFormFieldHtml(
