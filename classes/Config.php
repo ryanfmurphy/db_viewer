@@ -88,6 +88,7 @@ class Config {
 
             'obj_editor_exclude_fields',
             'table_view_exclude_fields_by_table',
+            'exclude_fields_by_table',
 
 
             # more table view vars
@@ -391,6 +392,7 @@ class Config {
 
             'obj_editor_exclude_fields' => array(),
             'table_view_exclude_fields_by_table' => array(),
+            'exclude_fields_by_table' => array(),
 
 
             # more table view vars

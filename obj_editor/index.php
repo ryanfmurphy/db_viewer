@@ -420,14 +420,22 @@
             echo jsStringify($txt);
         }
 
-        function doSkipField($fieldName, $only_include_these_fields=null) {
+        function doSkipField($field_name, $table_name, $only_include_these_fields=null) {
             $fields2exclude = Config::$config['obj_editor_exclude_fields'];
-            if (in_array($fieldName, $fields2exclude)) {
+            if (in_array($field_name, $fields2exclude)) {
                 return true;
             }
 
             if (is_array($only_include_these_fields)
-                && !in_array($fieldName, $only_include_these_fields)
+                && !in_array($field_name, $only_include_these_fields)
+            ) {
+                return true;
+            }
+
+            # another place to find fields to skip is 'exclude_fields_by_table'
+            $exclude_fields_by_table = Config::$config['exclude_fields_by_table'];
+            if (isset($exclude_fields_by_table[$table_name])
+                && in_array($field_name, $exclude_fields_by_table[$table_name])
             ) {
                 return true;
             }
@@ -678,7 +686,7 @@
                 { # create form fields
                     $fields = TableView::prep_fields($fields);
                     foreach ($fields as $name) {
-                        if (doSkipField($name, $only_include_these_fields)) {
+                        if (doSkipField($name, $table_name, $only_include_these_fields)) {
                             continue;
                         }
                         echoFormFieldHtml(

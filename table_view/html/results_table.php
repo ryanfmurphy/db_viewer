@@ -10,9 +10,12 @@
             $minimal = Config::$config['minimal'];
             $minimal_fields = Config::$config['minimal_fields'];
             $table_view_exclude_fields_by_table = Config::$config['table_view_exclude_fields_by_table'];
+            $exclude_fields_by_table = Config::$config['exclude_fields_by_table'];
             $exclude_fields = (isset($table_view_exclude_fields_by_table[$tablename_no_quotes])
                                         ? $table_view_exclude_fields_by_table[$tablename_no_quotes]
-                                        : array());
+                                        : isset($exclude_fields_by_table[$tablename_no_quotes])
+                                            ? $exclude_fields_by_table[$tablename_no_quotes]
+                                            : array());
             return (
                 !in_array($field_name, $exclude_fields)
                 && (!$minimal
