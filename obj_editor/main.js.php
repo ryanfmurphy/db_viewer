@@ -1641,9 +1641,11 @@
         var url = '<?= $crud_api_uri ?>';
         var action = 'view';
         var vars = {'action': action, 'table': table_name};
-        var name = input_elem.getAttribute('name');
-        var val = input_elem.value;
-        vars[name] = val;
+        if (isInputElem(input_elem)) {
+            var name = input_elem.getAttribute('name');
+            var val = input_elem.value;
+            vars[name] = val;
+        }
         url += '?' + obj2queryString(vars);
         return window.open(url, '_blank');
     }
@@ -1662,7 +1664,7 @@
     function bodyKeypressHandler(event) {
         var KEY_S = 115;
         if (event.ctrlKey && event.which == KEY_S
-            && isInputElem(event.target)
+            //&& isInputElem(event.target)
         ) {
             var table_name = getTableName();
             var input_elem = event.target;
