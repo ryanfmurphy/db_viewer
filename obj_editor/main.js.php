@@ -350,7 +350,7 @@
         // swap event and table_name
         function viewButtonClickHandler(crud_api_uri, table_name, key_event) {
             var url = crud_api_uri;
-            var action = 'view_'+table_name;
+            var action = 'view_'+table_name; // #todo use new API: action=view, table=table_name
             var extra_vars = {'action': action};
             var do_minimal = links_minimal_by_default
                                 ? !key_event.altKey
@@ -1636,12 +1636,29 @@
         }
     }
 
+    function searchWithWhereClause(table_name, input_elem) {
+        var url = '<?= $crud_api_uri ?>';
+        var action = 'view';
+        var vars = {'action': action, 'table': table_name};
+        var name = input_elem.getAttribute('name');
+        var val = input_elem.value;
+        vars[name] = val;
+        url += '?' + obj2queryString(vars);
+        return window.open(url, '_blank');
+    }
+
+    function getTableName() {
+        return document.getElementById('table_name').innerHTML.trim();
+    }
+
     function bodyKeypressHandler(event) {
         var KEY_S = 115;
         if (event.ctrlKey
             && event.which == KEY_S
         ) {
-            alert('wanna search huh');
+            var table_name = getTableName();
+            var input_elem = event.target;
+            return searchWithWhereClause(table_name, input_elem);
         }
     }
 
