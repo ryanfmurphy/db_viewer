@@ -132,6 +132,9 @@ class Config {
             # an array of fields that should not require commas
             # between array items, unless you provide a leading space
             'MTM_array_fields_to_not_require_commas',
+            # default to postgres @> instead of =
+            # when doing where clauses on array fields
+            'use_include_op_for_arrays',
 
             # json fields
             'fields_w_json_type',
@@ -438,6 +441,9 @@ class Config {
             # an array of fields that should not require commas
             # between array items, unless you provide a leading space
             'MTM_array_fields_to_not_require_commas' => null,
+            # default to postgres @> instead of =
+            # when doing where clauses on array fields
+            'use_include_op_for_arrays' => false,
 
             # json fields
             'fields_w_json_type' => array(),

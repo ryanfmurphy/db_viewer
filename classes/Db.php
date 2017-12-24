@@ -496,6 +496,14 @@ if (!class_exists('Db')) {
                                 ? 'where'
                                 : '');
             foreach ($wheres as $key => $val_or_predicate) {
+
+                # automatically use @> instead of = for known array fields
+                if (Config::$config['use_include_op_for_arrays']
+                    && DbUtil::field_is_array($key)
+                ) {
+                    $val_or_predicate = new Predicate('@>', $val_or_predicate);
+                }
+
                 if ($val_or_predicate instanceof Predicate) {
                     # Predicate has a __toString() fn
                     $expr = "$key $val_or_predicate";
@@ -512,6 +520,7 @@ if (!class_exists('Db')) {
                 $sql .= "\n$where_and_or $expr";
 
                 $where_and_or = "    $logical_op";
+
             }
 
             return $sql;
