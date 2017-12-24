@@ -1636,6 +1636,7 @@
         }
     }
 
+    // handles Ctrl+S Search within <input>
     function searchWithWhereClause(table_name, input_elem) {
         var url = '<?= $crud_api_uri ?>';
         var action = 'view';
@@ -1651,10 +1652,17 @@
         return document.getElementById('table_name').innerHTML.trim();
     }
 
+    function isInputElem(elem) {
+        return  elem.tagName == 'INPUT'
+                || elem.tagName == 'TEXTAREA'
+                || elem.tagName == 'SELECT';
+    }
+
+    // handles Ctrl+S Search within <input>
     function bodyKeypressHandler(event) {
         var KEY_S = 115;
-        if (event.ctrlKey
-            && event.which == KEY_S
+        if (event.ctrlKey && event.which == KEY_S
+            && isInputElem(event.target)
         ) {
             var table_name = getTableName();
             var input_elem = event.target;
