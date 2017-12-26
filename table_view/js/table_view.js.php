@@ -978,5 +978,16 @@
         return sql;
     }
 
+    function get_selected_id_tree_url() {
+        var id_field = 'id'; // #todo #fixme generalize
+        var root_cond = id_field + ' in (' + get_selected_id_list() + ')';
+        return '<?= $tree_view_uri ?>?root_cond='+root_cond;
+    }
+
+    function view_tree_of_selected_id() {
+        var url = get_selected_id_tree_url();
+        return window.open(url, '_blank');
+    }
+
 </script>
 
