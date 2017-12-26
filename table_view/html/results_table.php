@@ -8,14 +8,28 @@
 
         function includeField($field_name, $tablename_no_quotes) {
             $minimal = Config::$config['minimal'];
-            $minimal_fields = Config::$config['minimal_fields'];
+            $minimal_fields = TableView::would_be_minimal_fields($tablename_no_quotes); #Config::$config['minimal_fields'];
             $table_view_exclude_fields_by_table = Config::$config['table_view_exclude_fields_by_table'];
             $exclude_fields_by_table = Config::$config['exclude_fields_by_table'];
+
+            if (isset($table_view_exclude_fields_by_table[$tablename_no_quotes])) {
+                $exclude_fields = $table_view_exclude_fields_by_table[$tablename_no_quotes];
+            }
+            elseif (isset($exclude_fields_by_table[$tablename_no_quotes])) {
+                $exclude_fields = $exclude_fields_by_table[$tablename_no_quotes];
+            }
+            else {
+                $exclude_fields = array();
+            }
+
+            /*
             $exclude_fields = (isset($table_view_exclude_fields_by_table[$tablename_no_quotes])
                                         ? $table_view_exclude_fields_by_table[$tablename_no_quotes]
                                         : isset($exclude_fields_by_table[$tablename_no_quotes])
                                             ? $exclude_fields_by_table[$tablename_no_quotes]
                                             : array());
+            */
+
             return (
                 !in_array($field_name, $exclude_fields)
                 && (!$minimal
