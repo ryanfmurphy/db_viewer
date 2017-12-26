@@ -30,6 +30,8 @@
         }
     }
 
+    $infer_vars_from_backend_url = false;
+
     # if the root_id was passed in (or derived above),
     # get the tree_url for that row from the DB
     # and parse it out into the $_GET vars
@@ -41,6 +43,19 @@
             $tree_url = TreeView::get_full_tree_url($root_id);
         }
 
+        $infer_vars_from_backend_url = true;
+    }
+    elseif ( # only root_cond - fill in default tree url
+        isset($requestVars['root_cond'])
+        && count($requestVars) == 1
+    ) {
+        $tree_url = TreeView::get_default_tree_url_for_root_cond(
+                        $requestVars['root_cond']
+                    );
+        $infer_vars_from_backend_url = true;
+    }
+
+    if ($infer_vars_from_backend_url) {
         if (isset($requestVars['show_tree_url'])) {
             echo $tree_url;
         }
@@ -53,7 +68,6 @@
             );
         }
     }
-
 
 
     # temporarily override / adjust Config vars
