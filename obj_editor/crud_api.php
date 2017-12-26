@@ -176,7 +176,10 @@
                                     ? $vars['where_clauses']
                                     : die('need where_clauses');
                 die(json_encode(
-                    Db::get($table, $where_clauses, $get1)
+                    Db::get(
+                        $table, $where_clauses, $get1,
+                        false # loosen matching to possibly allow @>, LIKE, etc
+                    )
                 ));
                 break;
 

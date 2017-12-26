@@ -346,8 +346,11 @@ if (!class_exists('Db')) {
             }
         }
 
+        # when $strict_wheres is false, look in Config for certain different operators to use
+        # e.g. may use @> for arrays, or LIKE for strings, instead of strict =
         public static function build_select_sql(
-            $table_name, $wheres, $select_fields=null, $order_by_limit=null
+            $table_name, $wheres, $select_fields=null,
+            $order_by_limit=null, $strict_wheres=true
         ) {
 
             if ($select_fields === null) {
@@ -360,13 +363,13 @@ if (!class_exists('Db')) {
 
             $table_name_quoted = DbUtil::quote_ident($table_name);
             $sql = "select $select_fields from $table_name_quoted ";
-            $sql .= self::build_where_clause($wheres);
+            $sql .= self::build_where_clause($wheres, 'and', true, $strict_wheres);
             if ($order_by_limit) {
                 $sql .= "\n$order_by_limit";
             }
             #$sql .= ";"; #todo #fixme reconsider, maybe we don't want to close the query?
-                         #            might want to add more where conditions for example?
-                         #            though having it here might be safer
+                          #            might want to add more where conditions for example?
+                          #            though having it here might be safer
             return $sql;
         }
 
@@ -486,8 +489,10 @@ if (!class_exists('Db')) {
         }
 
         #todo maybe allow magic null value?
+        # when $strict_wheres is false, look in Config for certain different operators to use
+        # e.g. may use @> for arrays, or LIKE for strings, instead of strict =
         public static function build_where_clause(
-            $wheres, $logical_op='and', $include_where=true
+            $wheres, $logical_op='and', $include_where=true, $strict_wheres=true
         ) {
             $sql = '';
 
@@ -526,8 +531,8 @@ if (!class_exists('Db')) {
             return $sql;
         }
 
-        public static function get($table_name, $wheres, $get1=false) {
-            $sql = self::build_select_sql($table_name, $wheres);
+        public static function get($table_name, $wheres, $get1=false, $strict_wheres=true) {
+            $sql = self::build_select_sql($table_name, $wheres, null, null, $strict_wheres);
             return self::query_fetch($sql, $get1);
         }
 
@@ -617,7 +622,7 @@ if (!class_exists('Db')) {
             return Db::sql($sql);
         }
 
-        public static function get_row_name($table_name, $primary_key) {
+        public static function get_row_name($table_name, $primary_key) { #unused
             $primary_key_field = 'id'; #todo #fixme
             $wheres = array(
                 $primary_key_field => $primary_key,
