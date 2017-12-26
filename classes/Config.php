@@ -140,6 +140,7 @@ class Config {
             # when doing where clauses on array fields
             'use_include_op_for_arrays',
             'use_like_op_for_text',
+            'like_op_use_lower',
 
             'fields_that_render_html',
             'fields_that_render_html_by_table',
@@ -451,6 +452,9 @@ class Config {
             # when doing where clauses on array fields
             'use_include_op_for_arrays' => false,
             'use_like_op_for_text' => false,
+            # when using LIKE '%%' in building where clauses,
+            # wrap both sides with lower() fn?
+            'like_op_use_lower' => false,
 
             'fields_that_render_html' => array(),
             'fields_that_render_html_by_table' => array(),

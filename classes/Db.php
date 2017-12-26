@@ -516,8 +516,15 @@ if (!class_exists('Db')) {
                     ) {
                         $val_or_predicate = new Predicate(
                             'LIKE',
-                            '%' . str_replace('%','\%',$val_or_predicate) . '%'
+                            '%' . str_replace('%','\%',$val_or_predicate) . '%',
+                            true,
+                            Config::$config['like_op_use_lower']
+                                ? 'lower'
+                                : null
                         );
+                        if (Config::$config['like_op_use_lower']) {
+                            $key = "lower($key)";
+                        }
                     }
 
                 }
