@@ -125,8 +125,12 @@ class Config {
 
             'table_field_spaces_to_underscores',
 
-            # array fields
+            # field types
             'fields_w_array_type',
+            'fields_w_json_type',
+            'fields_w_text_type',
+
+            # array fields
             'automatic_curly_braces_for_arrays',
             # MTM stands for Mobile Travel Mode
             # an array of fields that should not require commas
@@ -135,9 +139,7 @@ class Config {
             # default to postgres @> instead of =
             # when doing where clauses on array fields
             'use_include_op_for_arrays',
-
-            # json fields
-            'fields_w_json_type',
+            'use_like_op_for_text',
 
             'fields_that_render_html',
             'fields_that_render_html_by_table',
@@ -434,8 +436,12 @@ class Config {
 
             'table_field_spaces_to_underscores' => true, #todo maybe not be default?
 
-            # array fields
+            # field types
             'fields_w_array_type' => array(),
+            'fields_w_json_type' => array(),
+            'fields_w_text_type' => array(),
+
+            # array fields
             'automatic_curly_braces_for_arrays' => false,
             # MTM stands for Mobile Travel Mode
             # an array of fields that should not require commas
@@ -444,9 +450,7 @@ class Config {
             # default to postgres @> instead of =
             # when doing where clauses on array fields
             'use_include_op_for_arrays' => false,
-
-            # json fields
-            'fields_w_json_type' => array(),
+            'use_like_op_for_text' => false,
 
             'fields_that_render_html' => array(),
             'fields_that_render_html_by_table' => array(),

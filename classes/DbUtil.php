@@ -927,6 +927,10 @@ infer_limit_from_query: query didn't match regex.
 
 
 
+
+        # field type detection - #todo make its own class
+        # -----------------------------------------------
+
         #todo #fixme - make this more consistent, because
         #              all postgres-array-like fields are automatically
         #              interpreted as array lists, whereas JSON is
@@ -948,6 +952,17 @@ infer_limit_from_query: query didn't match regex.
                             $fields_w_json_type)
             );
         }
+
+        public static function field_is_text($field_name) {
+            $fields_w_text_type =
+                Config::$config['fields_w_text_type'];
+            return (is_array($fields_w_text_type)
+                    && in_array($field_name,
+                            $fields_w_text_type)
+            );
+        }
+
+        # -----------------------------------------------
 
 
 
