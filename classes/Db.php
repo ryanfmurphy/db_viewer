@@ -502,32 +502,10 @@ if (!class_exists('Db')) {
                                 : '');
             foreach ($wheres as $key => $val_or_predicate) {
 
-                { # "looser matching" - #todo turn into fn
-
-                    # automatically use @> instead of = for known array fields
-                    if (Config::$config['use_include_op_for_arrays']
-                        && DbUtil::field_is_array($key)
-                    ) {
-                        $val_or_predicate = new Predicate('@>', $val_or_predicate);
-                    }
-                    # automatically use like instead of = for known text fields
-                    elseif (Config::$config['use_like_op_for_text']
-                        && DbUtil::field_is_text($key)
-                    ) {
-                        $val_or_predicate = new Predicate(
-                            'LIKE',
-                            '%' . str_replace('%','\%',$val_or_predicate) . '%',
-                            true,
-                            Config::$config['like_op_use_lower']
-                                ? 'lower'
-                                : null
-                        );
-                        if (Config::$config['like_op_use_lower']) {
-                            $key = "lower($key)";
-                        }
-                    }
-
-                }
+                Predicate::loosely_interpret_where_clause(
+                    # both & (vars may be changed)
+                    $key, $val_or_predicate
+                );
 
                 if ($val_or_predicate instanceof Predicate) {
                     # Predicate has a __toString() fn
