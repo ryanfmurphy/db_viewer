@@ -1004,9 +1004,8 @@ infer_limit_from_query: query didn't match regex.
             return $sql;
         }
 
-        # if $sqlish might just be a tablename
-        # expand it to actual sql
-        # return true if the expand happened, false otherwise
+        # if $sqlish is just a tablename, expand it to actual sql
+        # return expanded sql if applicable, false otherwise
         public static function expand_tablename_into_query(
             $sqlish, $whereVars=array(), $selectFields=null,
             $order_by_limit=null

@@ -427,6 +427,7 @@ if (!class_exists('Db')) {
             }
         }
 
+        # provides url used in view_query() fn below
         public static function view_query_url($sql, $minimal=false) {
             $vars = array_merge($_GET,$_POST);
             $query_string = http_build_query(array(
@@ -440,6 +441,7 @@ if (!class_exists('Db')) {
             return $view_query_url;
         }
 
+        # visit (redirect) to view_query_url()
         public static function view_query($sql, $minimal=false) {
             header("302 Temporary");
             header("Location: ".self::view_query_url($sql, $minimal));
