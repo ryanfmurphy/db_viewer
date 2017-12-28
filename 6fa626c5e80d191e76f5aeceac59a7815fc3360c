@@ -1,0 +1,6 @@
+Note that this commit left out the actual if ($strict_wheres) check.
+
+I added all the params and passing that needed to happen, but forgot
+the actual check.  In a later commit 40e2417 I discover and fix this
+problem.  In the meantime e.g. objlinks are broken because the queries
+they expand to are erroneous.
