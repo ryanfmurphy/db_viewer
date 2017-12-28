@@ -474,9 +474,15 @@ if (!class_exists('Db')) {
                 $where_vars[] = $or_clauses;
             }
 
+            # if we're not calling match_aliases, we can take advantage
+            # of "looser matching" (i.e. we can have $strict_where=false)
+            # but match_aliases currently implies stricter matching
+            $strict_wheres = $match_aliases;
+
             # build the query
             $sql = DbUtil::expand_tablename_into_query(
-                $table_name, $where_vars, $select_fields
+                $table_name, $where_vars, $select_fields,
+                null, $strict_wheres
             );
             # go to that query in table_view
             return Db::view_query($sql, $minimal);

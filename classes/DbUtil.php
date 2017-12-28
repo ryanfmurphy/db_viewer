@@ -1008,7 +1008,7 @@ infer_limit_from_query: query didn't match regex.
         # return expanded sql if applicable, false otherwise
         public static function expand_tablename_into_query(
             $sqlish, $whereVars=array(), $selectFields=null,
-            $order_by_limit=null
+            $order_by_limit=null, $strict_wheres=true
         ) {
             $sqlHasNoSpaces = (strpos(trim($sqlish), ' ') === false);
             if (strlen($sqlish) > 0
@@ -1025,7 +1025,7 @@ infer_limit_from_query: query didn't match regex.
 
                 return Db::build_select_sql(
                     $tablename, $whereVars, $selectFields,
-                    $order_by_limit
+                    $order_by_limit, $strict_wheres
                 );
             }
             else {
