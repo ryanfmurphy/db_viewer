@@ -504,10 +504,12 @@ if (!class_exists('Db')) {
                                 : '');
             foreach ($wheres as $key => $val_or_predicate) {
 
-                Predicate::loosely_interpret_where_clause(
-                    # both & (vars may be changed)
-                    $key, $val_or_predicate
-                );
+                if (!$strict_wheres) {
+                    Predicate::loosely_interpret_where_clause(
+                        # both & (vars may be changed)
+                        $key, $val_or_predicate
+                    );
+                }
 
                 if ($val_or_predicate instanceof Predicate) {
                     # Predicate has a __toString() fn
