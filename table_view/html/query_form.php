@@ -14,8 +14,8 @@
             BYOL - "Bring Your Own Limit"
             (otherwise query may be slow)
         </p>
-		<textarea id="query-box" name="sql"><?= $sql ?></textarea>
-		<br>
+        <textarea id="query-box" name="sql"><?= $sql ?></textarea>
+        <br>
         <div>
             <label for="db_type">DB Type</label>
             <input name="db_type"
@@ -23,7 +23,7 @@
                    type="text"
             >
         </div>
-		<input type="submit" value="Submit">
+        <input type="submit" value="Submit">
 	</form>
 <?php
         $new_column_every = 3;

@@ -95,6 +95,7 @@ class Config {
 
             'allow_destructive_queries',
             'disable_delete_button',
+            'table_view_tuck_away_query_box',
 
             'is_archived_field',
             'archive_instead_of_delete',
@@ -404,6 +405,7 @@ class Config {
             # more table view vars
             'allow_destructive_queries' => false,
             'disable_delete_button' => false,
+            'table_view_tuck_away_query_box' => false,
 
             'is_archived_field' => null,
             # archive instead of delete for table_view

@@ -407,7 +407,23 @@
 
 <?php
             }
+
+            if (Config::$config['table_view_tuck_away_query_box']) {
 ?>
+            #query_form_details {
+                display: none;
+            }
+            #click_to_enter_query {
+                cursor: pointer;
+                color: <?= $link_blue ?>;
+            }
+            #click_to_enter_query:hover {
+                text-decoration: underline;
+            }
+<?php
+            }
+?>
+
         </style>
 
 <?php
