@@ -1336,12 +1336,32 @@ function openTreeNodePopup(d, event, clicked_node) {
 
     // filter popup_options
     if (config.tree_view_filter_popup_options) {
+        var filtered_popup_options = [];
+        for (var i = 0; i < config.tree_view_filter_popup_options.length; i++) {
+            option_to_include = config.tree_view_filter_popup_options[i];
+            console.log('option_to_include',option_to_include);
+            for (var j = 0; j < popup_options.length; j++) {
+                existing_option = popup_options[j];
+                console.log('existing_option',existing_option);
+                console.log(' existing_option.name',existing_option.name);
+                console.log(' option_to_include.name',option_to_include.name);
+                if (existing_option.name == option_to_include) {
+                    console.log('  matches1');
+                    filtered_popup_options.push(existing_option);
+                }
+            }
+        }
+        console.log('filtered_popup_options', filtered_popup_options);
+        popup_options = filtered_popup_options;
+
+        /*
         popup_options = popup_options.filter(
             function(option) {
                 return config.tree_view_filter_popup_options
                             .indexOf(option.name) !== -1;
             }
         );
+        */
     }
 
     openPopup(popup_options, event, clicked_node);
