@@ -216,8 +216,6 @@
 ?>
 <body>
 <?php
-            include("$trunk/table_view/html/top_menu.php");
-
             if (Config::$config['table_view_tuck_away_query_box']) {
 ?>
     <p>
@@ -232,6 +230,8 @@
 ?>
     <div id="query_form_details">
 <?php
+            include("$trunk/table_view/html/top_menu.php");
+
             include("$trunk/table_view/html/query_form.php"); # form
 
             { # report inferred table, create link
