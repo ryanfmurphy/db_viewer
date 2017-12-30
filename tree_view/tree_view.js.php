@@ -52,7 +52,8 @@ var config = {
     vary_node_colors: <?= (int)(isset($requestVars['vary_node_colors'])
                                     ? $requestVars['vary_node_colors']
                                     : Config::$config['vary_node_colors']) ?>,
-    default_values: <?= json_encode(Config::$config['default_values']) ?>
+    default_values: <?= json_encode(Config::$config['default_values']) ?>,
+    tree_view_filter_popup_options: <?= json_encode(Config::$config['tree_view_filter_popup_options']) ?>
 };
 
 // ideally PHP would end here - pure JS from here forward
@@ -1332,6 +1333,17 @@ function openTreeNodePopup(d, event, clicked_node) {
                                         closePopup();
                                       } }
     ]);
+
+    // filter popup_options
+    if (config.tree_view_filter_popup_options) {
+        popup_options = popup_options.filter(
+            function(option) {
+                return config.tree_view_filter_popup_options
+                            .indexOf(option.name) !== -1;
+            }
+        );
+    }
+
     openPopup(popup_options, event, clicked_node);
 }
 

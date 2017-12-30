@@ -232,6 +232,9 @@ class Config {
             'sideline_addl_requirements',
             'tree_view_include_header',
             'tree_view_custom_header',
+            # if this is an array of Names of Popup Options,
+            # those will be the only ones included in Tree View popup menu
+            'tree_view_filter_popup_options',
 
             # filesystem-based tree (experimental/unstable)
             'fs_tree_default_root_dir',
@@ -538,6 +541,9 @@ class Config {
             'sideline_addl_requirements' => "parent_ids = '{}'",
             'tree_view_include_header' => true,
             'tree_view_custom_header' => null,
+            # if this is an array of Names of Popup Options,
+            # those will be the only ones included in Tree View popup menu
+            'tree_view_filter_popup_options' => null,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,
