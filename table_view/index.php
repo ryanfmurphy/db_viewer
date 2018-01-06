@@ -268,6 +268,13 @@
                 #todo infinite scroll using OFFSET and LIMIT
                 if ($sql) {
                     $rows = Db::sql($sql);
+                    if (Config::$config['table_view_show_count']) {
+?>
+    <div id="row_count">
+        <?= count($rows) ?> Rows
+    </div>
+<?php
+                    }
                     include("$trunk/table_view/html/results_table.php"); # html
                 }
 
