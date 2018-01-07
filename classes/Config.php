@@ -98,8 +98,15 @@ class Config {
             'table_view_tuck_away_query_box',
             'table_view_show_count',
 
+            # archive / soft delete
+                # designate a field as the universal "is_archived" field
+                # when set, Table Views of a table will automatically add
+                # "and <fieldname> = false" to the query
             'is_archived_field',
+                # archive instead of delete for table_view
+                # #todo apply to obj_editor delete button too
             'archive_instead_of_delete',
+
             'aliases_field',
 
             'bold_border_between_weeks',
@@ -412,10 +419,15 @@ class Config {
             'table_view_tuck_away_query_box' => false,
             'table_view_show_count' => false,
 
+            # archive / soft delete
+                # designate a field as the universal "is_archived" field
+                # when set, Table Views of a table will automatically add
+                # "and <fieldname> = false" to the query
             'is_archived_field' => null,
-            # archive instead of delete for table_view
-            # #todo apply to obj_editor delete button too
+                # archive instead of delete for table_view
+                # #todo apply to obj_editor delete button too
             'archive_instead_of_delete' => false,
+
             'aliases_field' => null,
 
             'bold_border_between_weeks' => false,

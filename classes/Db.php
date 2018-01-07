@@ -670,6 +670,9 @@ if (!class_exists('Db')) {
             }
         }
 
+
+        # SQL-flavor-agnostic boolean expressions: true/false or 1/0
+
         public static function true_exp() {
             switch (Config::$config['db_type']) {
                 case 'pgsql':
@@ -678,6 +681,17 @@ if (!class_exists('Db')) {
                 case 'sqlite':
                 case 'mysql':
                     return '1';
+            }
+        }
+
+        public static function false_exp() {
+            switch (Config::$config['db_type']) {
+                case 'pgsql':
+                    return 'false';
+
+                case 'sqlite':
+                case 'mysql':
+                    return '0';
             }
         }
 

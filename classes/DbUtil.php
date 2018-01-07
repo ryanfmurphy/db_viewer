@@ -1018,9 +1018,14 @@ infer_limit_from_query: query didn't match regex.
                 $tablename = $sqlish;
 
                 if ($order_by_limit === null) {
-                    $order_by_limit =
-                        DbUtil::default_order_by_limit(
-                                                $tablename);
+                    $order_by_limit = DbUtil::default_order_by_limit(
+                                                            $tablename);
+                }
+
+                # optionally filter out archived rows
+                $is_archived_field = Config::$config['is_archived_field'];
+                if ($is_archived_field) {
+                    $where_vars[$is_archived_field] = Db::false_exp();
                 }
 
                 return Db::build_select_sql(
