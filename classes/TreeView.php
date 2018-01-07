@@ -65,7 +65,6 @@
 
         }
 
-        #todo move to a new class TreeView
         public static function get_tree_url($primary_key) {
             $tree_view_uri = Config::$config['tree_view_uri'];
             return $tree_view_uri."?root_id=$primary_key";
@@ -149,4 +148,9 @@
                 }
             }
         }
+
+        public static function get_tree_url_for_whole_table($table) {
+            return self::get_default_tree_url_for_root_cond(Db::true_exp(), $table);
+        }
+
     }
