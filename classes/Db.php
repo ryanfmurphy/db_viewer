@@ -670,6 +670,17 @@ if (!class_exists('Db')) {
             }
         }
 
+        public static function true_exp() {
+            switch (Config::$config['db_type']) {
+                case 'pgsql':
+                    return 'true';
+
+                case 'sqlite':
+                case 'mysql':
+                    return '1';
+            }
+        }
+
     }
 
 }
