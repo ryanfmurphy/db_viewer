@@ -149,10 +149,12 @@
             }
         }
 
-        #todo #fixme - right now it uses the $root_table
-        #              but it won't get all the children e.g. if they're not in the same table
         public static function get_tree_url_for_whole_table($table) {
-            return self::get_default_tree_url_for_root_cond(Db::true_exp(), $table);
+            #todo #fixme - decide between these options depending on whether entity inheritance is configured
+            #return self::get_default_tree_url_for_root_cond(Db::true_exp(), $table);
+            return self::get_default_tree_url_for_root_cond("relname = '$table'");  # and parent_ids = '{}'
+                                                                                    # ^ this is good but is weird if e.g. the $table row
+                                                                                    #   wants to have a non-$table parent
         }
 
     }
