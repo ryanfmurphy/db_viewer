@@ -1,16 +1,19 @@
 <?php
     class TreeView {
 
-        public static function get_default_tree_url_for_root_cond($root_cond) {
+        public static function get_default_tree_url_for_root_cond($root_cond, $root_table=null) {
+
+            $default_root_table_for_tree_view =
+                Config::$config['default_root_table_for_tree_view'];
+            if ($root_table === null) $root_table = $default_root_table_for_tree_view;
+            $primary_key_field = DbUtil::get_primary_key_field($root_table);
 
             $tree_view_uri = Config::$config['tree_view_uri'];
-            $default_root_table_for_tree_view = Config::$config['default_root_table_for_tree_view'];
             $default_parent_field = Config::$config['default_parent_field'];
             $vary_node_colors = Config::$config['vary_node_colors'];
-            $primary_key_field = DbUtil::get_primary_key_field($default_root_table_for_tree_view);
             $default_tree_relationship_condition = Config::$config['default_tree_relationship_condition'];
 
-            return $tree_view_uri."?root_table=$default_root_table_for_tree_view"
+            return $tree_view_uri."?root_table=$root_table"
                 ."&root_cond=$root_cond"
                 ."&parent_relationships[0][child_table]=$default_root_table_for_tree_view"
                 ."&parent_relationships[0][parent_table]=$default_root_table_for_tree_view"
