@@ -149,6 +149,8 @@
             }
         }
 
+        #todo #fixme - right now it uses the $root_table
+        #              but it won't get all the children e.g. if they're not in the same table
         public static function get_tree_url_for_whole_table($table) {
             return self::get_default_tree_url_for_root_cond(Db::true_exp(), $table);
         }
