@@ -1007,12 +1007,12 @@ infer_limit_from_query: query didn't match regex.
         # if $sqlish is just a tablename, expand it to actual sql
         # return expanded sql if applicable, false otherwise
         public static function expand_tablename_into_query(
-            $sqlish, $where_vars=array(), $selectFields=null,
+            $sqlish, $where_vars=array(), $select_fields=null,
             $order_by_limit=null, $strict_wheres=true
         ) {
-            $sqlHasNoSpaces = (strpos(trim($sqlish), ' ') === false);
+            $sql_has_no_spaces = (strpos(trim($sqlish), ' ') === false);
             if (strlen($sqlish) > 0
-                && $sqlHasNoSpaces
+                && $sql_has_no_spaces
             ) {
                 # (tablename has no quotes)
                 $tablename = $sqlish;
@@ -1024,7 +1024,7 @@ infer_limit_from_query: query didn't match regex.
                 }
 
                 return Db::build_select_sql(
-                    $tablename, $where_vars, $selectFields,
+                    $tablename, $where_vars, $select_fields,
                     $order_by_limit, $strict_wheres
                 );
             }
