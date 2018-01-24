@@ -432,6 +432,10 @@
         public static function get_delete_url(
             $obj_editor_uri, $tablename_no_quotes, $primary_key
         ) {
+            if ($tablename_no_quotes === null) {
+                $tablename_no_quotes = 'entity';
+            }
+
             $crud_api_uri = Config::$config['crud_api_uri'];
             $archive_instead_of_delete = Config::$config['archive_instead_of_delete'];
 
@@ -445,12 +449,14 @@
                     die("Error: 'archive_instead_of_delete' is enabled"
                         ." without an 'is_archived_field' defined");
                 }
-                return "$crud_api_uri?action=update_entity"
+                return "$crud_api_uri?action=update"
+                                    ."&table=$tablename_no_quotes"
                                     ."&$where_str"
                                     ."&$is_archived_field=t";
             }
             else {
-                return "$crud_api_uri?action=delete_entity"
+                return "$crud_api_uri?action=delete"
+                                    ."&table=$tablename_no_quotes"
                                     ."&$where_str";
             }
         }
@@ -590,6 +596,17 @@
 <?php
         }
 
+
+        public static function echo_checkbox(
+            $obj_editor_uri, $table_for_edit_link, $primary_key
+        ) {
+?>
+        <td class="action_cell">
+            <input type="checkbox" />
+        </td>
+<?php
+        }
+
         public static function choose_background_image(
             $tablename, &$background_images
         ) {
@@ -703,9 +720,7 @@
                             ? $minimal_fields
                             : EditorBackend::$default_minimal_fields));
 
-            if ($minimal_field_inheritance
-                && is_array($minimal_fields)
-            ) {
+            if ($minimal_field_inheritance && is_array($minimal_fields)) {
                 foreach ($minimal_fields as $field) {
                     if (!in_array($field, $ret)) {
                         $ret[] = $field;

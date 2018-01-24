@@ -33,6 +33,7 @@ class Config {
 
             'id_mode',
             'primary_key_field',
+            'table_view_checkboxes',
             'id_fields_are_uuids',
             'search_path',
             'backgroundImages',
@@ -49,7 +50,10 @@ class Config {
             'minimal_field_inheritance',
             'use_field_ordering_from_minimal_fields',
             'links_minimal_by_default',
+
+            'default_values',
             'default_values_by_table',
+
             'fields_to_make_selects',
             #'fields_to_make_selects_by_table', #todo
             'fields_to_make_textarea',
@@ -84,15 +88,25 @@ class Config {
 
             'obj_editor_exclude_fields',
             'table_view_exclude_fields_by_table',
+            'exclude_fields_by_table',
 
 
             # more table view vars
 
             'allow_destructive_queries',
             'disable_delete_button',
+            'table_view_tuck_away_query_box',
+            'table_view_show_count',
 
+            # archive / soft delete
+                # designate a field as the universal "is_archived" field
+                # when set, Table Views of a table will automatically add
+                # "and <fieldname> = false" to the query
             'is_archived_field',
+                # archive instead of delete for table_view
+                # #todo apply to obj_editor delete button too
             'archive_instead_of_delete',
+
             'aliases_field',
 
             'bold_border_between_weeks',
@@ -120,16 +134,22 @@ class Config {
 
             'table_field_spaces_to_underscores',
 
-            # array fields
+            # field types
             'fields_w_array_type',
+            'fields_w_json_type',
+            'fields_w_text_type',
+
+            # array fields
             'automatic_curly_braces_for_arrays',
             # MTM stands for Mobile Travel Mode
             # an array of fields that should not require commas
             # between array items, unless you provide a leading space
             'MTM_array_fields_to_not_require_commas',
-
-            # json fields
-            'fields_w_json_type',
+            # default to postgres @> instead of =
+            # when doing where clauses on array fields
+            'use_include_op_for_arrays',
+            'use_like_op_for_text',
+            'like_op_use_lower',
 
             'fields_that_render_html',
             'fields_that_render_html_by_table',
@@ -187,6 +207,7 @@ class Config {
 
             # tree view stuff
             'default_parent_field',
+            #'default_matching_field_on_parent', #todo #fixme
             'load_d3_via_cdn',
             'start_w_tree_fully_expanded',
             'vary_node_colors',
@@ -213,8 +234,17 @@ class Config {
             'tree_view_relationship_expression_name',
             'tree_view_relationship_expression',
             'store_tree_views_in_db',
+            'add_child__interpret_complex_table_as_name',
+            'default_tree_relationship_condition',
+            'show_matching_rows_on_tree_sideline',
+            'sideline_addl_requirements',
+            'tree_view_include_header',
+            'tree_view_custom_header',
+            # if this is an array of Names of Popup Options,
+            # those will be the only ones included in Tree View popup menu
+            'tree_view_filter_popup_options',
 
-            # filesystem-based tree (even more experimental/unstable)
+            # filesystem-based tree (experimental/unstable)
             'fs_tree_default_root_dir',
 
             # UNDER CONSTRUCTION
@@ -333,11 +363,14 @@ class Config {
             'special_ops' => array(),
 
             'id_mode' => 'id_only', #todo is this a good default?
-            'primary_key_field' => 'id',
+            'primary_key_field' => 'id', #todo #fixme make sure this doesn't conflict with id_mode
+
+            'table_view_checkboxes' => false,
 
             # obj view
             'multipleTablesFoundInDifferentSchemas' => false,
             'search_path' => null,
+            'default_values' => array(),
             'default_values_by_table' => array(),
             'fields_to_make_selects' => array(),
             #'fields_to_make_selects_by_table', #todo
@@ -386,16 +419,24 @@ class Config {
 
             'obj_editor_exclude_fields' => array(),
             'table_view_exclude_fields_by_table' => array(),
+            'exclude_fields_by_table' => array(),
 
 
             # more table view vars
             'allow_destructive_queries' => false,
             'disable_delete_button' => false,
+            'table_view_tuck_away_query_box' => false,
+            'table_view_show_count' => false,
 
+            # archive / soft delete
+                # designate a field as the universal "is_archived" field
+                # when set, Table Views of a table will automatically add
+                # "and <fieldname> = false" to the query
             'is_archived_field' => null,
-            # archive instead of delete for table_view
-            # #todo apply to obj_editor delete button too
+                # archive instead of delete for table_view
+                # #todo apply to obj_editor delete button too
             'archive_instead_of_delete' => false,
+
             'aliases_field' => null,
 
             'bold_border_between_weeks' => false,
@@ -424,16 +465,24 @@ class Config {
 
             'table_field_spaces_to_underscores' => true, #todo maybe not be default?
 
-            # array fields
+            # field types
             'fields_w_array_type' => array(),
+            'fields_w_json_type' => array(),
+            'fields_w_text_type' => array(),
+
+            # array fields
             'automatic_curly_braces_for_arrays' => false,
             # MTM stands for Mobile Travel Mode
             # an array of fields that should not require commas
             # between array items, unless you provide a leading space
             'MTM_array_fields_to_not_require_commas' => null,
-
-            # json fields
-            'fields_w_json_type' => array(),
+            # default to postgres @> instead of =
+            # when doing where clauses on array fields
+            'use_include_op_for_arrays' => false,
+            'use_like_op_for_text' => false,
+            # when using LIKE '%%' in building where clauses,
+            # wrap both sides with lower() fn?
+            'like_op_use_lower' => false,
 
             'fields_that_render_html' => array(),
             'fields_that_render_html_by_table' => array(),
@@ -481,7 +530,8 @@ class Config {
             'cmp' => false,
 
             # tree view stuff
-            'default_parent_field' => 'parent_id',
+            'default_parent_field' => 'parent_ids',
+            #'default_matching_field_on_parent' => 'id', #todo #fixme
             'load_d3_via_cdn' => false,
             'start_w_tree_fully_expanded' => false,
             'vary_node_colors' => false,
@@ -503,11 +553,20 @@ class Config {
             'primary_key_fields_by_table' => array(),
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship' => false,
-            'tree_view_order_by_limit' => 'order by time_added desc',
+            'tree_view_order_by_limit' => 'order by time_added desc', #todo should this really be default?
             'tree_view_relationship_order_by_limit' => null,
             'tree_view_relationship_expression_name' => null,
             'tree_view_relationship_expression' => null,
             'store_tree_views_in_db' => false,
+            'add_child__interpret_complex_table_as_name' => false,
+            'default_tree_relationship_condition' => null,
+            'show_matching_rows_on_tree_sideline' => false,
+            'sideline_addl_requirements' => "parent_ids = '{}'",
+            'tree_view_include_header' => true,
+            'tree_view_custom_header' => null,
+            # if this is an array of Names of Popup Options,
+            # those will be the only ones included in Tree View popup menu
+            'tree_view_filter_popup_options' => null,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,

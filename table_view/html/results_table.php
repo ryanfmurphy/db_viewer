@@ -2,15 +2,34 @@
         { # vars
             # strip quotes because e.g. obj_editor doesn't want quotes
             $tablename_no_quotes = DbUtil::strip_quotes($inferred_table);
+            # sometimes can't update view directly, must update underlying table
+            $table_for_update = TableView::table_for_update($tablename_no_quotes);
         }
 
         function includeField($field_name, $tablename_no_quotes) {
             $minimal = Config::$config['minimal'];
-            $minimal_fields = Config::$config['minimal_fields'];
+            $minimal_fields = TableView::would_be_minimal_fields($tablename_no_quotes); #Config::$config['minimal_fields'];
             $table_view_exclude_fields_by_table = Config::$config['table_view_exclude_fields_by_table'];
+            $exclude_fields_by_table = Config::$config['exclude_fields_by_table'];
+
+            if (isset($table_view_exclude_fields_by_table[$tablename_no_quotes])) {
+                $exclude_fields = $table_view_exclude_fields_by_table[$tablename_no_quotes];
+            }
+            elseif (isset($exclude_fields_by_table[$tablename_no_quotes])) {
+                $exclude_fields = $exclude_fields_by_table[$tablename_no_quotes];
+            }
+            else {
+                $exclude_fields = array();
+            }
+
+            /*
             $exclude_fields = (isset($table_view_exclude_fields_by_table[$tablename_no_quotes])
                                         ? $table_view_exclude_fields_by_table[$tablename_no_quotes]
-                                        : array());
+                                        : isset($exclude_fields_by_table[$tablename_no_quotes])
+                                            ? $exclude_fields_by_table[$tablename_no_quotes]
+                                            : array());
+            */
+
             return (
                 !in_array($field_name, $exclude_fields)
                 && (!$minimal
@@ -23,9 +42,14 @@
             # factored into a function because
             # the <th>'s are repeated every so many rows
             # so it's easier to see what column you're on
-            function headerRow(&$rows, $rowN, $has_edit_column, $num_action_columns, $tablename_no_quotes) {
+            function headerRow(&$rows, $rowN, $has_primary_key_field, $num_action_columns, $tablename_no_quotes) {
                 $row = current($rows);
                 $currentRow = TableView::prep_row($row);
+                
+                $has_checkbox = $has_primary_key_field
+                                && Config::$config['table_view_checkboxes'];
+                $has_edit_column = $has_primary_key_field;
+
                 $has_delete_column = Config::$config['include_row_delete_button']
                                      && $has_edit_column;
                 $has_tree_column =  Config::$config['include_row_tree_button']
@@ -34,6 +58,12 @@
     <tr data-row="<?= $rowN ?>">
 <?php
                 { # action columns
+                    if ($has_checkbox) {
+?>
+        <th class="action_cell"></th>
+<?php
+                    }
+
                     if ($has_edit_column) {
 ?>
         <th class="action_cell"></th>
@@ -90,7 +120,7 @@
 <?= TableView::echo_js__hit_url_and_rm_row_from_ui__fn() ?>
 
 <table  id="query_table"
-        data-table_for_update="<?= TableView::table_for_update($tablename_no_quotes) ?>"
+        data-table_for_update="<?= $table_for_update ?>"
 >
 <?php
                     { # vars
@@ -125,9 +155,7 @@
                         { # sometimes add a header row
                             if ($rowN % $header_every == 0) {
                                 $num_action_columns = count($special_ops_cols);
-                                #$has_edit_column = ($primary_key !== null);
-                                $has_edit_column = ($has_primary_key_field);
-                                headerRow($rows, $rowN, $has_edit_column, $num_action_columns, $tablename_no_quotes);
+                                headerRow($rows, $rowN, $has_primary_key_field, $num_action_columns, $tablename_no_quotes);
                                 $rowN++;
                             }
                         }
@@ -208,10 +236,20 @@
 
                                 # edit and delete links (need pk)
                                 if ($has_primary_key_field) {
-                                    # edit
+
+                                    # in polymorphic cases with "relname", update that table instead
                                     $table_for_edit_link = ($relname
                                                                 ? DbUtil::strip_quotes($relname)
-                                                                : $tablename_no_quotes);
+                                                                : $table_for_update);
+
+                                    # checkbox for selecting
+                                    if (Config::$config['table_view_checkboxes']) {
+                                        TableView::echo_checkbox(
+                                            $obj_editor_uri, $table_for_edit_link, $primary_key
+                                        );
+                                    }
+
+                                    # edit
                                     TableView::echo_edit_link(
                                         $obj_editor_uri, $table_for_edit_link,
                                         $primary_key, $links_minimal_by_default
@@ -220,12 +258,15 @@
                                     # delete
                                     if ($include_row_delete_button) {
                                         TableView::echo_delete_button(
-                                            $obj_editor_uri, $tablename_no_quotes, $primary_key
+                                            $obj_editor_uri, $table_for_edit_link, $primary_key
                                         );
                                     }
 
                                     # tree
                                     if ($include_row_tree_button) {
+                                        #todo #fixme - should we use table_for_edit_link here?
+                                        # would fix e.g. trying to get the tree for an obj
+                                        # that is excluded from the entity_view
                                         TreeView::echo_tree_button(
                                             $obj_editor_uri, $tablename_no_quotes, $primary_key
                                         );

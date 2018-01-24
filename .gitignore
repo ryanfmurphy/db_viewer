@@ -11,3 +11,5 @@ custom_css.php
 /log/error_log
 /log/tree_log
 /master2extras.sh
+/db_viewer.toolbox
+/spec.tla

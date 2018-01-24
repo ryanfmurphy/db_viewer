@@ -1,7 +1,6 @@
-<?php
-                    { # js
-?>
 <script>
+
+    var macro_to_run = <?= Utility::quot_str_for_js($macroName) ?>;
 
     function getColVals(cells) {
         var vals = $.map(cells, function(n,i){return n.innerText});
@@ -919,15 +918,76 @@
             saveMacro(macroEvents, macroName);
         }
     }
-<?php
-    if ($macroName) {
-?>
-    playMacro(<?= Utility::quot_str_for_js($macroName) ?>);
-<?php
+
+    if (macro_to_run) {
+        playMacro(macro_to_run);
     }
-?>
+
+
+    function get_id_col_no() {
+        var headers = $('tr:first th');
+        var selected_idx = undefined;
+        headers.each(function(idx,elem) {
+            var name = elem.innerHTML.trim();
+            if (name == 'id') { // #todo #fixme generalize primary key
+                selected_idx = idx;
+                return false;
+            }
+        });
+        return selected_idx;
+    }
+
+    function get_id_col($row) {
+        var col_no = get_id_col_no();
+        return $row.find('td').eq(col_no);
+    }
+
+    function get_selected_ids() {
+        var ids = [];
+        $('input[type=checkbox]:checked')
+            .each(function(idx, input){
+                var row = $(input).closest('tr');
+                var id_tr = get_id_col(row);
+                ids.push( id_tr.html() )
+            })
+        return ids;
+    }
+
+    function get_selected_id_list() { // 'id','id','id' as in SQL IN clause
+        var ids = get_selected_ids();
+        var str = '';
+        var first = true;
+        for (var i=0; i < ids.length; i++) {
+            if (first) {
+                first = false;
+            }
+            else {
+                str += ',';
+            }
+            var id = ids[i];
+            str += "'" + id + "'";
+        }
+        return str;
+    }
+
+    function get_selected_id_sql() {
+        var sql = 'select * from entity where id in ('
+                + get_selected_id_list()
+                + ');';
+        console.log(sql);
+        return sql;
+    }
+
+    function get_selected_id_tree_url() {
+        var id_field = 'id'; // #todo #fixme generalize
+        var root_cond = id_field + ' in (' + get_selected_id_list() + ')';
+        return '<?= $tree_view_uri ?>?root_cond='+root_cond;
+    }
+
+    function view_tree_of_selected_id() {
+        var url = get_selected_id_tree_url();
+        return window.open(url, '_blank');
+    }
 
 </script>
 
-<?php
-                    }

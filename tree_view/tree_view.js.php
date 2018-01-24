@@ -45,7 +45,15 @@ var default_name_cutoff = <?= $name_cutoff ?>;
 var table_info = <?= json_encode($table_info) ?>;
 
 var config = {
-    tree_height_factor: <?= Config::$config['tree_height_factor'] ?>
+    tree_height_factor: <?= Config::$config['tree_height_factor'] ?>,
+    add_child__interpret_complex_table_as_name: <?= Config::$config['add_child__interpret_complex_table_as_name']
+                                                        ? 'true'
+                                                        : 'false' ?>,
+    vary_node_colors: <?= (int)(isset($requestVars['vary_node_colors'])
+                                    ? $requestVars['vary_node_colors']
+                                    : Config::$config['vary_node_colors']) ?>,
+    default_values: <?= json_encode(Config::$config['default_values']) ?>,
+    tree_view_filter_popup_options: <?= json_encode(Config::$config['tree_view_filter_popup_options']) ?>
 };
 
 // ideally PHP would end here - pure JS from here forward
@@ -259,12 +267,12 @@ function setupTreeWithSize(root) {
     # send all the tree vars from vars.php as GET vars
     if (isset($root_id)) {
         # avoid super-long URL, backend can figure it out themselves
-        $tree_vars = array(
+        $tree_vars = $_GET; /*array(
             'root_id' => $root_id,
         );
         if (isset($requestVars['use_default_view'])) {
             $tree_vars['use_default_view'] = $requestVars['use_default_view'];
-        }
+        }*/
     }
     else {
         $tree_vars = compact($tree_var_names);
@@ -416,7 +424,7 @@ function updateTree(source) {
             )
             .on("click", toggleNodeExpansion);
 
-    var vary_node_colors = <?= (int)Config::$config['vary_node_colors'] ?>;
+    var vary_node_colors = config.vary_node_colors;
     nodeEnter.append("text")
             .attr("x", function(d) {
                             // where the text goes
@@ -950,6 +958,16 @@ function cloneSvgNode(obj) {
     return obj2;
 }
 
+function cloneObj(obj) { // util
+    var obj2 = {};
+    for (var k in obj) {
+        if (obj.hasOwnProperty(k)) {
+            obj2[k] = obj[k];
+        }
+    }
+    return obj2;
+}
+
 function setNodeName(node, name) {
     node._node_name = name;
     node.name = name; // #todo #fixme don't assume name_field
@@ -1032,11 +1050,20 @@ function addChildToNode(node, child, doUpdateTree,
 function addChildWithPrompt(node_to_add_to, ask_type) {
     var default_table = getNodeTable(node_to_add_to);
     var table = default_table;
+    var name;
     if (ask_type) {
         table = prompt('Type/Table of new node:', table);
+        if (config.add_child__interpret_complex_table_as_name) {
+            var complex_table_name = (table.indexOf(' ') !== -1);
+            if (complex_table_name) {
+                name = table;
+                table = default_table;
+            }
+        }
     }
-
-    var name = prompt('Name of new node:');
+    if (name === undefined) {
+        name = prompt('Name of new node:');
+    }
 
     if (name) {
         var url = crud_api_uri;
@@ -1045,9 +1072,8 @@ function addChildWithPrompt(node_to_add_to, ask_type) {
         }
         var id_field = idFieldForNode(node_to_add_to);
 
-        var data = {
-            action: 'create_' + table,
-        };
+        var data = cloneObj(config.default_values);
+        data['action'] = 'create_' + table; // #todo #fixme use new CRUD api: {action: 'create', table: table}
         data['name'] = name;                      // #todo #fixme use name field
         var parent_id = node_to_add_to[id_field];
         data['parent_ids'] = '{'+parent_id+'}';   // #todo generalize 'parent_ids' field
@@ -1188,6 +1214,17 @@ function editNode(d, clicked_node) {
     window.open(url, '_blank');
 }
 
+function viewNodeDetails(d, clicked_node) {
+    var table = getNodeTable(d);
+    var id_field = idFieldForNode(d);
+    var url = crud_api_uri
+                    +"?action=view"
+                    +"&table="+table
+                    +"&"+id_field+"="+d[id_field];
+    console.log('url to open =',url);
+    window.open(url, '_blank');
+}
+
 function viewTreeForNode(d, clicked_node) {
     var id_field = idFieldForNode(d);
     var primary_key = d[id_field];
@@ -1221,7 +1258,11 @@ function openTreeNodePopup(d, event, clicked_node) {
                                         renameNode(d, clicked_node);
                                         closePopup();
                                       } },
-        {   name: 'Details/Edit', callback: function(){
+        {   name: 'View Details', callback: function(){
+                                                viewNodeDetails(d, clicked_node);
+                                                closePopup();
+                                            } },
+        {   name: 'Edit Details', callback: function(){
                                                 editNode(d, clicked_node);
                                                 closePopup();
                                             } }
@@ -1238,7 +1279,9 @@ function openTreeNodePopup(d, event, clicked_node) {
                         {
                             name: url_field_name,
                             callback: function(){
-                                document.location = url; // #todo #fixme make target=_blank
+                                //document.location = url;
+                                window.open(url, '_blank'); // #todo #fixme make sure this works all the time
+                                                            // e.g. does a popup blocker prevent it ever?
                             }
                         }
                     );
@@ -1293,6 +1336,22 @@ function openTreeNodePopup(d, event, clicked_node) {
                                         closePopup();
                                       } }
     ]);
+
+    // filter popup_options
+    if (config.tree_view_filter_popup_options) {
+        var filtered_popup_options = [];
+        for (var i = 0; i < config.tree_view_filter_popup_options.length; i++) {
+            option_to_include = config.tree_view_filter_popup_options[i];
+            for (var j = 0; j < popup_options.length; j++) {
+                existing_option = popup_options[j];
+                if (existing_option.name == option_to_include) {
+                    filtered_popup_options.push(existing_option);
+                }
+            }
+        }
+        popup_options = filtered_popup_options;
+    }
+
     openPopup(popup_options, event, clicked_node);
 }
 

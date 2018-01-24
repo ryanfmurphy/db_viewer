@@ -234,16 +234,6 @@ if (!class_exists('Db')) {
 
 
         public static function insert_row($tableName, $rowVars) {
-            #todo work around limitation of needing at least 1 kv pair
-            # e.g. postgres will do:
-            #   insert into my_table default values
-            if (!count($rowVars)) {
-                trigger_error(
-                    "Db::insert_row needs at least one key-value pair",
-                    E_USER_ERROR
-                );
-            }
-
             { # detect show_sql_query (filter out that var too)
                 if (isset($rowVars['show_sql_query'])
                     && $rowVars['show_sql_query']
@@ -256,18 +246,36 @@ if (!class_exists('Db')) {
                 }
             }
 
-            list($varNameList, $varValList)
-                = Db::sql_fields_and_vals_from_array($rowVars);
-
             $tableNameQuoted = DbUtil::quote_ident($tableName);
-            $sql = "
-                insert into $tableNameQuoted ($varNameList)
-                values ($varValList)
-            ";
-            if (Config::$config['db_type'] == 'pgsql') {
-                $sql .= " returning * ";
+
+            { # build sql
+                # special case of no key-value pairs
+                if (!count($rowVars)) {
+                    if (Config::$config['db_type'] == 'pgsql') {
+                        $sql = "insert into $tableNameQuoted default values";
+                    }
+                    else {
+                        trigger_error(
+                            "Db::insert_row needs at least one key-value pair for this database type",
+                            E_USER_ERROR
+                        );
+                    }
+                }
+                else { # actual values passed in
+                    list($varNameList, $varValList)
+                        = Db::sql_fields_and_vals_from_array($rowVars);
+
+                    $sql = "
+                        insert into $tableNameQuoted ($varNameList)
+                        values ($varValList)
+                    ";
+                }
+
+                if (Config::$config['db_type'] == 'pgsql') {
+                    $sql .= " returning * ";
+                }
+                $sql .= ';';
             }
-            $sql .= ';';
 
             if ($showSqlQuery) {
                 return array('sql'=>$sql);
@@ -311,6 +319,11 @@ if (!class_exists('Db')) {
             }
         }
 
+        public static function update_row($table_name, $rowVars) {
+            #todo - add additional checking to make sure there's a primary key
+            return self::update_rows($table_name, $rowVars);
+        }
+
         public static function delete_rows($table_name, $rowVars, $allowEmptyWheres = false) {
             if (isset($rowVars['where_clauses'])) {
                 $whereClauses = $rowVars['where_clauses'];
@@ -333,8 +346,11 @@ if (!class_exists('Db')) {
             }
         }
 
+        # when $strict_wheres is false, look in Config for certain different operators to use
+        # e.g. may use @> for arrays, or LIKE for strings, instead of strict =
         public static function build_select_sql(
-            $table_name, $wheres, $select_fields=null, $order_by_limit=null
+            $table_name, $wheres, $select_fields=null,
+            $order_by_limit=null, $strict_wheres=true
         ) {
 
             if ($select_fields === null) {
@@ -347,13 +363,13 @@ if (!class_exists('Db')) {
 
             $table_name_quoted = DbUtil::quote_ident($table_name);
             $sql = "select $select_fields from $table_name_quoted ";
-            $sql .= self::build_where_clause($wheres);
+            $sql .= self::build_where_clause($wheres, 'and', true, $strict_wheres);
             if ($order_by_limit) {
                 $sql .= "\n$order_by_limit";
             }
             #$sql .= ";"; #todo #fixme reconsider, maybe we don't want to close the query?
-                         #            might want to add more where conditions for example?
-                         #            though having it here might be safer
+                          #            might want to add more where conditions for example?
+                          #            though having it here might be safer
             return $sql;
         }
 
@@ -411,6 +427,7 @@ if (!class_exists('Db')) {
             }
         }
 
+        # provides url used in view_query() fn below
         public static function view_query_url($sql, $minimal=false) {
             $vars = array_merge($_GET,$_POST);
             $query_string = http_build_query(array(
@@ -424,6 +441,7 @@ if (!class_exists('Db')) {
             return $view_query_url;
         }
 
+        # visit (redirect) to view_query_url()
         public static function view_query($sql, $minimal=false) {
             header("302 Temporary");
             header("Location: ".self::view_query_url($sql, $minimal));
@@ -456,17 +474,33 @@ if (!class_exists('Db')) {
                 $where_vars[] = $or_clauses;
             }
 
+            # if we're not calling match_aliases, we can take advantage
+            # of "looser matching" (i.e. we can have $strict_where=false)
+            # but match_aliases currently implies stricter matching
+            $strict_wheres = $match_aliases;
+
             # build the query
             $sql = DbUtil::expand_tablename_into_query(
-                $table_name, $where_vars, $select_fields
+                $table_name, $where_vars, $select_fields,
+                null, $strict_wheres
             );
             # go to that query in table_view
             return Db::view_query($sql, $minimal);
         }
 
+        public static function view_row($table_name, $primary_key) {
+            $primary_key_field = 'id'; #todo #fixme
+            $wheres = array(
+                $primary_key_field => $primary_key,
+            );
+            return self::view_table($table_name, $wheres);
+        }
+
         #todo maybe allow magic null value?
+        # when $strict_wheres is false, look in Config for certain different operators to use
+        # e.g. may use @> for arrays, or LIKE for strings, instead of strict =
         public static function build_where_clause(
-            $wheres, $logical_op='and', $include_where=true
+            $wheres, $logical_op='and', $include_where=true, $strict_wheres=true
         ) {
             $sql = '';
 
@@ -475,6 +509,14 @@ if (!class_exists('Db')) {
                                 ? 'where'
                                 : '');
             foreach ($wheres as $key => $val_or_predicate) {
+
+                if (!$strict_wheres) {
+                    Predicate::loosely_interpret_where_clause(
+                        # both & (vars may be changed)
+                        $key, $val_or_predicate
+                    );
+                }
+
                 if ($val_or_predicate instanceof Predicate) {
                     # Predicate has a __toString() fn
                     $expr = "$key $val_or_predicate";
@@ -491,13 +533,14 @@ if (!class_exists('Db')) {
                 $sql .= "\n$where_and_or $expr";
 
                 $where_and_or = "    $logical_op";
+
             }
 
             return $sql;
         }
 
-        public static function get($table_name, $wheres, $get1=false) {
-            $sql = self::build_select_sql($table_name, $wheres);
+        public static function get($table_name, $wheres, $get1=false, $strict_wheres=true) {
+            $sql = self::build_select_sql($table_name, $wheres, null, null, $strict_wheres);
             return self::query_fetch($sql, $get1);
         }
 
@@ -585,6 +628,71 @@ if (!class_exists('Db')) {
                 where $primary_key_field_q = $primary_key_q
             ";
             return Db::sql($sql);
+        }
+
+        public static function get_row_name($table_name, $primary_key) { #unused
+            $primary_key_field = 'id'; #todo #fixme
+            $wheres = array(
+                $primary_key_field => $primary_key,
+            );
+            $name_field = 'name'; #todo #fixme
+            $fields = array($name_field);
+            $sql = self::build_select_sql($table_name, $wheres, $fields);
+            $rows = Db::sql($sql);
+            if (count($rows)) {
+                return $rows[0][$name_field];
+            }
+        }
+
+        public static function get_row_aliases($table_name, $primary_key) {
+            $primary_key_field = 'id'; #todo #fixme
+            $name_field = 'name'; #todo #fixme
+            $aliases_field = 'aliases'; #todo #fixme
+            $sql = "
+                select
+                    unnest(
+                        array_append($aliases_field, $name_field)
+                    ) alias
+                from (
+                    select $name_field, $aliases_field
+                    from $table_name
+                    where
+                        $primary_key_field = ".self::sql_literal($primary_key)."
+                ) t
+            ";
+            $rows = Db::sql($sql);
+            if (count($rows)) {
+                $aliases = array();
+                foreach ($rows as $row) {
+                    $aliases[] = $row['alias'];
+                }
+                return $aliases;
+            }
+        }
+
+
+        # SQL-flavor-agnostic boolean expressions: true/false or 1/0
+
+        public static function true_exp() {
+            switch (Config::$config['db_type']) {
+                case 'pgsql':
+                    return 'true';
+
+                case 'sqlite':
+                case 'mysql':
+                    return '1';
+            }
+        }
+
+        public static function false_exp() {
+            switch (Config::$config['db_type']) {
+                case 'pgsql':
+                    return 'false';
+
+                case 'sqlite':
+                case 'mysql':
+                    return '0';
+            }
         }
 
     }

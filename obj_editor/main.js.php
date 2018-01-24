@@ -350,7 +350,7 @@
         // swap event and table_name
         function viewButtonClickHandler(crud_api_uri, table_name, key_event) {
             var url = crud_api_uri;
-            var action = 'view_'+table_name;
+            var action = 'view_'+table_name; // #todo use new API: action=view, table=table_name
             var extra_vars = {'action': action};
             var do_minimal = links_minimal_by_default
                                 ? !key_event.altKey
@@ -437,7 +437,7 @@
                 responses = [];
                 // this callback needs a row_name
                 // which will be curried in when we have a row and know the name
-                generic_respond_callback = function(row_name, response_msg) {
+                generic_respond_callback = function(row_name, response_msg, response) {
                     console.log('adding ', response_msg, ' to responses');
                     console.log('responses:', responses);
 
@@ -446,11 +446,41 @@
                         msg_w_details += row_name + ' - ';
                     }
                     msg_w_details += response_msg;
-                    responses.push(msg_w_details);
+                    console.log('response msg:', msg_w_details);
+                    response['msg'] = msg_w_details;
+
+                    console.log('full response =', response);
+                    responses.push(response);
 
                     // do we have all the responses? show them
                     if (responses.length >= stored_rows.length) {
-                        var overall_response = responses.join('\n\n');
+                        console.log('got all responses, giving back overall response');
+
+                        // save errors separately for easy fixing
+                        if (save_json_dump_of_stored_rows) {
+                            var error_msgs = responses.map(function(response){
+                                if ('success' in response && response.success) {
+                                    return false; // don't include in map
+                                }
+                                else {
+                                    return response.msg;
+                                }
+                            }).filter(function(response){
+                                return (response === false
+                                            ? false
+                                            : true);
+                            });
+                            console.log('error_msgs =', error_msgs);
+                            var overall_error_response = error_msgs.join('\n\n');
+                            saveDumpOfOverallErrorResponse(overall_error_response);
+                        }
+
+                        // overall response (successes and errors)
+                        var response_msgs = responses.map(function(response){
+                            return response.msg;
+                        });
+                        console.log('response_msgs =', response_msgs);
+                        var overall_response = response_msgs.join('\n\n');
                         if (save_json_dump_of_stored_rows) {
                             saveDumpOfOverallResponse(overall_response);
                         }
@@ -479,9 +509,9 @@
                     // freeze the value so that it is not overwritten by the next loop
                     respond_callback = (function(frozen_name) {
                         // this returned fn becomes the respond_callback:
-                        return function(response_msg) {
+                        return function(response_msg, response) {
                             // and all it does is call this but give it the name
-                            generic_respond_callback(frozen_name, response_msg);
+                            generic_respond_callback(frozen_name, response_msg, response);
                         };
                     })(
                         data.name // gets passed in as frozen name
@@ -571,7 +601,9 @@
             {
                 data: data,
                 filename: filename,
-                filename_after_date: filename_after_date,
+                filename_after_date: filename_after_date, // component of filename after date,
+                                        // so all the files from a date will be grouped together
+                                        // e.g. in shell autocomplete
                 ext: ext
             },
             Function.prototype, // noop
@@ -584,7 +616,7 @@
     // save JSON dump of stored_rows in case something went wrong
     function saveJsonDumpOfStoredRows() {
         var data = getStoredRowsLocal();
-        var json_dump = JSON.stringify(data);
+        var json_dump = JSON.stringify(data, null, 4); // pretty prent
         saveFile(
             'stored_rows',
             'dump',
@@ -601,6 +633,16 @@
             'response',
             overall_response,
             'dump of overall response'
+        );
+    }
+
+    function saveDumpOfOverallErrorResponse(overall_error_response) {
+        console.log('saveDumpOfOverallErrorResponse:', overall_error_response);
+        saveFile(
+            'stored_rows',
+            'error',
+            overall_error_response,
+            'dump of overall error response'
         );
     }
 
@@ -621,21 +663,21 @@
                         console.log(result.sql);
                     }
                     else if (result) {
-                        if ('success' in result
-                            && !result.success
-                        ) {
+                        if ('success' in result && !result.success) {
+                            console.log('ajax callback - Failure');
                             var error_details = result.error_info[2];
                             respond_callback('Failed... Error '
-                                    + result.error_code + ': '
-                                    + error_details
-                            );
+                                                + result.error_code + ': '
+                                                + error_details,
+                                             result);
                         }
                         else { // success
+                            console.log('ajax callback - Success');
                             if (action == 'delete') {
-                                respond_callback('Thanks! Row Deleted');
+                                respond_callback('Thanks! Row Deleted', result);
                             }
                             else if (action == 'create') {
-                                respond_callback('Thanks! Row Created');
+                                respond_callback('Thanks! Row Created', result);
 
                                 // change Create form to Update form after Insert submission
                                 if (do_change_to_update_after_insert) {
@@ -706,11 +748,10 @@
             { // do post
                 var valsToAlwaysInclude = scope;
                 var postData  = (action == 'delete'
-                                ? "" // don't include key-val pairs for delete
-                                     // (except where_clause for primary key,
-                                     //  added later)
-                                : queryString
-                            );
+                                    ? "" // don't include key-val pairs for delete
+                                         // (except where_clause for primary key,
+                                         //  added later)
+                                    : queryString);
 
                 {   // further additions to data
                     // #todo be more civilized: join up an array
@@ -721,11 +762,8 @@
                     }
 
                     if (edit) {
-
                         // update needs a where clause
-                        if (   action == 'update'
-                            || action == 'delete'
-                        ) {
+                        if (action == 'update' || action == 'delete') {
                             console.log('update');
                             // #todo #fixme do we need the other value of primary_key_field?
                             // right now using that weird global value from the PHP var
@@ -983,7 +1021,7 @@
     }
 
     function selectTableOnEnter(keyEvent) {
-        console.log('selectTableOnEnter, keyEvent =', keyEvent);
+        //console.log('selectTableOnEnter, keyEvent =', keyEvent);
         doOnEnter(keyEvent, selectTable);
     }
 
@@ -1597,5 +1635,45 @@
             first_input.focus();
         }
     }
+
+    // handles Ctrl+S Search within <input>
+    function searchWithWhereClause(table_name, input_elem) {
+        var url = '<?= $crud_api_uri ?>';
+        var action = 'view';
+        var vars = {'action': action, 'table': table_name};
+        if (isInputElem(input_elem)) {
+            var name = input_elem.getAttribute('name');
+            var val = input_elem.value;
+            vars[name] = val;
+        }
+        url += '?' + obj2queryString(vars);
+        return window.open(url, '_blank');
+    }
+
+    function getTableName() {
+        return document.getElementById('table_name').innerHTML.trim();
+    }
+
+    function isInputElem(elem) {
+        return  elem.tagName == 'INPUT'
+                || elem.tagName == 'TEXTAREA'
+                || elem.tagName == 'SELECT';
+    }
+
+    // handles Ctrl+S Search within <input>
+    function bodyKeypressHandler(event) {
+        var KEY_S = 115;
+        if (event.ctrlKey && event.which == KEY_S
+            //&& isInputElem(event.target)
+        ) {
+            var table_name = getTableName();
+            var input_elem = event.target;
+            return searchWithWhereClause(table_name, input_elem);
+        }
+    }
+
+    window.addEventListener('load', function(){
+        document.body.addEventListener('keypress', bodyKeypressHandler);
+    });
 
 }

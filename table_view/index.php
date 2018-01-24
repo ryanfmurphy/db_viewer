@@ -216,7 +216,22 @@
 ?>
 <body>
 <?php
+            if (Config::$config['table_view_tuck_away_query_box']) {
+?>
+    <p>
+        <span   id="click_to_enter_query"
+                onclick="$('#query_form_details').show(); $(this).hide()"
+        >
+            Click to Enter Query
+        </span>
+    </p>
+<?php
+            }
+?>
+    <div id="query_form_details">
+<?php
             include("$trunk/table_view/html/top_menu.php");
+
             include("$trunk/table_view/html/query_form.php"); # form
 
             { # report inferred table, create link
@@ -225,24 +240,27 @@
                                         ? '&minimal'
                                         : '';
 ?>
-    <p> Query seems to be with respect to the
-        <code><?= $inferred_table ?></code> table.
+        <p> Query seems to be with respect to the
+            <code><?= $inferred_table ?></code> table.
 
 <?php
                     { # "create" link
 ?>
-        <a href="<?= $obj_editor_uri ?>?table=<?= $tablename_no_quotes . $maybe_minimal ?>"
-             target="_blank"
-        >
-            Create a new <code><?= $tablename_no_quotes ?></code>
-        </a>
+            <a href="<?= $obj_editor_uri ?>?table=<?= $tablename_no_quotes . $maybe_minimal ?>"
+                 target="_blank"
+            >
+                Create a new <code><?= $tablename_no_quotes ?></code>
+            </a>
 <?php
                     }
 ?>
-    </p>
+        </p>
 <?php
                 }
             }
+?>
+    </div>
+<?php
 
             { # get & display query data ...
                 # & provide js interface
@@ -250,6 +268,13 @@
                 #todo infinite scroll using OFFSET and LIMIT
                 if ($sql) {
                     $rows = Db::sql($sql);
+                    if (Config::$config['table_view_show_count']) {
+?>
+    <div id="row_count">
+        <?= count($rows) ?> Rows
+    </div>
+<?php
+                    }
                     include("$trunk/table_view/html/results_table.php"); # html
                 }
 

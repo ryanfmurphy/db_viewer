@@ -697,29 +697,35 @@ infer_limit_from_query: query didn't match regex.
             if ($schemas_in_path === null) {
                 $schemas_in_path = self::schemas_in_path();
             }
-            $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
             $db_type = Config::$config['db_type'];
 
             if ($db_type == 'sqlite') {
+                #todo #fixme decide how/when to do entity inheritance
+                #$get_columns_sql = "
+                #    pragma table_info('entity')
+                #";
                 $get_columns_sql = "
-                    pragma table_info('entity')
+                    pragma table_info('$table')
                 ";
             }
             else {
-                ob_start();
+                $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
+
+                { ob_start();
 ?>
-                select
-                    table_schema, table_name,
-                    column_name
-                from information_schema.columns
-                where table_name='<?= $table ?>'
+                    select
+                        table_schema, table_name,
+                        column_name
+                    from information_schema.columns
+                    where table_name='<?= $table ?>'
 <?php
-                if ($schemas_val_list) {
+                    if ($schemas_val_list) {
 ?>
-                    and table_schema in (<?= $schemas_val_list ?>)
+                        and table_schema in (<?= $schemas_val_list ?>)
 <?php
+                    }
+                    $get_columns_sql = ob_get_clean();
                 }
-                $get_columns_sql = ob_get_clean();
             }
             return $get_columns_sql;
         }
@@ -921,6 +927,10 @@ infer_limit_from_query: query didn't match regex.
 
 
 
+
+        # field type detection - #todo make its own class
+        # -----------------------------------------------
+
         #todo #fixme - make this more consistent, because
         #              all postgres-array-like fields are automatically
         #              interpreted as array lists, whereas JSON is
@@ -942,6 +952,17 @@ infer_limit_from_query: query didn't match regex.
                             $fields_w_json_type)
             );
         }
+
+        public static function field_is_text($field_name) {
+            $fields_w_text_type =
+                Config::$config['fields_w_text_type'];
+            return (is_array($fields_w_text_type)
+                    && in_array($field_name,
+                            $fields_w_text_type)
+            );
+        }
+
+        # -----------------------------------------------
 
 
 
@@ -983,29 +1004,33 @@ infer_limit_from_query: query didn't match regex.
             return $sql;
         }
 
-        # if $sqlish might just be a tablename
-        # expand it to actual sql
-        # return true if the expand happened, false otherwise
+        # if $sqlish is just a tablename, expand it to actual sql
+        # return expanded sql if applicable, false otherwise
         public static function expand_tablename_into_query(
-            $sqlish, $whereVars=array(), $selectFields=null,
-            $order_by_limit=null
+            $sqlish, $where_vars=array(), $select_fields=null,
+            $order_by_limit=null, $strict_wheres=true
         ) {
-            $sqlHasNoSpaces = (strpos(trim($sqlish), ' ') === false);
+            $sql_has_no_spaces = (strpos(trim($sqlish), ' ') === false);
             if (strlen($sqlish) > 0
-                && $sqlHasNoSpaces
+                && $sql_has_no_spaces
             ) {
                 # (tablename has no quotes)
                 $tablename = $sqlish;
 
                 if ($order_by_limit === null) {
-                    $order_by_limit =
-                        DbUtil::default_order_by_limit(
-                                                $tablename);
+                    $order_by_limit = DbUtil::default_order_by_limit(
+                                                            $tablename);
+                }
+
+                # optionally filter out archived rows
+                $is_archived_field = Config::$config['is_archived_field'];
+                if ($is_archived_field) {
+                    $where_vars[$is_archived_field] = Db::false_exp();
                 }
 
                 return Db::build_select_sql(
-                    $tablename, $whereVars, $selectFields,
-                    $order_by_limit
+                    $tablename, $where_vars, $select_fields,
+                    $order_by_limit, $strict_wheres
                 );
             }
             else {

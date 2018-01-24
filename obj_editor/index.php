@@ -22,7 +22,7 @@
             # default values specified in config
             $defaultValues = isset($default_values_by_table[$table])
                                 ? $default_values_by_table[$table]
-                                : array();
+                                : Config::$config['default_values'];
             # pass requestVars in as default values
             $defaultValues = array_merge(
                 $defaultValues,
@@ -420,14 +420,22 @@
             echo jsStringify($txt);
         }
 
-        function doSkipField($fieldName, $only_include_these_fields=null) {
+        function doSkipField($field_name, $table_name, $only_include_these_fields=null) {
             $fields2exclude = Config::$config['obj_editor_exclude_fields'];
-            if (in_array($fieldName, $fields2exclude)) {
+            if (in_array($field_name, $fields2exclude)) {
                 return true;
             }
 
             if (is_array($only_include_these_fields)
-                && !in_array($fieldName, $only_include_these_fields)
+                && !in_array($field_name, $only_include_these_fields)
+            ) {
+                return true;
+            }
+
+            # another place to find fields to skip is 'exclude_fields_by_table'
+            $exclude_fields_by_table = Config::$config['exclude_fields_by_table'];
+            if (isset($exclude_fields_by_table[$table_name])
+                && in_array($field_name, $exclude_fields_by_table[$table_name])
             ) {
                 return true;
             }
@@ -601,7 +609,7 @@
                 { # tree link
                     $tree_url = (isset($primary_key)
                                     ? TreeView::get_tree_url($primary_key)
-                                    : null);
+                                    : TreeView::get_tree_url_for_whole_table($table));
 ?>
                     <a  class="link"
                         id="tree_link"
@@ -628,7 +636,7 @@
                     && isset($defaultValues[$url_field])
                     && $defaultValues[$url_field]
                 ) {
-                    $url_val = $defaultValues[$url_field];
+                    $url_val = Utility::escape_vars_in_url($defaultValues[$url_field]);
 ?>
                     <a target="_blank" class="link" href="<?= $url_val ?>">
                         <?= $url_field_name ?>
@@ -678,7 +686,7 @@
                 { # create form fields
                     $fields = TableView::prep_fields($fields);
                     foreach ($fields as $name) {
-                        if (doSkipField($name, $only_include_these_fields)) {
+                        if (doSkipField($name, $table, $only_include_these_fields)) {
                             continue;
                         }
                         echoFormFieldHtml(
