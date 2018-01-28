@@ -633,14 +633,8 @@ infer_limit_from_query: query didn't match regex.
         }
 
         # get id field
-        public static function get_primary_key_field(
-            /*$id_mode,*/ $tablename_no_quotes
-        ) {
-            #todo #fixme - maybe don't even take this arg
-            # we always just use the Config val
-            #if ($id_mode === null) {
+        public static function get_primary_key_field($tablename_no_quotes) {
             $id_mode = Config::$config['id_mode'];
-            #}
             $pk_fields_by_table = Config::$config['primary_key_fields_by_table'];
             if (isset($pk_fields_by_table[$tablename_no_quotes])) {
                 return $pk_fields_by_table[$tablename_no_quotes];
