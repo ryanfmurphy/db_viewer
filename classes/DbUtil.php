@@ -1017,7 +1017,7 @@ infer_limit_from_query: query didn't match regex.
                 }
 
                 # optionally filter out archived rows
-                $is_archived_field = Config::$config['is_archived_field'];
+                $is_archived_field = DbUtil::is_archived_field($tablename);
                 if ($is_archived_field) {
                     $where_vars[$is_archived_field] = Db::false_exp();
                 }
@@ -1031,6 +1031,20 @@ infer_limit_from_query: query didn't match regex.
                 return false;
             }
         }
+
+        public static function is_archived_field($tablename) {
+            if (Config::$config['is_archived_field']
+                    && (!Config::$config['tables_without_is_archived_field']
+                        || !in_array($tablename, Config::$config['tables_without_is_archived_field'])
+                       )
+            ) {
+                return Config::$config['is_archived_field'];
+            }
+            else {
+                return null;
+            }
+        }
+                
 
         public static function order_by_time_sql($tablename_no_quotes) {
             $schemas_in_path = DbUtil::schemas_in_path();

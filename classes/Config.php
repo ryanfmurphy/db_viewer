@@ -103,6 +103,7 @@ class Config {
                 # when set, Table Views of a table will automatically add
                 # "and <fieldname> = false" to the query
             'is_archived_field',
+            'tables_without_is_archived_field', # can be an array of table names
                 # archive instead of delete for table_view
                 # #todo apply to obj_editor delete button too
             'archive_instead_of_delete',
@@ -424,6 +425,7 @@ class Config {
                 # when set, Table Views of a table will automatically add
                 # "and <fieldname> = false" to the query
             'is_archived_field' => null,
+            'tables_without_is_archived_field' => null, # can be an array of table names
                 # archive instead of delete for table_view
                 # #todo apply to obj_editor delete button too
             'archive_instead_of_delete' => false,
