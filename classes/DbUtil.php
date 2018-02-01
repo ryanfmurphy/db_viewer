@@ -1005,8 +1005,12 @@ infer_limit_from_query: query didn't match regex.
             $order_by_limit=null, $strict_wheres=true
         ) {
             $sql_has_no_spaces = (strpos(trim($sqlish), ' ') === false);
+
+            # allow sqlite directives like '.schema' without accidentally expanding them into SELECT queries
+            $starts_with_dot = preg_match('/^\./', $sqlish);
             if (strlen($sqlish) > 0
                 && $sql_has_no_spaces
+                && !$starts_with_dot
             ) {
                 # (tablename has no quotes)
                 $tablename = $sqlish;
