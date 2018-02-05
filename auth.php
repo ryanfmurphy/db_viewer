@@ -1,6 +1,7 @@
 <?php
     $trunk = __DIR__;
-    $cur_view = 'auth';
+    $cur_view = '';
+    $cur_subview = 'auth';
     require("$trunk/includes/init.php");
 
     $uri = $table_view_uri;

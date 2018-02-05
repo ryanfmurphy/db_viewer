@@ -9,14 +9,24 @@
 
         if (file_exists("$trunk/db_config.php")) {
             # config exists: load it
-            if (!isset($cur_subview)) $cur_subview = 'index';
-            #todo #fixme - don't require setting cur_view
-            #              (right now we need it so we can pass in
-            #               uri to Config::default_values)
-            $view_uri = "/$cur_view/$cur_subview.php";
-            $default_values = Config::default_values(
-                $view_uri
-            );
+
+            { # figure out view_uri for default_values
+                #todo #fixme - don't require setting cur_view
+                #              (right now we need it so we can pass in
+                #               uri to Config::default_values)
+                $view_uri = '';
+                if ($cur_view) { # add main view part
+                    $view_uri .= "/$cur_view";
+                }
+                { # add subview part
+                    if (!isset($cur_subview)) {
+                        $cur_subview = 'index';
+                    }
+                    $view_uri .= "/$cur_subview.php";
+                }
+                #echo "view_uri = '$view_uri'\n";
+            }
+            $default_values = Config::default_values($view_uri);
 
             $config = Config::load_config("$trunk/db_config.php",
                                           $default_values);
@@ -36,7 +46,7 @@
             && $db_prompt_for_auth
         ) {
             $have_db_auth = false;
-            if ($cur_view != 'auth') {
+            if ($cur_subview != 'auth') {
                 header("HTTP/1.1 302 Redirect");
                 header("Location: $prompt_for_auth_uri");
                 die();
@@ -52,7 +62,7 @@
     }
 
     # vars adjustments after includes
-    if ($cur_view != 'auth') {
+    if ($cur_subview != 'auth') {
         { # search_path
             if (!isset($search_path)) {
                 $search_path =
