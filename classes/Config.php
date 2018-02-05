@@ -145,7 +145,8 @@ class Config {
             # MTM stands for Mobile Travel Mode
             # an array of fields that should not require commas
             # between array items, unless you provide a leading space
-            'MTM_array_fields_to_not_require_commas',
+            'MTM_array_fields_to_not_require_commas',   #todo #fixme - rename this setting to, say, 'array_fields_dont_require_commas'
+                                                        # it turns out to be useful regardless of MTM
             # default to postgres @> instead of =
             # when doing where clauses on array fields
             'use_include_op_for_arrays',
