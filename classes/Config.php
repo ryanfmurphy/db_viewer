@@ -152,6 +152,7 @@ class Config {
             'use_include_op_for_arrays',
             'use_like_op_for_text',
             'like_op_use_lower',
+            'use_fulltext_op_for_tsvector',
 
             'fields_that_render_html',
             'fields_that_render_html_by_table',
@@ -477,6 +478,9 @@ class Config {
             # when using LIKE '%%' in building where clauses,
             # wrap both sides with lower() fn?
             'like_op_use_lower' => false,
+            # postgres fulltext search
+            # use postgres "@@" symbol when searching by column w type tsvector
+            'use_fulltext_op_for_tsvector' => false,
 
             'fields_that_render_html' => array(),
             'fields_that_render_html_by_table' => array(),

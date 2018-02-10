@@ -703,6 +703,9 @@ infer_limit_from_query: query didn't match regex.
                 ";
             }
             else {
+                #todo for postgres, might want to use pg_catalog directly
+                #     so we can access e.g. materialized views
+
                 $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
                 { ob_start();
@@ -950,6 +953,15 @@ infer_limit_from_query: query didn't match regex.
         public static function field_is_text($field_name) {
             $fields_w_text_type =
                 Config::$config['fields_w_text_type'];
+            return (is_array($fields_w_text_type)
+                    && in_array($field_name,
+                            $fields_w_text_type)
+            );
+        }
+
+        public static function field_is_tsvector($field_name) {
+            $fields_w_text_type =
+                Config::$config['fields_w_tsvector_type'];
             return (is_array($fields_w_text_type)
                     && in_array($field_name,
                             $fields_w_text_type)
