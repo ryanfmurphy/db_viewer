@@ -741,87 +741,86 @@ infer_limit_from_query: query didn't match regex.
             }
 
             $db_type = Config::$config['db_type'];
-            #todo #fixme factor this with dup code in obj_editor/index.php
-            $get_columns_sql = DbUtil::get_columns_sql(
-                $table, $schemas_in_path
-            );
 
-            # get fieldsRows
-            if ($db_type == 'sqlite') {
-                $rawFieldsRows = Db::sql($get_columns_sql);
-                $fieldsRows = array();
-                foreach ($rawFieldsRows as $rawFieldsRow) {
-                    $row['table_schema'] = 'public';
-                    $row['column_name'] = $rawFieldsRow['name'];
-                    $fieldsRows[] = $row;
-                }
-            }
-            else {
-                $fieldsRows = Db::sql($get_columns_sql);
-            }
+            { # get fieldsRows
+                $get_columns_sql = DbUtil::get_columns_sql(
+                    $table, $schemas_in_path
+                );
 
-            if (count($fieldsRows) == 0) {
-                return false;
-            }
-
-            /*if ($db_type == 'sqlite') {
-                $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
-                if (isset($minimal_fields_by_table[$table])) {
-                    return $minimal_fields_by_table[$table];
+                if ($db_type == 'sqlite') {
+                    $rawFieldsRows = Db::sql($get_columns_sql);
+                    $fieldsRows = array();
+                    foreach ($rawFieldsRows as $rawFieldsRow) {
+                        $row['table_schema'] = 'public';
+                        $row['column_name'] = $rawFieldsRow['name'];
+                        $fieldsRows[] = $row;
+                    }
                 }
                 else {
-                    return array('name','txt','id','time');
-                }
-            }
-            else {*/
-                /*{ # do query
                     $fieldsRows = Db::sql($get_columns_sql);
-                    if (count($fieldsRows) == 0) {
-                        #die("Table $table doesn't exist");
-                        return false;
-                    }
-                }}*/
-
-            { # group by schema
-                $fieldsRowsBySchema = array();
-                #todo #fixme Warning: Invalid argument supplied for foreach()
-                foreach ($fieldsRows as $fieldsRow) {
-                    $schema = $fieldsRow['table_schema'];
-                    $fieldsRowsBySchema[$schema][] = $fieldsRow;
                 }
+
+                #if (count($fieldsRows) == 0) {
+                #    return false;
+                #}
             }
 
-            { # choose 1st schema that applies
-                if ($schemas_in_path) {
-                    $schema = null;
+            if ($fieldsRows) {
+                { # group by schema
+                    $fieldsRowsBySchema = array();
+                    #todo #fixme Warning: Invalid argument supplied for foreach()
+                    foreach ($fieldsRows as $fieldsRow) {
+                        $schema = $fieldsRow['table_schema'];
+                        $fieldsRowsBySchema[$schema][] = $fieldsRow;
+                    }
+                }
 
-                    foreach ($schemas_in_path as $schema_in_path) {
-                        if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                            $schema = $schema_in_path;
-                            break;
+                { # choose 1st schema that applies
+                    if ($schemas_in_path) {
+                        $schema = null;
+
+                        foreach ($schemas_in_path as $schema_in_path) {
+                            if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                $schema = $schema_in_path;
+                                break;
+                            }
+                        }
+                        if ($schema === null) {
+                            die("Whoops!  Couldn't select a DB schema for table $table");
                         }
                     }
-                    if ($schema === null) {
-                        die("Whoops!  Couldn't select a DB schema for table $table");
-                    }
+                }
+
+                { # get just the column_names
+                    $fields = array_map(
+                        function($x) {
+                            return $x['column_name'];
+                        },
+                        $fieldsRowsBySchema[$schema]
+                    );
+                }
+
+                { # so we can give a warning/notice about it later
+                    $multipleTablesFoundInDifferentSchemas =
+                        $fieldsRowsBySchema
+                        && count(array_keys($fieldsRowsBySchema)) > 1;
                 }
             }
+            else { # couldn't find anything thru information_schema
 
-            { # get just the column_names
-                $fields = array_map(
-                    function($x) {
-                        return $x['column_name'];
-                    },
-                    $fieldsRowsBySchema[$schema]
-                );
+                # see if it's in minimal_fields_by_table, and use that field info.
+                # useful for manually making obj_editor aware of
+                #   e.g. materialized views in Postgres,
+                #   which don't show up in the information_schema
+                if (isset(Config::$config['minimal_fields_by_table'][$table])) {
+                    $fields = Config::$config['minimal_fields_by_table'][$table];
+                }
+                else {
+                    return false; # nothing could be found about the table
+                }
+
             }
-
-            { # so we can give a warning/notice about it later
-                $multipleTablesFoundInDifferentSchemas =
-                    $fieldsRowsBySchema
-                    && count(array_keys($fieldsRowsBySchema)) > 1;
-            }
-
+            
             # save to cache if applicable
             if ($use_cache) {
                 if (!isset(Config::$config['cached_table_fields'])) {
