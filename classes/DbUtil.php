@@ -730,7 +730,8 @@ infer_limit_from_query: query didn't match regex.
         # get fields of table from db
         # returns false if table $table doesn't exist
         public static function get_table_fields(
-            $table, $schemas_in_path=null, $use_cache=true
+            $table, $schemas_in_path=null, $use_cache=true,
+            &$schema=null, &$multipleTablesFoundInDifferentSchemas=null
         ) {
             # read from cache if applicable
             if ($use_cache
@@ -815,12 +816,11 @@ infer_limit_from_query: query didn't match regex.
                 );
             }
 
-            /* #todo pass this out
             { # so we can give a warning/notice about it later
                 $multipleTablesFoundInDifferentSchemas =
-                    count(array_keys($fieldsRowsBySchema)) > 1;
+                    $fieldsRowsBySchema
+                    && count(array_keys($fieldsRowsBySchema)) > 1;
             }
-            */
 
             # save to cache if applicable
             if ($use_cache) {
