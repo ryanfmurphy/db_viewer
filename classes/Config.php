@@ -139,6 +139,7 @@ class Config {
             'fields_w_array_type',
             'fields_w_json_type',
             'fields_w_text_type',
+            'fields_w_tsvector_type',
 
             # array fields
             'automatic_curly_braces_for_arrays',
@@ -464,6 +465,7 @@ class Config {
             'fields_w_array_type' => array(),
             'fields_w_json_type' => array(),
             'fields_w_text_type' => array(),
+            'fields_w_tsvector_type' => array(),
 
             # array fields
             'automatic_curly_braces_for_arrays' => false,

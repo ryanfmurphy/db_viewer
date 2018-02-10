@@ -66,7 +66,9 @@ class Predicate {
         elseif (Config::$config['use_fulltext_op_for_tsvector']
                 && DbUtil::field_is_tsvector($key)
         ) {
-            $val_or_predicate = new Predicate('@@', "to_tsquery($val_or_predicate)");
+            $val_or_predicate = new Predicate('@@', "to_tsquery(".Db::sql_literal($val_or_predicate).")",
+                                              false # no SQL escape, we handle it here
+                                             );
         }
 
     }
