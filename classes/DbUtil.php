@@ -867,6 +867,20 @@ infer_limit_from_query: query didn't match regex.
             return $result;
         }
 
+        # postgres only - can use a function call as a table_name / identifier
+        # in this case, only quote the function name, not the full funcall
+        public static function quote_ident_or_funcall($str) {
+            $is_funcall = preg_match("/^([^()]+)(\\(.*\\))$/", $str, $matches);
+            if ($is_funcall) { # only quote function name, not full funcall
+                $fn_name = $matches[1];
+                $parens_and_args = $matches[2];
+                return self::quote_ident($fn_name) . $parens_and_args;
+            }
+            else {
+                return self::quote_ident($str);
+            }
+        }
+
         public static function query_is_destructive($query) {
             if (preg_match(
                     "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER|TRUNCATE)\\b/i",

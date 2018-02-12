@@ -361,7 +361,7 @@ if (!class_exists('Db')) {
                 $select_fields = implode(',', $select_fields);
             }
 
-            $table_name_quoted = DbUtil::quote_ident($table_name);
+            $table_name_quoted = DbUtil::quote_ident_or_funcall($table_name);
             $sql = "select $select_fields from $table_name_quoted ";
             $sql .= self::build_where_clause($wheres, 'and', true, $strict_wheres);
             if ($order_by_limit) {
