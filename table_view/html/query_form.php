@@ -3,7 +3,7 @@
 ?>
 	<form
         id="query_form"
-        method="post"
+        method="<?= Config::$config['query_form_http_method'] ?>"
         action="<?= TableView::get_submit_url($requestVars) ?>"
     >
         <h2 id="query_header">

@@ -6,10 +6,11 @@
         { # main style
 
             { # choose / setup background image if any
-                $background_image_url =
-                    TableView::choose_background_image(
-                        $tablename_no_quotes, $backgroundImages
-                    );
+                #todo #fixme #factor into background_image_settings?
+                $background_image_url = TableView::choose_background_image(
+                    $tablename_no_quotes, $backgroundImages
+                );
+
                 include("$trunk/includes/background_image_settings.php");
             }
 
@@ -279,18 +280,18 @@
                 }
 ?>
     }
-    table, textarea {
+    table, textarea, input[type=text] {
 <?php
                 if ($background == 'dark') {
 ?>
         color: white;
-        background: rgba(0,0,0,.5);
+        background: rgba(0,0,0,<?= $opacity_when_dark ?>);
 <?php
                 }
                 else {
 ?>
         color: black;
-        background: rgba(255,255,255,.4);
+        background: rgba(255,255,255,<?= $opacity_when_light ?>);
 <?php
                 }
 ?>

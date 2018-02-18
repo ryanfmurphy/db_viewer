@@ -15,7 +15,7 @@
 
     #todo #fixme this can clash if we have a field named 'action'
     #            create a mode where all the fields are stored
-    #            in a nested array called 'fields'
+    #            in a nested array called e.g. 'fields' or 'vars'
     { # get action
         if (!isset($vars['action'])) {
             die('no action');
@@ -43,7 +43,7 @@
     unset($vars['___settings']);
 }
 
-{
+{   # check uri for a recognizable action
     $matchesActionPattern = preg_match("@^
         (?<action>
             view|get|get1|create|update|delete
@@ -71,26 +71,7 @@
         $automatic_curly_braces_for_arrays      = Config::$config['automatic_curly_braces_for_arrays'];
         $MTM_array_fields_to_not_require_commas = Config::$config['MTM_array_fields_to_not_require_commas'];
 
-        #todo #factor into a fn
-        # MTM stands for Mobile Travel Mode
-        # fields in this array don't require commas between array items,
-        # unless you provide a leading space
-        if (is_array($MTM_array_fields_to_not_require_commas)) {
-            foreach ($vars as $field_name => $field_val) {
-                $do_add_commas_this_field = (
-                    in_array($field_name,
-                             $MTM_array_fields_to_not_require_commas)
-                    && strlen($field_val) > 0
-                    && strpos($field_val, ',') === false
-                    && $field_val[0] != '{' #todo check end brace too?
-                    && $field_val[0] != ' '
-                );
-
-                if ($do_add_commas_this_field) {
-                    $vars[$field_name] = preg_replace('/\s+/',', ',$field_val);
-                }
-            }
-        }
+        EditorBackend::process_array_fields($vars);
 
         #todo #factor into a fn
         # automatically add curly braces for arrays

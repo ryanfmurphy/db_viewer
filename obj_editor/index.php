@@ -87,14 +87,21 @@
             $nonexistentTable = false;
             if ($table) { # get fields of table from db
 
-                #DbUtil::get_table_fields(
-                #    $table, $schemas_in_path
-                #);
+                $fields = DbUtil::get_table_fields(
+                    $table, $schemas_in_path, false,
+                    /*&*/$schema, /*&*/$multipleTablesFoundInDifferentSchemas
+                );
+                if (!$fields) {
+                    $nonexistentTable = true;
+                }
 
+                /*
                 #todo #fixme a lot of this is duplicate of DbUtil::get_table_fields
                 $get_columns_sql = DbUtil::get_columns_sql(
                     $table, $schemas_in_path
                 );
+
+                # get fieldRows
                 if ($db_type == 'sqlite') {
                     $rawFieldsRows = Db::sql($get_columns_sql);
                     $fieldsRows = array();
@@ -112,7 +119,6 @@
                 if (count($fieldsRows) > 0) {
                     { # group by schema
                         $fieldsRowsBySchema = array();
-
                         #todo #fixme Warning: Invalid argument supplied for foreach()
                         foreach ($fieldsRows as $fieldsRow) {
                             $schema = $fieldsRow['table_schema'];
@@ -123,6 +129,7 @@
                     { # choose 1st schema that applies
                         if ($schemas_in_path) {
                             $schema = null;
+
                             foreach ($schemas_in_path as $schema_in_path) {
                                 if (isset($fieldsRowsBySchema[$schema_in_path])) {
                                     $schema = $schema_in_path;
@@ -153,6 +160,7 @@
                 else { # no rows
                     $nonexistentTable = true;
                 }
+                */
             }
         }
     }

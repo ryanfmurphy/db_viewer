@@ -47,8 +47,7 @@ class Predicate {
         if (Config::$config['use_include_op_for_arrays']
             && DbUtil::field_is_array($key)
         ) {
-            $val_or_predicate =
-                new Predicate('@>', $val_or_predicate);
+            $val_or_predicate = new Predicate('@>', $val_or_predicate);
         }
         # automatically use like instead of = for known text fields
         elseif (Config::$config['use_like_op_for_text']
@@ -58,13 +57,18 @@ class Predicate {
                 'LIKE',
                 '%' . str_replace('%','\%',$val_or_predicate) . '%',
                 true,
-                Config::$config['like_op_use_lower']
-                    ? 'lower'
-                    : null
+                Config::$config['like_op_use_lower'] ? 'lower' : null
             );
             if (Config::$config['like_op_use_lower']) {
                 $key = "lower($key)";
             }
+        }
+        elseif (Config::$config['use_fulltext_op_for_tsvector']
+                && DbUtil::field_is_tsvector($key)
+        ) {
+            $val_or_predicate = new Predicate('@@', "to_tsquery(".Db::sql_literal($val_or_predicate).")",
+                                              false # no SQL escape, we handle it here
+                                             );
         }
 
     }

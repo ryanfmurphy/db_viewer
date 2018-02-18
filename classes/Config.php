@@ -97,12 +97,14 @@ class Config {
             'disable_delete_button',
             'table_view_tuck_away_query_box',
             'table_view_show_count',
+            'query_form_http_method',
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
                 # when set, Table Views of a table will automatically add
                 # "and <fieldname> = false" to the query
             'is_archived_field',
+            'tables_without_is_archived_field', # can be an array of table names
                 # archive instead of delete for table_view
                 # #todo apply to obj_editor delete button too
             'archive_instead_of_delete',
@@ -138,18 +140,21 @@ class Config {
             'fields_w_array_type',
             'fields_w_json_type',
             'fields_w_text_type',
+            'fields_w_tsvector_type',
 
             # array fields
             'automatic_curly_braces_for_arrays',
             # MTM stands for Mobile Travel Mode
             # an array of fields that should not require commas
             # between array items, unless you provide a leading space
-            'MTM_array_fields_to_not_require_commas',
+            'MTM_array_fields_to_not_require_commas',   #todo #fixme - rename this setting to, say, 'array_fields_dont_require_commas'
+                                                        # it turns out to be useful regardless of MTM
             # default to postgres @> instead of =
             # when doing where clauses on array fields
             'use_include_op_for_arrays',
             'use_like_op_for_text',
             'like_op_use_lower',
+            'use_fulltext_op_for_tsvector',
 
             'fields_that_render_html',
             'fields_that_render_html_by_table',
@@ -427,12 +432,14 @@ class Config {
             'disable_delete_button' => false,
             'table_view_tuck_away_query_box' => false,
             'table_view_show_count' => false,
+            'query_form_http_method' => 'post',
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
                 # when set, Table Views of a table will automatically add
                 # "and <fieldname> = false" to the query
             'is_archived_field' => null,
+            'tables_without_is_archived_field' => null, # can be an array of table names
                 # archive instead of delete for table_view
                 # #todo apply to obj_editor delete button too
             'archive_instead_of_delete' => false,
@@ -469,6 +476,7 @@ class Config {
             'fields_w_array_type' => array(),
             'fields_w_json_type' => array(),
             'fields_w_text_type' => array(),
+            'fields_w_tsvector_type' => array(),
 
             # array fields
             'automatic_curly_braces_for_arrays' => false,
@@ -483,6 +491,9 @@ class Config {
             # when using LIKE '%%' in building where clauses,
             # wrap both sides with lower() fn?
             'like_op_use_lower' => false,
+            # postgres fulltext search
+            # use postgres "@@" symbol when searching by column w type tsvector
+            'use_fulltext_op_for_tsvector' => false,
 
             'fields_that_render_html' => array(),
             'fields_that_render_html_by_table' => array(),

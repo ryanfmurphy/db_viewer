@@ -20,6 +20,9 @@
                     'name' => $requestVars['root_name'], #todo #fixme use name_field
                 )
             );
+            if (!$root_row) {
+                die("Couldn't get a $requestVars[root_table] row with name '$requestVars[root_name]'");
+            }
             $root_id = $root_row[
                 Config::$config['primary_key_field']
             ];

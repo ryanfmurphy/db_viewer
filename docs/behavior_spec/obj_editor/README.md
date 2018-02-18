@@ -99,3 +99,33 @@ One Value for a Form Field,
 out of a Multiple Choice List of Values.
 
 
+# Array Fields (PostgreSQL only)
+
+In `db_config.php` you can use the `$fields_w_array_type` config to specify
+certain field names to be associated with an array type.  Note that fields can
+be any type and will "just work" in Object Editor without any such configs -
+`$fields_w_array_type` just enables additional convenience features as are
+offered via the configs `$MTM_array_fields_to_not_require_commas` and
+`$automatic_curly_braces_for_arrays`.
+
+## `$automatic_curly_braces_for_arrays` config
+
+This is an opt-in convenience feature that provides "syntactic sugar" for array fields.
+
+When this config's value is truthy, then when user is typing into the text box,
+they don't have to type the curly braces at the beginning and end of the array value.
+The curly braces are added implicitly as needed so that the user can just type the items,
+separated by commas.
+
+## `$MTM_array_fields_to_not_require_commas` config
+
+_Note: the following description assumes `$automatic_curly_braces_for_arrays` is also set._
+
+This is an opt-in convenience feature that provides "syntactic sugar" for array fields.
+
+When this config's value is an array that contains a given field name, then when user is
+typing into the text box, they don't have to type commas between the items.  For example,
+when typing tags into a `tags text[]` field, user could type `tag1 tag2 tag3` instead of
+having to type `tag1,tag2,tag3`.  This is especially convenient for mobile phone use,
+where the comma is often a screen away in the phone's keyboard.
+

@@ -633,14 +633,8 @@ infer_limit_from_query: query didn't match regex.
         }
 
         # get id field
-        public static function get_primary_key_field(
-            /*$id_mode,*/ $tablename_no_quotes
-        ) {
-            #todo #fixme - maybe don't even take this arg
-            # we always just use the Config val
-            #if ($id_mode === null) {
+        public static function get_primary_key_field($tablename_no_quotes) {
             $id_mode = Config::$config['id_mode'];
-            #}
             $pk_fields_by_table = Config::$config['primary_key_fields_by_table'];
             if (isset($pk_fields_by_table[$tablename_no_quotes])) {
                 return $pk_fields_by_table[$tablename_no_quotes];
@@ -709,6 +703,9 @@ infer_limit_from_query: query didn't match regex.
                 ";
             }
             else {
+                #todo for postgres, might want to use pg_catalog directly
+                #     so we can access e.g. materialized views
+
                 $schemas_val_list = DbUtil::val_list_str($schemas_in_path);
 
                 { ob_start();
@@ -733,7 +730,8 @@ infer_limit_from_query: query didn't match regex.
         # get fields of table from db
         # returns false if table $table doesn't exist
         public static function get_table_fields(
-            $table, $schemas_in_path=null, $use_cache=true
+            $table, $schemas_in_path=null, $use_cache=true,
+            &$schema=null, &$multipleTablesFoundInDifferentSchemas=null
         ) {
             # read from cache if applicable
             if ($use_cache
@@ -743,88 +741,86 @@ infer_limit_from_query: query didn't match regex.
             }
 
             $db_type = Config::$config['db_type'];
-            #todo #fixme factor this with dup code in obj_editor/index.php
-            $get_columns_sql = DbUtil::get_columns_sql(
-                $table, $schemas_in_path
-            );
 
-            # get fieldsRows
-            if ($db_type == 'sqlite') {
-                $rawFieldsRows = Db::sql($get_columns_sql);
-                $fieldsRows = array();
-                foreach ($rawFieldsRows as $rawFieldsRow) {
-                    $row['table_schema'] = 'public';
-                    $row['column_name'] = $rawFieldsRow['name'];
-                    $fieldsRows[] = $row;
-                }
-            }
-            else {
-                $fieldsRows = Db::sql($get_columns_sql);
-            }
+            { # get fieldsRows
+                $get_columns_sql = DbUtil::get_columns_sql(
+                    $table, $schemas_in_path
+                );
 
-            if (count($fieldsRows) == 0) {
-                return false;
-            }
-
-            /*if ($db_type == 'sqlite') {
-                $minimal_fields_by_table = Config::$config['minimal_fields_by_table'];
-                if (isset($minimal_fields_by_table[$table])) {
-                    return $minimal_fields_by_table[$table];
+                if ($db_type == 'sqlite') {
+                    $rawFieldsRows = Db::sql($get_columns_sql);
+                    $fieldsRows = array();
+                    foreach ($rawFieldsRows as $rawFieldsRow) {
+                        $row['table_schema'] = 'public';
+                        $row['column_name'] = $rawFieldsRow['name'];
+                        $fieldsRows[] = $row;
+                    }
                 }
                 else {
-                    return array('name','txt','id','time');
-                }
-            }
-            else {*/
-                /*{ # do query
                     $fieldsRows = Db::sql($get_columns_sql);
-                    if (count($fieldsRows) == 0) {
-                        #die("Table $table doesn't exist");
-                        return false;
-                    }
-                }}*/
-
-            { # group by schema
-                $fieldsRowsBySchema = array();
-                #todo #fixme Warning: Invalid argument supplied for foreach()
-                foreach ($fieldsRows as $fieldsRow) {
-                    $schema = $fieldsRow['table_schema'];
-                    $fieldsRowsBySchema[$schema][] = $fieldsRow;
                 }
+
+                #if (count($fieldsRows) == 0) {
+                #    return false;
+                #}
             }
 
-            { # choose 1st schema that applies
-                if ($schemas_in_path) {
-                    $schema = null;
+            if ($fieldsRows) {
+                { # group by schema
+                    $fieldsRowsBySchema = array();
+                    #todo #fixme Warning: Invalid argument supplied for foreach()
+                    foreach ($fieldsRows as $fieldsRow) {
+                        $schema = $fieldsRow['table_schema'];
+                        $fieldsRowsBySchema[$schema][] = $fieldsRow;
+                    }
+                }
 
-                    foreach ($schemas_in_path as $schema_in_path) {
-                        if (isset($fieldsRowsBySchema[$schema_in_path])) {
-                            $schema = $schema_in_path;
-                            break;
+                { # choose 1st schema that applies
+                    if ($schemas_in_path) {
+                        $schema = null;
+
+                        foreach ($schemas_in_path as $schema_in_path) {
+                            if (isset($fieldsRowsBySchema[$schema_in_path])) {
+                                $schema = $schema_in_path;
+                                break;
+                            }
+                        }
+                        if ($schema === null) {
+                            die("Whoops!  Couldn't select a DB schema for table $table");
                         }
                     }
-                    if ($schema === null) {
-                        die("Whoops!  Couldn't select a DB schema for table $table");
-                    }
+                }
+
+                { # get just the column_names
+                    $fields = array_map(
+                        function($x) {
+                            return $x['column_name'];
+                        },
+                        $fieldsRowsBySchema[$schema]
+                    );
+                }
+
+                { # so we can give a warning/notice about it later
+                    $multipleTablesFoundInDifferentSchemas =
+                        $fieldsRowsBySchema
+                        && count(array_keys($fieldsRowsBySchema)) > 1;
                 }
             }
+            else { # couldn't find anything thru information_schema
 
-            { # get just the column_names
-                $fields = array_map(
-                    function($x) {
-                        return $x['column_name'];
-                    },
-                    $fieldsRowsBySchema[$schema]
-                );
+                # see if it's in minimal_fields_by_table, and use that field info.
+                # useful for manually making obj_editor aware of
+                #   e.g. materialized views in Postgres,
+                #   which don't show up in the information_schema
+                if (isset(Config::$config['minimal_fields_by_table'][$table])) {
+                    $fields = Config::$config['minimal_fields_by_table'][$table];
+                }
+                else {
+                    return false; # nothing could be found about the table
+                }
+
             }
-
-            /* #todo pass this out
-            { # so we can give a warning/notice about it later
-                $multipleTablesFoundInDifferentSchemas =
-                    count(array_keys($fieldsRowsBySchema)) > 1;
-            }
-            */
-
+            
             # save to cache if applicable
             if ($use_cache) {
                 if (!isset(Config::$config['cached_table_fields'])) {
@@ -869,6 +865,20 @@ infer_limit_from_query: query didn't match regex.
                         $table)
                     . $quote_char;
             return $result;
+        }
+
+        # postgres only - can use a function call as a table_name / identifier
+        # in this case, only quote the function name, not the full funcall
+        public static function quote_ident_or_funcall($str) {
+            $is_funcall = preg_match("/^([^()]+)(\\(.*\\))$/", $str, $matches);
+            if ($is_funcall) { # only quote function name, not full funcall
+                $fn_name = $matches[1];
+                $parens_and_args = $matches[2];
+                return self::quote_ident($fn_name) . $parens_and_args;
+            }
+            else {
+                return self::quote_ident($str);
+            }
         }
 
         public static function query_is_destructive($query) {
@@ -962,6 +972,15 @@ infer_limit_from_query: query didn't match regex.
             );
         }
 
+        public static function field_is_tsvector($field_name) {
+            $fields_w_text_type =
+                Config::$config['fields_w_tsvector_type'];
+            return (is_array($fields_w_text_type)
+                    && in_array($field_name,
+                            $fields_w_text_type)
+            );
+        }
+
         # -----------------------------------------------
 
 
@@ -1011,8 +1030,12 @@ infer_limit_from_query: query didn't match regex.
             $order_by_limit=null, $strict_wheres=true
         ) {
             $sql_has_no_spaces = (strpos(trim($sqlish), ' ') === false);
+
+            # allow sqlite directives like '.schema' without accidentally expanding them into SELECT queries
+            $starts_with_dot = preg_match('/^\./', $sqlish);
             if (strlen($sqlish) > 0
                 && $sql_has_no_spaces
+                && !$starts_with_dot
             ) {
                 # (tablename has no quotes)
                 $tablename = $sqlish;
@@ -1023,7 +1046,7 @@ infer_limit_from_query: query didn't match regex.
                 }
 
                 # optionally filter out archived rows
-                $is_archived_field = Config::$config['is_archived_field'];
+                $is_archived_field = DbUtil::is_archived_field($tablename);
                 if ($is_archived_field) {
                     $where_vars[$is_archived_field] = Db::false_exp();
                 }
@@ -1037,6 +1060,20 @@ infer_limit_from_query: query didn't match regex.
                 return false;
             }
         }
+
+        public static function is_archived_field($tablename) {
+            if (Config::$config['is_archived_field']
+                    && (!Config::$config['tables_without_is_archived_field']
+                        || !in_array($tablename, Config::$config['tables_without_is_archived_field'])
+                       )
+            ) {
+                return Config::$config['is_archived_field'];
+            }
+            else {
+                return null;
+            }
+        }
+                
 
         public static function order_by_time_sql($tablename_no_quotes) {
             $schemas_in_path = DbUtil::schemas_in_path();

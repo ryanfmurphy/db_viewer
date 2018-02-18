@@ -13,3 +13,6 @@
 
         unset($img_settings);
     }
+
+    $opacity_when_dark = .5;
+    $opacity_when_light = .6;

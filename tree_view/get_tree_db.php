@@ -264,7 +264,9 @@
     }
 
     function determine_node_tablename(&$row, $child_table) {
-        if (Config::$config['use_relname_for_tree_node_table']
+        if ((Config::$config['use_relname_for_tree_node_table'] === true
+             || in_array($child_table, Config::$config['use_relname_for_tree_node_table'])
+            )
             && isset($row['relname'])
         ) {
             return $row['relname'];
