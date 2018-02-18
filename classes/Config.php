@@ -97,6 +97,7 @@ class Config {
             'disable_delete_button',
             'table_view_tuck_away_query_box',
             'table_view_show_count',
+            'query_form_http_method',
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
@@ -422,6 +423,7 @@ class Config {
             'disable_delete_button' => false,
             'table_view_tuck_away_query_box' => false,
             'table_view_show_count' => false,
+            'query_form_http_method' => 'post',
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
