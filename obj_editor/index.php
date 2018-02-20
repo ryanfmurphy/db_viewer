@@ -803,6 +803,24 @@
             </form>
 <?php
             }
+
+            if (Config::$config['obj_editor_show_notes']
+                && !empty($_GET['primary_key'])
+            ) { # optional: list any notes on this object
+?>
+<?php
+                $primary_key = $_GET['primary_key'];
+                $notes = Note::get_notes_for_obj($primary_key);
+                if (count($notes) > 0) {
+?>
+            <h2>Notes</h2>
+<?php
+                    foreach ($notes as $note) {
+                        $note = new Note($note);
+                        $note->render();
+                    }
+                }
+            }
         }
         else {
             include("choose_table.php");
