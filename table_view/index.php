@@ -235,45 +235,64 @@
             include("$trunk/table_view/html/query_form.php"); # form
 ?>
     </div>
-<?php
-            { # report inferred table, create link
-                if ($inferred_table) {
-                    $maybe_minimal = $links_minimal_by_default
-                                        ? '&minimal'
-                                        : '';
-?>
-    <p> Query seems to be with respect to the
-        <code><?= $inferred_table ?></code> table.
 
 <?php
-                    { # "create" link
+            { # query_info box
+                $show_query_info_box = $inferred_table || $sql;
+                if ($show_query_info_box) {
 ?>
-        <a href="<?= $obj_editor_uri ?>?table=<?= $tablename_no_quotes . $maybe_minimal ?>"
-             target="_blank"
-        >
-            Create a new <code><?= $tablename_no_quotes ?></code>
-        </a>
-<?php
-                    }
-?>
-    </p>
+    <div id="query_info">
 <?php
                 }
-            }
 
-            { # get & display query data ...
-                # & provide js interface
+                { # report inferred table, create link
+                    if ($inferred_table) {
+                        $maybe_minimal = $links_minimal_by_default
+                                            ? '&minimal'
+                                            : '';
+?>
+        <div id="inferred_table_info">
+            Query seems to be with respect to the
+            <code><?= $inferred_table ?></code> table.
 
-                #todo infinite scroll using OFFSET and LIMIT
+<?php
+                        { # "create" link
+?>
+            <a href="<?= $obj_editor_uri ?>?table=<?= $tablename_no_quotes . $maybe_minimal ?>"
+                 target="_blank"
+            >
+                Create a new <code><?= $tablename_no_quotes ?></code>
+            </a>
+<?php
+                        }
+?>
+        </div>
+<?php
+                    }
+                }
+
+                #todo maybe infinite scroll using OFFSET and LIMIT
                 if ($sql) {
                     $rows = Db::sql($sql);
                     if (Config::$config['table_view_show_count']) {
 ?>
-    <div id="row_count">
-        <?= count($rows) ?> Rows
-    </div>
+        <div id="row_count">
+            Showing <?= count($rows) ?> Rows
+        </div>
 <?php
                     }
+                }
+
+                if ($show_query_info_box) {
+?>
+    </div>
+<?php
+                }
+            }
+
+            { # get & display query data (& provide js interface)
+
+                if ($sql) {
                     include("$trunk/table_view/html/results_table.php"); # html
                 }
 

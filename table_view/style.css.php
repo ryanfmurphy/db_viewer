@@ -280,7 +280,7 @@
                 }
 ?>
     }
-    table, textarea, input[type=text] {
+    table, textarea, input[type=text], #query_info {
 <?php
                 if ($background == 'dark') {
 ?>
@@ -295,6 +295,13 @@
 <?php
                 }
 ?>
+    }
+    #query_info {
+        padding: .5em;
+        margin-bottom: .5em;
+    }
+    #inferred_table_info {
+        margin-bottom: .5em;
     }
     a {
         color: 00f;

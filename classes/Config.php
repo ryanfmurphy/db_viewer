@@ -286,6 +286,7 @@ class Config {
             'kanban_root_level_override_field',
 
             'url_field_links', # e.g. links at top of object editor
+            'obj_editor_show_notes', # list any note on this obj
 
         );
 
@@ -616,6 +617,7 @@ class Config {
 
             # keys are names of link, values are urls
             'url_field_links' => array('URL' => 'url'),
+            'obj_editor_show_notes' => false, # list any note on this obj
         );
 
         return $default_values;
