@@ -232,6 +232,10 @@ if (!class_exists('Db')) {
             return substr(self::quote($val), 1, strlen($val)-2);
         }
 
+        public static function quote_ident($val) {
+            return DbUtil::quote_ident($val); #todo move fn from DbUtil to here
+        }
+
 
         public static function insert_row($tableName, $rowVars) {
             { # detect show_sql_query (filter out that var too)
