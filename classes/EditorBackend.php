@@ -16,7 +16,8 @@ if (!class_exists('EditorBackend')) {
         public static function process_array_fields(&$vars) {
             foreach ($vars as $field_name => $field_val) {
                 $do_add_commas_this_field = (
-                    in_array($field_name, Config::$config['MTM_array_fields_to_not_require_commas'])
+                    is_array(Config::$config['MTM_array_fields_to_not_require_commas'])
+                    && in_array($field_name, Config::$config['MTM_array_fields_to_not_require_commas'])
                     && strlen($field_val) > 0
                     && strpos($field_val, ',') === false
                     && $field_val[0] != '{' #todo check end brace too?
