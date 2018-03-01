@@ -64,6 +64,14 @@
             }
         }
 
+        if (!empty(Config::$config['tree_view_include_fields_by_table'][$table])) {
+            foreach (Config::$config['tree_view_include_fields_by_table'][$table] as $field) {
+                if (in_array($field, $existing_fields)) {
+                    $fields[$field] = 1;
+                }
+            }
+        }
+
         my_debug('fields', "  } (finishing field_list)\n");
         $result = implode(', ', array_keys($fields));
         return $result;
