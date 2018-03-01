@@ -2,8 +2,10 @@
 class Note extends ArrayObject {
 
     public static function get_notes_for_obj($primary_key) {
+        $note_tbl = Config::$config['obj_editor_note_table'];
+        $note_tbl_q = Db::quote_ident($note_tbl);
         $sql = "
-            select * from note
+            select * from $note_tbl_q
             where parent_ids @> '{ $primary_key }'
             order by time_added desc
         ";
