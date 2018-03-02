@@ -1,5 +1,7 @@
 <?php
 
+include('lib/preg_replace_callback_offset.php');
+
 class SimpleParser {
 
     public $line_comment = '--'; # set for SQL
