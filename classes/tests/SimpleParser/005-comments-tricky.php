@@ -1,6 +1,6 @@
 <?php
 include('../../SimpleParser.php');
-$s = new SimpleParser(['line_comment'=>'//']);
+$s = new SimpleParser(['line_comment'=>'--']);
 
 $txt =
 "select \"a\",\"b\",\"c\",'/* my harmless string */' as gotcha_field /* What comments will be removed? */
@@ -16,5 +16,5 @@ echo "the seperate_strings() gave:\n";
 print_r($s->separate_strings($txt));
 
 $new_txt = $s->blank_out_comments($txt);
-echo "\nafter blank_block_comments(), txt = [[$new_txt]]";
+echo "\nafter blank_out_comments(), txt = [[$new_txt]]";
 

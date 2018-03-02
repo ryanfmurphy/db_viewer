@@ -9,8 +9,8 @@ $txt =
 
 echo "\ninitially txt = [[$txt]]";
 
-$new_txt = $s->blank_out_block_comments($txt);
-echo "\nafter blank_out_block_comments(), txt = [[$new_txt]]";
+$new_txt = $s->blank_out_comments($txt);
+echo "\nafter blank_out_comments(), txt = [[$new_txt]]";
 
 echo "\n";
 echo "It didn't trip over the /* */ in the string because\n";

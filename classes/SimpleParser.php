@@ -18,16 +18,26 @@ class SimpleParser {
         }
     }
 
-    public function blank_out_comments__naive($txt) {
+    public function line_comment_regex() {
         $start_line_comment = preg_quote($this->line_comment,'/');
-        $line_comment_regex = $start_line_comment.'[^\n]*$';
+        return $start_line_comment.'[^\n]*$';
+    }
 
+    public function block_comment_regex() {
         $start_block_comment = preg_quote($this->start_block_comment,'/');
         $end_block_comment = preg_quote($this->end_block_comment,'/');
-        $block_comment_regex = "$start_block_comment.*$end_block_comment";
+        return "$start_block_comment.*?$end_block_comment";
+
+    }
+
+    public function blank_out_comments__naive($txt) {
+        $line_comment_regex = $this->line_comment_regex();
+        $block_comment_regex = $this->block_comment_regex();
+
+        $regex = "/$line_comment_regex|$block_comment_regex/ms";
 
         return preg_replace_callback(
-            "/$line_comment_regex|$block_comment_regex/ms",
+            $regex,
             function($match){
                 return str_repeat(' ',strlen($match[0]));
             },
