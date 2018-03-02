@@ -27,7 +27,7 @@ class SimpleParser {
     public function blank_out_line_comments($txt) {
         # swap out the str contents so the regexes won't
         # be confused by special chars in strs
-        list($txt_clean, $str_to_swap_back_in) = self::separate($txt);
+        list($txt_clean, $str_to_swap_back_in) = $this->separate($txt);
         $comment_start = preg_quote($this->line_comment,'/');
         return preg_replace_callback_offset(
             '/'.$comment_start.'[^\n]*$/m',
@@ -41,17 +41,18 @@ class SimpleParser {
     public function blank_out_block_comments($txt) {
         # swap out the str contents so the regexes won't
         # be confused by special chars in strs
-        list($txt_clean, $str_to_swap_back_in) = self::separate($txt);
+        list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
         $start = preg_quote($this->start_block_comment,'/');
         $end = preg_quote($this->end_block_comment,'/');
         $regex = "/$start.*$end/s";
-        $txt = preg_replace_callback_offset(
+        $txt_clean = preg_replace_callback(
             $regex,
             function($match){
                 return str_repeat(' ',strlen($match[0]));
             },
             $txt_clean
         );
+        $txt = $this->sub_strs_into_txt($txt_clean, $strs_to_swap_back_in);
         return $txt;
     }
 
@@ -117,7 +118,7 @@ class SimpleParser {
     }
 
     public function separate($txt) {
-        $separated = self::separate_strings($txt);
+        $separated = $this->separate_strings($txt);
         return $separated;
     }
 
