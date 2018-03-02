@@ -1,5 +1,7 @@
 <?php
 
+include('SimpleParser.php');
+
 class Query {
 
     /*
@@ -25,11 +27,12 @@ class Query {
         # a "order_by" is a string
         # a "limit" is a string
 
-    public function sql($body) {
-    }
-
     public function sql() {
         return $this->body;
+    }
+
+    public function top_level() {
+        return SimpleParser::top_level($this->body);
     }
 
     public function parse_limit() {
