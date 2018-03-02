@@ -1,6 +1,5 @@
 <?php
-# run in /classes dir
-include('SimpleParser.php');
+include('../../SimpleParser.php');
 $s = new SimpleParser(['line_comment'=>'//']);
 
 list($txt,$strs) = $s->separate(
