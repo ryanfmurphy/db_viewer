@@ -19,15 +19,17 @@ class SimpleParser {
     }
 
     public function blank_out_comments($txt) {
-        return $this->blank_out_line_comments(
-            self::blank_out_block_comments($txt, $this->start_block_comment, $this->end_block_comment),
-            $this->line_comment
-        );
+        $txt = $this->blank_out_block_comments($txt);
+        $txt = $this->blank_out_line_comments($txt);
+        return $txt;
     }
 
     public function blank_out_line_comments($txt) {
+        # swap out the str contents so the regexes won't
+        # be confused by special chars in strs
+        list($txt_clean, $str_to_swap_back_in) = self::separate($txt);
         $comment_start = preg_quote($this->line_comment,'/');
-        return preg_replace_callback(
+        return preg_replace_callback_offset(
             '/'.$comment_start.'[^\n]*$/m',
             function($match){
                 return str_repeat(' ',strlen($match[0]));
@@ -37,15 +39,18 @@ class SimpleParser {
     }
 
     public function blank_out_block_comments($txt) {
+        # swap out the str contents so the regexes won't
+        # be confused by special chars in strs
+        list($txt_clean, $str_to_swap_back_in) = self::separate($txt);
         $start = preg_quote($this->start_block_comment,'/');
         $end = preg_quote($this->end_block_comment,'/');
         $regex = "/$start.*$end/s";
-        $txt = preg_replace_callback(
+        $txt = preg_replace_callback_offset(
             $regex,
             function($match){
                 return str_repeat(' ',strlen($match[0]));
             },
-            $txt
+            $txt_clean
         );
         return $txt;
     }
@@ -62,21 +67,58 @@ class SimpleParser {
         }
     }
 
-    public function blank_out_strings($txt) {
+    # separate contents of strings from the outside
+    # returns [$txt, $strs] where $txt is the cleaned txt without the strs
+    # and $strs is an array of offsets => str_contents
+    public function separate_strings($txt) {
+        $strs = [];
         foreach ($this->str_quotes as $quote) {
-            $txt = preg_replace_callback(
-                "/".$quote."[^".$quote."]*".$quote."/",
-                function($match){
-                    return str_repeat(' ',strlen($match[0]));
+            $txt = preg_replace_callback_offset(
+                "/".$quote."([^".$quote."]*)".$quote."/",
+                function($match) use ($quote,&$strs) {
+                    $inside_txt = $match[1][0];
+                    $inside_pos = $match[1][1];
+                    $strs[$inside_pos] = $inside_txt;
+                    return $quote . str_repeat(' ',strlen($inside_txt)) . $quote;
                 },
-                $txt
+                $txt,
+                PREG_OFFSET_CAPTURE
             );
         }
-        return $txt;
+        ksort($strs); # make sure offsets are in order
+        return [$txt, $strs];
+    }
+
+    # opposite of separate_strings()
+    # strs is offset=>txt pairs to be subbed into txt
+    public function sub_strs_into_txt($txt, $strs) {
+        $i = 0;
+        $ret = '';
+        foreach ($strs as $offset => $str) {
+            $len_to_offset = $offset - $i;
+            $ret .= substr($txt, $i, $len_to_offset);
+            $i += $len_to_offset;
+
+            $ret .= $str;
+            $i += strlen($str);
+        }
+
+        # add any piece of str leftover at the end
+        $remaining_len = strlen($txt) - $i;
+        $ret .= substr($txt, $i, $remaining_len);
+
+        return $ret;
     }
 
     public function top_level($txt) {
-        return $this->blank_out_comments($txt);
+        #$txt = $this->blank_out_strings($txt);
+        $txt = $this->blank_out_comments($txt);
+        return $txt;
+    }
+
+    public function separate($txt) {
+        $separated = self::separate_strings($txt);
+        return $separated;
     }
 
 }
