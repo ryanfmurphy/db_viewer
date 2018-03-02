@@ -18,33 +18,34 @@ class SimpleParser {
         }
     }
 
-    public function blank_out_comments($txt) {
-        $txt = $this->blank_out_block_comments($txt);
-        $txt = $this->blank_out_line_comments($txt);
-        return $txt;
-    }
+    public function blank_out_comments__naive($txt) {
+        $start_line_comment = preg_quote($this->line_comment,'/');
+        $line_comment_regex = $start_line_comment.'[^\n]*$';
 
-    public function blank_out_line_comments__naive($txt) {
-        $comment_start = preg_quote($this->line_comment,'/');
-        return preg_replace_callback_offset(
-            '/'.$comment_start.'[^\n]*$/m',
+        $start_block_comment = preg_quote($this->start_block_comment,'/');
+        $end_block_comment = preg_quote($this->end_block_comment,'/');
+        $block_comment_regex = "$start_block_comment.*$end_block_comment";
+
+        return preg_replace_callback(
+            "/$line_comment_regex|$block_comment_regex/ms",
             function($match){
                 return str_repeat(' ',strlen($match[0]));
             },
-            $txt_clean
+            $txt
         );
     }
 
-    public function blank_out_line_comments($txt) {
+    public function blank_out_comments($txt) {
         # swap out the str contents so the regexes won't
         # be confused by special chars in strs
         list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
-        $txt_clean = $this->blank_out_line_comments__naive($txt_clean);
+        $txt_clean = $this->blank_out_comments__naive($txt_clean);
         $txt = $this->sub_strs_into_txt($txt_clean, $strs_to_swap_back_in);
         return $txt;
     }
 
-    public function blank_out_block_comments($txt) {
+    /*
+    public function blank_out_block_comments__naive($txt) {
         # swap out the str contents so the regexes won't
         # be confused by special chars in strs
         list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
@@ -61,6 +62,16 @@ class SimpleParser {
         $txt = $this->sub_strs_into_txt($txt_clean, $strs_to_swap_back_in);
         return $txt;
     }
+
+    public function blank_out_block_comments($txt) {
+        # swap out the str contents so the regexes won't
+        # be confused by special chars in strs
+        list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
+        $txt_clean = $this->blank_out_block_comments__naive($txt_clean);
+        $txt = $this->sub_strs_into_txt($txt_clean, $strs_to_swap_back_in);
+        return $txt;
+    }
+    */
 
     #todo
     public function blank_out_inside_braces($txt) {

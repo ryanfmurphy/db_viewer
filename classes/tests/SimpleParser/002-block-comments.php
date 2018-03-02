@@ -7,8 +7,8 @@ $txt =
     from (select * from table where a='hello') t
 ";
 
-echo "initially txt = '$txt'";
+echo "initially\ntxt = '$txt'";
 
-$txt = $s->blank_out_block_comments($txt);
-echo "now txt = '$txt'";
+$txt = $s->blank_out_comments($txt);
+echo "after blank_out_comments(),\ntxt = '$txt'";
 
