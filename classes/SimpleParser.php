@@ -30,10 +30,11 @@ class SimpleParser {
 
     }
 
-    public function blank_out_comments__naive($txt) {
+    public function blank_out_comments/*__naive*/($txt) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
 
+        #todo #fixme figure out weaving strings into here
         $regex = "/$line_comment_regex|$block_comment_regex/ms";
 
         return preg_replace_callback(
@@ -45,39 +46,12 @@ class SimpleParser {
         );
     }
 
+    /*
     public function blank_out_comments($txt) {
         # swap out the str contents so the regexes won't
         # be confused by special chars in strs
-        list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
+        #list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
         $txt_clean = $this->blank_out_comments__naive($txt_clean);
-        $txt = $this->sub_strs_into_txt($txt_clean, $strs_to_swap_back_in);
-        return $txt;
-    }
-
-    /*
-    public function blank_out_block_comments__naive($txt) {
-        # swap out the str contents so the regexes won't
-        # be confused by special chars in strs
-        list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
-        $start = preg_quote($this->start_block_comment,'/');
-        $end = preg_quote($this->end_block_comment,'/');
-        $regex = "/$start.*$end/s";
-        $txt_clean = preg_replace_callback(
-            $regex,
-            function($match){
-                return str_repeat(' ',strlen($match[0]));
-            },
-            $txt_clean
-        );
-        $txt = $this->sub_strs_into_txt($txt_clean, $strs_to_swap_back_in);
-        return $txt;
-    }
-
-    public function blank_out_block_comments($txt) {
-        # swap out the str contents so the regexes won't
-        # be confused by special chars in strs
-        list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
-        $txt_clean = $this->blank_out_block_comments__naive($txt_clean);
         $txt = $this->sub_strs_into_txt($txt_clean, $strs_to_swap_back_in);
         return $txt;
     }
@@ -95,6 +69,15 @@ class SimpleParser {
         }
     }
 
+    public function string_regexes($txt) {
+        $regexes = [];
+        foreach ($this->str_quotes as $quote) {
+            $regexes[] = $quote."(?P<str_content>[^".$quote."]*)".$quote;
+        }
+        return $regexes;
+    }
+
+    /*
     # separate contents of strings from the outside
     # returns [$txt, $strs] where $txt is the cleaned txt without the strs
     # and $strs is an array of offsets => str_contents
@@ -137,6 +120,7 @@ class SimpleParser {
 
         return $ret;
     }
+    */
 
     public function top_level($txt) {
         #$txt = $this->blank_out_strings($txt);
@@ -144,9 +128,9 @@ class SimpleParser {
         return $txt;
     }
 
-    public function separate($txt) {
-        $separated = $this->separate_strings($txt);
-        return $separated;
-    }
+    #public function separate($txt) {
+    #    $separated = $this->separate_strings($txt);
+    #    return $separated;
+    #}
 
 }
