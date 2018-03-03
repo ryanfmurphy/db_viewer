@@ -30,7 +30,7 @@ class SimpleParser {
 
     }
 
-    public function blank_out_comments($txt) {
+    public function parse_outer($txt) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
 
@@ -126,10 +126,5 @@ class SimpleParser {
         $txt = $this->blank_out_comments($txt);
         return $txt;
     }
-
-    #public function separate($txt) {
-    #    $separated = $this->separate_strings($txt);
-    #    return $separated;
-    #}
 
 }

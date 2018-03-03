@@ -9,6 +9,6 @@ $txt =
 
 echo "initially\ntxt = '$txt'\n";
 
-$txt = $s->blank_out_comments($txt);
-echo "after blank_out_comments(),\ntxt = '$txt'\n";
+$txt = $s->parse_outer($txt);
+echo "after parse_outer(),\ntxt = '$txt'\n";
 

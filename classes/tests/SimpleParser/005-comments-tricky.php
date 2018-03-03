@@ -15,6 +15,6 @@ echo "\ninitially txt = [[\n$txt\n]]\n";
 #echo "the seperate_strings() gave:\n";
 #print_r($s->separate_strings($txt));
 
-$new_txt = $s->blank_out_comments($txt);
-echo "\nafter blank_out_comments(), txt = [[\n$new_txt\n]]\n";
+$new_txt = $s->parse_outer($txt);
+echo "\nafter parse_outer(), txt = [[\n$new_txt\n]]\n";
 

@@ -9,6 +9,6 @@ $txt =
 
 echo "\ninitially txt = [[$txt]]";
 
-$new_txt = $s->blank_out_comments($txt);
-echo "\nafter blank_out_comments(), txt = [[$new_txt]]";
+$new_txt = $s->parse_outer($txt);
+echo "\nafter parse_outer(), txt = [[$new_txt]]";
 
