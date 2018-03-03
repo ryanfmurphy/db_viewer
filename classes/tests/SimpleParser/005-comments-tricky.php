@@ -11,9 +11,9 @@ $txt =
 
 echo "\ninitially txt = [[$txt]]";
 
-echo "\n";
-echo "the seperate_strings() gave:\n";
-print_r($s->separate_strings($txt));
+#echo "\n";
+#echo "the seperate_strings() gave:\n";
+#print_r($s->separate_strings($txt));
 
 $new_txt = $s->blank_out_comments($txt);
 echo "\nafter blank_out_comments(), txt = [[$new_txt]]";

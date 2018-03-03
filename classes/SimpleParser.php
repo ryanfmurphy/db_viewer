@@ -35,7 +35,12 @@ class SimpleParser {
         $block_comment_regex = $this->block_comment_regex();
 
         #todo #fixme figure out weaving strings into here
-        $regex = "/$line_comment_regex|$block_comment_regex/ms";
+        $regex = "$line_comment_regex|$block_comment_regex";
+        foreach ($this->string_regexes() as $string_regex) {
+            $regex .= "|$string_regex";
+        }
+        $regex = "/$regex/ms";
+        echo "regex = $regex\n";
 
         return preg_replace_callback(
             $regex,
@@ -69,10 +74,12 @@ class SimpleParser {
         }
     }
 
-    public function string_regexes($txt) {
+    public function string_regexes() {
         $regexes = [];
+        $num = 0;
         foreach ($this->str_quotes as $quote) {
-            $regexes[] = $quote."(?P<str_content>[^".$quote."]*)".$quote;
+            $regexes[] = $quote."(?P<str_content$num>[^".$quote."]*)".$quote;
+            $num++;
         }
         return $regexes;
     }
