@@ -10,7 +10,7 @@ class SimpleParser {
     public $start_braces=['(','['];
     public $end_braces=[')',']'];
     public $str_quotes=["'",'"'];
-    public $str_escape_mode = 'double'; # 'double' or 'backslash'
+    public $str_escape_mode = 'double'; # 'double' or 'backslash' #todo not implemented yet
 
     function __construct($vars=[]) {
         foreach ($vars as $varname => $val) {
@@ -30,11 +30,10 @@ class SimpleParser {
 
     }
 
-    public function blank_out_comments/*__naive*/($txt) {
+    public function blank_out_comments($txt) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
 
-        #todo #fixme figure out weaving strings into here
         $regex = "$line_comment_regex|$block_comment_regex";
         foreach ($this->string_regexes() as $string_regex) {
             $regex .= "|$string_regex";
@@ -45,22 +44,15 @@ class SimpleParser {
         return preg_replace_callback(
             $regex,
             function($match){
+                foreach ($match as $key => $txt) {
+                    if ($key === 0) continue;
+                    return $match[0]; # if there's any match, just pass-thru
+                }
                 return str_repeat(' ',strlen($match[0]));
             },
             $txt
         );
     }
-
-    /*
-    public function blank_out_comments($txt) {
-        # swap out the str contents so the regexes won't
-        # be confused by special chars in strs
-        #list($txt_clean, $strs_to_swap_back_in) = $this->separate($txt);
-        $txt_clean = $this->blank_out_comments__naive($txt_clean);
-        $txt = $this->sub_strs_into_txt($txt_clean, $strs_to_swap_back_in);
-        return $txt;
-    }
-    */
 
     #todo
     public function blank_out_inside_braces($txt) {

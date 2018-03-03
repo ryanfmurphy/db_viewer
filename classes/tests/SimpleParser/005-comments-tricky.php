@@ -9,12 +9,12 @@ $txt =
     /* this is separate from the line above */
 ";
 
-echo "\ninitially txt = [[$txt]]";
+echo "\ninitially txt = [[\n$txt\n]]\n";
 
 #echo "\n";
 #echo "the seperate_strings() gave:\n";
 #print_r($s->separate_strings($txt));
 
 $new_txt = $s->blank_out_comments($txt);
-echo "\nafter blank_out_comments(), txt = [[$new_txt]]";
+echo "\nafter blank_out_comments(), txt = [[\n$new_txt\n]]\n";
 

@@ -12,11 +12,3 @@ echo "\ninitially txt = [[$txt]]";
 $new_txt = $s->blank_out_comments($txt);
 echo "\nafter blank_out_comments(), txt = [[$new_txt]]";
 
-echo "\n";
-echo "It didn't trip over the /* */ in the string because\n";
-echo "first it temporarily blanked out the strings:\n\n";
-
-echo $s->separate_strings($txt)[0]."\n";
-
-echo "\nso therefore it gets [[$new_txt]]\n";
-
