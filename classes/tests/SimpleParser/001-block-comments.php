@@ -12,3 +12,11 @@ echo "initially\ntxt = '$txt'";
 $txt = $s->parse($txt);
 echo "after parse(),\ntxt = '$txt'";
 
+assert(
+    $txt ==
+"select \"a\",\"b\",\"c\"                                      
+    from (                                   ) t
+",
+    'parse() removes comments and contents of parentheses'
+);
+

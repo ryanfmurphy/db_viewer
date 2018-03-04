@@ -30,7 +30,7 @@ class SimpleParser {
 
     }
 
-    public function parse($txt, $blank_out_level=1) {
+    public function parse($txt, $blank_out_level=1, $blank_out_strings=false) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
 
@@ -49,7 +49,7 @@ class SimpleParser {
         $result = preg_replace_callback_offset(
             $regex,
 
-            function($match) use (&$nest_level, &$level_offsets) {
+            function($match) use (&$nest_level, &$level_offsets, $blank_out_strings) {
                 $match_txt = $match[0][0];
                 $offset = $match[0][1];
 
@@ -66,8 +66,23 @@ class SimpleParser {
                 }
 
                 foreach ($match as $key => $match_details) {
-                    if ($key === 0) continue;
-                    return $match_txt; # if there's any match, just pass-thru
+                    $match_txt_inner = $match_details[0];
+                    $match_offset = $match_details[1];
+                    $no_match = ($match_offset == -1);
+
+                    if ($key === 0 || $no_match) continue;
+
+                    # if this is a string match: "abc" 'abc'
+                    if (strpos($key, 'str_content') === 0) {
+                        if ($blank_out_strings) {
+                            $quote_char = $match_txt[0];
+                            $blankness = str_repeat(' ',strlen($match_txt_inner));
+                            return $quote_char . $blankness . $quote_char; # if there's any match,just pass-thru
+                        }
+                        else {
+                            return $match_txt; # if there's any match,just pass-thru
+                        }
+                    }
                 }
                 return str_repeat(' ',strlen($match_txt));
             },
@@ -96,7 +111,10 @@ class SimpleParser {
         $regexes = [];
         $num = 0;
         foreach ($this->str_quotes as $quote) {
-            $regexes[] = $quote."(?P<str_content$num>[^".$quote."]*)".$quote;
+            $literal_backslash = '\\\\';
+            $continue_str = "[^".$literal_backslash.$quote."]*";
+            $escaped_quote = $literal_backslash.$quote;
+            $regexes[] = $quote."(?P<str_content$num>$continue_str(?:$escaped_quote$continue_str)*)".$quote;
             $num++;
         }
         return $regexes;
