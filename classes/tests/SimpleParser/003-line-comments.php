@@ -9,6 +9,6 @@ $txt =
 
 echo "initially\ntxt = '$txt'\n";
 
-$txt = $s->parse_outer($txt);
-echo "after parse_outer(),\ntxt = '$txt'\n";
+$txt = $s->parse($txt);
+echo "after parse(),\ntxt = '$txt'\n";
 

@@ -30,7 +30,7 @@ class SimpleParser {
 
     }
 
-    public function parse_outer($txt) {
+    public function parse($txt, $blank_out_level=1) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
 
@@ -38,35 +38,61 @@ class SimpleParser {
         foreach ($this->string_regexes() as $string_regex) {
             $regex .= "|$string_regex";
         }
+        $brace_chars = array_merge($this->start_braces, $this->end_braces);
+        $regex .= "|[".preg_quote(implode('',$brace_chars))."]";
         $regex = "/$regex/ms";
         echo "regex = $regex\n";
 
-        return preg_replace_callback(
+        $nest_level = 0;
+        $level_offsets = []; # keyed by level [start_idx,end_idx] pairs
+
+        $result = preg_replace_callback_offset(
             $regex,
-            function($match){
-                foreach ($match as $key => $txt) {
-                    if ($key === 0) continue;
-                    return $match[0]; # if there's any match, just pass-thru
+
+            function($match) use (&$nest_level, &$level_offsets) {
+                $match_txt = $match[0][0];
+                $offset = $match[0][1];
+
+                # braces
+                if (in_array($match_txt, $this->start_braces)) {
+                    $nest_level++;
+                    $level_offsets[$nest_level][0] = $offset;
+                    return $match_txt;
                 }
-                return str_repeat(' ',strlen($match[0]));
+                elseif (in_array($match_txt, $this->end_braces)) {
+                    $level_offsets[$nest_level][1] = $offset;
+                    $nest_level--;
+                    return $match_txt;
+                }
+
+                foreach ($match as $key => $match_details) {
+                    if ($key === 0) continue;
+                    return $match_txt; # if there's any match, just pass-thru
+                }
+                return str_repeat(' ',strlen($match_txt));
             },
+
             $txt
         );
-    }
 
-    #todo
-    public function blank_out_inside_braces($txt) {
-        for ($n=0; $n<strlen($txt); $n++) {
-            $ch = $txt[$n];
-            if (in_array($ch, $this->start_braces)) {
-                
-            }
-            $start_brace = $this->start_braces[$n];
-            $end_brace = $this->end_braces[$n];
+        if ($blank_out_level
+            && isset($level_offsets[$blank_out_level])
+        ) {
+            $level_span = $level_offsets[$blank_out_level];
+            echo "level_span = ".print_r($level_span)."\n";
+            $level_start = $level_span[0]+1; # leave open brace
+            $level_len = $level_span[1] - $level_start;
+            $result = substr_replace(
+                $result,
+                str_repeat(' ', $level_len),
+                $level_start, $level_len
+            );
         }
+
+        return $result;
     }
 
-    public function string_regexes() {
+    private function string_regexes() {
         $regexes = [];
         $num = 0;
         foreach ($this->str_quotes as $quote) {
