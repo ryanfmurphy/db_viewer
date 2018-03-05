@@ -12,7 +12,7 @@ assert(
     $new_txt == 
       "select * from (                                     ) n order by time_added desc",
     'parse($txt,1) wipes out contents of outer parens'
-);
+) or die(1);
 
 $new_txt = $s->parse($txt, 2); # blank out level 1 and deeper
 echo "\nafter parse(\$txt, 2), txt = [[\n$new_txt\n]]\n";
