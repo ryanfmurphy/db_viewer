@@ -9,7 +9,10 @@ $txt =
 
 echo "initially\ntxt = '$txt'";
 
-list($new_txt,$subs) = $s->parse($txt, /*blank_out_level*/1, /*blank_out_strings*/false, /*include_subs*/true);
+list($new_txt,$subs) = $s->parse($txt,
+    /*blank_out_level*/1, /*blank_out_strings*/false, /*blank_out_comments*/true,
+    /*include_subs*/true
+);
 echo "after parse(blank_out_level=1, blank_out_strings=false, include_subs=true),\nnew_txt = '$new_txt'\n\n";
 
 assert(
@@ -35,7 +38,10 @@ assert(
 
 
 # now blank_out_strings=true
-list($new_txt,$subs) = $s->parse($txt, /*blank_out_level*/1, /*blank_out_strings*/true, /*include_subs*/true);
+list($new_txt,$subs) = $s->parse($txt,
+    /*blank_out_level*/1, /*blank_out_strings*/true, /*blank_out_comments*/true,
+    /*include_subs*/true
+);
 echo "\n\nafter parse(blank_out_level=1, blank_out_strings=true, include_subs=true),\nnew_txt = '$new_txt'\n\n";
 
 assert(

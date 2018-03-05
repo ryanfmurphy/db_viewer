@@ -31,9 +31,9 @@ class SimpleParser {
         return "$start_block_comment.*?$end_block_comment";
     }
 
-    public function parse(
-        $txt, $blank_out_level=1, $blank_out_strings=false,
-        $include_subs=false, $blank_out_comments=true #todo change arg order, move blank_out_comments earlier
+    public function parse($txt,
+        $blank_out_level=1, $blank_out_strings=false, $blank_out_comments=true,
+        $include_subs=false
     ) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
