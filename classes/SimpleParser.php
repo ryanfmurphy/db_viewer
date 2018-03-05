@@ -10,7 +10,7 @@ class SimpleParser {
     public $start_braces=['(','['];
     public $end_braces=[')',']'];
     public $str_quotes=["'",'"'];
-    public $str_escape_mode = 'backslash'; # 'double' or 'backslash'
+    public $str_escape_mode = 'double'; # 'double' or 'backslash'
 
     function __construct($vars=[]) {
         foreach ($vars as $varname => $val) {
@@ -41,7 +41,7 @@ class SimpleParser {
         $brace_chars = array_merge($this->start_braces, $this->end_braces);
         $regex .= "|[".preg_quote(implode('',$brace_chars))."]";
         $regex = "/$regex/ms";
-        echo "regex = $regex\n";
+        #echo "regex = $regex\n";
 
         $nest_level = 0;
         $level_offsets = []; # keyed by level [start_idx,end_idx] pairs
@@ -94,7 +94,7 @@ class SimpleParser {
             && isset($level_offsets[$blank_out_level])
         ) {
             $level_span = $level_offsets[$blank_out_level];
-            echo "level_span = ".print_r($level_span)."\n";
+            #echo "level_span = ".print_r($level_span)."\n";
             $level_start = $level_span[0]+1; # leave open brace
             $level_len = $level_span[1] - $level_start;
             $result = substr_replace(
@@ -111,18 +111,23 @@ class SimpleParser {
         $regexes = [];
         $num = 0;
         foreach ($this->str_quotes as $quote) {
-            if ($this->str_escape_mode == 'backslash') {
+            #todo allow both escape modes to coexist, i.e. how MySQL does it
+            if ($this->str_escape_mode == 'backslash') { # most common way to escape quotes
                 $literal_backslash = '\\\\';
                 $continue_str = "[^".$literal_backslash.$quote."]*";
                 $escaped_quote = $literal_backslash.$quote;
                 $escape_stuff = "(?:$escaped_quote$continue_str)*";
             }
-            elseif ($this->str_escape_mode == 'double') {
-                die('not yet');
+            elseif ($this->str_escape_mode == 'double') { # for SQL syntax
+                $continue_str = "[^".$quote."]*";
+                $escaped_quote = $quote.$quote;
             }
-            else {
-                $escape_stuff = '';
-            }
+
+            $escape_stuff = $this->str_escape_mode
+                                ? "(?:$escaped_quote$continue_str)*"
+                                : '';
+
+            # build up overall regex for a 'string' / "string" / etc, with any escape logic
             $regexes[] = $quote."(?P<str_content$num>$continue_str$escape_stuff)".$quote;
             $num++;
         }
