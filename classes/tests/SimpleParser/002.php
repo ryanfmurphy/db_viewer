@@ -18,5 +18,6 @@ assert(
     from (                                   ) t                  
     group by "c"                  ',
     'erases comments and clears out paren contents'
-);
+) or die(1);
+echo "PASSED!\n";
 

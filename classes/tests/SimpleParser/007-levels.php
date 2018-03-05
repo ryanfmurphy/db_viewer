@@ -21,4 +21,6 @@ assert(
     $new_txt == 
       "select * from (select * from (                  ) n2) n order by time_added desc",
     'parse($txt,2) wipes out contents of inner parens'
-);
+) or die(1);
+echo "PASSED!\n";
+

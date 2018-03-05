@@ -1,0 +1,11 @@
+#!/bin/sh
+php 001-block-comments.php \
+    && php 002.php \
+    && php 003-line-comments.php \
+    && php 004-block-comments-tricky.php \
+    && php 005-comments-tricky.php \
+    && php 006-simple-order-by.php \
+    && php 007-levels.php \
+    && php 008-string-quoting-backslash.php \
+    && php 009-string-quoting-double.php \
+    && php 010-string-quoting-both.php

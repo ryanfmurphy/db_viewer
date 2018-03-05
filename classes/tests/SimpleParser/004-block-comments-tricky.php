@@ -22,5 +22,6 @@ assert(
     from (                                   ) t
 ',
     'erases comments and blanks out paren contents'
-);
+) or die(1);
+echo "PASSED!\n";
 

@@ -18,5 +18,6 @@ assert(
     from (                                   ) t
 ",
     'parse() removes comments and contents of parentheses'
-);
+) or die(1);
+echo "PASSED!\n";
 

@@ -111,16 +111,21 @@ class SimpleParser {
         $regexes = [];
         $num = 0;
         foreach ($this->str_quotes as $quote) {
-            #todo allow both escape modes to coexist, i.e. how MySQL does it
             if ($this->str_escape_mode == 'backslash') { # most common way to escape quotes
                 $literal_backslash = '\\\\';
                 $continue_str = "[^".$literal_backslash.$quote."]*";
                 $escaped_quote = $literal_backslash.$quote;
-                $escape_stuff = "(?:$escaped_quote$continue_str)*";
             }
             elseif ($this->str_escape_mode == 'double') { # for SQL syntax
                 $continue_str = "[^".$quote."]*";
-                $escaped_quote = $quote.$quote;
+                $escaped_quote = "$quote$quote";
+            }
+            elseif ($this->str_escape_mode == 'both') {
+                # allow both 'double' and 'backslash' escape modes
+                # to coexist, i.e. how MySQL does it
+                $literal_backslash = '\\\\';
+                $continue_str = "[^".$literal_backslash.$quote."]*";
+                $escaped_quote = "(?:$literal_backslash$quote|$quote$quote)";
             }
 
             $escape_stuff = $this->str_escape_mode
