@@ -20,17 +20,21 @@ class SimpleParser {
 
     public function line_comment_regex() {
         $start_line_comment = preg_quote($this->line_comment,'/');
+        #return $start_line_comment.'(?P<line_comment>[^\n]*)$';
         return $start_line_comment.'[^\n]*$';
     }
 
     public function block_comment_regex() {
         $start_block_comment = preg_quote($this->start_block_comment,'/');
         $end_block_comment = preg_quote($this->end_block_comment,'/');
+        #return "$start_block_comment(?P<block_comment>.*?)$end_block_comment";
         return "$start_block_comment.*?$end_block_comment";
-
     }
 
-    public function parse($txt, $blank_out_level=1, $blank_out_strings=false, $include_subs=false) {
+    public function parse(
+        $txt, $blank_out_level=1, $blank_out_strings=false,
+        $include_subs=false #, $blank_out_comments=true #todo change arg order, move blank_out_comments earlier
+    ) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
 
@@ -54,41 +58,75 @@ class SimpleParser {
             $regex,
 
             function($match)
-            use (&$nest_level, &$level_offsets, $blank_out_strings, $include_subs, &$subs)
+            use (&$nest_level, &$level_offsets, $blank_out_level, $blank_out_strings, $include_subs, &$subs)
             {
                 $match_txt = $match[0][0];
-                $offset = $match[0][1];
+                $match_offset = $match[0][1];
 
                 # braces - record the level_offsets about the start:stop nested levels
                 # start brace offset is recorded in position [0] of that nest_level
                 if (in_array($match_txt, $this->start_braces)) {
                     $nest_level++;
-                    $level_offsets[$nest_level][0] = $offset;
+                    $level_offsets[$nest_level][0] = $match_offset;
                     return $match_txt;
                 }
                 # start brace offset is recorded in position [1] of that nest_level
                 elseif (in_array($match_txt, $this->end_braces)) {
-                    $level_offsets[$nest_level][1] = $offset;
+                    $level_offsets[$nest_level][1] = $match_offset;
                     $nest_level--;
                     return $match_txt;
                 }
 
                 foreach ($match as $key => $match_details) {
                     $match_txt_inner = $match_details[0];
-                    $match_offset = $match_details[1];
-                    $no_match = ($match_offset == -1);
+                    $match_offset_inner = $match_details[1];
+                    $no_match = ($match_offset_inner == -1);
 
                     if ($key === 0 || $no_match) continue;
 
                     # if this is a string match: "abc" 'abc'
                     if (strpos($key, 'str_content') === 0) {
-                        if ($blank_out_strings) {
+                        if ($blank_out_strings
+                            # don't blank out strings whose level is already being blanked out
+                            && $nest_level < $blank_out_level
+                        ) {
                             $quote_char = $match_txt[0];
-                            if ($include_subs) {
-                                $subs[$match_offset] = $match_txt_inner;
+                            if ($include_subs) { # save the text we're blanking out
+                                                 # so we can sub it in again later
+                                $subs[$match_offset_inner] = $match_txt_inner;
                             }
                             $blankness = str_repeat(' ',strlen($match_txt_inner));
-                            return $quote_char . $blankness . $quote_char; # if there's any match,just pass-thru
+                            return $quote_char . $blankness . $quote_char;
+                        }
+                        else {
+                            return $match_txt; # if there's any match,just pass-thru
+                        }
+                    }
+                    elseif (strpos($key, 'block_comment') === 0) {
+                        if ($blank_out_comments
+                            # don't blank out comments whose level is already being blanked out
+                            && $nest_level < $blank_out_level
+                        ) {
+                            if ($include_subs) { # save the text we're blanking out
+                                                 # so we can sub it in again later
+                                $subs[$match_offset] = $match_txt;
+                            }
+                            return str_repeat(' ',strlen($match_txt)); # blankness
+                        }
+                        else {
+                            return $match_txt; # if there's any match,just pass-thru
+                        }
+                    }
+                    elseif (strpos($key, 'line_comment') === 0) {
+                        if ($blank_out_comments
+                            # don't blank out comments whose level is already being blanked out
+                            && $nest_level < $blank_out_level
+                        ) {
+                            if ($include_subs) { # save the text we're blanking out
+                                                 # so we can sub it in again later
+                                $subs[$match_offset] = $match_txt;
+                            }
+                            return str_repeat(' ',strlen($match_txt)); # blankness
                         }
                         else {
                             return $match_txt; # if there's any match,just pass-thru
@@ -159,35 +197,13 @@ class SimpleParser {
         return $regexes;
     }
 
-    /*
-    # separate contents of strings from the outside
-    # returns [$txt, $strs] where $txt is the cleaned txt without the strs
-    # and $strs is an array of offsets => str_contents
-    public function separate_strings($txt) {
-        $strs = [];
-        foreach ($this->str_quotes as $quote) {
-            $txt = preg_replace_callback_offset(
-               "/".$quote."([^".$quote."]*)".$quote."/",
-                function($match) use ($quote,&$strs) {
-                    $inside_txt = $match[1][0];
-                    $inside_pos = $match[1][1];
-                    $strs[$inside_pos] = $inside_txt;
-                    return $quote . str_repeat(' ',strlen($inside_txt)) . $quote;
-                },
-                $txt,
-                PREG_OFFSET_CAPTURE
-            );
-        }
-        ksort($strs); # make sure offsets are in order
-        return [$txt, $strs];
-    }
-
-    # opposite of separate_strings()
-    # strs is offset=>txt pairs to be subbed into txt
-    public function sub_strs_into_txt($txt, $strs) {
+    # undo any blanking out that parse() did
+    # this requires that you use parse() with $include_subs=true
+    # subs is offset=>txt pairs to be subbed into txt
+    public function put_subs_back_in_txt($txt, $subs) {
         $i = 0;
         $ret = '';
-        foreach ($strs as $offset => $str) {
+        foreach ($subs as $offset => $str) {
             $len_to_offset = $offset - $i;
             $ret .= substr($txt, $i, $len_to_offset);
             $i += $len_to_offset;
@@ -202,7 +218,6 @@ class SimpleParser {
 
         return $ret;
     }
-    */
 
     public function top_level($txt) {
         #$txt = $this->blank_out_strings($txt);

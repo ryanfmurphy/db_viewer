@@ -9,11 +9,11 @@ $txt =
 
 echo "initially\ntxt = '$txt'";
 
-list($txt,$subs) = $s->parse($txt, /*blank_out_level*/1, /*blank_out_strings*/false, /*include_subs*/true);
-echo "after parse(blank_out_level=1, blank_out_strings=false, include_subs=true),\ntxt = '$txt'\n\n";
+list($new_txt,$subs) = $s->parse($txt, /*blank_out_level*/1, /*blank_out_strings*/false, /*include_subs*/true);
+echo "after parse(blank_out_level=1, blank_out_strings=false, include_subs=true),\nnew_txt = '$new_txt'\n\n";
 
 assert(
-    $txt ==
+    $new_txt ==
 "select \"a\",\"b\",\"c\"                                      
     from (                                   ) t
 ",
@@ -23,9 +23,9 @@ assert(
 echo "and subs = '".var_export($subs,1)."'";
 assert(
     $subs ==
-array (
-  67 => 'select * from table where a=\'hello\'',
-),
+        array (
+          67 => 'select * from table where a=\'hello\'',
+        ),
     '$subs contains a map of offset => txt for each piece taken out'
 ) or die(1);
 
@@ -33,30 +33,35 @@ array (
 
 
 # now blank_out_strings=true
-list($txt,$subs) = $s->parse($txt, /*blank_out_level*/1, /*blank_out_strings*/true, /*include_subs*/true);
-echo "\n\nafter parse(blank_out_level=1, blank_out_strings=true, include_subs=true),\ntxt = '$txt'\n\n";
+list($new_txt,$subs) = $s->parse($txt, /*blank_out_level*/1, /*blank_out_strings*/true, /*include_subs*/true);
+echo "\n\nafter parse(blank_out_level=1, blank_out_strings=true, include_subs=true),\nnew_txt = '$new_txt'\n\n";
 
 assert(
-    $txt ==
+    $new_txt ==
 'select " "," "," "                                      
     from (                                   ) t
 ',
-    '$txt contains query with paren content blanked out'
+    '$new_txt contains query with paren content blanked out'
 ) or die(1);
 
 echo "and subs = '".var_export($subs,1)."'\n\n";
 assert(
     $subs ==
-array (
-  8 => 'a',
-  12 => 'b',
-  16 => 'c',
-  67 => '                                   ',
-),
+        array (
+          8 => 'a',
+          12 => 'b',
+          16 => 'c',
+          67 => 'select * from table where a=\'hello\'',
+        ),
     '$subs contains a map of offset => txt for each piece taken out'
 ) or die(1);
 
-
-
 echo "PASSED!\n";
+
+$new_txt = $s->put_subs_back_in_txt($new_txt, $subs);
+echo "after put_subs_back_in_txt, new_txt = \n'$new_txt'\n\ncompare to original txt = \n'$txt'\n\n";
+assert(
+    $new_txt == $txt,
+    'put_subs_back_in_txt restores new_txt to how txt was before'
+) or die(1);
 

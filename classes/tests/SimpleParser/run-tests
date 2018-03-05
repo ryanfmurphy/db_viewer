@@ -8,4 +8,6 @@ php 001-block-comments.php \
     && php 007-levels.php \
     && php 008-string-quoting-backslash.php \
     && php 009-string-quoting-double.php \
-    && php 010-string-quoting-both.php
+    && php 010-string-quoting-both.php \
+    && php 011-tricky-parens-str-escapes.php \
+    && php 012-include-subs.php
