@@ -173,6 +173,18 @@ class SimpleParser {
         }
     }
 
+    public function preg_match_parse(
+        $pattern, $txt, &$matches,
+        $blank_out_level=1, $blank_out_strings=false, $blank_out_comments=true
+    ) {
+        list($txt,$subs) = $this->parse($txt,
+            $blank_out_level, $blank_out_strings, $blank_out_comments,
+            true
+        );
+
+        return preg_match($pattern, $txt, /*&*/$matches);
+    }
+
     private function string_regexes() {
         $regexes = [];
         $num = 0;
