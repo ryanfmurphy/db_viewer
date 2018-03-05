@@ -11,4 +11,6 @@ php 001-block-comments.php \
     && php 010-string-quoting-both.php \
     && php 011-tricky-parens-str-escapes.php \
     && php 012-include-subs.php \
-    && php 013-dont-blank-out-comments.php
+    && php 013-dont-blank-out-comments.php \
+    && php 014-preg_match_parse.php \
+    && php 015-preg_replace_callback_parse.php

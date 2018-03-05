@@ -187,7 +187,8 @@ class SimpleParser {
 
     public function preg_replace_callback_parse(
         $pattern, $fn, $txt,
-        $blank_out_level=1, $blank_out_strings=false, $blank_out_comments=true
+        $blank_out_level=1, $blank_out_strings=false, $blank_out_comments=true,
+        $shift_overlapping_sub=false # should we shift to the right a sub that is INSIDE the replace txt?
     ) {
         list($new_txt,$subs) = $this->parse($txt,
             $blank_out_level, $blank_out_strings, $blank_out_comments,
@@ -196,7 +197,7 @@ class SimpleParser {
 
         $new_txt_replaced = preg_replace_callback_offset(
             $pattern,
-            function($match) use ($fn, &$subs) {
+            function($match) use ($fn, &$subs, $shift_overlapping_sub) {
                 $match_txt = $match[0][0];
                 $match_offset = $match[0][1];
                 $match_len = strlen($match_txt);
@@ -213,9 +214,13 @@ class SimpleParser {
                 # how much did the length change due to the replacement?
                 $delta_len = strlen($replacement_txt) - $match_len;
 
+                $match_offset_to_compare = $shift_overlapping_sub
+                                                ? $match_offset
+                                                : $match_offset_end;
+
                 # adjust any subs that happen after the end of this match
                 foreach ($subs as $sub_offset => $txt) {
-                    if ($sub_offset >= $match_offset_end) { # sub is after match, thus affected
+                    if ($sub_offset >= $match_offset_to_compare) { # sub is after match, thus affected
                         # move the sub based on the delta_len
                         unset($subs[$sub_offset]);
                         $new_offset = $sub_offset + $delta_len;
@@ -223,8 +228,8 @@ class SimpleParser {
                     }
                     else {
                         $sub_offset_end = $sub_offset + strlen($txt);
-                        #todo #fixme figure out what the ramifications of this are
-                        assert($sub_offset_end <= $match_offset, 'sub must not overlap with replaced txt');
+                        #todo #fixme warning! there are cases where you may want to 
+                        #assert($sub_offset_end <= $match_offset, 'sub must not overlap with replaced txt');
                     }
                 }
                 ksort($subs); # make sure offsets are in order
