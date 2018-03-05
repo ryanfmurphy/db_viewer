@@ -185,6 +185,24 @@
                             }
                         }
                     } # passed in limit takes precedence
+
+                    # order_by via SimplerParser
+                    # #todo #fixme eliminate a lot of the logic above
+                    if (isset($requestVars['order_by'])) {
+                        $s = new SimpleParser();
+
+                        $identifier = '["\\w]+';
+                        $identifier_list = "$identifier(?:\s*,\s*$identifier)*";
+                        $sql = $s->preg_replace_callback_parse(
+                            "@order\s*by\s*.*?(?:(?=\s*\blimit\b)|$)@",
+                            function($match) use (&$requestVars) {
+                                return "order by $requestVars[order_by]";
+                            },
+                            $sql,
+                            /*blank_out_level*/1, /*blank_out_strings*/false, /*blank_out_comments=*/true
+                        );
+                    }
+
                 } # limit/offset/order_by_time stuff: #todo factor into fn
 
             }
@@ -198,8 +216,8 @@
 <?php
         { # <head> (including js)
                 $page_title = $tablename_no_quotes
-                                                ? "-$tablename_no_quotes-"
-                                                : "DB Viewer"
+                                    ? "-$tablename_no_quotes-"
+                                    : "DB Viewer"
 ?>
 <head>
         <title><?= $page_title ?></title>
