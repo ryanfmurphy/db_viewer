@@ -33,7 +33,7 @@ class SimpleParser {
 
     public function parse(
         $txt, $blank_out_level=1, $blank_out_strings=false,
-        $include_subs=false #, $blank_out_comments=true #todo change arg order, move blank_out_comments earlier
+        $include_subs=false, $blank_out_comments=true #todo change arg order, move blank_out_comments earlier
     ) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
@@ -58,7 +58,8 @@ class SimpleParser {
             $regex,
 
             function($match)
-            use (&$nest_level, &$level_offsets, $blank_out_level, $blank_out_strings, $include_subs, &$subs)
+            use (&$nest_level, &$level_offsets, $blank_out_level,
+                 $blank_out_strings, $blank_out_comments, $include_subs, &$subs)
             {
                 $match_txt = $match[0][0];
                 $match_offset = $match[0][1];
@@ -77,6 +78,7 @@ class SimpleParser {
                     return $match_txt;
                 }
 
+                # deal with strings
                 foreach ($match as $key => $match_details) {
                     $match_txt_inner = $match_details[0];
                     $match_offset_inner = $match_details[1];
@@ -102,37 +104,43 @@ class SimpleParser {
                             return $match_txt; # if there's any match,just pass-thru
                         }
                     }
-                    elseif (strpos($key, 'block_comment') === 0) {
-                        if ($blank_out_comments
-                            # don't blank out comments whose level is already being blanked out
-                            && $nest_level < $blank_out_level
-                        ) {
-                            if ($include_subs) { # save the text we're blanking out
-                                                 # so we can sub it in again later
-                                $subs[$match_offset] = $match_txt;
-                            }
-                            return str_repeat(' ',strlen($match_txt)); # blankness
+                }
+
+                if (strpos($match_txt, $this->start_block_comment) === 0) {
+                    #todo factor this common code between block and line comments
+                    if ($blank_out_comments
+                        # don't blank out comments whose level is already being blanked out
+                        && $nest_level < $blank_out_level
+                    ) {
+                        if ($include_subs) { # save the text we're blanking out
+                                             # so we can sub it in again later
+                            $subs[$match_offset] = $match_txt;
                         }
-                        else {
-                            return $match_txt; # if there's any match,just pass-thru
-                        }
+                        return str_repeat(' ',strlen($match_txt)); # blankness
                     }
-                    elseif (strpos($key, 'line_comment') === 0) {
-                        if ($blank_out_comments
-                            # don't blank out comments whose level is already being blanked out
-                            && $nest_level < $blank_out_level
-                        ) {
-                            if ($include_subs) { # save the text we're blanking out
-                                                 # so we can sub it in again later
-                                $subs[$match_offset] = $match_txt;
-                            }
-                            return str_repeat(' ',strlen($match_txt)); # blankness
-                        }
-                        else {
-                            return $match_txt; # if there's any match,just pass-thru
-                        }
+                    else {
+                        return $match_txt; # if there's any match,just pass-thru
                     }
                 }
+                if (strpos($match_txt, $this->line_comment) === 0) {
+                    if ($blank_out_comments
+                        # don't blank out comments whose level is already being blanked out
+                        && $nest_level < $blank_out_level
+                    ) {
+                        if ($include_subs) { # save the text we're blanking out
+                                             # so we can sub it in again later
+                            $subs[$match_offset] = $match_txt;
+                        }
+                        return str_repeat(' ',strlen($match_txt)); # blankness
+                    }
+                    else {
+                        return $match_txt; # if there's any match,just pass-thru
+                    }
+                }
+
+                #todo #fixme probably don't need this
+                #            used to be how we blanked out comments
+                #            but what should we return now if nothing else matches?
                 return str_repeat(' ',strlen($match_txt));
             },
 
