@@ -30,7 +30,7 @@ class SimpleParser {
 
     }
 
-    public function parse($txt, $blank_out_level=1, $blank_out_strings=false) {
+    public function parse($txt, $blank_out_level=1, $blank_out_strings=false, $include_subs=false) {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
 
@@ -46,19 +46,27 @@ class SimpleParser {
         $nest_level = 0;
         $level_offsets = []; # keyed by level [start_idx,end_idx] pairs
 
+        if ($include_subs) { # include actual CONTENT of subs, not just start_idx,end_idx pairs
+            $subs = [];
+        }
+
         $result = preg_replace_callback_offset(
             $regex,
 
-            function($match) use (&$nest_level, &$level_offsets, $blank_out_strings) {
+            function($match)
+            use (&$nest_level, &$level_offsets, $blank_out_strings, $include_subs, &$subs)
+            {
                 $match_txt = $match[0][0];
                 $offset = $match[0][1];
 
-                # braces
+                # braces - record the level_offsets about the start:stop nested levels
+                # start brace offset is recorded in position [0] of that nest_level
                 if (in_array($match_txt, $this->start_braces)) {
                     $nest_level++;
                     $level_offsets[$nest_level][0] = $offset;
                     return $match_txt;
                 }
+                # start brace offset is recorded in position [1] of that nest_level
                 elseif (in_array($match_txt, $this->end_braces)) {
                     $level_offsets[$nest_level][1] = $offset;
                     $nest_level--;
@@ -76,6 +84,9 @@ class SimpleParser {
                     if (strpos($key, 'str_content') === 0) {
                         if ($blank_out_strings) {
                             $quote_char = $match_txt[0];
+                            if ($include_subs) {
+                                $subs[$match_offset] = $match_txt_inner;
+                            }
                             $blankness = str_repeat(' ',strlen($match_txt_inner));
                             return $quote_char . $blankness . $quote_char; # if there's any match,just pass-thru
                         }
@@ -97,6 +108,9 @@ class SimpleParser {
             #echo "level_span = ".print_r($level_span)."\n";
             $level_start = $level_span[0]+1; # leave open brace
             $level_len = $level_span[1] - $level_start;
+            if ($include_subs) {
+                $subs[$level_start] = substr($result, $level_start, $level_len);
+            }
             $result = substr_replace(
                 $result,
                 str_repeat(' ', $level_len),
@@ -104,7 +118,13 @@ class SimpleParser {
             );
         }
 
-        return $result;
+        if ($include_subs) {
+            ksort($subs); # make sure offsets are in order
+            return [$result, $subs];
+        }
+        else {
+            return $result;
+        }
     }
 
     private function string_regexes() {
