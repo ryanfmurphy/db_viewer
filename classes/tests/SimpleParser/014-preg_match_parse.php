@@ -13,8 +13,7 @@ echo "initially\ntxt = '$txt'";
 $pattern = '/order by time_added desc\s*$/';
 $matched = $s->preg_match_parse(
     $pattern, $txt, $matches,
-    /*blank_out_level*/1, /*blank_out_strings*/false, /*blank_out_comments=*/false,
-    /*include_subs*/true
+    /*blank_out_level*/1, /*blank_out_strings*/false, /*blank_out_comments=*/false
 );
 echo "after preg_match_parse w pattern '$pattern', matches = '\n".var_export($matches,1)."\n\n";
 
