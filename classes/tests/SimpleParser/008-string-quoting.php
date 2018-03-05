@@ -1,6 +1,6 @@
 <?php
 include('../../SimpleParser.php');
-$s = new SimpleParser(['line_comment'=>'--']);
+$s = new SimpleParser(['line_comment'=>'--','str_escape_mode'=>'backslash']);
 
 $str0 = "'simple single-quoted string'";
 $str1 = "\"simple double-quoted string\"";

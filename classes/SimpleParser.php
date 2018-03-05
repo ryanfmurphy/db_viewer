@@ -10,7 +10,7 @@ class SimpleParser {
     public $start_braces=['(','['];
     public $end_braces=[')',']'];
     public $str_quotes=["'",'"'];
-    public $str_escape_mode = 'double'; # 'double' or 'backslash' #todo not implemented yet
+    public $str_escape_mode = 'backslash'; # 'double' or 'backslash'
 
     function __construct($vars=[]) {
         foreach ($vars as $varname => $val) {
@@ -111,10 +111,19 @@ class SimpleParser {
         $regexes = [];
         $num = 0;
         foreach ($this->str_quotes as $quote) {
-            $literal_backslash = '\\\\';
-            $continue_str = "[^".$literal_backslash.$quote."]*";
-            $escaped_quote = $literal_backslash.$quote;
-            $regexes[] = $quote."(?P<str_content$num>$continue_str(?:$escaped_quote$continue_str)*)".$quote;
+            if ($this->str_escape_mode == 'backslash') {
+                $literal_backslash = '\\\\';
+                $continue_str = "[^".$literal_backslash.$quote."]*";
+                $escaped_quote = $literal_backslash.$quote;
+                $escape_stuff = "(?:$escaped_quote$continue_str)*";
+            }
+            elseif ($this->str_escape_mode == 'double') {
+                die('not yet');
+            }
+            else {
+                $escape_stuff = '';
+            }
+            $regexes[] = $quote."(?P<str_content$num>$continue_str$escape_stuff)".$quote;
             $num++;
         }
         return $regexes;
@@ -128,7 +137,7 @@ class SimpleParser {
         $strs = [];
         foreach ($this->str_quotes as $quote) {
             $txt = preg_replace_callback_offset(
-                "/".$quote."([^".$quote."]*)".$quote."/",
+               "/".$quote."([^".$quote."]*)".$quote."/",
                 function($match) use ($quote,&$strs) {
                     $inside_txt = $match[1][0];
                     $inside_pos = $match[1][1];

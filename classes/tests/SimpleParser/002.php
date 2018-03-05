@@ -12,3 +12,11 @@ echo "initially\ntxt = '$txt'\n";
 $txt = $s->parse($txt);
 echo "after parse(),\ntxt = '$txt'\n";
 
+assert(
+    $txt ==
+'select "a","b","c", \'tricky /* dang */ string\' as whoa                  
+    from (                                   ) t                  
+    group by "c"                  ',
+    'erases comments and clears out paren contents'
+);
+

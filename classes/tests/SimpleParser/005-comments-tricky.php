@@ -16,5 +16,15 @@ echo "\ninitially txt = [[\n$txt\n]]\n";
 #print_r($s->separate_strings($txt));
 
 $new_txt = $s->parse($txt);
-echo "\nafter parse(), txt = [[\n$new_txt\n]]\n";
+echo "\nafter parse(), txt = \n'$new_txt'\n\n";
+
+assert(
+    $new_txt ==
+'select "a","b","c",\'/* my harmless string */\' as gotcha_field                                     
+    from (                                   ) t                      
+    where a=\'hello\'                                                
+                                              
+',
+    'blanks out comments and paren contents'
+);
 
