@@ -1,6 +1,8 @@
 To-Do List
 ==========
 
+* Click on a header and it will sort by that column.
+
 * Within joins, use the `val_html()` function to e.g. avoid allowing HTML to render
   within dynamically joined-in data cells
 
