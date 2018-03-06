@@ -27,6 +27,7 @@
  * @return array|bool|mixed|string
  */
 function preg_replace_callback_offset($pattern, $callback, $subject, $limit = -1, &$count = 0) {
+    # you can give an array of subjects
     if (is_array($subject)) {
         foreach ($subject as &$subSubject) {
             $subSubject = preg_replace_callback_offset($pattern, $callback, $subSubject, $limit, $subCount);
@@ -34,6 +35,7 @@ function preg_replace_callback_offset($pattern, $callback, $subject, $limit = -1
         }
         return $subject;
     }
+    # you can give an array of patterns
     if (is_array($pattern)) {
         foreach ($pattern as $subPattern) {
             $subject = preg_replace_callback_offset($subPattern, $callback, $subject, $limit, $subCount);

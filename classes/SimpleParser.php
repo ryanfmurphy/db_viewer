@@ -44,7 +44,8 @@ class SimpleParser {
         }
         $brace_chars = array_merge($this->start_braces, $this->end_braces);
         $regex .= "|[".preg_quote(implode('',$brace_chars))."]";
-        $regex = "/$regex/ms";
+        $regex = "/$regex/ms"; # MULTILINE (an $ at end of each line)
+                               # and DOTALL (\n counts as newline)
         #echo "regex = $regex\n";
 
         $nest_level = 0;
@@ -92,6 +93,7 @@ class SimpleParser {
                             # don't blank out strings whose level is already being blanked out
                             && $nest_level < $blank_out_level
                         ) {
+                            # the match is a quote and some contents and another quote
                             $quote_char = $match_txt[0];
                             if ($include_subs) { # save the text we're blanking out
                                                  # so we can sub it in again later
