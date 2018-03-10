@@ -811,7 +811,7 @@
 <?php
                 $primary_key = $_GET['primary_key'];
                 $notes = Note::get_notes_for_obj($primary_key);
-                if (count($notes) > 0) {
+                if ($notes && count($notes) > 0) {
 ?>
             <h2>Notes</h2>
 <?php
