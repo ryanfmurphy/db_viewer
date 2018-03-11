@@ -280,6 +280,15 @@ class Config {
             'change_to_update_after_insert',
             'alt_enter_reverses_change2update_setting',
 
+            # kanban view
+            'kanban_table',
+            'kanban_default_lists',
+            'kanban_list_field',
+            'kanban_list_name_field',
+            'kanban_wheres',
+            'kanban_root_level_nodes_only',
+            'kanban_root_level_override_field',
+
             'url_field_links', # e.g. links at top of object editor
             'obj_editor_show_notes', # list any notes on this obj
             'obj_editor_note_table', # which table to draw from to show notes
@@ -606,6 +615,16 @@ class Config {
             'obj_editor_show_image' => false,
             'change_to_update_after_insert' => true,
             'alt_enter_reverses_change2update_setting' => true,
+
+            # kanban view
+            'kanban_table' => 'todo',
+            'kanban_default_lists' => array(),
+            'kanban_list_field' => 'kanban_list',
+            'kanban_list_name_field' => null, # defaults to same as kanban_list_field
+            'kanban_wheres' => array(),
+            'kanban_root_level_nodes_only' => true,
+            # allows a node to be considered "root" enough to show up even though it has a parent
+            'kanban_root_level_override_field' => null,
 
             # keys are names of link, values are urls
             'url_field_links' => array('URL' => 'url'),
