@@ -1254,7 +1254,7 @@ function selectNode(d, clicked_node) {
     doNestModeAlert(nest_mode);
 }
 
-function openTreeNodePopup(d, event, clicked_node) {
+function getPopupOptions(d, clicked_node) {
     //var type_name = getNodeTable(d);
     var popup_options = [
         {   name: 'Add Child', callback: function() {
@@ -1358,7 +1358,11 @@ function openTreeNodePopup(d, event, clicked_node) {
         }
         popup_options = filtered_popup_options;
     }
+    return popup_options;
+}
 
+function openTreeNodePopup(d, event, clicked_node) {
+    var popup_options = getPopupOptions(d, clicked_node);
     openPopup(popup_options, event, clicked_node);
 }
 

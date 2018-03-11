@@ -157,7 +157,8 @@
     }
 
     .row_edit_link,
-    .row_delete_button {
+    .row_delete_button,
+    .row_edit_link_error {
         font-size: 80%;
     }
 

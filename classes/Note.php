@@ -9,7 +9,7 @@ class Note extends ArrayObject {
             where parent_ids @> '{ $primary_key }'
             order by time_added desc
         ";
-        return $notes = Db::sql($sql);
+        return Db::sql($sql);
     }
 
     function format_content_txt() {
