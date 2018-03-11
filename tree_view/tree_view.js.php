@@ -56,7 +56,8 @@ var config = {
     tree_view_filter_popup_options: <?= json_encode(Config::$config['tree_view_filter_popup_options']) ?>,
     custom_tree_node_color_fn: <?= Config::$config['custom_tree_node_color_fn']
                                         ? Config::$config['custom_tree_node_color_fn']
-                                        : 'undefined' ?>
+                                        : 'undefined' ?>,
+    uri_trunk: <?= Utility::quot_str_for_js(Config::$config['uri_trunk']) ?>,
 };
 
 // ideally PHP would end here - pure JS from here forward
@@ -1565,8 +1566,30 @@ function clickLabel(d) {
     }
     elseif ($backend == 'fs') {
 ?>
+
 function clickLabel(d) {
-    console.log('clickLabel');
+    console.log('clickLabel, d = ', d);
+    var filename = getFullFilePath(d);
+    if (filename) {
+        var url = config.uri_trunk+"/file_view/index.php?filename="+filename;
+        window.open(url,'_blank');
+    }
+}
+
+function getFullFilePath(d) {
+    if (!d.parent) {
+        return undefined; // don't attempt to return for root node
+    }
+
+    var ret = d._node_name;
+    while (d.parent) {
+        d = d.parent;
+        if (d.parent) { // only include node name for non-root nodes
+            ret = d._node_name + '/' + ret;
+        }
+    }
+    console.log("getFullFilePath = ", ret);
+    return ret;
 }
 <?php
     }
