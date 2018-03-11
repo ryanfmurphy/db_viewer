@@ -252,6 +252,8 @@ class Config {
             # optional js function with a single arg d (a d3 node)
             # returns a css color for the node to be
             'custom_tree_node_color_fn',
+            # how many chars of tree node name to show before ...?
+            'tree_node_name_cutoff',
 
             # filesystem-based tree (experimental/unstable)
             'fs_tree_default_root_dir',
@@ -581,6 +583,8 @@ class Config {
             # optional js function with a single arg d (a d3 node)
             # returns a css color for the node to be
             'custom_tree_node_color_fn' => null,
+            # how many chars of tree node name to show before ...?
+            'tree_node_name_cutoff' => 50,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,

@@ -154,7 +154,7 @@
 
         'name_cutoff' => isset($requestVars['name_cutoff'])
                             ? $requestVars['name_cutoff']
-                            : null,
+                            : Config::$config['tree_node_name_cutoff'],
 
         'edit_vars' => isset($requestVars['edit_vars'])
                             ? $requestVars['edit_vars']
