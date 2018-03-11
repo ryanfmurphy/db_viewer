@@ -249,6 +249,9 @@ class Config {
             # those will be the only ones included in Tree View popup menu
             'tree_view_filter_popup_options',
             'tree_view_include_fields_by_table',
+            # optional js function with a single arg d (a d3 node)
+            # returns a css color for the node to be
+            'custom_tree_node_color_fn',
 
             # filesystem-based tree (experimental/unstable)
             'fs_tree_default_root_dir',
@@ -572,8 +575,12 @@ class Config {
             # if this is an array of Names of Popup Options,
             # those will be the only ones included in Tree View popup menu
             'tree_view_filter_popup_options' => null,
-            # (optional) an array keyed by table, whose values are arrays of field names to get into tree_view nodes
+            # (optional) an array keyed by table, whose values are
+            # arrays of field names to get into tree_view nodes
             'tree_view_include_fields_by_table' => null,
+            # optional js function with a single arg d (a d3 node)
+            # returns a css color for the node to be
+            'custom_tree_node_color_fn' => null,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,

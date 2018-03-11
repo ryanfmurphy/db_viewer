@@ -53,7 +53,10 @@ var config = {
                                     ? $requestVars['vary_node_colors']
                                     : Config::$config['vary_node_colors']) ?>,
     default_values: <?= json_encode(Config::$config['default_values']) ?>,
-    tree_view_filter_popup_options: <?= json_encode(Config::$config['tree_view_filter_popup_options']) ?>
+    tree_view_filter_popup_options: <?= json_encode(Config::$config['tree_view_filter_popup_options']) ?>,
+    custom_tree_node_color_fn: <?= Config::$config['custom_tree_node_color_fn']
+                                        ? Config::$config['custom_tree_node_color_fn']
+                                        : 'undefined' ?>
 };
 
 // ideally PHP would end here - pure JS from here forward
@@ -462,6 +465,13 @@ function updateTree(source) {
                     : null;
             })
             .style("fill", function(d) {
+                if (config.custom_tree_node_color_fn) {
+                    custom_node_color = config.custom_tree_node_color_fn(d);
+                    if (custom_node_color) {
+                        return custom_node_color;
+                    }
+                }
+
                 return d._node_color && vary_node_colors
                     ? d._node_color
                     : null;
