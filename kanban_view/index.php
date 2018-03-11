@@ -1,6 +1,7 @@
 <?php
+    $trunk = dirname(__DIR__);
     $cur_view = 'kanban_view';
-    include('../includes/init.php');
+    include("$trunk/includes/init.php");
 
     $table = Config::$config['kanban_table'];
     $list_field = Config::$config['kanban_list_field'];
@@ -194,7 +195,7 @@
         <script>
 
 <?php
-    require_once("../js/ajax.js");
+    require_once("$trunk/js/ajax.js");
 ?>
 
         var dragging = {
