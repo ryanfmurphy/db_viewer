@@ -665,7 +665,7 @@ infer_limit_from_query: query didn't match regex.
             $name_val = $row[$name_field];
             if (isset($filter_fns[$table])) {
                 $fn = $filter_fns[$table];
-                $name_val = $fn($name_val);
+                $name_val = $fn($row);
             }
             $name_val = Wikiness::replace_objlinks($name_val,'name',true);
             if (!$name_val) {

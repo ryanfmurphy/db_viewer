@@ -13,4 +13,5 @@
     require_once("$trunk/classes/Wikiness.php");
     require_once("$trunk/classes/Curl.php");
     require_once("$trunk/classes/Note.php");
+    require_once("$trunk/classes/Query.php");
 ?>

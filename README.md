@@ -11,10 +11,11 @@ for interacting with a SQL Database, allowing you to:
 
     * type in Queries and view/browse the results in a table format.
 
-    * you can hide/show rows and columns, and click on key fields (e.g. headers/<th>'s)to join in data from new tables.
+    * you can hide/show rows and columns
 
-        * _Coming Soon: Click on a header and it will sort by that column._
-          However, there are already options to sort by a certain column, e.g. a timestamp descending.
+    * click on header fields (e.g. headers / `<th>`'s)to join in data from new tables.
+
+    * there are options to automatically timestamp descending.
 
 * (in [Tree View](/table_view/README.md))
 
@@ -23,6 +24,8 @@ for interacting with a SQL Database, allowing you to:
 
     * customize a definition of the Root Conditions and other-table Relationships
       that reflect a Tree or Hierarchy of rows within your Database
+
+    * or, use [Relation Inheritance](/docs/Inheritance.md)
 
 * (in [Object Editor](/obj_editor/README.md))
 

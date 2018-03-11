@@ -22,14 +22,6 @@
                 $exclude_fields = array();
             }
 
-            /*
-            $exclude_fields = (isset($table_view_exclude_fields_by_table[$tablename_no_quotes])
-                                        ? $table_view_exclude_fields_by_table[$tablename_no_quotes]
-                                        : isset($exclude_fields_by_table[$tablename_no_quotes])
-                                            ? $exclude_fields_by_table[$tablename_no_quotes]
-                                            : array());
-            */
-
             return (
                 !in_array($field_name, $exclude_fields)
                 && (!$minimal

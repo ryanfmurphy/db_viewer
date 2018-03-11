@@ -13,7 +13,7 @@
             $vary_node_colors = Config::$config['vary_node_colors'];
             $default_tree_relationship_condition = Config::$config['default_tree_relationship_condition'];
 
-            return $tree_view_uri."?root_table=$root_table"
+            $return_url = $tree_view_uri."?root_table=$root_table"
                 ."&root_cond=$root_cond"
                 ."&parent_relationships[0][child_table]=$default_root_table_for_tree_view"
                 ."&parent_relationships[0][parent_table]=$default_root_table_for_tree_view"
@@ -25,6 +25,7 @@
                 ."&root_nodes_w_child_only="
                 ."&use_stars_for_node_size=0"
                 ."&vary_node_colors=".(int)$vary_node_colors;
+            return $return_url;
 
         }
 

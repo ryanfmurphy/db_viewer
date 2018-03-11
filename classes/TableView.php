@@ -483,8 +483,9 @@
         public static function special_op_url(
             $special_op, $tablename_no_quotes,
             $primary_key_field, $primary_key, $crud_api_uri,
-            $row, $op_col_idx, $op_idx
+            $row, $op_col_idx, $op_idx, &$error=null
         ) {
+            $error = null;
             # the kind of special_op that changes fields
             if (isset($special_op['changes'])) {
                 # query string
@@ -506,9 +507,17 @@
             elseif (isset($special_op['url'])) {
                 $special_op_url = preg_replace_callback(
                     '/{{([a-z_]+)}}/',
-                    function($match) use ($row) {
+                    function($match) use ($row, &$error) {
                         $fieldname = $match[1];
-                        return $row[$fieldname];
+                        if (isset($row[$fieldname])) {
+                            return $row[$fieldname];
+                        }
+                        else {
+                            if (!$error) {
+                                $error = "missing required field '$fieldname'";
+                            }
+                            return '';
+                        }
                     },
                     $special_op['url']
                 );
@@ -518,7 +527,12 @@
                 $special_op_url = TableView::special_op_fn_url($tablename_no_quotes, $op_col_idx, $op_idx, $primary_key);
             }
 
-            return $special_op_url;
+            if ($error) {
+                return null; # $error is still passed by reference if passed in
+            }
+            else {
+                return $special_op_url;
+            }
         }
 
         public static function special_op_fn_url($tablename_no_quotes, $col_idx, $op_idx, $primary_key) {
@@ -564,16 +578,18 @@
 <?php
                 foreach ($special_ops_col as $op_idx => $special_op) {
 
+                    $error = null; # to be filled
                     $special_op_url = self::special_op_url(
                         $special_op, $tablename_no_quotes,
                         $primary_key_field, $primary_key, $crud_api_uri,
-                        $row, $op_col_idx, $op_idx
+                        $row, $op_col_idx, $op_idx, /*&*/$error
                     );
-                    $href_or_onclick = (isset($special_op['remove'])
-                                        && $special_op['remove']
-                                            ? "onclick=\"hit_url_and_rm_row_from_ui(
-                                                            this, event, '$special_op_url')\""
-                                            : "href=\"$special_op_url\"");
+                    if ($special_op_url) {
+                        $href_or_onclick = (isset($special_op['remove'])
+                                            && $special_op['remove']
+                                                ? "onclick=\"hit_url_and_rm_row_from_ui(
+                                                                this, event, '$special_op_url')\""
+                                                : "href=\"$special_op_url\"");
 ?>
             <li>
                 <nobr>
@@ -586,6 +602,18 @@
                 </nobr>
             </li>
 <?php
+                    }
+                    else {
+?>
+            <li title="Couldn't create url for this action: <?= $error ?>"
+                class="row_edit_link_error"
+            >
+                <nobr>
+                    [<?= $special_op['name'] ?>]
+                </nobr>
+            </li>
+<?php
+                    }
                 }
 ?>
         </ul>
