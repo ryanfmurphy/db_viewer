@@ -58,24 +58,24 @@
                 $git_log = shell_exec($cmd);
             }
 
-            $n_commits_back = 0; #$commits_back;
+            #$n_commits_back = 0; #$commits_back;
             $git_log = preg_replace_callback(
                 #"/^commit (?P<sha>.*)$/m",
                 "/^(?P<sha>\w+)\s+(?P<description>.*)$/m",
-                function($match) use ($filename, &$n_commits_back) {
+                function($match) use ($filename /*, &$n_commits_back*/) {
                     $sha = $match['sha'];
                     $description = $match['description'];
                     { ob_start();
 ?>
     <p>
-        <a href="?filename=<?= $filename ?>&base_commit=HEAD&commits_back=<?= $n_commits_back ?>">
+        <a href="?filename=<?= $filename ?>&base_commit=<?= $sha ?>">
             commit <?= $sha ?> - <?= $description ?>
         </a>
     </p>
 <?php
                         $html = ob_get_clean();
                     }
-                    $n_commits_back++;
+                    #$n_commits_back++;
                     return $html;
                 },
                 $git_log
