@@ -1336,7 +1336,7 @@ function getPopupOptions(d, clicked_node) {
     popup_options.push.apply(popup_options, [
         {   name: 'Local Tree', callback:  function(){
                                                 viewTreeForNode(d, clicked_node);
-                                                closePopup();
+                                                //closePopup(); // clicked Local Tree
                                            } },
         {   name: 'Parent Tree', callback:  function(){
                                                 var url = crud_api_uri;
@@ -1367,19 +1367,19 @@ function getPopupOptions(d, clicked_node) {
         {   name: 'Select/Move', callback: function(){
                                             startNestMode();
                                             selectNode(d, clicked_node);
-                                            closePopup();
+                                            //closePopup(); // clicked Select/Move
                                            } },
         {   name: 'Detach', callback: function(){
                                         detachNodeFromParent(d, false, false);
-                                        closePopup();
+                                        //closePopup(); // clicked Detach
                                       } },
         {   name: 'Delete', callback: function(){
                                         deleteNodeFromParent(d);
-                                        closePopup();
+                                        //closePopup(); // clicked Delete
                                       } }
     ]);
 
-    // filter popup_options
+    // filter popup_options (if you chose to remove some)
     if (config.tree_view_filter_popup_options) {
         var filtered_popup_options = [];
         for (var i = 0; i < config.tree_view_filter_popup_options.length; i++) {
@@ -1544,7 +1544,7 @@ function clickLabel(d) {
                             var data = null;
 
                             var where_clauses = {};
-                            where_clauses[primary_key_field] = primary_key
+                            where_clauses[primary_key_field] = primary_key;
 
                             data = {
                                 action: 'update_' + table_name,
