@@ -1259,20 +1259,55 @@ function getPopupOptions(d, clicked_node) {
     var popup_options = [
         {   name: 'Add Child', callback: function() {
                                                     addChildWithPrompt(d, true);
-                                                    closePopup();
+                                                    //closePopup(); // clicked Add Child
                                                 } },
         {   name: 'Rename', callback: function(){
                                         renameNode(d, clicked_node);
-                                        closePopup();
+                                        //closePopup(); // clicked Rename
                                       } },
         {   name: 'View Details', callback: function(){
                                                 viewNodeDetails(d, clicked_node);
-                                                closePopup();
+                                                //closePopup(); // clicked View Details
                                             } },
         {   name: 'Edit Details', callback: function(){
                                                 editNode(d, clicked_node);
-                                                closePopup();
-                                            } }
+                                                //closePopup(); // clicked Edit Details
+                                            } },
+        {   name: 'Copy ID',
+            callback: function(event){
+                {   // replace text of Copy ID with the actual ID so user can copy it
+                    // and select the text
+                    var popup = document.getElementById('popup');
+                    var copy_id_elt = null;
+                    var childNodes = popup.childNodes;
+                    for (var n=0; n < childNodes.length; n++) {
+                        var child = childNodes[n];
+                        if (child.innerText == 'Copy ID') {
+                            copy_id_elt = child;
+                            break;
+                        }
+                    }
+                    if (copy_id_elt) {
+                        // swap in an <input> with the ID pasted into it - #todo use primary_key_field
+                        copy_id_elt.innerHTML = 'Copied: <input id="copy_id_input" value="' + d.id + '">';
+
+                        // select the text of the <input>
+                        var copy_id_input = document.getElementById('copy_id_input');
+                        copy_id_input.focus();
+                        copy_id_input.select();
+
+                        // copy to clipboard
+                        document.execCommand('copy'); // #todo #fixme make optional to avoid permission lock
+                    }
+                    else {
+                        console.log("Couldn't find copy_id_elt to replace text with id",d.id);
+                    }
+                }
+
+                event.stopPropagation(); // prevent click from hitting body and triggering closePopup
+                //closePopup(); // clicked Copy ID
+            }
+        }
     ];
 
     // URL field links
