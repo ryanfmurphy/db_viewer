@@ -69,7 +69,7 @@
 ?>
     <p>
         <a href="?filename=<?= $filename ?>&base_commit=<?= $sha ?>">
-            commit <?= $sha ?> - <?= $description ?>
+            commit <?= $sha ?> - <?= htmlentities($description) ?>
         </a>
     </p>
 <?php
