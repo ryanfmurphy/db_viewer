@@ -625,6 +625,8 @@
         #}
     }
 
+
+
     function get_matching_field_on_parent($parent_relationship, $table) {
         $matching_field_on_parent = $parent_relationship['matching_field_on_parent'];
         if ($matching_field_on_parent == '{{USE PRIMARY KEY}}') {
