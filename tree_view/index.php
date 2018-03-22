@@ -150,7 +150,6 @@
             $show_default_header = Config::$config['tree_view_show_default_header_too'];
             $custom_header = Config::$config['tree_view_custom_header'];
             $custom_subheader = null;
-
             if (Config::$config['tree_view_custom_header_from_root_id']
                 && !empty($requestVars['root_id'])
             ) {
@@ -162,7 +161,10 @@
                 $custom_header = $root_row['name'];
                 $custom_subheader = "Aliases: ".$root_row['aliases'];
             }
-            else {
+
+            if ($show_default_header
+                || !$custom_header
+            ) {
 ?>
                 🌳 Tree View:
                 <span id="summary">
@@ -180,6 +182,10 @@
 ?>
                 </span>
 <?php
+            }
+
+            if ($custom_header) {
+                echo $custom_header;
             }
 ?>
             </h1>

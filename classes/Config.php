@@ -248,6 +248,7 @@ class Config {
             'sideline_addl_requirements',
             'tree_view_include_header',
             'tree_view_custom_header',
+            'tree_view_show_default_header_too',
             # if this is an array of Names of Popup Options,
             # those will be the only ones included in Tree View popup menu
             'tree_view_filter_popup_options',
@@ -586,6 +587,7 @@ class Config {
             'sideline_addl_requirements' => "parent_ids = '{}'",
             'tree_view_include_header' => true,
             'tree_view_custom_header' => null,
+            'tree_view_show_default_header_too' => false,
             # if this is an array of Names of Popup Options,
             # those will be the only ones included in Tree View popup menu
             'tree_view_filter_popup_options' => null,
