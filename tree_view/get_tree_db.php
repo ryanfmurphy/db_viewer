@@ -309,6 +309,7 @@
         $row['_node_name'] = DbUtil::get_name_val($table, $row);
     }
 
+
     # get_tree() - main function for building the tree
     # ------------------------------------------------
     # * Build a SQL query the queries $root_table
@@ -317,9 +318,11 @@
     #   the $parent_relationships hash.
     # * Call add_tree_lev_by_lev() to add the next level
     #   and keep recursively adding the remaining levels.
-    function db_get_tree(
+
+    function db_get_tree( # main initial function
         $root_table, $root_cond, $parent_relationships,
-        $order_by_limit=null, $root_nodes_w_child_only=false
+        $order_by_limit=null, $root_nodes_w_child_only=false,
+        $max_levels=null
     ) {
         my_debug('overview', "top of get_tree...\n");
 
@@ -404,42 +407,11 @@
     }
 
 
-    # for filtering using the relationship's optional
-    # parent_filter_field and parent_filter_field_val.
-    # $parent is a stdObject, $parent_relationship is an array
-    function parent_meets_filter_criteria($parent, $parent_relationship) {
-        if (isset($parent_relationship['parent_filter_field'])
-            && $parent_relationship['parent_filter_field']
-            && isset($parent_relationship['parent_filter_field_val'])
-        ) {
-            $parent_filter_field = $parent_relationship['parent_filter_field'];
-            $parent_filter_field_val = $parent_relationship['parent_filter_field_val'];
-            my_debug('parent_filter',
-                "parent_relationship needs field `$parent_filter_field` = '$parent_filter_field_val'. "
-                ."testing parent...\n");
-            if (property_exists($parent, $parent_filter_field)
-                && $parent->{$parent_filter_field} == $parent_filter_field_val
-            ) {
-                my_debug('parent_filter', "  MATCH\n");
-                return true;
-            }
-            else {
-                my_debug('parent_filter', "  NO MATCH\n");
-                return false;
-            }
-        }
-        else {
-            my_debug('parent_filter',
-                "parent_relationship has no parent filter information. "
-                ."accepting parent automatically.\n");
-            return true;
-        }
-    }
-
     # add a new level to the tree:
     # starting with an array of $parent_nodes,
     # look in the DB and add all the child_nodes
-    function db_add_tree_lev_by_lev(
+
+    function db_add_tree_lev_by_lev( # iterative function after db_get_tree
         $all_nodes,
         $parent_nodes_by_relationship,
         $parent_relationships,
@@ -604,6 +576,40 @@
                 $parent_relationships,
                 $level + 1
             );
+        }
+    }
+
+
+
+    # for filtering using the relationship's optional
+    # parent_filter_field and parent_filter_field_val.
+    # $parent is a stdObject, $parent_relationship is an array
+    function parent_meets_filter_criteria($parent, $parent_relationship) {
+        if (isset($parent_relationship['parent_filter_field'])
+            && $parent_relationship['parent_filter_field']
+            && isset($parent_relationship['parent_filter_field_val'])
+        ) {
+            $parent_filter_field = $parent_relationship['parent_filter_field'];
+            $parent_filter_field_val = $parent_relationship['parent_filter_field_val'];
+            my_debug('parent_filter',
+                "parent_relationship needs field `$parent_filter_field` = '$parent_filter_field_val'. "
+                ."testing parent...\n");
+            if (property_exists($parent, $parent_filter_field)
+                && $parent->{$parent_filter_field} == $parent_filter_field_val
+            ) {
+                my_debug('parent_filter', "  MATCH\n");
+                return true;
+            }
+            else {
+                my_debug('parent_filter', "  NO MATCH\n");
+                return false;
+            }
+        }
+        else {
+            my_debug('parent_filter',
+                "parent_relationship has no parent filter information. "
+                ."accepting parent automatically.\n");
+            return true;
         }
     }
 
