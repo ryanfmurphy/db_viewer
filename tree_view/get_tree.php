@@ -66,9 +66,12 @@
         if ($backend == 'db') {
             include_once('get_tree_db.php');
 
+            $tree_view_max_levels = Config::$config['tree_view_max_levels'];
+
             $tree = db_get_tree(
                 $root_table, $root_cond, $parent_relationships,
-                $order_by_limit, $root_nodes_w_child_only
+                $order_by_limit, $root_nodes_w_child_only,
+                $tree_view_max_levels
             );
             if (DEBUG_PRE_UNKEYED) {
                 die(print_r($tree,1));

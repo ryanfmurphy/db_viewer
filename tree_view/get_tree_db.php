@@ -389,7 +389,9 @@
             db_add_tree_lev_by_lev(
                 $all_nodes,
                 $parent_nodes_by_relationship,
-                $parent_relationships
+                $parent_relationships,
+                1,
+                $max_levels
             );
         }
 
@@ -415,8 +417,13 @@
         $all_nodes,
         $parent_nodes_by_relationship,
         $parent_relationships,
-        $level = 0
+        $level = 0,
+        $max_levels = null
     ) {
+        if ($max_levels && $level >= $max_levels) {
+            return;
+        }
+
         my_debug('overview', "{ top of add_tree_lev_by_lev: level $level,"
                             ." parent_nodes = ".print_r(
                                 $parent_nodes_by_relationship,1
@@ -568,15 +575,26 @@
             my_debug('overview', "}\n");
         }
 
+        /*if (strpos($_SERVER['REQUEST_URI'],'get_tree') !== false
+            && $level >= $max_levels
+        ) {
+            die('level '.$level);
+        }
+        */
+
         my_debug('overview', "} add_tree_lev_by_lev level $level (except for kick off next level)\n");
         if ($more_children_to_look_for) {
             db_add_tree_lev_by_lev(
                 $all_nodes,
                 $all_children_by_relationship,
                 $parent_relationships,
-                $level + 1
+                $level + 1,
+                $max_levels
             );
         }
+        #else {
+        #    die('nope level '.$level);
+        #}
     }
 
 
