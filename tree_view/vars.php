@@ -177,6 +177,10 @@
 
         'tree_height_factor' => Config::$config['tree_height_factor'],
 
+        'tree_view_custom_header' => isset($requestVars['tree_view_custom_header'])
+                                        ? $requestVars['tree_view_custom_header']
+                                        : Config::$config['tree_view_custom_header'],
+
     );
 
     # create all the variables in the current scope
@@ -188,6 +192,7 @@
     # some of the vars affect the Config vars
     Config::$config['use_stars_for_node_size'] = $use_stars_for_node_size;
     Config::$config['vary_node_colors'] = $vary_node_colors;
+    Config::$config['tree_view_custom_header'] = $tree_view_custom_header;
 
     # make sure all details are set for all relationships (default to null)
     foreach ($parent_relationships as $no => $relationship) {
