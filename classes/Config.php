@@ -255,6 +255,7 @@ class Config {
             'custom_tree_node_color_fn',
             # how many chars of tree node name to show before ...?
             'tree_node_name_cutoff',
+            'tree_view_custom_header_from_root_id',
 
             # filesystem-based tree (experimental/unstable)
             'fs_tree_default_root_dir',
@@ -596,6 +597,7 @@ class Config {
             'custom_tree_node_color_fn' => null,
             # how many chars of tree node name to show before ...?
             'tree_node_name_cutoff' => 50,
+            'tree_view_custom_header_from_root_id' => true,
 
             # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir' => null,
