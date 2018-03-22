@@ -85,10 +85,21 @@
 ?>
             <h1>
 <?php
-            if (Config::$config['tree_view_custom_header']) {
-                echo Config::$config['tree_view_custom_header'];
+            $show_default_header = Config::$config['tree_view_show_default_header_too'];
+            $custom_header = Config::$config['tree_view_custom_header'];
+
+            if (Config::$config['tree_view_custom_header_from_root_id']
+                && !empty($requestVars['root_id'])
+            ) {
+                $root_id = $requestVars['root_id'];
+                $sql = 'select name from entity where id = '.Db::quote($root_id);
+                $rows = Db::sql($sql);
+                $custom_header = $rows[0]['name'];
             }
-            else {
+
+            if ($show_default_header
+                || !$custom_header
+            ) {
 ?>
                 🌳 Tree View:
                 <span id="summary">
@@ -106,6 +117,10 @@
 ?>
                 </span>
 <?php
+            }
+
+            if ($custom_header) {
+                echo $custom_header;
             }
 ?>
             </h1>
