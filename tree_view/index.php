@@ -150,6 +150,7 @@
             $show_default_header = Config::$config['tree_view_show_default_header_too'];
             $custom_header = Config::$config['tree_view_custom_header'];
             $custom_subheader = null;
+
             if (Config::$config['tree_view_custom_header_from_root_id']
                 && !empty($requestVars['root_id'])
             ) {
