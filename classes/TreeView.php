@@ -81,8 +81,9 @@
 <?php
         }
 
-        public static function get_full_tree_url($primary_key) {
+        public static function get_full_tree_url($primary_key, &$used_tree_row_from_db=null) {
             $tree_url = null;
+            $used_tree_row_from_db = false; # set var for caller
 
             if (Config::$config['store_tree_views_in_db']) {
                 $rows = Db::sql("select tree_url('$primary_key')");
@@ -93,7 +94,10 @@
             }
 
             # no tree stored in DB? use default url
-            if (!$tree_url) {
+            if ($tree_url) {
+                $used_tree_row_from_db = true; # set var for caller
+            }
+            else {
                 $tree_url = self::get_default_tree_url(
                     $primary_key
                 );

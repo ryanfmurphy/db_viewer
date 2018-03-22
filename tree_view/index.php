@@ -64,22 +64,84 @@
         </head>
 
         <body>
-            <span id="alert"></span>
+            <div id="settings">
 <?php
     { # Configure Tree link
         $vars_for_edit_link = $requestVars;
         $vars_for_edit_link['edit_vars'] = 1;
 ?>
-            <a id="edit_vars_link"
-               href="<?= "?".http_build_query($vars_for_edit_link) ?>"
-               target="_blank">
-                Configure Tree
-            </a>
+                <a id="edit_vars_link"
+                   href="<?= "?".http_build_query($vars_for_edit_link) ?>"
+                   target="_blank"
+                   title="View/manage the conditions and table relationships that make up this tree view"
+                >
+                    Configure Tree
+                </a>
 <?php
     }
 
     TreeView::echo_default_view_toggle_link($requestVars);
 
+    if (!$used_tree_row_from_db) { # SD
+?>
+                <style>
+                    ul#boards_to_show {
+                        padding-left: .5em;
+                        list-style-type: none;
+                        margin-top: 0;
+                        margin-bottom: .4em;
+                    }
+                </style>
+                <p class="small_copy">Showing Cards from:</p>
+                <ul id="boards_to_show">
+<?php
+    #todo #fixme
+        foreach (Config::$config['boards_to_show'] as $board) {
+?>
+                    <li style="color: <?= $board['color'] ?>">
+                        <?= $board['name'] ?>
+                    </li>
+<?php
+        }
+?>
+                </ul>
+<?php
+    }
+
+
+    $url_parts = parse_url($_SERVER['REQUEST_URI']);
+?>
+                <form onkeypress="event.stopPropagation();" action="<?= $url_parts['path']  ?>">
+<?php
+    if (!empty($root_id)) {
+?>
+                    <input type="hidden" name="root_id" value="<?= $root_id ?>">
+<?php
+    }
+?>
+                    <div>
+                        <label>V Spacing:</label>
+                        <input name="tree_height_factor" value="<?= Config::$config['tree_height_factor'] ?>" size=5>
+                    </div>
+                    <div>
+                        <label>Max levels:</label>
+                        <input name="tree_view_max_levels" value="<?= Config::$config['tree_view_max_levels'] ?>" size=5>
+                    </div>
+                    <div>
+                        <label>Priority</label>
+                        <input name="pri_cond" value="<?= Config::$config['pri_cond'] ?>" size=5>
+                    </div>
+                    <div>
+                        <label>Size</label>
+                        <input name="size_cond" value="<?= Config::$config['size_cond'] ?>" size=5>
+                    </div>
+                    <div>
+                        <input type="submit">
+                    </div>
+                </form>
+                <div id="alert"></div>
+            </div>
+<?php
     { # header
         if (Config::$config['tree_view_include_header']) {
 ?>
@@ -87,14 +149,18 @@
 <?php
             $show_default_header = Config::$config['tree_view_show_default_header_too'];
             $custom_header = Config::$config['tree_view_custom_header'];
+            $custom_subheader = null;
 
             if (Config::$config['tree_view_custom_header_from_root_id']
                 && !empty($requestVars['root_id'])
             ) {
                 $root_id = $requestVars['root_id'];
-                $sql = 'select name from entity where id = '.Db::quote($root_id);
+                $sql = 'select name, aliases from entity where id = '.Db::quote($root_id);
                 $rows = Db::sql($sql);
-                $custom_header = $rows[0]['name'];
+                $root_row = $rows[0];
+
+                $custom_header = $root_row['name'];
+                $custom_subheader = "Aliases: ".$root_row['aliases'];
             }
 
             if ($show_default_header
@@ -125,6 +191,11 @@
 ?>
             </h1>
 <?php
+            if ($custom_subheader) {
+?>
+            <div id="subheader""><?= $custom_subheader ?></div>
+<?php
+            }
         }
     }
 
