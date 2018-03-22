@@ -300,8 +300,10 @@ class Config {
 
 
 
-            # optional variables to fill and pass out from the Config
+            # optional variables to fill and pass out from the Config - SD
             'boards_to_show',
+            'board_options',
+            'checked_boards',
             'pri_cond', # e.g. ">= 3"
             'size_cond', # e.g. ">= 3"
         );

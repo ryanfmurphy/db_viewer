@@ -82,11 +82,21 @@
 
     TreeView::echo_default_view_toggle_link($requestVars);
 
+    $url_parts = parse_url($_SERVER['REQUEST_URI']);
+?>
+                <form onkeypress="event.stopPropagation();" action="<?= $url_parts['path']  ?>">
+<?php
+    if (!empty($root_id)) {
+?>
+                    <input type="hidden" name="root_id" value="<?= $root_id ?>">
+<?php
+    }
+
     if (!$used_tree_row_from_db) { # SD
 ?>
                 <style>
                     ul#boards_to_show {
-                        padding-left: .5em;
+                        padding-left: 0;
                         list-style-type: none;
                         margin-top: 0;
                         margin-bottom: .4em;
@@ -95,27 +105,21 @@
                 <p class="small_copy">Showing Cards from:</p>
                 <ul id="boards_to_show">
 <?php
-    #todo #fixme
-        foreach (Config::$config['boards_to_show'] as $board) {
+        $checked_boards = Config::$config['checked_boards'];
+        foreach (Config::$config['board_options'] as $key => $board) {
+            $checked =  isset($checked_boards[$key])
+                        && $checked_boards[$key]
+                            ? 'checked'
+                            : null;
 ?>
                     <li style="color: <?= $board['color'] ?>">
+                        <input name="checked_boards[<?= $board['name'] ?>]" value="1" type="checkbox" <?= $checked ? 'checked=""' : '' ?>>
                         <?= $board['name'] ?>
                     </li>
 <?php
         }
 ?>
                 </ul>
-<?php
-    }
-
-
-    $url_parts = parse_url($_SERVER['REQUEST_URI']);
-?>
-                <form onkeypress="event.stopPropagation();" action="<?= $url_parts['path']  ?>">
-<?php
-    if (!empty($root_id)) {
-?>
-                    <input type="hidden" name="root_id" value="<?= $root_id ?>">
 <?php
     }
 ?>
