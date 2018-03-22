@@ -25,18 +25,14 @@
                 color: gray;
                 font-weight: normal;
                 text-align: center;
+                margin-bottom: .3em;
             }
             h1 span {
                 font-weight: bold;
             }
-
-            #alert {
-                position: fixed;
+            #subheader {
                 text-align: center;
-                display: none;
-                background: orange;
-                padding: 1em;
-                color: white;
+                font-size: 80%;
             }
 
             .node {
@@ -75,6 +71,38 @@
             #summary {
                 margin-left: .15em;
             }
+
+            #settings {
+                position: fixed;
+                background: rgba(128,128,128,.4);
+                padding: .3em;
+            }
+            #settings > a {
+                display: inline;
+                font-size: 80%;
+                margin-right: .7em;
+            }
+            #settings #alert {
+                text-align: center;
+                display: none;
+                background: orange;
+                padding: 1em;
+                margin-bottom: 1em;
+                color: white;
+            }
+
+            #settings form label {
+                display: inline-block;
+                min-width: 6em;
+            }
+            #settings form input[type=text] {
+                /*float: right;*/
+            }
+            .small_copy {
+                font-size: 80%;
+                margin-bottom: .2em;
+            }
+
 
 <?php
     foreach ($table_info as $table => $info) {

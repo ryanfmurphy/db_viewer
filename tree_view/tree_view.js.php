@@ -644,7 +644,7 @@ function get_alert_elem() {
 function do_alert(msg, color) {
     var alert_elem = get_alert_elem();
     alert_elem.innerHTML = msg;
-    alert_elem.style.display = 'inline';
+    alert_elem.style.display = 'block';
     alert_elem.style.background = color;
 }
 

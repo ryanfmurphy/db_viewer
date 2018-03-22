@@ -291,6 +291,12 @@ class Config {
             'obj_editor_show_notes', # list any notes on this obj
             'obj_editor_note_table', # which table to draw from to show notes
 
+
+
+            # optional variables to fill and pass out from the Config
+            'boards_to_show',
+            'pri_cond', # e.g. ">= 3"
+            'size_cond', # e.g. ">= 3"
         );
 
         $config = compact($config_vars);

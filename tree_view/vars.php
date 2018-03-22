@@ -39,11 +39,14 @@
     # get the tree_url for that row from the DB
     # and parse it out into the $_GET vars
     if ($root_id) {
+        $used_tree_row_from_db = false;
         if (isset($requestVars['use_default_view'])) {
             $tree_url = TreeView::get_default_tree_url($root_id);
         }
         else {
-            $tree_url = TreeView::get_full_tree_url($root_id);
+            $tree_url = TreeView::get_full_tree_url(
+                $root_id,
+                /*&*/$used_tree_row_from_db); # may set var to true
         }
 
         $infer_vars_from_backend_url = true;
@@ -177,6 +180,18 @@
 
         'tree_height_factor' => Config::$config['tree_height_factor'],
 
+        'tree_view_custom_header' => isset($requestVars['tree_view_custom_header'])
+                                        ? $requestVars['tree_view_custom_header']
+                                        : Config::$config['tree_view_custom_header'],
+
+        'tree_view_max_levels' => isset($requestVars['tree_view_max_levels'])
+                                        ? $requestVars['tree_view_max_levels']
+                                        : Config::$config['tree_view_max_levels'],
+
+        'pri_cond' => isset($requestVars['pri_cond'])
+                                        ? $requestVars['pri_cond']
+                                        : Config::$config['pri_cond'],
+
     );
 
     # create all the variables in the current scope
@@ -188,6 +203,9 @@
     # some of the vars affect the Config vars
     Config::$config['use_stars_for_node_size'] = $use_stars_for_node_size;
     Config::$config['vary_node_colors'] = $vary_node_colors;
+    Config::$config['tree_view_custom_header'] = $tree_view_custom_header;
+    Config::$config['tree_view_max_levels'] = $tree_view_max_levels;
+    Config::$config['pri_cond'] = $pri_cond;
 
     # make sure all details are set for all relationships (default to null)
     foreach ($parent_relationships as $no => $relationship) {
