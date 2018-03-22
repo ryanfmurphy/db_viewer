@@ -301,9 +301,6 @@
         padding: .5em;
         margin-bottom: .5em;
     }
-    #inferred_table_info {
-        margin-bottom: .5em;
-    }
     a {
         color: 00f;
     }
@@ -312,7 +309,17 @@
     }
     </style>
 <?php
-            }
+            } # / background image
+?>
+
+    <style>
+    #inferred_table_info {
+        margin-bottom: .5em;
+        margin: .5em;
+    }
+    </style>
+
+<?php
         }
 
         { # join colors
