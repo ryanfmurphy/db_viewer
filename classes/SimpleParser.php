@@ -311,10 +311,4 @@ class SimpleParser {
         return $ret;
     }
 
-    public function top_level($txt) {
-        #$txt = $this->blank_out_strings($txt);
-        $txt = $this->blank_out_comments($txt);
-        return $txt;
-    }
-
 }

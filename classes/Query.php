@@ -45,13 +45,6 @@ class Query {
         return $this->body;
     }
 
-    public function top_level() {
-        return SimpleParser::top_level($this->body);
-    }
-
-    public function parse_limit() {
-    }
-
     # if $sqlish is just a tablename, expand it to actual sql
     # return expanded sql if applicable, false otherwise
     public static function expand_tablename_into_query(
