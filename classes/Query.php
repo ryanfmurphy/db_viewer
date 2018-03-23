@@ -39,10 +39,18 @@ class Query {
         $this->offset = (!empty($limit_info['offset'])
                             ? $limit_info['offset']
                             : null);
+        #die(print_r($this,1));
     }
 
-    public function sql() {
-        return $this->body;
+    public function sql_from_parts() {
+        $sql = $this->body;
+        if ($this->limit) {
+            $sql .= " limit $this->limit";
+        }
+        if ($this->offset) {
+            $sql .= " offset $this->offset";
+        }
+        return $sql;
     }
 
     # if $sqlish is just a tablename, expand it to actual sql
@@ -84,7 +92,7 @@ class Query {
     }
 
     public static function query_is_destructive($sql) {
-        $sql = 'select * from (select * from blah limit 50 offset 10) t limit 100'; 
+        #$sql = 'select * from (select * from blah limit 50 offset 10) t limit 100 offset 50'; 
         $query = new Query($sql);
         #die(print_r($query,1));
 
