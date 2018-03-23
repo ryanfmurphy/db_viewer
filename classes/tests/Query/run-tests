@@ -1,0 +1,6 @@
+#!/bin/sh
+echo
+echo "Query Tests"
+echo "==========="
+echo
+php 001-basic.php

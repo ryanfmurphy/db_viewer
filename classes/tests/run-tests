@@ -1,0 +1,5 @@
+#!/bin/sh
+(cd SimpleParser && ./run-tests) \
+&& (cd Query && ./run-tests) \
+&& echo "*** ALL TEST PASSED FROM ALL DIRECTORIES! ***
+"

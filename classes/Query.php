@@ -29,17 +29,23 @@ class Query {
     public $limit; # an integer or null
     public $offset; # an integer or null
 
-    public function __construct($sql) {
+    public function __construct($sql, $infer_parts=true) {
         $limit_info = self::infer_limit_info_from_query($sql);
         $this->orig_sql = $sql;
-        $this->body = $limit_info['query_wo_limit'];
-        $this->limit = (!empty($limit_info['limit'])
-                            ? $limit_info['limit']
-                            : null);
-        $this->offset = (!empty($limit_info['offset'])
-                            ? $limit_info['offset']
-                            : null);
-        #die(print_r($this,1));
+        if ($infer_parts) {
+            $this->body = $limit_info['query_wo_limit'];
+            $this->limit = (!empty($limit_info['limit'])
+                                ? $limit_info['limit']
+                                : null);
+            $this->offset = (!empty($limit_info['offset'])
+                                ? $limit_info['offset']
+                                : null);
+        }
+        else {
+            $this->body = $sql;
+        }
+        #print_r($this);
+        #die($this->sql_from_parts());
     }
 
     public function sql_from_parts() {
