@@ -48,16 +48,16 @@ class Query {
 
         # allow sqlite directives like '.schema' without accidentally expanding them into SELECT queries
         $starts_with_dot = preg_match('/^\./', $sqlish);
-        if (strlen($sqlish) > 0
-            && $sql_has_no_spaces
-            && !$starts_with_dot
-        ) {
-            # (tablename has no quotes)
-            $tablename = $sqlish;
+
+        $is_just_tablename = strlen($sqlish) > 0
+                             && $sql_has_no_spaces
+                             && !$starts_with_dot;
+        
+        if ($is_just_tablename) {
+            $tablename = $sqlish; # (tablename has no quotes)
 
             if ($order_by_limit === null) {
-                $order_by_limit = DbUtil::default_order_by_limit(
-                                                        $tablename);
+                $order_by_limit = DbUtil::default_order_by_limit($tablename);
             }
 
             # optionally filter out archived rows
