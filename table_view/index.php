@@ -74,13 +74,13 @@
                     $sql = str_replace("\r\n", "\n", $sql);
                 }
 
-                # we'll also decide whether to order by time
+                # we'll also decide whether to order by time - #todo replace with order_by=fieldname
                 $order_by_time = (isset($requestVars['order_by_time'])
                                     ? $requestVars['order_by_time']
                                     : false);
 
                 { # just tablename? turn to select statement
-                    $expanded_sql = DbUtil::expand_tablename_into_query(
+                    $expanded_sql = Query::expand_tablename_into_query(
                         $sql, array(), null, ' limit 100' # to infer/rebuild it later on
                     );
                     if ($expanded_sql) {

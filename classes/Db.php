@@ -484,7 +484,7 @@ if (!class_exists('Db')) {
             $strict_wheres = $match_aliases;
 
             # build the query
-            $sql = DbUtil::expand_tablename_into_query(
+            $sql = Query::expand_tablename_into_query(
                 $table_name, $where_vars, $select_fields,
                 null, $strict_wheres
             );
