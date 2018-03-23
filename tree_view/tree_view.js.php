@@ -1260,20 +1260,55 @@ function getPopupOptions(d, clicked_node) {
     var popup_options = [
         {   name: 'Add Child', callback: function() {
                                                     addChildWithPrompt(d, true);
-                                                    closePopup();
+                                                    //closePopup(); // clicked Add Child
                                                 } },
         {   name: 'Rename', callback: function(){
                                         renameNode(d, clicked_node);
-                                        closePopup();
+                                        //closePopup(); // clicked Rename
                                       } },
         {   name: 'View Details', callback: function(){
                                                 viewNodeDetails(d, clicked_node);
-                                                closePopup();
+                                                //closePopup(); // clicked View Details
                                             } },
         {   name: 'Edit Details', callback: function(){
                                                 editNode(d, clicked_node);
-                                                closePopup();
-                                            } }
+                                                //closePopup(); // clicked Edit Details
+                                            } },
+        {   name: 'Copy ID',
+            callback: function(event){
+                {   // replace text of Copy ID with the actual ID so user can copy it
+                    // and select the text
+                    var popup = document.getElementById('popup');
+                    var copy_id_elt = null;
+                    var childNodes = popup.childNodes;
+                    for (var n=0; n < childNodes.length; n++) {
+                        var child = childNodes[n];
+                        if (child.innerText == 'Copy ID') {
+                            copy_id_elt = child;
+                            break;
+                        }
+                    }
+                    if (copy_id_elt) {
+                        // swap in an <input> with the ID pasted into it - #todo use primary_key_field
+                        copy_id_elt.innerHTML = 'Copied: <input id="copy_id_input" value="' + d.id + '">';
+
+                        // select the text of the <input>
+                        var copy_id_input = document.getElementById('copy_id_input');
+                        copy_id_input.focus();
+                        copy_id_input.select();
+
+                        // copy to clipboard
+                        document.execCommand('copy'); // #todo #fixme make optional to avoid permission lock
+                    }
+                    else {
+                        console.log("Couldn't find copy_id_elt to replace text with id",d.id);
+                    }
+                }
+
+                event.stopPropagation(); // prevent click from hitting body and triggering closePopup
+                //closePopup(); // clicked Copy ID
+            }
+        }
     ];
 
     // URL field links
@@ -1302,7 +1337,7 @@ function getPopupOptions(d, clicked_node) {
     popup_options.push.apply(popup_options, [
         {   name: 'Local Tree', callback:  function(){
                                                 viewTreeForNode(d, clicked_node);
-                                                closePopup();
+                                                //closePopup(); // clicked Local Tree
                                            } },
         {   name: 'Parent Tree', callback:  function(){
                                                 var url = crud_api_uri;
@@ -1333,19 +1368,19 @@ function getPopupOptions(d, clicked_node) {
         {   name: 'Select/Move', callback: function(){
                                             startNestMode();
                                             selectNode(d, clicked_node);
-                                            closePopup();
+                                            //closePopup(); // clicked Select/Move
                                            } },
         {   name: 'Detach', callback: function(){
                                         detachNodeFromParent(d, false, false);
-                                        closePopup();
+                                        //closePopup(); // clicked Detach
                                       } },
         {   name: 'Delete', callback: function(){
                                         deleteNodeFromParent(d);
-                                        closePopup();
+                                        //closePopup(); // clicked Delete
                                       } }
     ]);
 
-    // filter popup_options
+    // filter popup_options (if you chose to remove some)
     if (config.tree_view_filter_popup_options) {
         var filtered_popup_options = [];
         for (var i = 0; i < config.tree_view_filter_popup_options.length; i++) {
@@ -1510,7 +1545,7 @@ function clickLabel(d) {
                             var data = null;
 
                             var where_clauses = {};
-                            where_clauses[primary_key_field] = primary_key
+                            where_clauses[primary_key_field] = primary_key;
 
                             data = {
                                 action: 'update_' + table_name,
