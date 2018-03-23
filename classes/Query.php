@@ -76,5 +76,20 @@ class Query {
         }
     }
 
+    public static function query_is_destructive($query) {
+        if (preg_match(
+                "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER|TRUNCATE)\\b/i",
+                $query, $match
+            )
+        ) {
+            $destrictive_kw = $match[1];
+            return $destrictive_kw;
+        }
+        else {
+            return false;
+        }
+    }
+
+
 }
 

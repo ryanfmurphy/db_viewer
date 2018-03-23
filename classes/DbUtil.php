@@ -881,20 +881,6 @@ infer_limit_from_query: query didn't match regex.
             }
         }
 
-        public static function query_is_destructive($query) {
-            if (preg_match(
-                    "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER|TRUNCATE)\\b/i",
-                    $query, $match
-                )
-            ) {
-                $destrictive_kw = $match[1];
-                return $destrictive_kw;
-            }
-            else {
-                return false;
-            }
-        }
-
         # same as sql_tables() except a value array
         # instead of keyed by table
         public static function get_tables_array() {
@@ -1005,7 +991,7 @@ infer_limit_from_query: query didn't match regex.
 
         public static function disallow_destructive_queries($sql) {
             $allow_destructive_queries = Config::$config['allow_destructive_queries'];
-            $query_is_destructive = $destructive_kw = DbUtil::query_is_destructive($sql);
+            $query_is_destructive = $destructive_kw = Query::query_is_destructive($sql);
             if (!$allow_destructive_queries
                 && $query_is_destructive
             ) {
