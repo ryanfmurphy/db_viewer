@@ -18,14 +18,28 @@ class Query {
           "deeply populated" - limit/order by is separated out
     */
 
+    public $orig_sql;
     public $body;
 
     public $select_fields;
     public $where_clauses;  # a string, or an array w where_clause's
         # a "where_clause" is a string
-    public $order_by_limit; # a string, or an array w keys 'order_by' and 'limit'
-        # a "order_by" is a string
-        # a "limit" is a string
+    public $order_by; # a string, e.g. "order by time_added desc"
+        # can be null for no order_by
+    public $limit; # an integer or null
+    public $offset; # an integer or null
+
+    public function __construct($sql) {
+        $limit_info = self::infer_limit_info_from_query($sql);
+        $this->orig_sql = $sql;
+        $this->body = $limit_info['query_wo_limit'];
+        $this->limit = (!empty($limit_info['limit'])
+                            ? $limit_info['limit']
+                            : null);
+        $this->offset = (!empty($limit_info['offset'])
+                            ? $limit_info['offset']
+                            : null);
+    }
 
     public function sql() {
         return $this->body;
@@ -76,10 +90,14 @@ class Query {
         }
     }
 
-    public static function query_is_destructive($query) {
+    public static function query_is_destructive($sql) {
+        $sql = 'select * from (select * from blah limit 50 offset 10) t limit 100'; 
+        $query = new Query($sql);
+        #die(print_r($query,1));
+
         if (preg_match(
                 "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER|TRUNCATE)\\b/i",
-                $query, $match
+                $sql, $match
             )
         ) {
             $destrictive_kw = $match[1];
@@ -90,6 +108,73 @@ class Query {
         }
     }
 
+    public static function infer_table_from_query($query) {
+        #todo improve inference - fix corner cases
+        $quote_char = DbUtil::quote_char();
+        if (preg_match(
+                "/ \b from \s+ ((?:\w|\.|$quote_char)+) /ix",
+                $query, $matches)
+        ) {
+            $table = $matches[1];
+            return $table;
+        }
+    }
 
+    public static function infer_limit_info_from_query($sql) {
+        #todo improve inference - fix corner cases
+        $regex = "/ ^
+
+                    (?P<query_wo_limit>.*)
+
+                    \s+
+
+                    limit
+                    \s+ (?P<limit>\d+)
+                    (?:
+                        \s+ offset
+                        \s+ (?P<offset>\d+)
+                    ) ?
+
+                    ; ?
+
+                    $
+                    /six";
+
+        $simple_parser = new SimpleParser();
+        #$sql = $simple_parser->parse($sql);
+
+        $result = array(
+            'limit' => null,
+            'offset' => null,
+            'query_wo_limit' => $sql,
+        );
+
+        if ($simple_parser->preg_match_parse(
+                $regex, $sql, $matches
+            )
+        ) {
+            if (isset($matches['query_wo_limit'])) {
+                $result['query_wo_limit'] = $matches['query_wo_limit'];
+            }
+            if (isset($matches['limit'])) {
+                $result['limit'] = $matches['limit'];
+            }
+            if (isset($matches['offset'])) {
+                $result['offset'] = $matches['offset'];
+            }
+        }
+        else {
+            self::log("
+infer_limit_from_query: query didn't match regex.
+query = '$sql'
+"
+);
+        }
+        return $result;
+    }
+
+    public static function log($msg) {
+        error_log($msg, 3, __DIR__.'/error_log');
+    }
 }
 

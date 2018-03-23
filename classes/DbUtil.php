@@ -528,67 +528,6 @@ if (!class_exists('DbUtil')) {
                             : '"');
         }
 
-        public static function infer_table_from_query($query) {
-            #todo improve inference - fix corner cases
-            $quote_char = self::quote_char();
-            if (preg_match(
-                    "/ \b from \s+ ((?:\w|\.|$quote_char)+) /ix",
-                    $query, $matches)
-            ) {
-                $table = $matches[1];
-                return $table;
-            }
-        }
-
-        public static function infer_limit_info_from_query($query) {
-            #todo improve inference - fix corner cases
-            $regex = "/ ^
-
-                        (?P<query_wo_limit>.*)
-
-                        \s+
-
-                        limit
-                        \s+ (?P<limit>\d+)
-                        (?:
-                            \s+ offset
-                            \s+ (?P<offset>\d+)
-                        ) ?
-
-                        ; ?
-
-                        $
-                        /six";
-
-            $result = array(
-                'limit' => null,
-                'offset' => null,
-                'query_wo_limit' => $query,
-            );
-
-            if (preg_match($regex, $query, $matches)) {
-                if (isset($matches['query_wo_limit'])) {
-                    $result['query_wo_limit'] = $matches['query_wo_limit'];
-                }
-                if (isset($matches['limit'])) {
-                    $result['limit'] = $matches['limit'];
-                }
-                if (isset($matches['offset'])) {
-                    $result['offset'] = $matches['offset'];
-                }
-            }
-            else {
-                self::log("
-infer_limit_from_query: query didn't match regex.
-    query = '$query'
-"
-    #regex = '$regex'
-);
-            }
-            #die(print_r($result,1));
-            return $result;
-        }
-
         #todo move these to TableView class
         # while factoring some key sql-building part to leave here in DbUtil
         public static function link_to_prev_page($limit_info) {

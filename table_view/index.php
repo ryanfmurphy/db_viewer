@@ -94,7 +94,7 @@
             }
 
             { # vars
-                $inferred_table = DbUtil::infer_table_from_query($sql);
+                $inferred_table = Query::infer_table_from_query($sql);
                 $tablename_no_quotes = DbUtil::strip_quotes(
                         DbUtil::just_tablename($inferred_table)
                 );
@@ -118,7 +118,7 @@
 
                     # limit, offset, query_wo_limit
                     # #todo #fixme this doesn't take into account "order_by time_added"
-                    $limit_info = DbUtil::infer_limit_info_from_query($sql);
+                    $limit_info = Query::infer_limit_info_from_query($sql);
 
                     { # prep for order_by_time
                         $order_by_to_add_to_sql = null;
