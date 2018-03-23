@@ -102,7 +102,8 @@
                         margin-bottom: .4em;
                     }
                 </style>
-                <p class="small_copy">Showing Cards from:</p>
+                <p class="small_copy">Showing Untreed Cards from:</p>
+
                 <ul id="boards_to_show">
 <?php
         $checked_boards = Config::$config['checked_boards'];
@@ -113,6 +114,7 @@
                             : null;
 ?>
                     <li style="color: <?= $board['color'] ?>">
+                        <input type="hidden" name="checked_boards[<?= $board['name'] ?>]" value="">
                         <input name="checked_boards[<?= $board['name'] ?>]" value="1" type="checkbox" <?= $checked ? 'checked=""' : '' ?>>
                         <?= $board['name'] ?>
                     </li>
