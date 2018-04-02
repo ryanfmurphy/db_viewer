@@ -633,6 +633,12 @@ class Config {
             'url_field_links' => array('URL' => 'url'),
             'obj_editor_show_notes' => false, # list any note on this obj
             'obj_editor_note_table' => 'entity', # which table to draw from to show notes
+
+            'boards_to_show' => null,
+            'board_options' => null,
+            'checked_boards' => null,
+            'pri_cond' => null,
+            'size_cond' => null,
         );
 
         return $default_values;
