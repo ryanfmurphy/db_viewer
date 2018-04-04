@@ -92,7 +92,8 @@
 <?php
     }
 
-    if (!$used_tree_row_from_db) { # SD
+    $show_trello_board_filter = !$used_tree_row_from_db && isset(Config::$config['board_options']);
+    if ($show_trello_board_filter) { # SD
 ?>
                 <style>
                     ul#boards_to_show {
