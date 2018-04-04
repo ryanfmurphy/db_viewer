@@ -38,8 +38,8 @@
     # if the root_id was passed in (or derived above),
     # get the tree_url for that row from the DB
     # and parse it out into the $_GET vars
+    $used_tree_row_from_db = false;
     if ($root_id) {
-        $used_tree_row_from_db = false;
         if (isset($requestVars['use_default_view'])) {
             $tree_url = TreeView::get_default_tree_url($root_id);
         }

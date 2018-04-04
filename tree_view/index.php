@@ -82,7 +82,18 @@
 
     TreeView::echo_default_view_toggle_link($requestVars);
 
-    if (!$used_tree_row_from_db) { # SD
+    $url_parts = parse_url($_SERVER['REQUEST_URI']);
+?>
+                <form onkeypress="event.stopPropagation();" action="<?= $url_parts['path']  ?>">
+<?php
+    if (!empty($root_id)) {
+?>
+                    <input type="hidden" name="root_id" value="<?= $root_id ?>">
+<?php
+    }
+
+    $show_trello_board_filter = !$used_tree_row_from_db && isset(Config::$config['board_options']);
+    if ($show_trello_board_filter) { # SD
 ?>
                 <style>
                     ul#boards_to_show {
@@ -95,7 +106,7 @@
                 <p class="small_copy">Showing Cards from:</p>
                 <ul id="boards_to_show">
 <?php
-    #todo #fixme
+        #todo #fixme remove
         foreach (Config::$config['boards_to_show'] as $board) {
 ?>
                     <li style="color: <?= $board['color'] ?>">
