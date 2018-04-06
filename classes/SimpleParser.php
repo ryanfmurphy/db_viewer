@@ -221,17 +221,15 @@ class SimpleParser {
                                                 : $match_offset_end;
 
                 # adjust any subs that happen after the end of this match
-                foreach ($subs as $sub_offset => $txt) {
+                # (rebuild the subs array from scratch, shifting over as needed)
+                $old_subs = $subs;
+                $subs = [];
+                foreach ($old_subs as $sub_offset => $txt) {
                     if ($sub_offset >= $match_offset_to_compare) { # sub is after match, thus affected
-                        # move the sub based on the delta_len
-                        unset($subs[$sub_offset]);
-                        $new_offset = $sub_offset + $delta_len;
-                        $subs[$new_offset] = $txt;
+                        $subs[$sub_offset + $delta_len] = $txt;
                     }
-                    else {
-                        $sub_offset_end = $sub_offset + strlen($txt);
-                        #todo #fixme warning! there are cases where you may want to 
-                        #assert($sub_offset_end <= $match_offset, 'sub must not overlap with replaced txt');
+                    else { # not affected
+                        $subs[$sub_offset] = $txt;
                     }
                 }
                 ksort($subs); # make sure offsets are in order
