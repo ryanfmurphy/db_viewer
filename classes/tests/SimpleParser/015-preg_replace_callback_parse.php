@@ -189,6 +189,25 @@ echo "PASSED 6...\n\n";
 
 
 
+# test 7 - tests a bug that WB helped me find on 2018-04-06
+    # the adjusting of the subs array by shifting matches over created an infinite loop
+    # due to trying to loop thru the referenced array and trying to rewrite it at the same time
+    # so now I recreate the array from scratch
+echo "Here goes nothing, hope we don't get into an infinite loop!  (We fixed it so we should be good)...\n";
+$new_txt = $s->preg_replace_callback_parse(
+    '/Weston/',
+    function($match) { return 'Michael'; },
+    'test 1 2 3 Weston Weston "Weston" // this is for showing Weston a thing',
+    1, true
+);
+
+assert(
+    $new_txt == 'test 1 2 3 Michael Michael "Weston" // this is for showing Weston a thing',
+    'replace successfully completed, and avoided the endless loop by creating the subs array cleanly from scratch'
+) or die(1);
+echo "PASSED 7...\n\n";
+
+
 
 echo "ALL TESTS PASSED!\n";
 
