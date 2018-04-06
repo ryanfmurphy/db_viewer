@@ -110,6 +110,8 @@ class Config {
             'archive_instead_of_delete',
 
             'aliases_field',
+            'is_private_field',
+            'show_private_rows', # only does anything if it's false and is_private_field is set
 
             'bold_border_between_weeks',
             'bold_border_between_days',
@@ -464,6 +466,8 @@ class Config {
             'archive_instead_of_delete' => false,
 
             'aliases_field' => null,
+            'is_private_field' => null,
+            'show_private_rows' => true, # only does anything if it's false and is_private_field is set
 
             'bold_border_between_weeks' => false,
             'bold_border_between_days' => false,

@@ -128,6 +128,9 @@
                         $special_ops_cols = isset($special_ops[$tablename_no_quotes])
                                                 ? $special_ops[$tablename_no_quotes]
                                                 : array();
+
+                        $is_private_field = Config::$config['is_private_field'];
+                        $filter_private_rows = $is_private_field && !Config::$config['show_private_rows'];
                     }
 
                     #todo will/does obj_editor accept "schema.table" format?
@@ -135,6 +138,14 @@
                     $rowN = 0;
                     $last_row_time_added = null; # for bold_border_between_days
                     foreach ($rows as $row) {
+                        if ($filter_private_rows) {
+                            $this_row_is_private =
+                                isset($row[$is_private_field]) && $row[$is_private_field];
+                            if ($this_row_is_private) { #todo #fixme
+                                continue;
+                            }
+                        }
+
                         { # vars per row
                             $primary_key = (isset($row[$primary_key_field])
                                                 ? $row[$primary_key_field]
