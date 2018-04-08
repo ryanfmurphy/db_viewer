@@ -134,10 +134,14 @@
                 #todo #fixme generalize
                 #todo do not assume parent_ids / array field
                 # maybe do not assume entity table?
-                $rows = Db::sql("
-                            select parent_ids[1] parent_id from entity
-                            where id = ".Db::quote($primary_key)."
-                        "); #todo don't assume 'id' field
+
+                #todo don't assume 'id' field
+                $sql = "
+                           select parent_ids[1] parent_id from entity
+                           where id = ".Db::quote($primary_key)."
+                       ";
+                $rows = Db::sql($sql);
+
                 if (count($rows)) {
                     $row = $rows[0];
                     die(json_encode($row['parent_id']));
