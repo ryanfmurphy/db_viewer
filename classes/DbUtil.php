@@ -528,67 +528,6 @@ if (!class_exists('DbUtil')) {
                             : '"');
         }
 
-        public static function infer_table_from_query($query) {
-            #todo improve inference - fix corner cases
-            $quote_char = self::quote_char();
-            if (preg_match(
-                    "/ \b from \s+ ((?:\w|\.|$quote_char)+) /ix",
-                    $query, $matches)
-            ) {
-                $table = $matches[1];
-                return $table;
-            }
-        }
-
-        public static function infer_limit_info_from_query($query) {
-            #todo improve inference - fix corner cases
-            $regex = "/ ^
-
-                        (?P<query_wo_limit>.*)
-
-                        \s+
-
-                        limit
-                        \s+ (?P<limit>\d+)
-                        (?:
-                            \s+ offset
-                            \s+ (?P<offset>\d+)
-                        ) ?
-
-                        ; ?
-
-                        $
-                        /six";
-
-            $result = array(
-                'limit' => null,
-                'offset' => null,
-                'query_wo_limit' => $query,
-            );
-
-            if (preg_match($regex, $query, $matches)) {
-                if (isset($matches['query_wo_limit'])) {
-                    $result['query_wo_limit'] = $matches['query_wo_limit'];
-                }
-                if (isset($matches['limit'])) {
-                    $result['limit'] = $matches['limit'];
-                }
-                if (isset($matches['offset'])) {
-                    $result['offset'] = $matches['offset'];
-                }
-            }
-            else {
-                self::log("
-infer_limit_from_query: query didn't match regex.
-    query = '$query'
-"
-    #regex = '$regex'
-);
-            }
-            #die(print_r($result,1));
-            return $result;
-        }
-
         #todo move these to TableView class
         # while factoring some key sql-building part to leave here in DbUtil
         public static function link_to_prev_page($limit_info) {
@@ -881,20 +820,6 @@ infer_limit_from_query: query didn't match regex.
             }
         }
 
-        public static function query_is_destructive($query) {
-            if (preg_match(
-                    "/\\b(INSERT|UPDATE|DROP|DELETE|CREATE|ALTER|TRUNCATE)\\b/i",
-                    $query, $match
-                )
-            ) {
-                $destrictive_kw = $match[1];
-                return $destrictive_kw;
-            }
-            else {
-                return false;
-            }
-        }
-
         # same as sql_tables() except a value array
         # instead of keyed by table
         public static function get_tables_array() {
@@ -1005,7 +930,7 @@ infer_limit_from_query: query didn't match regex.
 
         public static function disallow_destructive_queries($sql) {
             $allow_destructive_queries = Config::$config['allow_destructive_queries'];
-            $query_is_destructive = $destructive_kw = DbUtil::query_is_destructive($sql);
+            $query_is_destructive = $destructive_kw = Query::query_is_destructive($sql);
             if (!$allow_destructive_queries
                 && $query_is_destructive
             ) {
@@ -1021,44 +946,6 @@ infer_limit_from_query: query didn't match regex.
                         : "");
             $sql .= 'limit 100';
             return $sql;
-        }
-
-        # if $sqlish is just a tablename, expand it to actual sql
-        # return expanded sql if applicable, false otherwise
-        public static function expand_tablename_into_query(
-            $sqlish, $where_vars=array(), $select_fields=null,
-            $order_by_limit=null, $strict_wheres=true
-        ) {
-            $sql_has_no_spaces = (strpos(trim($sqlish), ' ') === false);
-
-            # allow sqlite directives like '.schema' without accidentally expanding them into SELECT queries
-            $starts_with_dot = preg_match('/^\./', $sqlish);
-            if (strlen($sqlish) > 0
-                && $sql_has_no_spaces
-                && !$starts_with_dot
-            ) {
-                # (tablename has no quotes)
-                $tablename = $sqlish;
-
-                if ($order_by_limit === null) {
-                    $order_by_limit = DbUtil::default_order_by_limit(
-                                                            $tablename);
-                }
-
-                # optionally filter out archived rows
-                $is_archived_field = DbUtil::is_archived_field($tablename);
-                if ($is_archived_field) {
-                    $where_vars[$is_archived_field] = Db::false_exp();
-                }
-
-                return Db::build_select_sql(
-                    $tablename, $where_vars, $select_fields,
-                    $order_by_limit, $strict_wheres
-                );
-            }
-            else {
-                return false;
-            }
         }
 
         public static function is_archived_field($tablename) {

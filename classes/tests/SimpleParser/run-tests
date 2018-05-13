@@ -1,4 +1,8 @@
 #!/bin/sh
+echo
+echo "SimpleParser Tests"
+echo "=================="
+echo
 php 001-block-comments.php \
     && php 002.php \
     && php 003-line-comments.php \
@@ -13,4 +17,5 @@ php 001-block-comments.php \
     && php 012-include-subs.php \
     && php 013-dont-blank-out-comments.php \
     && php 014-preg_match_parse.php \
-    && php 015-preg_replace_callback_parse.php
+    && php 015-preg_replace_callback_parse.php \
+    && php 016-preg_match_parse.php

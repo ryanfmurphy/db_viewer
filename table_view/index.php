@@ -74,13 +74,13 @@
                     $sql = str_replace("\r\n", "\n", $sql);
                 }
 
-                # we'll also decide whether to order by time
+                # we'll also decide whether to order by time - #todo replace with order_by=fieldname
                 $order_by_time = (isset($requestVars['order_by_time'])
                                     ? $requestVars['order_by_time']
                                     : false);
 
                 { # just tablename? turn to select statement
-                    $expanded_sql = DbUtil::expand_tablename_into_query(
+                    $expanded_sql = Query::expand_tablename_into_query(
                         $sql, array(), null, ' limit 100' # to infer/rebuild it later on
                     );
                     if ($expanded_sql) {
@@ -94,7 +94,7 @@
             }
 
             { # vars
-                $inferred_table = DbUtil::infer_table_from_query($sql);
+                $inferred_table = Query::infer_table_from_query($sql);
                 $tablename_no_quotes = DbUtil::strip_quotes(
                         DbUtil::just_tablename($inferred_table)
                 );
@@ -118,7 +118,7 @@
 
                     # limit, offset, query_wo_limit
                     # #todo #fixme this doesn't take into account "order_by time_added"
-                    $limit_info = DbUtil::infer_limit_info_from_query($sql);
+                    $limit_info = Query::infer_limit_info_from_query($sql);
 
                     { # prep for order_by_time
                         $order_by_to_add_to_sql = null;

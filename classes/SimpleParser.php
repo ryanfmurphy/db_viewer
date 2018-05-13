@@ -184,7 +184,21 @@ class SimpleParser {
             true
         );
 
-        return preg_match($pattern, $new_txt, /*&*/$matches);
+        $temp_matches = [];
+        $result = preg_match(
+            $pattern, $new_txt, /*&*/$temp_matches, PREG_OFFSET_CAPTURE
+        );
+
+        $matches = [];
+        foreach ($temp_matches as $key => $match) {
+            list($match_str, $match_offset) = [$match[0], $match[1]];
+            # look back in original txt (without blanks)
+            # and find corresponding match
+            $match_wo_blanks = substr($txt, $match_offset, strlen($match_str));
+            $matches[$key] = $match_wo_blanks;
+        }
+
+        return $result;
     }
 
     public function preg_replace_callback_parse(
@@ -293,12 +307,6 @@ class SimpleParser {
         $ret .= substr($txt, $i, $remaining_len);
 
         return $ret;
-    }
-
-    public function top_level($txt) {
-        #$txt = $this->blank_out_strings($txt);
-        $txt = $this->blank_out_comments($txt);
-        return $txt;
     }
 
 }

@@ -261,7 +261,7 @@ class Config {
             'tree_view_custom_header_from_root_id',
             'tree_view_max_levels',
 
-            # filesystem-based tree (experimental/unstable)
+            # filesystem-based tree (even more experimental/unstable)
             'fs_tree_default_root_dir',
 
             # UNDER CONSTRUCTION
@@ -589,8 +589,6 @@ class Config {
             'primary_key_fields_by_table' => array(),
             # what to do if you specify 0 relationships? leave empty or assume
             'assume_default_tree_relationship' => false,
-            'tree_view_order_by_limit' => 'order by time_added desc', #todo should this really be default?
-            'tree_view_relationship_order_by_limit' => null,
             'tree_view_relationship_expression_name' => null,
             'tree_view_relationship_expression' => null,
             'store_tree_views_in_db' => false,
@@ -612,6 +610,8 @@ class Config {
             'custom_tree_node_color_fn' => null,
             # how many chars of tree node name to show before ...?
             'tree_node_name_cutoff' => 50,
+            'tree_view_order_by_limit' => 'order by time_added desc', #todo should this really be default?
+            'tree_view_relationship_order_by_limit' => null,
             'tree_view_custom_header_from_root_id' => true,
             'tree_view_max_levels' => null,
 
