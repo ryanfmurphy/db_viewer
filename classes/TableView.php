@@ -292,10 +292,25 @@
 ?>
         <ul>
 <?php
-                foreach ($array as $val) {
+                # for tags, make them a link to all entities with that tag
+                $entity_view_table = Config::$config['entity_view_table'];
+                if ($fieldname == 'tags' && $entity_view_table) {
+                    foreach ($array as $val) {
+?>
+            <li>
+                <a href="?sql=select * from <?= $entity_view_table ?> where tags @> array[<?= Db::sql_literal($val) ?>]" target="_blank">
+                    <?= htmlentities($val) ?>
+                </a>
+            </li>
+<?php
+                    }
+                }
+                else {
+                    foreach ($array as $val) {
 ?>
             <li><?= htmlentities($val) ?></li>
 <?php
+                    }
                 }
 ?>
             <li class="add_array_item" onclick="li_become_editable(this)">

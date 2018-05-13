@@ -98,6 +98,7 @@ class Config {
             'table_view_tuck_away_query_box',
             'table_view_show_count',
             'query_form_http_method',
+            'entity_view_table',
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
@@ -454,6 +455,7 @@ class Config {
             'table_view_tuck_away_query_box' => false,
             'table_view_show_count' => false,
             'query_form_http_method' => 'post',
+            'entity_view_table' => null,
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
