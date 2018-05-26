@@ -291,15 +291,6 @@ class Config {
             'url_field_links', # e.g. links at top of object editor
             'obj_editor_show_notes', # list any notes on this obj
             'obj_editor_note_table', # which table to draw from to show notes
-
-
-
-            /*
-            # optional variables to fill and pass out from the Config
-            'boards_to_show',
-            'pri_cond', # e.g. ">= 3"
-            'size_cond', # e.g. ">= 3"
-            */
         );
 
         $config = compact($config_vars);
@@ -635,12 +626,6 @@ class Config {
             'url_field_links' => array('URL' => 'url'),
             'obj_editor_show_notes' => false, # list any note on this obj
             'obj_editor_note_table' => 'entity', # which table to draw from to show notes
-
-            'boards_to_show' => null,
-            'board_options' => null,
-            'checked_boards' => null,
-            'pri_cond' => null,
-            'size_cond' => null,
         );
 
         return $default_values;

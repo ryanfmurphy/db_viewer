@@ -92,34 +92,6 @@
 <?php
     }
 
-    $show_trello_board_filter = !$used_tree_row_from_db && isset(Config::$config['board_options']);
-    if ($show_trello_board_filter) { # SD
-?>
-                <style>
-                    ul#boards_to_show {
-                        padding-left: .5em;
-                        list-style-type: none;
-                        margin-top: 0;
-                        margin-bottom: .4em;
-                    }
-                </style>
-                <p class="small_copy">Showing Cards from:</p>
-                <ul id="boards_to_show">
-<?php
-        #todo #fixme remove
-        foreach (Config::$config['boards_to_show'] as $board) {
-?>
-                    <li style="color: <?= $board['color'] ?>">
-                        <?= $board['name'] ?>
-                    </li>
-<?php
-        }
-?>
-                </ul>
-<?php
-    }
-
-
     $url_parts = parse_url($_SERVER['REQUEST_URI']);
 ?>
                 <form onkeypress="event.stopPropagation();" action="<?= $url_parts['path']  ?>">
