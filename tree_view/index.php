@@ -138,6 +138,7 @@
                         <label>Max levels:</label>
                         <input name="tree_view_max_levels" value="<?= Config::$config['tree_view_max_levels'] ?>" size=5>
                     </div>
+<?php /*
                     <div>
                         <label>Priority</label>
                         <input name="pri_cond" value="<?= Config::$config['pri_cond'] ?>" size=5>
@@ -146,6 +147,8 @@
                         <label>Size</label>
                         <input name="size_cond" value="<?= Config::$config['size_cond'] ?>" size=5>
                     </div>
+    */
+?>
                     <div>
                         <input type="submit">
                     </div>

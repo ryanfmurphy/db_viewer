@@ -188,9 +188,11 @@
                                         ? $requestVars['tree_view_max_levels']
                                         : Config::$config['tree_view_max_levels'],
 
+        /*
         'pri_cond' => isset($requestVars['pri_cond'])
                                         ? $requestVars['pri_cond']
                                         : Config::$config['pri_cond'],
+        */
 
     );
 
@@ -205,7 +207,7 @@
     Config::$config['vary_node_colors'] = $vary_node_colors;
     Config::$config['tree_view_custom_header'] = $tree_view_custom_header;
     Config::$config['tree_view_max_levels'] = $tree_view_max_levels;
-    Config::$config['pri_cond'] = $pri_cond;
+    #Config::$config['pri_cond'] = $pri_cond;
 
     # make sure all details are set for all relationships (default to null)
     foreach ($parent_relationships as $no => $relationship) {

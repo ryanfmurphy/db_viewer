@@ -294,10 +294,12 @@ class Config {
 
 
 
+            /*
             # optional variables to fill and pass out from the Config
             'boards_to_show',
             'pri_cond', # e.g. ">= 3"
             'size_cond', # e.g. ">= 3"
+            */
         );
 
         $config = compact($config_vars);
