@@ -191,7 +191,6 @@
         'pri_cond' => isset($requestVars['pri_cond'])
                                         ? $requestVars['pri_cond']
                                         : Config::$config['pri_cond'],
-
     );
 
     # create all the variables in the current scope
