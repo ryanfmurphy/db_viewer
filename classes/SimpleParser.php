@@ -31,10 +31,7 @@ class SimpleParser {
         return "$start_block_comment.*?$end_block_comment";
     }
 
-    public function parse($txt,
-        $blank_out_level=1, $blank_out_strings=false, $blank_out_comments=true,
-        $include_subs=false
-    ) {
+    public function get_parse_regex() {
         $line_comment_regex = $this->line_comment_regex();
         $block_comment_regex = $this->block_comment_regex();
 
@@ -46,7 +43,14 @@ class SimpleParser {
         $regex .= "|[".preg_quote(implode('',$brace_chars))."]";
         $regex = "/$regex/ms"; # MULTILINE (an $ at end of each line)
                                # and DOTALL (\n counts as newline)
-        #echo "regex = $regex\n";
+        return $regex;
+    }
+
+    public function parse($txt,
+        $blank_out_level=1, $blank_out_strings=false, $blank_out_comments=true,
+        $include_subs=false
+    ) {
+        $regex = self::get_parse_regex();
 
         $nest_level = 0;
         $level_offsets = []; # keyed by level [start_idx,end_idx] pairs
