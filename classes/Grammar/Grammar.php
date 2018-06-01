@@ -23,7 +23,7 @@ class Grammar {
             function($match) {
                 $symbol_name = $match[1][0];
                 if (isset($this->terminal_regexes[$symbol_name])) {
-                    return $this->terminal_regexes[$symbol_name];
+                    return '('.$this->terminal_regexes[$symbol_name].')'; # () for clean separation / nesting within regex
                 }
                 elseif (isset($this->production_rules[$symbol_name])) {
                     return "[RULE:".$this->production_rules[$symbol_name]."]";
