@@ -36,17 +36,33 @@ class Grammar {
                 }
                 # nonterminal - recursively expand to regexes (unsafe)
                 elseif (isset($this->production_rules[$symbol_name])) {
-                    $this_rule_text = $this->production_rules[$symbol_name];
-                    return '('.$this->sub_regexes_into_rule($this_rule_text).')'; # () for clean separation / nesting within regex
+                    # alternation / options is represented by an array of productions
+                    # we can only swap it out if there are no options
+                    if (!is_array($this->production_rules[$symbol_name])) {
+                        $this_rule_text = $this->production_rules[$symbol_name];
+                        return '('.$this->sub_regexes_into_rule($this_rule_text).')'; # () for clean separation / nesting within regex
+                    }
                 }
+
                 # no match, leave unmodified - #todo #fixme error instead?
-                else {
+                {
                     $full_match_txt = $match[0][0];
                     return $full_match_txt; # leave unmodified
                 }
             },
             $rule_text
         );
+    }
+
+    function matches_rule($rule_text, $input) {
+        $regex = $this->sub_regexes_into_rule($rule_text);
+        echo "regex = $regex\n";
+
+        return preg_match("/^$regex$/", $input);
+
+        #return $this->simple_parser->preg_match_parse(
+        #    "/^$regex$/", $input, $matches
+        #);
     }
 
     function parse($input) {
