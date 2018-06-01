@@ -34,6 +34,12 @@ class Grammar {
                 if (isset($this->terminal_regexes[$symbol_name])) {
                     return '('.$this->terminal_regexes[$symbol_name].')'; # () for clean separation / nesting within regex
                 }
+                # nonterminal - recursively expand to regexes (unsafe)
+                elseif (isset($this->production_rules[$symbol_name])) {
+                    $this_rule_text = $this->production_rules[$symbol_name];
+                    return '('.$this->sub_regexes_into_rule($this_rule_text).')'; # () for clean separation / nesting within regex
+                }
+                # no match, leave unmodified - #todo #fixme error instead?
                 else {
                     $full_match_txt = $match[0][0];
                     return $full_match_txt; # leave unmodified
