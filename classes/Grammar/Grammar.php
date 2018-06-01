@@ -19,11 +19,17 @@ class Grammar {
                                     : $simple_parser);
     }
 
-    # e.g. rule_text = '<subject> <predicate>.' or '<item_with_comma>+ and <item>'
-    function parse_rule_text($rule_text) {
+    # parse_rule_text
+    #    e.g. rule_text = '<subject> <predicate>.' or '<item_with_comma>+ and <item>'
+    # if no input...:
+    #    just swaps in the terminal regexes - have to leave the nonterminals until we have input to compare it to
+    # ?if input passed in...
+    # ?   swaps in the terminal regexes
+    # ?   AND recursively parse to see if input matches production rule
+    function sub_regexes_into_rule($rule_text, $input=null) {
         return preg_replace_callback_offset(
             $this->var_regex,
-            function($match) {
+            function($match) use ($input) {
                 $symbol_name = $match[1][0];
                 if (isset($this->terminal_regexes[$symbol_name])) {
                     return '('.$this->terminal_regexes[$symbol_name].')'; # () for clean separation / nesting within regex

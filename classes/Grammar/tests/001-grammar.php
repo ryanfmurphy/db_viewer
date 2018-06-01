@@ -12,11 +12,11 @@ $g = new Grammar(
 );
 
 $txt = '<word> to the <bird>';
-$regex = $g->parse_rule_text($txt);
+$regex = $g->sub_regexes_into_rule($txt);
 
 assert(
     $regex == '(\\b\\w+\\b) to the (\\b(hummingbird|canary|bluebird|pigeon|chicken|turkey|eagle|duck|penguin)\\b)',
-    'parse_rule_text swaps in terminal regexes'
+    'sub_regexes_into_rule swaps in terminal regexes'
 ) or die(1);
 echo "1 PASSED!\n";
 
