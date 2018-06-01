@@ -12,6 +12,7 @@
             $default_parent_field = Config::$config['default_parent_field'];
             $vary_node_colors = Config::$config['vary_node_colors'];
             $default_tree_relationship_condition = Config::$config['default_tree_relationship_condition'];
+            $default_tree_relationship_order_by_limit = Config::$config['tree_view_relationship_order_by_limit'];
 
             $return_url = $tree_view_uri."?root_table=$root_table"
                 ."&root_cond=$root_cond"
@@ -20,6 +21,9 @@
                 ."&parent_relationships[0][parent_field]=$default_parent_field"
                 ."&parent_relationships[0][matching_field_on_parent]=$primary_key_field"
                 ."&parent_relationships[0][condition]=$default_tree_relationship_condition"
+                .($default_tree_relationship_order_by_limit
+                    ? "&parent_relationships[0][order_by_limit]=$default_tree_relationship_order_by_limit"
+                    : '')
                 #."&order_by_limit=order+by+time_added+desc"
                 ."&name_cutoff=50"
                 ."&root_nodes_w_child_only="

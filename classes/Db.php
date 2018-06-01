@@ -445,10 +445,74 @@ if (!class_exists('Db')) {
             return $view_query_url;
         }
 
+        #todo move out to a Util or Web or Url class
+        public static function post_redirect_via_js($url, $vars=[], $redirect_msg=null) {
+?>
+<!doctype html>
+<html>
+    <head>
+    </head>
+    <body>
+
+<?php
+            if ($redirect_msg) {
+?>
+        <p><?= $redirect_msg ?></p>
+<?php
+            }
+?>
+
+        <form action="<?= htmlentities($url) ?>" method="POST">
+<?php
+            foreach ($vars as $name => $val) {
+?>
+            <input type="hidden"    name="<?= htmlentities($name) ?>"
+                                    value="<?= htmlentities($val) ?>"
+            >
+<?php
+            }
+?>
+        </form>
+
+        <script>
+            var form = document.getElementsByTagName('form')[0];
+            console.log(form);
+            form.submit();
+        </script>
+
+    </body>
+</html>
+<?php
+            die();
+        }
+
+        const MAX_URL_LENGTH = 4096; #todo #fixme just pulled this out of nowhere
+
+        #todo move out to a Util type class
+        # does a POST if necessary, if the url is too long
+        public static function redirect_url($url, $vars=[], $redirect_msg=null) {
+            $query_string = http_build_query($vars);
+            $overall_url = "$url?$query_string";
+            if (strlen($overall_url) > self::MAX_URL_LENGTH) {
+                self::post_redirect_via_js($url, $vars, $redirect_msg); # dies
+            }
+            else {
+                header("302 Temporary");
+                header("Location: $overall_url");
+                die();
+            }
+        }
+
         # visit (redirect) to view_query_url()
         public static function view_query($sql, $minimal=false) {
-            header("302 Temporary");
-            header("Location: ".self::view_query_url($sql, $minimal));
+            $url = Config::$config['table_view_uri']; # self::view_query_url($sql, $minimal);
+
+            $vars = ['sql' => $sql];
+            if ($minimal) {
+                $vars['minimal'] = true;
+            }
+
+            self::redirect_url($url, $vars, 'You are being redirected to view your query results'); # dies
         }
 
         # view_table - given a table_name and optional where_vars
