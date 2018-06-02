@@ -593,13 +593,15 @@ if (!class_exists('DbUtil')) {
                 return $name_fields_by_table[$table];
             }
             else {
-                return 'name';
+                return Config::$config['name_field'];
             }
         }
 
         // pass by ref for performance, non-destructive
-        public static function get_name_val($table, &$row) {
-            $name_field = DbUtil::get_name_field($table);
+        public static function get_name_val($table, &$row, $name_field=null) {
+            if (!$name_field) {
+                $name_field = DbUtil::get_name_field($table);
+            }
             $filter_fns = Config::$config['name_field_filter_fn_by_table'];
             $name_val = $row[$name_field];
             if (isset($filter_fns[$table])) {
@@ -608,17 +610,30 @@ if (!class_exists('DbUtil')) {
             }
             $name_val = Wikiness::replace_objlinks($name_val,'name',true);
             if (!$name_val) {
-                if ($name_val === 0 || $name_val === '0') {
-                    return '0';
+
+                # look in other field for a "name"?
+                $backup_name_field = Config::$config['backup_name_field'];
+                if ($backup_name_field
+                    && $name_field != $backup_name_field
+                ) {
+                    return self::get_name_val($table, $row, $backup_name_field);
                 }
-                elseif ($name_val === false) {
-                    return 'false';
-                }
-                elseif ($name_val === null) {
-                    return 'null';
-                }
+                # pretty-print falsy values
                 else {
-                    return '[untitled]';
+
+                    if ($name_val === 0 || $name_val === '0') {
+                        return '0';
+                    }
+                    elseif ($name_val === false) {
+                        return 'false';
+                    }
+                    elseif ($name_val === null) {
+                        return 'null';
+                    }
+                    else {
+                        return '[untitled]';
+                    }
+
                 }
             }
             return $name_val;
