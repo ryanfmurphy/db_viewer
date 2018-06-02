@@ -58,7 +58,10 @@
                         }
                     }
                     $sideline_addl_requirements = Config::$config['sideline_addl_requirements'];
-                    $sideline_condition = "($tags_condition) and ($sideline_addl_requirements)";
+                    $sideline_condition = "($tags_condition)"
+                                            . ($sideline_addl_requirements
+                                                    ? " and ($sideline_addl_requirements)"
+                                                    : '');
                     $root_cond .= " or ($sideline_condition)";
                 }
                 else {
