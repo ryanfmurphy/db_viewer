@@ -230,6 +230,8 @@ class Config {
             # the field that will be considered the
             # "name" or display field e.g. for trees
             # ('name' by default)
+            'name_field',
+            'backup_name_field',
             'name_fields_by_table',
             # filter fn: in case you need to strip_tags or something
             'name_field_filter_fn_by_table',
@@ -521,6 +523,8 @@ class Config {
             # the field that will be considered the
             # "name" or display field e.g. for trees
             # ('name' by default)
+            'name_field' => 'name', #todo #fixme this may not be always paid attn to
+            'backup_name_field' => 'txt',
             'name_fields_by_table' => array(),
             # filter fn: in case you need to strip_tags or something
             'name_field_filter_fn_by_table' => array(),

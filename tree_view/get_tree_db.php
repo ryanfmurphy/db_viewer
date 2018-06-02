@@ -10,6 +10,11 @@
         $name_field = DbUtil::get_name_field($table);
         $fields = array($id_field=>1, $name_field=>1);
 
+        $backup_name_field = Config::$config['backup_name_field'];
+        if ($backup_name_field) {
+            $fields[$backup_name_field] = 1;
+        }
+
         $tables_to_use_relname = Config::$config['use_relname_for_tree_node_table'];
         if (is_array($tables_to_use_relname)
             && in_array($table,
