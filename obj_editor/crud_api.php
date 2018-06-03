@@ -118,18 +118,19 @@
                     $strict_wheres = false;
                 }
 
-                if (isset($vars['match_aliases'])) {
-                    $match_aliases = $vars['match_aliases'];
-                    unset($vars['match_aliases']);
+                #todo remove var, assume true for !strict_wheres
+                if (isset($vars['match_aliases_on_name'])) {
+                    $match_aliases_on_name = $vars['match_aliases_on_name'];
+                    unset($vars['match_aliases_on_name']);
                 }
                 else {
-                    $match_aliases = false;
+                    $match_aliases_on_name = true;
                 }
 
                 die(json_encode(
                     Db::view_table(
                         $table, $vars, $select_fields,
-                        $minimal, $strict_wheres, $match_aliases
+                        $minimal, $strict_wheres, $match_aliases_on_name
                     )
                 ));
                 break;

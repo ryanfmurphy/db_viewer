@@ -588,13 +588,14 @@ if (!class_exists('DbUtil')) {
         }
 
         public static function get_name_field($table) {
-            $name_fields_by_table = Config::$config['name_fields_by_table'];
-            if (isset($name_fields_by_table[$table])) {
-                return $name_fields_by_table[$table];
+            if ($table) {
+                $name_fields_by_table = Config::$config['name_fields_by_table'];
+                if (isset($name_fields_by_table[$table])) {
+                    return $name_fields_by_table[$table];
+                }
             }
-            else {
-                return Config::$config['name_field'];
-            }
+
+            return Config::$config['name_field'];
         }
 
         // pass by ref for performance, non-destructive

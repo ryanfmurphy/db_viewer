@@ -123,7 +123,8 @@ if (!class_exists('Db')) {
                                         ? $config['hash_password_fields']
                                         : false);
 
-            { # key list - #todo #fixme - pull out into fn so we can use it in build_select_sql?
+            { # key list - #todo #fixme - pull out into fn
+              # so we can use it in build_select_sql?
                 $keys = array_keys($vars);
                 $quotedKeys = array();
                 foreach ($keys as $key) {
@@ -367,7 +368,10 @@ if (!class_exists('Db')) {
 
             $table_name_quoted = DbUtil::quote_ident_or_funcall($table_name);
             $sql = "select $select_fields from $table_name_quoted ";
-            $sql .= self::build_where_clause($wheres, 'and', true, $strict_wheres);
+            $sql .= self::build_where_clause(
+                $wheres, 'and', true, $strict_wheres,
+                $table_name
+            );
             if ($order_by_limit) {
                 $sql .= "\n$order_by_limit";
             }
@@ -520,10 +524,12 @@ if (!class_exists('Db')) {
         # note: $match_aliases is Postgres only
         public static function view_table(
             $table_name, $where_vars=array(), $select_fields=null,
-            $minimal=false, $strict_wheres=false, $match_aliases=false
+            $minimal=false, $strict_wheres=false,
+            $match_aliases_on_name=false #todo remove arg, assume true for !$strict_wheres
         ) {
-            # add aliases to where_vars
-            if ($match_aliases
+            /*
+            # add aliases to where_vars (moved to Predicate::losely_interpret...
+            if ($match_aliases_on_name
                 && $where_vars['name']
                 && Config::$config['aliases_field']
             ) {
@@ -541,13 +547,14 @@ if (!class_exists('Db')) {
                 ));
                 $where_vars[] = $or_clauses;
             }
+            */
 
-            # if we're not calling match_aliases, we can take advantage
-            # of "looser matching" (i.e. we can have $strict_where=false)
-            # but match_aliases currently implies stricter matching
-            assert(!$match_aliases || $strict_wheres,
-                'should not call view_table with !strict_wheres and match_aliases'
-                .' at the same time');
+            ## if we're not calling match_aliases, we can take advantage
+            ## of "looser matching" (i.e. we can have $strict_where=false)
+            ## but match_aliases currently implies stricter matching
+            #assert(!$match_aliases_on_name || $strict_wheres,
+            #    'should not call view_table with !strict_wheres and match_aliases'
+            #    .' at the same time') or die();
 
             # build the query
             $sql = Query::expand_tablename_into_query(
@@ -570,7 +577,8 @@ if (!class_exists('Db')) {
         # when $strict_wheres is false, look in Config for certain different operators to use
         # e.g. may use @> for arrays, or LIKE for strings, instead of strict =
         public static function build_where_clause(
-            $wheres, $logical_op='and', $include_where=true, $strict_wheres=true
+            $wheres, $logical_op='and', $include_where=true, $strict_wheres=true,
+            $table=null
         ) {
             $sql = '';
 
@@ -582,8 +590,8 @@ if (!class_exists('Db')) {
 
                 if (!$strict_wheres) {
                     Predicate::loosely_interpret_where_clause(
-                        # both & (vars may be changed)
-                        $key, $val_or_predicate
+                        $key, $val_or_predicate, # both & (vars may be changed)
+                        $table
                     );
                 }
 
@@ -610,7 +618,9 @@ if (!class_exists('Db')) {
         }
 
         public static function get($table_name, $wheres, $get1=false, $strict_wheres=true) {
-            $sql = self::build_select_sql($table_name, $wheres, null, null, $strict_wheres);
+            $sql = self::build_select_sql(
+                $table_name, $wheres, null, null, $strict_wheres
+            );
             return self::query_fetch($sql, $get1);
         }
 

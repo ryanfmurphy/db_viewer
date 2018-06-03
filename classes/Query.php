@@ -67,7 +67,8 @@ class Query {
     ) {
         $sql_has_no_spaces = (strpos(trim($sqlish), ' ') === false);
 
-        # allow sqlite directives like '.schema' without accidentally expanding them into SELECT queries
+        # allow sqlite directives like '.schema'
+        # without accidentally expanding them into SELECT queries
         $starts_with_dot = preg_match('/^\./', $sqlish);
 
         $is_just_tablename = strlen($sqlish) > 0
