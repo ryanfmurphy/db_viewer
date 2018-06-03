@@ -110,6 +110,14 @@
                     unset($vars['table_view_minimal_mode']);
                 }
 
+                if (isset($vars['strict_wheres'])) {
+                    $strict_wheres = $vars['strict_wheres'];
+                    unset($vars['strict_wheres']);
+                }
+                else {
+                    $strict_wheres = false;
+                }
+
                 if (isset($vars['match_aliases'])) {
                     $match_aliases = $vars['match_aliases'];
                     unset($vars['match_aliases']);
@@ -121,7 +129,7 @@
                 die(json_encode(
                     Db::view_table(
                         $table, $vars, $select_fields,
-                        $minimal, $match_aliases
+                        $minimal, $strict_wheres, $match_aliases
                     )
                 ));
                 break;

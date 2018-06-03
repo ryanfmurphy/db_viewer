@@ -520,7 +520,7 @@ if (!class_exists('Db')) {
         # note: $match_aliases is Postgres only
         public static function view_table(
             $table_name, $where_vars=array(), $select_fields=null,
-            $minimal=false, $match_aliases=false
+            $minimal=false, $strict_wheres=false, $match_aliases=false
         ) {
             # add aliases to where_vars
             if ($match_aliases
@@ -545,7 +545,9 @@ if (!class_exists('Db')) {
             # if we're not calling match_aliases, we can take advantage
             # of "looser matching" (i.e. we can have $strict_where=false)
             # but match_aliases currently implies stricter matching
-            $strict_wheres = $match_aliases;
+            assert(!$match_aliases || $strict_wheres,
+                'should not call view_table with !strict_wheres and match_aliases'
+                .' at the same time');
 
             # build the query
             $sql = Query::expand_tablename_into_query(

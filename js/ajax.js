@@ -43,10 +43,7 @@
                     // Q. is this better/worse than pairs.push()?
                     pairs[ pairs.length ] =
                         encodeURIComponent( key ) + "=" +
-                        encodeURIComponent( value === null
-                                                ? "<?= $magic_null_value ?>"
-                                                : value
-                                          );
+                        encodeURIComponent(encodeValueForUri(value));
                 }
 
             };
@@ -66,6 +63,16 @@
             console.log('  join_str',join_str);
             return join_str;
         }
+    }
+
+    function encodeValueForUri(value) {
+        return (value === null
+                    ? "<?= $magic_null_value ?>"
+                    : (value === true
+                        ? '1'
+                        : (value === false
+                            ? ''
+                            : value)));
     }
 
     // if "callback" AND "error" are provided,
