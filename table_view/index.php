@@ -186,22 +186,43 @@
                         }
                     } # passed in limit takes precedence
 
-                    # order_by via SimplerParser
-                    # #todo #fixme eliminate a lot of the logic above
-                    if (isset($requestVars['order_by'])) {
-                        $s = new SimpleParser();
+                    # #todo #fixme put back in place one below issues are addressed
+                    # 2 problems with this (it's close!)
+                    #   1. plasters over other manually set order by's
+                    #   2. doesn't add an order by if there wasn't one there already?
 
-                        $identifier = '["\\w]+';
-                        $identifier_list = "$identifier(?:\s*,\s*$identifier)*";
-                        $sql = $s->preg_replace_callback_parse(
-                            "@order\s*by\s*.*?(?:(?=\s*\blimit\b)|$)@",
-                            function($match) use (&$requestVars) {
-                                return "order by $requestVars[order_by]";
-                            },
-                            $sql,
-                            /*blank_out_level*/1, /*blank_out_strings*/false, /*blank_out_comments=*/true
-                        );
-                    }
+                    #{ # order_by via SimplerParser
+                    #    # #todo #fixme eliminate a lot of the logic above
+
+                    #    { # figure out $order_by
+                    #        $order_by = null;
+                    #        if (isset($requestVars['order_by'])) {
+                    #            $order_by = isset($requestVars['order_by']);
+                    #        }
+                    #        else {
+                    #            $default_order_by_by_table = Config::$config['default_order_by_by_table'];
+                    #            $order_by = (isset($default_order_by_by_table[$tablename_no_quotes])
+                    #                            ? $default_order_by_by_table[$tablename_no_quotes]
+                    #                            : Config::$config['default_order_by']);
+                    #        }
+                    #    }
+
+                    #    # inject order by clause into SQL query
+                    #    if ($order_by) {
+                    #        $s = new SimpleParser();
+
+                    #        $identifier = '["\\w]+';
+                    #        $identifier_list = "$identifier(?:\s*,\s*$identifier)*";
+                    #        $sql = $s->preg_replace_callback_parse(
+                    #            "@order\s*by\s*.*?(?:(?=\s*\blimit\b)|$)@",
+                    #            function($match) use (&$requestVars, $order_by) {
+                    #                return "order by $order_by";
+                    #            },
+                    #            $sql,
+                    #            /*blank_out_level*/1, /*blank_out_strings*/false, /*blank_out_comments=*/true
+                    #        );
+                    #    }
+                    #}
 
                 } # limit/offset/order_by_time stuff: #todo factor into fn
 
