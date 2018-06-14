@@ -99,6 +99,8 @@ class Config {
             'table_view_show_count',
             'query_form_http_method',
             'entity_view_table',
+            'default_order_by',
+            'default_order_by_by_table',
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
@@ -440,6 +442,8 @@ class Config {
             'table_view_show_count' => false,
             'query_form_http_method' => 'post',
             'entity_view_table' => null,
+            'default_order_by' => 'time_added desc',
+            'default_order_by_by_table' => [],
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
