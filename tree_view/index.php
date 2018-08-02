@@ -44,6 +44,17 @@
         require("$trunk/tree_view/vars.php");
     }
 
+    { # get root row if applicable
+        if (Config::$config['tree_view_custom_header_from_root_id']
+            && !empty($requestVars['root_id'])
+        ) {
+            $root_id = $requestVars['root_id'];
+            $sql = 'select name, aliases from entity where id = '.Db::quote($root_id);
+            $rows = Db::sql($sql);
+            $root_row = $rows[0];
+        }
+    }
+
     if ((!$root_table && !isset($requestVars['backend']))
         || $edit_vars
     ) {
@@ -59,6 +70,15 @@
 <!DOCTYPE html>
 <html>
     <head>
+<?php
+    if (isset($root_row)
+        && !empty($root_row['name'])
+    ) {
+?>
+        <title><?= $root_row['name'] ?></title>
+<?php
+    }
+?>
         <meta charset="utf-8">
         <?php require("$trunk/tree_view/style.css.php") ?>
         </head>
@@ -137,14 +157,7 @@
             $custom_header = Config::$config['tree_view_custom_header'];
             $custom_subheader = null;
 
-            if (Config::$config['tree_view_custom_header_from_root_id']
-                && !empty($requestVars['root_id'])
-            ) {
-                $root_id = $requestVars['root_id'];
-                $sql = 'select name, aliases from entity where id = '.Db::quote($root_id);
-                $rows = Db::sql($sql);
-                $root_row = $rows[0];
-
+            if (isset($root_row)) {
                 $custom_header = $root_row['name'];
                 $custom_subheader = "Aliases: ".$root_row['aliases'];
             }
