@@ -246,7 +246,44 @@
             include("$trunk/table_view/html/links_and_scripts.php");
             include("$trunk/table_view/js/table_view_util.js.php");
             include("$trunk/table_view/style.css.php");
+
+            $scale = .25;
 ?>
+        <style>
+
+<?php
+            if (!empty($_GET['iframe'])) {
+?>
+            #wrap {
+                width: 300px; height: 400px; padding: 0; overflow: hidden;
+                position: fixed;
+                top: 0;
+                right: -6em;
+            }
+            #frame { width: 800px; height: 800px; border: 1px solid black; }
+            #frame {
+                -ms-zoom: <?= $scale ?>;
+                -moz-transform: scale(<?= $scale ?>);
+                -moz-transform-origin: 0 0;
+                -o-transform: scale(<?= $scale ?>);
+                -o-transform-origin: 0 0;
+                -webkit-transform: scale(<?= $scale ?>);
+                -webkit-transform-origin: 0 0;
+            }
+<?php
+            }
+
+            if (!empty($_GET['scale_font'])) {
+                $scale_font = $_GET['scale_font'];
+?>
+            body {
+                font-size: <?= $scale_font * 100 ?>%;
+            }
+<?php
+            }
+?>
+
+        </style>
 </head>
 <?php
         }
@@ -254,6 +291,32 @@
         { # <body>
 ?>
 <body>
+<?php
+    if (!empty($_GET['iframe'])) {
+?>
+    <div id="wrap">
+        <iframe id="frame" src="/db_viewer/table_view/index.php?sql=select id,name from task_stack&scale_font=3"></iframe>
+    </div>
+    <script>
+        document.body.addEventListener('keydown',
+            function(event){
+                console.log(event);
+                var KEY_I = 73;
+                if (event.which == KEY_I
+                    && event.altKey
+                ) {
+                    var iframe = document.getElementById('frame');
+                    iframe.style.display = (iframe.style.display == 'none'
+                                                ? 'initial'
+                                                : 'none');
+                }
+            }
+        );
+    </script>
+<?php
+    }
+?>
+
 <?php
             if (Config::$config['table_view_tuck_away_query_box']) {
 ?>
