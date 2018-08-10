@@ -292,7 +292,8 @@
 ?>
 <body>
 <?php
-    if (!empty($_GET['iframe'])) {
+            # weird makeshift iframe for e.g. a little todo list in the corner
+            if (!empty($_GET['iframe'])) {
 ?>
     <div id="wrap">
         <iframe id="frame" src="/db_viewer/table_view/index.php?sql=select id,name from task_stack&scale_font=3"></iframe>
@@ -314,7 +315,28 @@
         );
     </script>
 <?php
-    }
+            }
+
+            $store_queries_in_local_storage = true; #todo #fixme use config
+            if ($store_queries_in_local_storage && $sql) {
+?>
+    <script>
+        function save_sql_in_local_storage() {
+            var new_sql = '<?= Utility::esc_str_for_js($sql) ?>';
+            var sql_queries = JSON.parse(localStorage.getItem('sql_queries'));
+            if (sql_queries === null) {
+                sql_queries = [];
+            }
+            console.log("sql_queries before =", sql_queries);
+            sql_queries.push(new_sql);
+            console.log("sql_queries after =", sql_queries);
+            localStorage.setItem('sql_queries', JSON.stringify(sql_queries));
+        }
+
+        save_sql_in_local_storage();
+    </script> 
+<?php
+            }
 ?>
 
 <?php
