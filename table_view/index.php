@@ -321,9 +321,13 @@
             if ($store_queries_in_local_storage && $sql) {
 ?>
     <script>
+        function get_sql_queries() {
+            return JSON.parse(localStorage.getItem('sql_queries'));
+        }
+
         function save_sql_in_local_storage() {
             var new_sql = '<?= Utility::esc_str_for_js($sql) ?>';
-            var sql_queries = JSON.parse(localStorage.getItem('sql_queries'));
+            var sql_queries = get_sql_queries();
             if (sql_queries === null) {
                 sql_queries = [];
             }
