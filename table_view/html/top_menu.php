@@ -67,6 +67,10 @@
             <ul id="recent_query_list">
             </ul>
             <script>
+            function get_sql_queries() { // #fixme dup
+                return JSON.parse(localStorage.getItem('sql_queries'));
+            }
+
             function populate_recent_query_list() {
                 var elem = document.getElementById('recent_query_list');
                 var sql_queries = get_sql_queries();
@@ -74,14 +78,15 @@
                 // build html
                 var li_elems = [];
                 // loop backwards
-                var first_idx = sql_queries.length - 1;
-                var min_idx = Math.max(first_idx - 10, 0);
-                for (var n = first_idx; n >= min_idx; n--) {
+                //var first_idx = sql_queries.length - 1;
+                //var min_idx = Math.max(first_idx - 10, 0);
+                //for (var n = first_idx; n >= min_idx; n--) {
+                for (var n = 0; n < sql_queries.length; n++) {
                     var sql_query = sql_queries[n];
 
                     li_elems.push(
                         "<li>"
-                            + "<a href='<?= Config::$config['table_view_uri'] ?>?sql=<?= urlencode($sql) ?>'>"
+                            + "<a href='<?= Config::$config['table_view_uri'] ?>?sql=" + encodeURI(sql_query) + "'>"
                                 + sql_query
                             + "</a>"
                         + "</li>"
