@@ -83,14 +83,17 @@
                 //for (var n = first_idx; n >= min_idx; n--) {
                 for (var n = 0; n < sql_queries.length; n++) {
                     var sql_query = sql_queries[n];
-
-                    li_elems.push(
-                        "<li>"
-                            + "<a href='<?= Config::$config['table_view_uri'] ?>?sql=" + encodeURI(sql_query) + "'>"
-                                + sql_query
-                            + "</a>"
-                        + "</li>"
-                    );
+                    var sql_query_esc = encodeURI(sql_query)
+                                            .replace(/"/g,"&quot;");
+                    var table_view_uri = "<?= Config::$config['table_view_uri'] ?>";
+                    var href = table_view_uri + "?sql=" + sql_query_esc;
+                    var li_html = "<li>"
+                                    + "<a href=\"" + href + "\">"
+                                        + sql_query
+                                    + "</a>"
+                                + "</li>";
+                    console.log("li_html = " + li_html);
+                    li_elems.push(li_html);
                 }
 
                 // write to DOM
