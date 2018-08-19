@@ -78,10 +78,9 @@
                 // build html
                 var li_elems = [];
                 // loop backwards
-                //var first_idx = sql_queries.length - 1;
-                //var min_idx = Math.max(first_idx - 10, 0);
-                //for (var n = first_idx; n >= min_idx; n--) {
-                for (var n = 0; n < sql_queries.length; n++) {
+                var first_idx = sql_queries.length - 1;
+                var min_idx = Math.max(first_idx - 10, 0);
+                for (var n = first_idx; n >= min_idx; n--) {
                     var sql_query = sql_queries[n];
                     var sql_query_esc = encodeURI(sql_query)
                                             .replace(/"/g,"&quot;");
