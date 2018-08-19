@@ -317,7 +317,7 @@
         margin-bottom: .5em;
     }
     a {
-        color: 00f;
+        color: #00f;
     }
 
     .link_nocolor {
