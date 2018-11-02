@@ -1,0 +1,4 @@
+#!/bin/sh
+   (cd SpecialOps   && ./run-tests) \
+&& echo "  ** TableView: All Tests Passed **
+"

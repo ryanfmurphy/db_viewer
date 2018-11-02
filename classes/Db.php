@@ -294,6 +294,7 @@ if (!class_exists('Db')) {
             }
         }
 
+        #todo #fixme give better return
         public static function update_rows(
             $table_name, $rowVars,
             $allowEmptyWheres = false # anti-footgun
@@ -324,6 +325,7 @@ if (!class_exists('Db')) {
             }
         }
 
+        #todo #fixme give better return
         public static function update_row($table_name, $rowVars) {
             #todo - add additional checking to make sure there's a primary key
             return self::update_rows($table_name, $rowVars);

@@ -1,0 +1,5 @@
+#!/bin/sh
+echo
+echo "## TableView Tests: SpecialOps ##"
+echo
+php 001-archive.php
