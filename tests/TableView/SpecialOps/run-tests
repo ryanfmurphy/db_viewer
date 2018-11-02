@@ -2,4 +2,6 @@
 echo
 echo "## TableView Tests: SpecialOps ##"
 echo
-php 001-archive.php
+php 001-archive-works.php \
+    && php 002-archive-works-with-table-update-alias.php
+
