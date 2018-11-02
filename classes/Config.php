@@ -63,6 +63,7 @@ class Config {
             'edit',
             'minimal',
 
+            'hostname',
             'obj_editor_uri',
             'table_view_uri',
             'tree_view_uri',
@@ -413,6 +414,7 @@ class Config {
 
             # URI paths
             'uri_trunk' => $uri_trunk,
+            'hostname' => null,
             'obj_editor_uri' => "$uri_trunk/obj_editor/index.php",
             'crud_api_uri' => "$uri_trunk/obj_editor/crud_api.php",
             'table_view_uri' => "$uri_trunk/table_view/index.php",
