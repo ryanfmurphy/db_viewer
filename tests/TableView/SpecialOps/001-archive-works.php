@@ -24,6 +24,7 @@ $test_todo_id = '2c9fc972-de89-11e8-918b-8f31154fc975'; #'5140bbce-de89-11e8-89f
 $test_mev_id = 'fe47b354-3db3-11e7-bc90-3303542c2910';
 $test_row_id = $test_todo_id;
 
+# un-archive the row so we can do the test archive
 $update_result = Db::update_row($table, [
     'is_archived' => 'false', 
     'where_clauses' => [ 'id' => $test_row_id ],
@@ -31,7 +32,7 @@ $update_result = Db::update_row($table, [
 #todo #fixme get update_row to give better update_result, and test it
 
 $row = Db::get1($table, [ 'id' => $test_row_id ]);
-#echo "row before archive POST, but after initial is_archived=0 update = ".print_r($row,1);
+echo "row before archive POST, but after initial is_archived=0 update = ".print_r($row,1);
 
 assert( isset($row['is_archived']) && $row['is_archived'] == false,
         "before archive POST, row must not be archived (because we updated it)"
@@ -52,10 +53,26 @@ $result = Curl::get($archive_url,
 
 $row = Db::get1($table,
     [ 'id' => $test_row_id ]);
-#echo "row after = ".print_r($row,1);
+echo "row after = ".print_r($row,1);
 
 assert( isset($row['is_archived']) && $row['is_archived'] == true,
         "after archive POST, row must be archived"
 ) or die(1);
 echo "PASSED!\n";
 
+
+# un-archive the row again to leave it un-archived
+$update_result = Db::update_row($table, [
+    'is_archived' => 'false', 
+    'where_clauses' => [ 'id' => $test_row_id ],
+]);
+#todo #fixme get update_row to give better update_result, and test it
+
+$row = Db::get1($table, [ 'id' => $test_row_id ]);
+#echo "row before archive POST, but after initial is_archived=0 update = ".print_r($row,1);
+
+assert( isset($row['is_archived']) && $row['is_archived'] == false,
+        "after cleanup, row must not be archived"
+) or die(1);
+
+echo "row after cleanup = ".print_r($row,1);
