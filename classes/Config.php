@@ -63,6 +63,7 @@ class Config {
             'edit',
             'minimal',
 
+            'hostname',
             'obj_editor_uri',
             'table_view_uri',
             'tree_view_uri',
@@ -99,6 +100,8 @@ class Config {
             'table_view_show_count',
             'query_form_http_method',
             'entity_view_table',
+            'default_order_by',
+            'default_order_by_by_table',
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
@@ -429,6 +432,7 @@ class Config {
 
             # URI paths
             'uri_trunk' => $uri_trunk,
+            'hostname' => null,
             'obj_editor_uri' => "$uri_trunk/obj_editor/index.php",
             'crud_api_uri' => "$uri_trunk/obj_editor/crud_api.php",
             'table_view_uri' => "$uri_trunk/table_view/index.php",
@@ -458,6 +462,8 @@ class Config {
             'table_view_show_count' => false,
             'query_form_http_method' => 'post',
             'entity_view_table' => null,
+            'default_order_by' => 'time_added desc',
+            'default_order_by_by_table' => [],
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field

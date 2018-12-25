@@ -194,11 +194,23 @@
     }
 
     #top_menu {
-        font-size: 60%;
-        padding: 1em;
+        /* font-size: 60%; */
+        padding-top: 1em;
+        padding-bottom: 1em;
+    }
+    #top_menu_contents {
+        padding-left: 1em;
+        padding-right: 1em;
+    }
+    #top_menu_contents a {
+        color: yellow;
+        text-decoration: none;
+    }
+    #top_menu_contents a:hover {
+        text-decoration: underline;
     }
     #top_menu.top_menu_open {
-        background-color: #444;
+        background-color: #777;
         color: #ddd;
     }
     #top_menu h3, #top_menu h4, #top_menu h5 {
@@ -302,7 +314,7 @@
         margin-bottom: .5em;
     }
     a {
-        color: 00f;
+        color: #00f;
     }
 
     .link_nocolor {

@@ -186,22 +186,43 @@
                         }
                     } # passed in limit takes precedence
 
-                    # order_by via SimplerParser
-                    # #todo #fixme eliminate a lot of the logic above
-                    if (isset($requestVars['order_by'])) {
-                        $s = new SimpleParser();
+                    # #todo #fixme put back in place one below issues are addressed
+                    # 2 problems with this (it's close!)
+                    #   1. plasters over other manually set order by's
+                    #   2. doesn't add an order by if there wasn't one there already?
 
-                        $identifier = '["\\w]+';
-                        $identifier_list = "$identifier(?:\s*,\s*$identifier)*";
-                        $sql = $s->preg_replace_callback_parse(
-                            "@order\s*by\s*.*?(?:(?=\s*\blimit\b)|$)@",
-                            function($match) use (&$requestVars) {
-                                return "order by $requestVars[order_by]";
-                            },
-                            $sql,
-                            /*blank_out_level*/1, /*blank_out_strings*/false, /*blank_out_comments=*/true
-                        );
-                    }
+                    #{ # order_by via SimplerParser
+                    #    # #todo #fixme eliminate a lot of the logic above
+
+                    #    { # figure out $order_by
+                    #        $order_by = null;
+                    #        if (isset($requestVars['order_by'])) {
+                    #            $order_by = isset($requestVars['order_by']);
+                    #        }
+                    #        else {
+                    #            $default_order_by_by_table = Config::$config['default_order_by_by_table'];
+                    #            $order_by = (isset($default_order_by_by_table[$tablename_no_quotes])
+                    #                            ? $default_order_by_by_table[$tablename_no_quotes]
+                    #                            : Config::$config['default_order_by']);
+                    #        }
+                    #    }
+
+                    #    # inject order by clause into SQL query
+                    #    if ($order_by) {
+                    #        $s = new SimpleParser();
+
+                    #        $identifier = '["\\w]+';
+                    #        $identifier_list = "$identifier(?:\s*,\s*$identifier)*";
+                    #        $sql = $s->preg_replace_callback_parse(
+                    #            "@order\s*by\s*.*?(?:(?=\s*\blimit\b)|$)@",
+                    #            function($match) use (&$requestVars, $order_by) {
+                    #                return "order by $order_by";
+                    #            },
+                    #            $sql,
+                    #            /*blank_out_level*/1, /*blank_out_strings*/false, /*blank_out_comments=*/true
+                    #        );
+                    #    }
+                    #}
 
                 } # limit/offset/order_by_time stuff: #todo factor into fn
 
@@ -225,7 +246,44 @@
             include("$trunk/table_view/html/links_and_scripts.php");
             include("$trunk/table_view/js/table_view_util.js.php");
             include("$trunk/table_view/style.css.php");
+
+            $scale = .25;
 ?>
+        <style>
+
+<?php
+            if (!empty($_GET['iframe'])) {
+?>
+            #wrap {
+                width: 300px; height: 400px; padding: 0; overflow: hidden;
+                position: fixed;
+                top: 0;
+                right: -6em;
+            }
+            #frame { width: 800px; height: 800px; border: 1px solid black; }
+            #frame {
+                -ms-zoom: <?= $scale ?>;
+                -moz-transform: scale(<?= $scale ?>);
+                -moz-transform-origin: 0 0;
+                -o-transform: scale(<?= $scale ?>);
+                -o-transform-origin: 0 0;
+                -webkit-transform: scale(<?= $scale ?>);
+                -webkit-transform-origin: 0 0;
+            }
+<?php
+            }
+
+            if (!empty($_GET['scale_font'])) {
+                $scale_font = $_GET['scale_font'];
+?>
+            body {
+                font-size: <?= $scale_font * 100 ?>%;
+            }
+<?php
+            }
+?>
+
+        </style>
 </head>
 <?php
         }
@@ -233,6 +291,58 @@
         { # <body>
 ?>
 <body>
+<?php
+            # weird makeshift iframe for e.g. a little todo list in the corner
+            if (!empty($_GET['iframe'])) {
+?>
+    <div id="wrap">
+        <iframe id="frame" src="/db_viewer/table_view/index.php?sql=select id,name from task_stack&scale_font=3"></iframe>
+    </div>
+    <script>
+        document.body.addEventListener('keydown',
+            function(event){
+                console.log(event);
+                var KEY_I = 73;
+                if (event.which == KEY_I
+                    && event.altKey
+                ) {
+                    var iframe = document.getElementById('frame');
+                    iframe.style.display = (iframe.style.display == 'none'
+                                                ? 'initial'
+                                                : 'none');
+                }
+            }
+        );
+    </script>
+<?php
+            }
+
+            $store_queries_in_local_storage = true; #todo #fixme use config
+            if ($store_queries_in_local_storage && $sql) {
+?>
+    <script>
+        function get_sql_queries() {
+            return JSON.parse(localStorage.getItem('sql_queries'));
+        }
+
+        function save_sql_in_local_storage() {
+            var new_sql = '<?= Utility::esc_str_for_js($sql) ?>';
+            var sql_queries = get_sql_queries();
+            if (sql_queries === null) {
+                sql_queries = [];
+            }
+            console.log("sql_queries before =", sql_queries);
+            sql_queries.push(new_sql);
+            console.log("sql_queries after =", sql_queries);
+            localStorage.setItem('sql_queries', JSON.stringify(sql_queries));
+        }
+
+        save_sql_in_local_storage();
+    </script> 
+<?php
+            }
+?>
+
 <?php
             if (Config::$config['table_view_tuck_away_query_box']) {
 ?>

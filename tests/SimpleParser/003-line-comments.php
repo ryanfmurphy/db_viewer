@@ -1,11 +1,11 @@
 <?php
-include('../../SimpleParser.php');
+include('../../classes/SimpleParser.php');
 $s = new SimpleParser(['line_comment'=>'--']);
 
 $txt =
-"select \"a\",\"b\",\"c\", 'tricky /* dang */ string' as whoa -- line comment 1
+"select \"a\",\"b\",\"c\" -- line comment 1
     from (select * from table where a='hello') t -- line comment 2
-    group by \"c\" -- line comment 3";
+    -- line comment 3";
 
 echo "initially\ntxt = '$txt'\n";
 
@@ -14,9 +14,9 @@ echo "after parse(),\ntxt = '$txt'\n";
 
 assert(
     $txt ==
-'select "a","b","c", \'tricky /* dang */ string\' as whoa                  
+'select "a","b","c"                  
     from (                                   ) t                  
-    group by "c"                  ',
+                     ',
     'erases comments and clears out paren contents'
 ) or die(1);
 echo "PASSED!\n";

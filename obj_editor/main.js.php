@@ -1637,16 +1637,25 @@
     }
 
     // handles Ctrl+S Search within <input>
-    function searchWithWhereClause(table_name, input_elem) {
+    function searchWithWhereClause(table_name, input_elem, strict_wheres) {
         var url = '<?= $crud_api_uri ?>';
         var action = 'view';
-        var vars = {'action': action, 'table': table_name};
+
+        // figure out vars
+        var vars = {
+            action: action,
+            table: table_name,
+            strict_wheres: strict_wheres
+        };
         if (isInputElem(input_elem)) {
             var name = input_elem.getAttribute('name');
             var val = input_elem.value;
             vars[name] = val;
         }
+        // add vars to url
         url += '?' + obj2queryString(vars);
+
+        // visit url in new tab
         return window.open(url, '_blank');
     }
 
@@ -1662,13 +1671,19 @@
 
     // handles Ctrl+S Search within <input>
     function bodyKeypressHandler(event) {
-        var KEY_S = 115;
-        if (event.ctrlKey && event.which == KEY_S
-            //&& isInputElem(event.target)
+        var KEY_S = 115, KEY_S_UPCASE = 83;
+        if (event.ctrlKey
+            && (event.which == KEY_S
+                || event.which == KEY_S_UPCASE
+               )
         ) {
             var table_name = getTableName();
             var input_elem = event.target;
-            return searchWithWhereClause(table_name, input_elem);
+
+            // strict vs loose search?
+            var strict_wheres = (event.which == KEY_S_UPCASE);
+
+            return searchWithWhereClause(table_name, input_elem, strict_wheres);
         }
     }
 

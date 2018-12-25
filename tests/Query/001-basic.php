@@ -1,5 +1,5 @@
 <?php
-    include('../../Query.php');
+    include('../../classes/Query.php');
 
 
     $q = new Query('select * from note');
