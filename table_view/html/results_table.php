@@ -98,6 +98,38 @@
     </tr>
 <?php
             }
+
+            function numTableCols(&$rows, $has_primary_key_field, $num_action_columns) {
+                $row = current($rows);
+                $currentRow = TableView::prep_row($row);
+                
+                $has_checkbox = $has_primary_key_field
+                                && Config::$config['table_view_checkboxes'];
+                $has_edit_column = $has_primary_key_field;
+
+                $has_delete_column = Config::$config['include_row_delete_button']
+                                     && $has_edit_column;
+                $has_tree_column =  Config::$config['include_row_tree_button']
+                                    && $has_edit_column;
+
+                $num_cols = count($currentRow) + $num_action_columns;
+                if ($has_checkbox) { $num_cols++; }
+                if ($has_edit_column) { $num_cols++; }
+                if ($has_delete_column) { $num_cols++; }
+                if ($has_tree_column) { $num_cols++; }
+
+                return $num_cols;
+            }
+
+            function dateHeaderRow(&$rows, $date, $has_primary_key_field, $num_action_columns) {
+?>
+    <tr>
+        <td colspan="<?= numTableCols($rows, $has_primary_key_field, $num_action_columns) ?>">
+            <h3><?= $date ?></h3>
+        </td>
+    </tr>
+<?php
+            }
         }
 
         { # table
@@ -136,7 +168,7 @@
                     #todo will/does obj_editor accept "schema.table" format?
 
                     $rowN = 0;
-                    $last_row_time_added = null; # for bold_border_between_days
+                    $last_row_date = null; # for date_header_between_days
                     foreach ($rows as $row) {
                         if ($filter_private_rows) {
                             $this_row_is_private =
@@ -163,8 +195,7 @@
                             }
                         }
 
-                        { # create bold border between weeks (using "weekday" field)
-
+                        { # bold border between weeks
                             # assuming: weekday field that uses "Mon" "Tue" etc. formatting
                             # and ordering desc by time so that the border between Sat and Sun
                             # would be above Sat
@@ -177,19 +208,20 @@
                             ) {
                                 $bold_border_above = true;
                             }
+                        }
 
-                            #todo #fixme require order by time_added or this doesn't make sense
-                            if ($bold_border_between_days
+                        { # date header between days
+                            if ($date_header_between_days
                                 && isset($row['time_added'])
                             ) {
-                                if ($last_row_time_added
-                                    && date('Y-m-d', strtotime($last_row_time_added))
-                                        != date('Y-m-d', strtotime($row['time_added']))
+                                $row_date = date('D M j, Y', strtotime($row['time_added'])); # e.g. Sun Dec 2, 2018
+                                if ($last_row_date
+                                    && $last_row_date != $row_date
                                     && TableView::query_is_order_by_field($sql, 'time_added')
                                 ) {
-                                    $bold_border_above = true;
+                                    dateHeaderRow($rows, $row_date, $has_primary_key_field, $num_action_columns);
                                 }
-                                $last_row_time_added = $row['time_added']; # for next time
+                                $last_row_date = $row_date; # for next time
                             }
                         }
 

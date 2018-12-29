@@ -120,7 +120,7 @@ class Config {
             'show_private_rows', # only does anything if it's false and is_private_field is set
 
             'bold_border_between_weeks',
-            'bold_border_between_days',
+            'date_header_between_days',
 
             # for tables/views that aren't directly updatable
             # you can give them a different table/view to update instead
@@ -465,7 +465,7 @@ class Config {
             'show_private_rows' => true, # only does anything if it's false and is_private_field is set
 
             'bold_border_between_weeks' => false,
-            'bold_border_between_days' => false,
+            'date_header_between_days' => false,
 
             # for tables/views that aren't directly updatable
             # you can give them a different table/view to update instead
