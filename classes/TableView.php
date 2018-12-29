@@ -119,6 +119,13 @@
                 $val = nl2br($val); # show newlines as <br>'s
                 $val = Wikiness::replace_objlinks($val, $fieldname);
 
+                # optional char cutoff
+                if (Config::$config['table_view_text_max_len']
+                    && strlen($val) > Config::$config['table_view_text_max_len']
+                ) {
+                    $val = substr($val, 0, Config::$config['table_view_text_max_len']) . '...';
+                }
+
                 { # get bigger column width for longform text fields
                     #todo factor this logic in the 2 places we have it
                     # (here and in obj_editor)

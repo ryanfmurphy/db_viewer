@@ -102,6 +102,8 @@ class Config {
             'entity_view_table',
             'default_order_by',
             'default_order_by_by_table',
+            'table_view_text_max_len', # if a positive number, cut off text fields with ... after that many chars
+
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
@@ -118,7 +120,7 @@ class Config {
             'show_private_rows', # only does anything if it's false and is_private_field is set
 
             'bold_border_between_weeks',
-            'bold_border_between_days',
+            'date_header_between_days',
 
             # for tables/views that aren't directly updatable
             # you can give them a different table/view to update instead
@@ -464,6 +466,7 @@ class Config {
             'entity_view_table' => null,
             'default_order_by' => 'time_added desc',
             'default_order_by_by_table' => [],
+            'table_view_text_max_len' => null, # if a positive number, cut off text fields with ... after that many chars
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
@@ -480,7 +483,7 @@ class Config {
             'show_private_rows' => true, # only does anything if it's false and is_private_field is set
 
             'bold_border_between_weeks' => false,
-            'bold_border_between_days' => false,
+            'date_header_between_days' => false,
 
             # for tables/views that aren't directly updatable
             # you can give them a different table/view to update instead
