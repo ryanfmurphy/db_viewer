@@ -102,6 +102,8 @@ class Config {
             'entity_view_table',
             'default_order_by',
             'default_order_by_by_table',
+            'table_view_text_max_len', # if a positive number, cut off text fields with ... after that many chars
+
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
@@ -446,6 +448,7 @@ class Config {
             'entity_view_table' => null,
             'default_order_by' => 'time_added desc',
             'default_order_by_by_table' => [],
+            'table_view_text_max_len' => null, # if a positive number, cut off text fields with ... after that many chars
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
