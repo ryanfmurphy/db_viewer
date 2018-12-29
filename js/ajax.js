@@ -1,7 +1,6 @@
 
     // serializes a js object into a query string
     function obj2queryString(data) {
-        console.log('obj2queryString: data=',data);
         { // vars
             var pairs = [];
 
@@ -10,26 +9,20 @@
 
                 if (encode_key === undefined) encode_key = true;
 
-                console.log('addPair key',key,'value',value);
                 var scalar = false;
                 if (value === null) {
                     scalar = true;
                 }
                 else if (typeof value === 'array') {
-                    console.log('  ahh an array');
                     for (var i=0; i<value.length; i++) {
                         var full_key = key + '[' + i + ']';
-                        console.log('    full_key',full_key,'value',value[i]);
                         addPair(full_key, value[i]);
                     }
                 }
                 else if (typeof value === 'object') {
-                    console.log('  ahh an obj');
                     for (var k in value) {
                         if (value.hasOwnProperty(k)) {
-                            console.log('    k',k);
                             var full_key = key + '[' + encodeURIComponent(k) + ']';
-                            console.log('    full_key',full_key,'value',value[k]);
                             addPair(full_key, value[k], false);
                         }
                     }
@@ -39,7 +32,6 @@
                 }
 
                 if (scalar) {
-                    console.log('  a plain pair');
                     // Q. is this better/worse than pairs.push()?
                     pairs[ pairs.length ] =
                         encodeURIComponent( key ) + "=" +
@@ -58,9 +50,7 @@
         }
 
         { // Return the resulting serialization
-            console.log('joining pairs, pairs=',pairs);
             var join_str = pairs.join( "&" );
-            console.log('  join_str',join_str);
             return join_str;
         }
     }
