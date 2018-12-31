@@ -115,8 +115,13 @@
             }
             # default quoting / handling of val / possibly objlinks
             else {
+                $long_text_field = in_array($fieldname, Config::$config['fields_to_make_textarea']);
+                $do_markdown = $long_text_field && Config::$config['table_view_render_txt_as_markdown'];
+
                 $val = htmlentities($val);
-                $val = nl2br($val); # show newlines as <br>'s
+                if (!$do_markdown) {
+                    $val = nl2br($val); # show newlines as <br>'s
+                }
                 $val = Wikiness::replace_objlinks($val, $fieldname);
 
                 # optional char cutoff
@@ -126,16 +131,21 @@
                     $val = substr($val, 0, Config::$config['table_view_text_max_len']) . '...';
                 }
 
-                { # get bigger column width for longform text fields
-                    if (in_array($fieldname, Config::$config['fields_to_make_textarea'])) {
-                        ob_start();
+                if ($long_text_field) {
+
+                    # longform text fields may be parsed/rendered as Markdown
+                    if ($do_markdown) {
+                        $val = Michelf\Markdown::defaultTransform($val);
+                    }
+
+                    # longform text fields get bigger column width
+                    ob_start();
 ?>
                         <div class="wide_col">
                             <?= $val ?>
                         </div>
 <?php
-                        return ob_get_clean();
-                    }
+                    return ob_get_clean();
                 }
 
                 return $val;
