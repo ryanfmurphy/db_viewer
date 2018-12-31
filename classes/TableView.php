@@ -118,6 +118,11 @@
                 $long_text_field = in_array($fieldname, Config::$config['fields_to_make_textarea']);
                 $do_markdown = $long_text_field && Config::$config['table_view_render_txt_as_markdown'];
 
+                # avoid markdown going into italics on <this_type_of_var>
+                if ($do_markdown && Config::$config['angle_bracket_vars_in_txt']) {
+                    $val = preg_replace('/<([\w \.]+)>/', '<`\1`>', $val);
+                }
+
                 $val = htmlentities($val);
                 if (!$do_markdown) {
                     $val = nl2br($val); # show newlines as <br>'s

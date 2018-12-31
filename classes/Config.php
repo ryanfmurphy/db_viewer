@@ -303,6 +303,10 @@ class Config {
             'url_field_links', # e.g. links at top of object editor
             'obj_editor_show_notes', # list any notes on this obj
             'obj_editor_note_table', # which table to draw from to show notes
+
+            # If <person> wishes to have <this_type_of_var> in their text,
+            # they may wish to set this to true, especially if using Markdown too
+            'angle_bracket_vars_in_txt',
         );
 
         $config = compact($config_vars);
@@ -649,6 +653,10 @@ class Config {
             'url_field_links' => array('URL' => 'url'),
             'obj_editor_show_notes' => false, # list any note on this obj
             'obj_editor_note_table' => 'entity', # which table to draw from to show notes
+
+            # If <person> wishes to have <this_type_of_var> in their text,
+            # they may wish to set this to true, especially if using Markdown too
+            'angle_bracket_vars_in_txt' => false,
         );
 
         return $default_values;
