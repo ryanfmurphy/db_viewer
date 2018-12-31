@@ -312,6 +312,21 @@
 <?php
                     }
                 }
+                # for list of parent nodes, optionally link to each parent's table_view
+                elseif (Config::$config['table_view_parent_ids_links']
+                        && $fieldname == Config::$config['default_parent_field']
+                        && $entity_view_table #todo may not want/need to depend on this if we can get the specific table
+                ) {
+                    foreach ($array as $val) {
+?>
+            <li>
+                <a href="?sql=select * from <?= $entity_view_table ?> where id = '<?= $val ?>'" target="_blank">
+                    <?= htmlentities($val) ?>
+                </a>
+            </li>
+<?php
+                    }
+                }
                 else {
                     foreach ($array as $val) {
 ?>

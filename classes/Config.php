@@ -103,6 +103,7 @@ class Config {
             'default_order_by',
             'default_order_by_by_table',
             'table_view_text_max_len', # if a positive number, cut off text fields with ... after that many chars
+            'table_view_parent_ids_links',
 
 
             # archive / soft delete
@@ -449,6 +450,7 @@ class Config {
             'default_order_by' => 'time_added desc',
             'default_order_by_by_table' => [],
             'table_view_text_max_len' => null, # if a positive number, cut off text fields with ... after that many chars
+            'table_view_parent_ids_links' => false, # if default_parent_field is an array type, make the parent items links in table_view
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
