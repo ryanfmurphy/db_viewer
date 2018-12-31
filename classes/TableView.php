@@ -127,9 +127,7 @@
                 }
 
                 { # get bigger column width for longform text fields
-                    #todo factor this logic in the 2 places we have it
-                    # (here and in obj_editor)
-                    if ($fieldname == 'txt' || $fieldname == 'src') {
+                    if (in_array($fieldname, Config::$config['fields_to_make_textarea'])) {
                         ob_start();
 ?>
                         <div class="wide_col">
