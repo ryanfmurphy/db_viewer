@@ -102,8 +102,12 @@ class Config {
             'entity_view_table',
             'default_order_by',
             'default_order_by_by_table',
-            'table_view_text_max_len', # if a positive number, cut off text fields with ... after that many chars
+            # if a positive number, cut off text fields with ... after that many chars
+            'table_view_text_max_len',
+            # if default_parent_field is type array, make parent items links
             'table_view_parent_ids_links',
+            # if true, longform txt fields will get rendered as Markdown
+            'table_view_render_txt_as_markdown',
 
 
             # archive / soft delete
@@ -449,8 +453,12 @@ class Config {
             'entity_view_table' => null,
             'default_order_by' => 'time_added desc',
             'default_order_by_by_table' => [],
-            'table_view_text_max_len' => null, # if a positive number, cut off text fields with ... after that many chars
-            'table_view_parent_ids_links' => false, # if default_parent_field is an array type, make the parent items links in table_view
+            # if a positive number, cut off text fields with ... after that many chars
+            'table_view_text_max_len' => null,
+            # if default_parent_field is type array, make parent items links
+            'table_view_parent_ids_links' => false,
+            # if true, longform txt fields will get rendered as Markdown
+            'table_view_render_txt_as_markdown' => false,
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
