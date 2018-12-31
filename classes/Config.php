@@ -102,7 +102,12 @@ class Config {
             'entity_view_table',
             'default_order_by',
             'default_order_by_by_table',
-            'table_view_text_max_len', # if a positive number, cut off text fields with ... after that many chars
+            # if a positive number, cut off text fields with ... after that many chars
+            'table_view_text_max_len',
+            # if default_parent_field is type array, make parent items links
+            'table_view_parent_ids_links',
+            # if true, longform txt fields will get rendered as Markdown
+            'table_view_render_txt_as_markdown',
 
 
             # archive / soft delete
@@ -308,14 +313,16 @@ class Config {
             'obj_editor_show_notes', # list any notes on this obj
             'obj_editor_note_table', # which table to draw from to show notes
 
-
-
             # optional variables to fill and pass out from the Config - SD
             'boards_to_show',
             'board_options',
             'checked_boards',
             'pri_cond', # e.g. ">= 3"
             'size_cond', # e.g. ">= 3"
+
+            # If <person> wishes to have <this_type_of_var> in their text,
+            # they may wish to set this to true, especially if using Markdown too
+            'angle_bracket_vars_in_txt',
         );
 
         $config = compact($config_vars);
@@ -466,7 +473,12 @@ class Config {
             'entity_view_table' => null,
             'default_order_by' => 'time_added desc',
             'default_order_by_by_table' => [],
-            'table_view_text_max_len' => null, # if a positive number, cut off text fields with ... after that many chars
+            # if a positive number, cut off text fields with ... after that many chars
+            'table_view_text_max_len' => null,
+            # if default_parent_field is type array, make parent items links
+            'table_view_parent_ids_links' => false,
+            # if true, longform txt fields will get rendered as Markdown
+            'table_view_render_txt_as_markdown' => false,
 
             # archive / soft delete
                 # designate a field as the universal "is_archived" field
@@ -673,6 +685,10 @@ class Config {
             'checked_boards' => null,
             'pri_cond' => null,
             'size_cond' => null,
+
+            # If <person> wishes to have <this_type_of_var> in their text,
+            # they may wish to set this to true, especially if using Markdown too
+            'angle_bracket_vars_in_txt' => false,
         );
 
         return $default_values;

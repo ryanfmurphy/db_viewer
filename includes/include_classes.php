@@ -14,4 +14,9 @@
     require_once("$trunk/classes/Curl.php");
     require_once("$trunk/classes/Note.php");
     require_once("$trunk/classes/Query.php");
+
+    if (Config::$config['table_view_render_txt_as_markdown']) {
+        require_once("$trunk/classes/lib/PHP-Markdown-Lib/Michelf/Markdown.inc.php");
+    }
+
 ?>

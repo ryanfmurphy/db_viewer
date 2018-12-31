@@ -115,8 +115,18 @@
             }
             # default quoting / handling of val / possibly objlinks
             else {
+                $long_text_field = in_array($fieldname, Config::$config['fields_to_make_textarea']);
+                $do_markdown = $long_text_field && Config::$config['table_view_render_txt_as_markdown'];
+
+                # avoid markdown going into italics on <this_type_of_var>
+                if ($do_markdown && Config::$config['angle_bracket_vars_in_txt']) {
+                    $val = preg_replace('/<([\w \.]+)>/', '<`\1`>', $val);
+                }
+
                 $val = htmlentities($val);
-                $val = nl2br($val); # show newlines as <br>'s
+                if (!$do_markdown) {
+                    $val = nl2br($val); # show newlines as <br>'s
+                }
                 $val = Wikiness::replace_objlinks($val, $fieldname);
 
                 # optional char cutoff
@@ -126,18 +136,21 @@
                     $val = substr($val, 0, Config::$config['table_view_text_max_len']) . '...';
                 }
 
-                { # get bigger column width for longform text fields
-                    #todo factor this logic in the 2 places we have it
-                    # (here and in obj_editor)
-                    if ($fieldname == 'txt' || $fieldname == 'src') {
-                        ob_start();
+                if ($long_text_field) {
+
+                    # longform text fields may be parsed/rendered as Markdown
+                    if ($do_markdown) {
+                        $val = Michelf\Markdown::defaultTransform($val);
+                    }
+
+                    # longform text fields get bigger column width
+                    ob_start();
 ?>
                         <div class="wide_col">
                             <?= $val ?>
                         </div>
 <?php
-                        return ob_get_clean();
-                    }
+                    return ob_get_clean();
                 }
 
                 return $val;
@@ -306,6 +319,21 @@
 ?>
             <li>
                 <a href="?sql=select * from <?= $entity_view_table ?> where tags @> array[<?= Db::sql_literal($val) ?>]" target="_blank">
+                    <?= htmlentities($val) ?>
+                </a>
+            </li>
+<?php
+                    }
+                }
+                # for list of parent nodes, optionally link to each parent's table_view
+                elseif (Config::$config['table_view_parent_ids_links']
+                        && $fieldname == Config::$config['default_parent_field']
+                        && $entity_view_table #todo may not want/need to depend on this if we can get the specific table
+                ) {
+                    foreach ($array as $val) {
+?>
+            <li>
+                <a href="?sql=select * from <?= $entity_view_table ?> where id = '<?= $val ?>'" target="_blank">
                     <?= htmlentities($val) ?>
                 </a>
             </li>
