@@ -1,15 +1,7 @@
 /error_log
 */error_log
-/db_config.php
-/db_config.php.bak
-custom_css.php
 *.swp
-/plugins/*
-/doc_template/views/*
-/rec
-/asciinema
-/log/error_log
-/log/tree_log
+/.asciinema
 /master2extras.sh
 /db_viewer.toolbox
 /spec.tla
