@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<!--
+    DB Viewer - database table view with inline dynamic joins
+    =========================================================
+    Copyright (c) 2016 Ryan Murphy
+
+    This program provides a web interface
+    for a SQL Database, allowing you to type in queries and view
+    the results in a table format.  You can hide/show rows and
+    columns, and click on key fields to join in data from new
+    tables.
+
+
+    Summary of This File
+    --------------------
+    * run a sql query
+    * build an html table to display the results
+    * javascript to allow splicing in join data from other tables
+    
+    Caveats
+    --------
+    * may have to set max_input_vars in php.ini for large views
+        because column vals[] sent in POST as array - sometimes hits max
+
+    * names / text fields can be used to join, but they must match exactly,
+        even if the varchar is collated as case insensitive
+-->
+
+<!--
+    Giant list of dynamic stuff we don't have yet in the pure HTML/JS client:
+
+    * #todo include jquery? if we need it
+    * #todo implement Macros if necessary (see /php/table_view/ client)
+    * query
+        * get sql from get/post vars - don't forget to replace \r\n with \n if needed
+        * order by time logic, limit, offset, etc
+        * expand_tablename_into_query if applicable
+        * disallow_destructive_queries if applicable
+        * infer_table_from_query
+        * get the minimal_fields if applicable
+    * anything needed from php/table_view/js/table_view_util.js.php?
+    * need to move style.css.php -> style.css and include here?
+-->
+<?php
+        { # <head> (including js)
+                $page_title = $tablename_no_quotes
+                                    ? "-$tablename_no_quotes-"
+                                    : "DB Viewer"
+?>
+<head>
+        <title>-table-</title> <!-- TODO fill in table -->
+            <!-- TODO links_and_scripts component goes here -->
+            <!-- TODO could have <link> for style.css here -->
+<?php
+            include("$trunk/table_view/html/links_and_scripts.php");
+            include("$trunk/table_view/js/table_view_util.js.php");
+            include("$trunk/table_view/style.css.php");
+
+            $scale = .25;
+?>
+        <!-- #todo implement "iframe" feature if necessary -->
+</head>
+<body>
+    <script>
+        // TODO - does "store_queries_in_local_storage" feature need to be enabled/disable via config var?
+        function get_sql_queries() {
+            return JSON.parse(localStorage.getItem('sql_queries'));
+        }
+
+        function save_sql_in_local_storage() {
+            var new_sql = '<?= Utility::esc_str_for_js($sql) ?>';
+            var sql_queries = get_sql_queries();
+            if (sql_queries === null) {
+                sql_queries = [];
+            }
+            console.log("sql_queries before =", sql_queries);
+            sql_queries.push(new_sql);
+            console.log("sql_queries after =", sql_queries);
+            localStorage.setItem('sql_queries', JSON.stringify(sql_queries));
+        }
+
+        save_sql_in_local_storage();
+    </script> 
+
+    <!-- table_view_tuck_away_query_box -->
+    <p>
+        <span   id="click_to_enter_query"
+                onclick="$('#query_form_details').show(); $(this).hide()"
+        >
+            Click to Enter Query
+        </span>
+    </p>
+    <div id="query_form_details">
+        <!-- TODO top_menu goes here -->
+        <!-- TODO query_form goes here -->
+    </div>
+
+    <!-- TODO only show if there's an inferred_table or a sql -->
+    <div id="query_info">
+        <div id="inferred_table_info">
+            Query seems to be with respect to the
+            <code>TODO populate inferred_table</code> table.
+
+            <!-- TODO fill out url -->
+            <a href="[obj_editor_uri]?table=[tablename_no_quotes + maybe_minimal]"
+                 target="_blank"
+            >
+                Create a new <code>TODO fill in tablename_no_quotes</code>
+            </a>
+        </div>
+
+        <!-- TODO actually get SQL somehow -->
+        <!-- TODO maybe only show if table_view_show_count config set? -->
+        <div id="row_count">
+            Showing <?= count($rows) ?> Rows
+        </div>
+    </div>
+
+<script>
+//<?php
+//            { # get & display query data (& provide js interface)
+//
+//                if ($sql) {
+//                    include("$trunk/table_view/html/results_table.php"); # html
+//                }
+//
+//                include("$trunk/table_view/js/table_view.js.php"); # js
+//
+//                { # js to show even if there's no query in play
+//?>
+//<script>
+//
+//    function queryBoxElem() {
+//        return document.getElementById('query-box');
+//    }
+//
+//</s cript>
+//<?php
+//                }
+//            }
+//?>
+//
+//    <!-- init popup menu -->
+//    <div class="popr-box" data-box-id="1">
+//        <div class="popr-item">example</div>
+//        <div class="popr-item">popup</div>
+//        <div class="popr-item">data</div>
+//        <div class="popr-item">(will be dynamically overridden)</div>
+//    </div>
+//
+//    <script>
+//        // #todo #fixme maybe move to js file?
+//
+//        $(document).ready(function() {
+//            $('.popr').popr();
+//
+//            // on click popup item
+//            $(document).on('click', '.popr-item', function(e){
+//                var elem = lastClickedElem;
+//                var popupItemElem = e.target;
+//                // #todo #fixme pass this more explicitly instead of using global var
+//                backlinkJoinTable = popupItemElem.innerHTML.trim();
+//                openBacklinkedJoin(elem);
+//            });
+//
+//            // keypress:
+//            // textarea ctrl-enter submit
+//            // and show_hide_mode toggle
+//            $(document).on('keypress', 'body', function(e){
+//                var focusedElem = document.activeElement;
+//                // textarea ctrl-enter submit
+//                if (queryBoxElem() === focusedElem) { // Ctrl-Enter
+//                    var Enter_code = 13;
+//                    var UNIX_Enter_code = 10;
+//                    if (e.ctrlKey
+//                        && (e.which == Enter_code
+//                            || e.which == UNIX_Enter_code)
+//                    ) {
+//                        $('#query_form').submit();
+//                    }
+//                }
+//                else if (focusedElem === document.getElementById('save_macro_input')) {
+//                    // don't interrupt typing in input for Show/Hide mode
+//                }
+//                // show_hide_mode toggle
+//                else {
+//                    var H_code = 104;
+//                    if (e.which == H_code) {
+//                        show_hide_mode = 1 - show_hide_mode;
+//                        if (show_hide_mode) {
+//                            alert('\
+//Show/Hide Mode Enabled:\n\
+//\n\
+//Click a column to hide it, shift-click to reveal it again.\n\
+//Alt-Click a row to hide it, alt-shift-click to reveal it again.\n\
+//Press H again to disable.\
+//');
+//                        }
+//                        else {
+//                            alert('Show/Hide Mode Disabled');
+//                        }
+//                    }
+//                }
+//            });
+//        });
+//    </s cript>
+//</body>
+//<?php
+//        } # <body>
+//?>
+//</html>
+//<?php
+//    }
+//?>
+</script>
