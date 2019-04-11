@@ -1,0 +1,9 @@
+#!/bin/sh
+echo
+echo "Grammar Tests"
+echo "============="
+echo
+php 001-grammar.php \
+&& php 002-silly-sql.php \
+&& php 003-towards-terminals.php \
+&& php 004-nonterminals-and-braces.php
